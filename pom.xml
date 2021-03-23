@@ -123,6 +123,7 @@
             </releases>
         </pluginRepository>
     </pluginRepositories>
+
     <build>
 
         <!-- Resource Copying -->
