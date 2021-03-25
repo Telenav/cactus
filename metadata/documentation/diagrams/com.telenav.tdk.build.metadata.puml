@@ -1,0 +1,30 @@
+@startuml
+
+    !include ../lexakai.theme
+    
+    title "com.telenav.tdk.build.metadata"
+    
+    class BuildName
+    {
+    }
+    
+    Metadata --> Map : "creates"
+    class Metadata
+    {
+        --
+        +void main(String[] arguments)
+        --(collection)--
+        +Map<String,String> buildProperties()
+        +Map<String,String> projectProperties()
+        --(metadata)--
+        +Metadata of(Class<?> projectType)
+    }
+    
+    enum Metadata.Type
+    {
+        CURRENT
+        PROJECT
+    }
+    
+@enduml
+
