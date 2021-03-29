@@ -1,21 +1,19 @@
-# TDK Tools Applications - Lexakai &nbsp;&nbsp;![](documentation/images/gears-40.png)
+# tdk-build &nbsp;&nbsp;![](documentation/images/configuration-40.png)
 
-This project index was created by Lexakai. To configure, see [project-home-folder]/documentation/lexakai.properties.
+This module contains tools for building TDK modules and user applications.
 
 ![](documentation/images/horizontal-line.png)
 
 [//]: # (start-user-text)
 
 
-
 [//]: # (end-user-text)
 
 ### Projects &nbsp; ![](documentation/images/gears-40.png)
 
-[**metadata**](metadata/README.md)  
+[**metadata**](metadata/README.md)
 
 [//]: # (start-user-text)
-
 
 
 [//]: # (end-user-text)

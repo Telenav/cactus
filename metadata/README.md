@@ -1,12 +1,10 @@
-# TDK Tools Applications - Lexakai &nbsp;&nbsp;![](documentation/images/gears-48.png)
+# tdk-build-metadata &nbsp;&nbsp;![](documentation/images/tag-40.png)
 
-This project documentation index was created by Lexakai. To configure, see  
-[project-home-folder]/documentation/lexakai.properties.
+This module saves and loads build metadata to build.properties.
 
 ![](documentation/images/horizontal-line.png)
 
 ### Index
-
 
 [**Dependencies**](#dependencies)  
 [**Class Diagrams**](#class-diagrams)  
@@ -18,7 +16,6 @@ This project documentation index was created by Lexakai. To configure, see
 [//]: # (start-user-text)
 
 
-
 [//]: # (end-user-text)
 
 ### Dependencies <a name="dependencies"></a> &nbsp;&nbsp;  ![](documentation/images/dependencies-40.png)
@@ -26,8 +23,8 @@ This project documentation index was created by Lexakai. To configure, see
 [*Dependency Diagram*](documentation/diagrams/dependencies.svg)
 
     <dependency>
-        <groupId>com.telenav.tdk.tools</groupId>
-        <artifactId>com.telenav.tdk.tools-applications-lexakai</artifactId>
+        <groupId>com.telenav.tdk.build</groupId>
+        <artifactId>com.telenav.tdk.build</artifactId>
         <version>8.1.1-SNAPSHOT</version>
     </dependency>
 
@@ -37,7 +34,7 @@ None
 
 ### Package Diagrams <a name="package-diagrams"></a> &nbsp;&nbsp;![](documentation/images/box-40.png)
 
-[*com.telenav.tdk.build.metadata*](documentation/diagrams/com.telenav.tdk.build.metadata.svg)  
+[*com.telenav.tdk.build.metadata*](documentation/diagrams/com.telenav.tdk.build.metadata.svg)
 
 ### Javadoc <a name="javadoc"></a> &nbsp;&nbsp;![](documentation/images/books-40.png)
 
@@ -48,7 +45,6 @@ None
 | [*Metadata.Type*]([javadoc base url here]/com/telenav/tdk/build/metadata/Metadata.Type.html) |  |  
 
 [//]: # (start-user-text)
-
 
 
 [//]: # (end-user-text)
