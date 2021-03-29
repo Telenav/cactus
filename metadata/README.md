@@ -25,8 +25,8 @@ This module saves and loads build metadata to build.properties.
 [*Dependency Diagram*](documentation/diagrams/dependencies.svg)
 
     <dependency>
-        <groupId>com.telenav.tdk.core</groupId>
-        <artifactId>com.telenav.tdk.core-resource</artifactId>
+        <groupId>com.telenav.tdk.build</groupId>
+        <artifactId>com.telenav.tdk.build-metadata</artifactId>
         <version>8.1.1-SNAPSHOT</version>
     </dependency>
 
