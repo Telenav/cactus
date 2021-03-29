@@ -1,0 +1,9 @@
+@startuml
+
+    !include ../lexakai.theme
+    
+    title "com.telenav.tdk.build-metadata"
+    
+    artifact com_telenav_tdk_build_metadata
+    
+@enduml
