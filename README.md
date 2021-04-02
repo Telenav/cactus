@@ -20,7 +20,7 @@ This module contains tools for building [KivaKit](https://github.com/Telenav/kiv
 
 ### Summary
 
-This project is used in building [KivaKit](https://github.com/Telenav/kivakit). It can also be used for the same purpose  
+This module is used in building [KivaKit](https://github.com/Telenav/kivakit). It can also be used for the same purpose  
 in building user applications. It saves and loads build metadata to *build.properties*:
 
     build-date = 2021.04.01  
