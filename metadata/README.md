@@ -1,4 +1,4 @@
-# kivakit-build-metadata &nbsp;&nbsp;![](documentation/images/tag-40.png)
+# kivakit-build-metadata &nbsp;&nbsp;![](documentation/images/kivakit-64.png)
 
 This module saves and loads build metadata to *build.properties*.
 
@@ -42,9 +42,9 @@ None
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildName*](https://telenav.github.io/kivakit-build/javadoc/com/telenav/kivakit/build/metadata/BuildName.html) |  |  
-| [*Metadata*](https://telenav.github.io/kivakit-build/javadoc/com/telenav/kivakit/build/metadata/Metadata.html) |  |  
-| [*Metadata.Type*](https://telenav.github.io/kivakit-build/javadoc/com/telenav/kivakit/build/metadata/Metadata.Type.html) |  |  
+| [*BuildName*](https://telenav.github.io/kivakit-build/javadoc/kivakit.build.metadata/com/telenav/kivakit/build/metadata/BuildName.html) |  |  
+| [*Metadata*](https://telenav.github.io/kivakit-build/javadoc/kivakit.build.metadata/com/telenav/kivakit/build/metadata/Metadata.html) |  |  
+| [*Metadata.Type*](https://telenav.github.io/kivakit-build/javadoc/kivakit.build.metadata/com/telenav/kivakit/build/metadata/Metadata.Type.html) |  |  
 
 [//]: # (start-user-text)
 
