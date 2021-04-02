@@ -9,15 +9,15 @@
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>com.telenav.kivakit.build</groupId>
-        <artifactId>com.telenav.kivakit.build</artifactId>
+        <groupId>com.telenav.kivakit</groupId>
+        <artifactId>kivakit-build</artifactId>
         <version>0.9.0</version>
     </parent>
 
     <name>KivaKit Build - Metadata</name>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>com.telenav.kivakit.build-metadata</artifactId>
+    <artifactId>build-metadata</artifactId>
     <packaging>jar</packaging>
 
     <build>
