@@ -1,19 +1,21 @@
-# kivakit-build &nbsp;&nbsp;![](documentation/images/kivakit-64.png)
+# kivakit-build &nbsp;&nbsp;![](documentation/images/tools-40.png)
 
-This repository contains tools for building KivaKit modules and user applications.
+This module contains tools for building KivaKit modules and user applications.
 
 ![](documentation/images/horizontal-line.png)
 
 [//]: # (start-user-text)
 
 
+
 [//]: # (end-user-text)
 
 ### Projects &nbsp; ![](documentation/images/gears-40.png)
 
-[**metadata**](metadata/README.md)
+[**metadata**](metadata/README.md)  
 
 [//]: # (start-user-text)
+
 
 
 [//]: # (end-user-text)

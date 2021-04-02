@@ -178,6 +178,8 @@
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
+                        <reportOutputDirectory>docs</reportOutputDirectory>
+                        <destDir>javadoc</destDir>
                         <additionalOptions>--show-module-contents all --show-packages all --show-types private</additionalOptions>
                     </configuration>
                     <executions>

@@ -2,8 +2,8 @@
 
     !include ../lexakai.theme
     
-    title "com.telenav.kivakit.build-metadata"
+    title "kivakit-build-metadata"
     
-    artifact com_telenav_kivakit_build_metadata
+    artifact kivakit_build_metadata
     
 @enduml

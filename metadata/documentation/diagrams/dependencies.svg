@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="104.1667px" preserveAspectRatio="none" style="width:392px;height:104px;background:#333333;" version="1.1" viewBox="0 0 392 104" width="392.7083px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="380.2083" x="2.0833" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="357.2917" x="13.5417" y="30.5583">com.telenav.kivakit.build-metadata</text><!--MD5=[532cc6c87aec9d9a09969092be24bfd3]
-entity com_telenav_kivakit_build_metadata--><rect fill="#1B1B1A" height="44.93" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.5625;" width="256.25" x="64.5833" y="53.7028"/><polygon fill="#1B1B1A" points="303.125,58.9111,303.125,73.4945,315.625,73.4945,315.625,65.1611,309.375,58.9111,303.125,58.9111" style="stroke:#5E5E5E;stroke-width:1.5625;"/><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="309.375" x2="309.375" y1="58.9111" y2="65.1611"/><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="315.625" x2="309.375" y1="65.1611" y2="65.1611"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" lengthAdjust="spacing" textLength="218.75" x="78.125" y="82.4544">com_telenav_kivakit_build_metadata</text><!--MD5=[a4e3b7b222dbf8bdd3a73714bb8ad623]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="104.1667px" preserveAspectRatio="none" style="width:272px;height:104px;background:#333333;" version="1.1" viewBox="0 0 272 104" width="272.9167px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="260.4167" x="2.0833" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="237.5" x="13.5417" y="30.5583">kivakit-build-metadata</text><!--MD5=[d9521c76c2842dca8b8a8d137addb4db]
+entity kivakit_build_metadata--><rect fill="#1B1B1A" height="44.93" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.5625;" width="176.0417" x="44.7917" y="53.7028"/><polygon fill="#1B1B1A" points="203.125,58.9111,203.125,73.4945,215.625,73.4945,215.625,65.1611,209.375,58.9111,203.125,58.9111" style="stroke:#5E5E5E;stroke-width:1.5625;"/><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="209.375" x2="209.375" y1="58.9111" y2="65.1611"/><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="215.625" x2="209.375" y1="65.1611" y2="65.1611"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" lengthAdjust="spacing" textLength="138.5417" x="58.3333" y="82.4544">kivakit_build_metadata</text><!--MD5=[80490074bce78953a2377c0b716e2d0c]
 @startuml
 
     !include ../lexakai.theme
     
-    title "com.telenav.kivakit.build-metadata"
+    title "kivakit-build-metadata"
     
-    artifact com_telenav_kivakit_build_metadata
+    artifact kivakit_build_metadata
     
 @enduml
 
@@ -359,9 +359,9 @@ skinparam stack {
 }
 
     
-    title "com.telenav.kivakit.build-metadata"
+    title "kivakit-build-metadata"
     
-    artifact com_telenav_kivakit_build_metadata
+    artifact kivakit_build_metadata
     
 @enduml
 
