@@ -42,9 +42,9 @@ None
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildName*](http://telenav.kivakit.mypna.com/0.9.0-SNAPSHOT/apidocs/com.telenav.kivakit.build.metadata/com/telenav/kivakit/build/metadata/BuildName.html) |  |  
-| [*Metadata*](http://telenav.kivakit.mypna.com/0.9.0-SNAPSHOT/apidocs/com.telenav.kivakit.build.metadata/com/telenav/kivakit/build/metadata/Metadata.html) |  |  
-| [*Metadata.Type*](http://telenav.kivakit.mypna.com/0.9.0-SNAPSHOT/apidocs/com.telenav.kivakit.build.metadata/com/telenav/kivakit/build/metadata/Metadata.Type.html) |  |  
+| [*BuildName*](https://telenav.github.io/kivakit-build/javadoc/com/telenav/kivakit/build/metadata/BuildName.html) |  |  
+| [*Metadata*](https://telenav.github.io/kivakit-build/javadoc/com/telenav/kivakit/build/metadata/Metadata.html) |  |  
+| [*Metadata.Type*](https://telenav.github.io/kivakit-build/javadoc/com/telenav/kivakit/build/metadata/Metadata.Type.html) |  |  
 
 [//]: # (start-user-text)
 
