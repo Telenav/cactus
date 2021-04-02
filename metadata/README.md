@@ -1,4 +1,4 @@
-# kivakit-build-metadata &nbsp;&nbsp;![](documentation/images/kivakit-64.png)
+# kivakit-build-metadata &nbsp;&nbsp;![](../documentation/images/tag-40.png)
 
 This module saves and loads build metadata to *build.properties*.
 
