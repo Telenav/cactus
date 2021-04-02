@@ -30,8 +30,8 @@
     <inceptionYear>2021</inceptionYear>
 
     <issueManagement>
-        <system>jira</system>
-        <url>https://jira.telenav.com:8443/secure/Dashboard.jsp</url>
+        <system>GitHub</system>
+        <url>https://github.com/Telenav/kivakit-build/issues</url>
     </issueManagement>
 
     <developers>
@@ -73,56 +73,13 @@
 
     <distributionManagement>
 
-        <!-- Release Distribution Repository -->
-
         <repository>
-            <id>telenav.maven.releases</id>
-            <name>Telenav Maven Published Releases</name>
-            <url>http://artifactory.telenav.com:8081/artifactory/telenav-maven-releases</url>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/com/telenav/kivakit/build</url>
         </repository>
-
-        <!-- Snapshot Distribution Repository -->
-
-        <snapshotRepository>
-            <id>telenav.maven.snapshots</id>
-            <name>Telenav Maven Published Snapshots</name>
-            <url>http://artifactory.telenav.com:8081/artifactory/telenav-maven-snapshots</url>
-        </snapshotRepository>
-
-        <downloadUrl>http://artifactory.telenav.com:8081/artifactory/telenav-maven-releases</downloadUrl>
 
     </distributionManagement>
-
-    <repositories>
-
-        <!-- Maven Cache Repository -->
-
-        <repository>
-            <id>telenav.maven.public</id>
-            <name>Telenav Maven Public</name>
-            <url>http://artifactory.telenav.com:8081/artifactory/telenav-maven-public</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
-    </repositories>
-
-    <!-- Maven Plugin Repository -->
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>telenav.maven.plugins</id>
-            <name>Telenav Maven Plugins</name>
-            <url>http://artifactory.telenav.com:8081/artifactory/telenav-maven-public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 
     <build>
 
