@@ -2,7 +2,7 @@
 
     !include ../lexakai.theme
     
-    title "com.telenav.tdk.build.metadata"
+    title "com.telenav.kivakit.build.metadata"
     
     class BuildName
     {

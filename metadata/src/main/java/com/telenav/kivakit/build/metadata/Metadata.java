@@ -5,7 +5,7 @@
 //  terms of the license agreement you entered into with Telenav.                                                      /
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.tdk.build.metadata;
+package com.telenav.kivakit.build.metadata;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -25,15 +25,15 @@ import java.util.stream.Collectors;
 import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
- * Metadata about the calling TDK project as well as a program entrypoint that creates this information when called from
- * maven during the build process.
+ * Metadata about the calling KivaKit project as well as a program entrypoint that creates this information when called
+ * from maven during the build process.
  *
  * @author jonathanl (shibo)
  */
 public class Metadata
 {
-    /** Start of TDK epoch is December 5, 2020 (blue monkey) */
-    public static final int TDK_EPOCH_DAY = 18_601;
+    /** Start of KivaKit epoch is December 5, 2020 (blue monkey) */
+    public static final int KIVAKIT_EPOCH_DAY = 18_601;
 
     /** Metadata for projects */
     private static final Map<Class<?>, Metadata> projectToMetadata = new HashMap<>();
@@ -42,13 +42,13 @@ public class Metadata
      * Writes a build.properties file out to the given output folder with the following entries:
      *
      * <ul>
-     *     <li>build-number - The current build number since the start of the TDK epoch</li>
+     *     <li>build-number - The current build number since the start of the KivaKit epoch</li>
      *     <li>build-date - The current build date as [year].[month].[day-of-month]</li>
      *     <li>build-name - The current build name</li>
      * </ul>
      *
      * <p>
-     * Some TDK scripts read this information, as well as tdk-core-kernel.
+     * Some KivaKit scripts read this information, as well as kivakit-core-kernel.
      * </p>
      *
      * @param arguments Output folder to write metadata to
@@ -84,7 +84,7 @@ public class Metadata
         }
         else
         {
-            System.err.println("Usage: tdk-metadata [output-folder]");
+            System.err.println("Usage: kivakit-metadata [output-folder]");
         }
     }
 
@@ -161,9 +161,9 @@ public class Metadata
      *
      * <pre>
      * project-version=8.1.1-SNAPSHOT
-     * project-name=TDK Metadata
-     * project-group-id=com.telenav.tdk.metadata
-     * project-artifact-id=com.telenav.tdk.metadata
+     * project-name=KivaKit Metadata
+     * project-group-id=com.telenav.kivakit.metadata
+     * project-artifact-id=com.telenav.kivakit.metadata
      * </pre>
      *
      * @return The contents of the maven metadata file
@@ -192,11 +192,11 @@ public class Metadata
     }
 
     /**
-     * @return The build number for the given date in days since {@link #TDK_EPOCH_DAY}
+     * @return The build number for the given date in days since {@link #KIVAKIT_EPOCH_DAY}
      */
     private static int currentBuildNumber()
     {
-        return (int) (currentBuildDate().toEpochDay() - TDK_EPOCH_DAY);
+        return (int) (currentBuildDate().toEpochDay() - KIVAKIT_EPOCH_DAY);
     }
 
     /**

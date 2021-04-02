@@ -9,18 +9,18 @@
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.telenav.tdk.build</groupId>
-    <artifactId>com.telenav.tdk.build</artifactId>
+    <groupId>com.telenav.kivakit.build</groupId>
+    <artifactId>com.telenav.kivakit.build</artifactId>
     <version>0.9.0</version>
     <packaging>pom</packaging>
 
-    <name>TDK Build</name>
+    <name>KivaKit Build</name>
 
     <modules>
         <module>metadata</module>
     </modules>
 
-    <description>The TDK Build project creates build metadata consumed by the TDK and other projects</description>
+    <description>The kivakit-build project creates build metadata consumed by KivaKit and other projects.</description>
 
     <organization>
         <name>Telenav</name>
@@ -48,9 +48,9 @@
 
     <properties>
 
-        <!-- TDK Version -->
+        <!-- KivaKit Version -->
 
-        <tdk.version>0.9.0-SNAPSHOT</tdk.version>
+        <kivakit.version>0.9.0-SNAPSHOT</kivakit.version>
 
         <!-- Java -->
 

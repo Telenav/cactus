@@ -9,22 +9,22 @@
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>com.telenav.tdk.build</groupId>
-        <artifactId>com.telenav.tdk.build</artifactId>
+        <groupId>com.telenav.kivakit.build</groupId>
+        <artifactId>com.telenav.kivakit.build</artifactId>
         <version>0.9.0</version>
     </parent>
 
-    <name>TDK Build - Metadata</name>
+    <name>KivaKit Build - Metadata</name>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>com.telenav.tdk.build-metadata</artifactId>
+    <artifactId>com.telenav.kivakit.build-metadata</artifactId>
     <packaging>jar</packaging>
 
     <build>
 
         <plugins>
 
-            <!-- Build executable tdk-build-metadata.jar -->
+            <!-- Build executable kivakit-build-metadata.jar -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -37,11 +37,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>tdk-build-metadata-${project.version}</finalName>
+                            <finalName>kivakit-build-metadata-${project.version}</finalName>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
                                 <transformer implementation = "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.telenav.tdk.build.metadata.Metadata</mainClass>
+                                    <mainClass>com.telenav.kivakit.build.metadata.Metadata</mainClass>
                                 </transformer>
                             </transformers>
                             <artifactSet>

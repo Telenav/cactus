@@ -1,4 +1,4 @@
-package com.telenav.tdk.build.metadata;
+package com.telenav.kivakit.build.metadata;
 
 /**
  * @author jonathanl (shibo)
