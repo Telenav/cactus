@@ -42,9 +42,9 @@ None
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildName*](http://telenav-tdk.mypna.com/8.1.1-SNAPSHOT/apidocs/com.telenav.tdk.build.metadata/com/telenav/tdk/build/metadata/BuildName.html) |  |  
-| [*Metadata*](http://telenav-tdk.mypna.com/8.1.1-SNAPSHOT/apidocs/com.telenav.tdk.build.metadata/com/telenav/tdk/build/metadata/Metadata.html) |  |  
-| [*Metadata.Type*](http://telenav-tdk.mypna.com/8.1.1-SNAPSHOT/apidocs/com.telenav.tdk.build.metadata/com/telenav/tdk/build/metadata/Metadata.Type.html) |  |  
+| [*BuildName*](http://telenav-tdk.mypna.com/0.9.0-SNAPSHOT/apidocs/com.telenav.tdk.build.metadata/com/telenav/tdk/build/metadata/BuildName.html) |  |  
+| [*Metadata*](http://telenav-tdk.mypna.com/0.9.0-SNAPSHOT/apidocs/com.telenav.tdk.build.metadata/com/telenav/tdk/build/metadata/Metadata.html) |  |  
+| [*Metadata.Type*](http://telenav-tdk.mypna.com/0.9.0-SNAPSHOT/apidocs/com.telenav.tdk.build.metadata/com/telenav/tdk/build/metadata/Metadata.Type.html) |  |  
 
 [//]: # (start-user-text)
 
