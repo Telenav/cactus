@@ -75,8 +75,8 @@
 
         <repository>
             <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/com/telenav/kivakit/build</url>
+            <name>KivaKit - Build</name>
+            <url>https://maven.pkg.github.com/Telenav/kivakit-build</url>
         </repository>
 
     </distributionManagement>
