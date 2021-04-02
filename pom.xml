@@ -55,6 +55,7 @@
         <!-- Java -->
 
         <java.version>12</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Maven -->
 
@@ -66,7 +67,6 @@
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven.build.timestamp.format>yyyy.MM.dd-HH.mma</maven.build.timestamp.format>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <moditect-maven-plugin.version>1.0.0.RC1</moditect-maven-plugin.version>
 
     </properties>
