@@ -1,4 +1,4 @@
-open module com.telenav.kivakit.build.metadata
+open module  kivakit.build.metadata
 {
     exports com.telenav.kivakit.build.metadata;
 }

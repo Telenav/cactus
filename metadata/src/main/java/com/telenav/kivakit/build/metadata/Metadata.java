@@ -107,7 +107,7 @@ public class Metadata
      * <pre>
      * project-version=8.1.1-SNAPSHOT
      * project-name=KivaKit Metadata
-     * project-group-id=com.telenav.kivakit.metadata
+     * project-group-id=com.telenav.kivakit
      * project-artifact-id=com.telenav.kivakit.metadata
      * </pre>
      *
