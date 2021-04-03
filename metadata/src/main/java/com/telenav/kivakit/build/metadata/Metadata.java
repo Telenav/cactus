@@ -9,20 +9,15 @@ package com.telenav.kivakit.build.metadata;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
  * Metadata about the calling KivaKit project as well as a program entrypoint that creates this information when called
@@ -39,56 +34,6 @@ public class Metadata
     private static final Map<Class<?>, Metadata> projectToMetadata = new HashMap<>();
 
     /**
-     * Writes a build.properties file out to the given output folder with the following entries:
-     *
-     * <ul>
-     *     <li>build-number - The current build number since the start of the KivaKit epoch</li>
-     *     <li>build-date - The current build date as [year].[month].[day-of-month]</li>
-     *     <li>build-name - The current build name</li>
-     * </ul>
-     *
-     * <p>
-     * Some KivaKit scripts read this information, as well as kivakit-core-kernel.
-     * </p>
-     *
-     * @param arguments Output folder to write metadata to
-     */
-    public static void main(final String[] arguments)
-    {
-        if (arguments.length == 1)
-        {
-            try
-            {
-                // Get output path and ensure it exists,
-                final var outputPath = Path.of(arguments[0]);
-                if (!Files.isDirectory(outputPath))
-                {
-                    Files.createDirectory(outputPath);
-                }
-
-                // formulate the lines of the build.properties file,
-                final var properties = current(null).buildProperties();
-                final var lines = new ArrayList<String>();
-                for (final var key : properties.keySet())
-                {
-                    lines.add(key + " = " + properties.get(key));
-                }
-
-                // and write them out in the output folder.
-                Files.writeString(outputPath.resolve("build.properties"), String.join("\n", lines) + "\n", CREATE);
-            }
-            catch (final Exception cause)
-            {
-                throw new IllegalStateException("Unable to write metadata", cause);
-            }
-        }
-        else
-        {
-            System.err.println("Usage: kivakit-metadata [output-folder]");
-        }
-    }
-
-    /**
      * @param projectType A class in the caller's project for loading resources
      * @return Metadata for the given project
      */
@@ -97,7 +42,7 @@ public class Metadata
         return projectToMetadata.computeIfAbsent(projectType, ignored -> new Metadata(projectType, Type.PROJECT));
     }
 
-    private enum Type
+    enum Type
     {
         PROJECT,
         CURRENT
@@ -115,7 +60,7 @@ public class Metadata
     /** Project property map */
     private Map<String, String> projectProperties;
 
-    private Metadata(final Class<?> projectType, final Type type)
+    Metadata(final Class<?> projectType, final Type type)
     {
         this.projectType = projectType;
         this.type = type;
@@ -162,7 +107,7 @@ public class Metadata
      * <pre>
      * project-version=8.1.1-SNAPSHOT
      * project-name=KivaKit Metadata
-     * project-group-id=com.telenav.kivakit.metadata
+     * project-group-id=com.telenav.kivakit
      * project-artifact-id=com.telenav.kivakit.metadata
      * </pre>
      *
@@ -176,14 +121,6 @@ public class Metadata
         }
 
         return projectProperties;
-    }
-
-    /**
-     * @return Metadata for a build of the given project at the current time
-     */
-    private static Metadata current(final Class<?> project)
-    {
-        return new Metadata(project, Type.CURRENT);
     }
 
     private static LocalDate currentBuildDate()

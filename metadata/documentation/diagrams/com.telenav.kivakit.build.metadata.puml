@@ -11,13 +11,17 @@
     Metadata --> Map : "creates"
     class Metadata
     {
-        --
-        +void main(String[] arguments)
         --(collection)--
         +Map<String,String> buildProperties()
         +Map<String,String> projectProperties()
         --(metadata)--
         +Metadata of(Class<?> projectType)
+    }
+    
+    class MetadataUpdater
+    {
+        --
+        +void main(String[] arguments)
     }
     
     enum Metadata.Type

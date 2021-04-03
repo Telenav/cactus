@@ -1,8 +1,8 @@
 <!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
-<!--  © 2020 Telenav - All rights reserved.                                                                          -->
-<!--  This software is the confidential and proprietary information of Telenav ("Confidential Information").         -->
-<!--  You shall not disclose such Confidential Information and shall use it only in accordance with the              -->
-<!--  terms of the license agreement you entered into with Telenav.                                                  -->
+<!--                                                                                                                 -->
+<!--  © 2011-2021 Telenav, Inc.                                                                                      -->
+<!--  Licensed under Apache License, Version 2.0                                                                     -->
+<!--                                                                                                                 -->
 <!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
 
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.telenav.kivakit</groupId>
         <artifactId>kivakit-build</artifactId>
-        <version>0.9.1</version>
+        <version>0.9.2</version>
     </parent>
 
     <name>KivaKit Build - Metadata</name>
@@ -24,7 +24,7 @@
 
         <plugins>
 
-            <!-- Build executable kivakit-build-metadata.jar -->
+            <!-- Build Executable Jar -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -41,9 +41,17 @@
                             <minimizeJar>false</minimizeJar>
                             <transformers>
                                 <transformer implementation = "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.telenav.kivakit.build.metadata.Metadata</mainClass>
+                                    <mainClass>com.telenav.kivakit.build.metadata.MetadataUpdater</mainClass>
                                 </transformer>
                             </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <artifactSet>
                                 <includes>
                                     <include>*:*</include>
