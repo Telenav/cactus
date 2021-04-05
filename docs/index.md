@@ -3,6 +3,8 @@
 This module is used in building [KivaKit](https://github.com/Telenav/kivakit). It can also be used for the same purpose  
 in building user applications.
 
+![](images/horizontal-line.png)
+
 ### Summary
 
 This module saves and loads build metadata to *build.properties*:
