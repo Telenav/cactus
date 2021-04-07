@@ -53,6 +53,12 @@ public class Metadata
         return projectToMetadata.computeIfAbsent(projectType, ignored -> new Metadata(projectType, Type.PROJECT));
     }
 
+    /**
+     * The type of metadata. PROJECT specifies normal project metadata. CURRENT specifies the metadata based on the
+     * current time.
+     *
+     * @author jonathanl (shibo)
+     */
     enum Type
     {
         PROJECT,

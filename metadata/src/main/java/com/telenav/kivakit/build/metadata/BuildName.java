@@ -19,6 +19,9 @@
 package com.telenav.kivakit.build.metadata;
 
 /**
+ * This class provides memorable names for build numbers through the method {@link #name(int)}. Build numbers are
+ * measured in days since the start of the KivaKit epoch on December 5, 2020.
+ *
  * @author jonathanl (shibo)
  */
 class BuildName

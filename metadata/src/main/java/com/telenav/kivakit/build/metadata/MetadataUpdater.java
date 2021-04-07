@@ -25,7 +25,11 @@ import java.util.ArrayList;
 import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
+ * This application is run from Maven builds to produce a <i>build.properties</i> file in <i>src/main/java</i>
+ * containing the build number, date and name.
+ *
  * @author jonathanl (shibo)
+ * @see Metadata
  */
 public class MetadataUpdater
 {
