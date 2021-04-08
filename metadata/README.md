@@ -1,6 +1,6 @@
 # kivakit-build-metadata &nbsp;&nbsp;![](../documentation/images/tag-40.png)
 
-This module saves and loads build metadata to *build.properties*.
+This module saves and loads build metadata to *src/main/java/build.properties*.
 
 ![](documentation/images/horizontal-line.png)
 
@@ -52,6 +52,10 @@ None
 [*com.telenav.kivakit.build.metadata*](documentation/diagrams/com.telenav.kivakit.build.metadata.svg)  
 
 ### Javadoc &nbsp;&nbsp;![](documentation/images/books-40.png)
+
+Javadoc coverage for this project is 100.0%.
+
+
 
 | Class | Documentation Sections |
 |---|---|
