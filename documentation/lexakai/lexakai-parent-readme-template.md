@@ -6,8 +6,9 @@ ${project-description}
 
 ### Index
 
-[**Dependencies**](#dependencies)  
 ${project-index}
+
+[**Dependencies**](#dependencies)  
 [**Class Diagrams**](#class-diagrams)  
 [**Package Diagrams**](#package-diagrams)  
 [**Javadoc**](#javadoc)

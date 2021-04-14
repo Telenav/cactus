@@ -21,7 +21,7 @@ This module contains tools for building KivaKit modules and user applications.
     <dependency>
         <groupId>com.telenav.kivakit</groupId>
         <artifactId></artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <!-- ${project-version} --> 0.9.0-SNAPSHOT <!-- end -->
     </dependency>
 
 ![](documentation/images/horizontal-line.png)
