@@ -1,4 +1,4 @@
-## kivakit-build &nbsp; ![](../documentation/images/kivakit-64.png)
+## kivakit-build &nbsp; ![](https://kivakit.org/images/kivakit-64.png)
 
 This module is used in building [KivaKit](https://github.com/Telenav/kivakit). It can also be used for the same purpose  
 in building user applications.
