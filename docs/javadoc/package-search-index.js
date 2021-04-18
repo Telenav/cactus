@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"m":"kivakit.build.metadata","l":"com.telenav.kivakit.build.metadata"}]

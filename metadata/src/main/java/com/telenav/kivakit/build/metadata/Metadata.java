@@ -119,13 +119,13 @@ public class Metadata
     }
 
     /**
-     * Retrieves the properties in the /build.properties resource, similar to this:
+     * Retrieves the properties in the /project.properties resource, similar to this:
      *
      * <pre>
-     * project-version=8.1.1-SNAPSHOT
-     * project-name=KivaKit Metadata
+     * project-version = 8.1.1-SNAPSHOT
+     * project-name = KivaKit Metadata
      * project-group-id = com.telenav.kivakit
-     * project-artifact-id=com.telenav.kivakit.metadata
+     * project-artifact-id = com.telenav.kivakit.metadata
      * </pre>
      *
      * @return The contents of the maven metadata file

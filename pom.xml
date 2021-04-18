@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.telenav.kivakit</groupId>
     <artifactId>kivakit-build</artifactId>
-    <version>0.9.3</version>
+    <version>0.9.4</version>
     <packaging>pom</packaging>
 
     <name>KivaKit Build</name>
@@ -182,8 +182,7 @@
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
-                        <reportOutputDirectory>docs</reportOutputDirectory>
-                        <destDir>javadoc</destDir>
+                        <reportOutputDirectory>${env.KIVAKIT_DATA_HOME}/docs/javadoc/kivakit-build</reportOutputDirectory>
                         <additionalOptions>--show-module-contents all --show-packages all --show-types private</additionalOptions>
                     </configuration>
                     <executions>
