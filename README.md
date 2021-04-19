@@ -1,4 +1,4 @@
-# kivakit-build &nbsp;&nbsp; <img src="https://www.lexakai.org/images/kivakit-64.png" srcset="https://www.lexakai.org/images/kivakit-64-2x.png 2x"></img>
+# kivakit-build &nbsp;&nbsp; <img src="https://www.lexakai.org/images/kivakit-64.png" srcset="https://www.lexakai.org/images/kivakit-64-2x.png 2x"/>
 
 This module contains tools for building KivaKit modules and user applications.
 
@@ -10,13 +10,13 @@ This module contains tools for building KivaKit modules and user applications.
 
 [//]: # (end-user-text)
 
-### Projects <a name = "projects"></a> &nbsp; <img src="https://www.lexakai.org/images/gears-32.png" srcset="https://www.lexakai.org/images/gears-32-2x.png 2x"></img>
+### Projects <a name = "projects"></a> &nbsp; <img src="https://www.lexakai.org/images/gears-32.png" srcset="https://www.lexakai.org/images/gears-32-2x.png 2x"/>
 
 [**metadata**](metadata/README.md)  
 
 <img src="https://www.kivakit.org/images/short-horizontal-line-128.png" srcset="https://www.kivakit.org/images/short-horizontal-line-128@2x.png 2x"/>
 
-### Javadoc Coverage <a name = "javadoc-coverage"></a> &nbsp; <img src="https://www.lexakai.org/images/bargraph-32.png" srcset="https://www.lexakai.org/images/bargraph-32-2x.png 2x"></img>
+### Javadoc Coverage <a name = "javadoc-coverage"></a> &nbsp; <img src="https://www.lexakai.org/images/bargraph-32.png" srcset="https://www.lexakai.org/images/bargraph-32-2x.png 2x"/>
 
 &nbsp;  ![](https://www.kivakit.org/images/meter-100-12.png) &nbsp; &nbsp; [**metadata**](metadata/README.md)
 
