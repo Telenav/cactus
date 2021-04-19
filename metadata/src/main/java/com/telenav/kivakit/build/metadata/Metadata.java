@@ -59,7 +59,7 @@ public class Metadata
      *
      * @author jonathanl (shibo)
      */
-    enum Type
+    public enum Type
     {
         PROJECT,
         CURRENT
