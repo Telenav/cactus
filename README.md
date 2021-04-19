@@ -12,13 +12,13 @@ This module contains tools for building KivaKit modules and user applications.
 
 ### Projects <a name = "projects"></a> &nbsp; ![](https://www.kivakit.org/images/gears-40.png)
 
-[**metadata**](metadata/README.md)  
+[**metadata**](/README.md)  
 
 ![](https://www.kivakit.org/images/short-horizontal-line.png)
 
 ### Javadoc Coverage <a name = "javadoc-coverage"></a> &nbsp; ![](https://www.kivakit.org/images/bargraph-32.png)
 
-&nbsp;  ![](https://www.kivakit.org/images/meter-100-12.png) &nbsp; &nbsp; [**metadata**](metadata/README.md)
+&nbsp;  ![](https://www.kivakit.org/images/meter-100-12.png) &nbsp; &nbsp; [**metadata**](/README.md)
 
 [//]: # (start-user-text)
 
