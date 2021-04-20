@@ -1,4 +1,4 @@
-# kivakit-build metadata &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-40.png" srcset="https://www.kivakit.org/images/tag-40-2x.png 2x"/>
+# kivakit-build metadata &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 
