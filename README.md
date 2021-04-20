@@ -18,7 +18,8 @@ This module contains tools for building KivaKit modules and user applications.
 
 ### Javadoc Coverage <a name = "javadoc-coverage"></a> &nbsp; <img src="https://www.kivakit.org/images/bargraph-32.png" srcset="https://www.kivakit.org/images/bargraph-32-2x.png 2x"/>
 
-&nbsp;  ![](https://www.kivakit.org/images/meter-100-12.png) &nbsp; &nbsp; [**metadata**](metadata/README.md)
+&nbsp; <img src="https://www.kivakit.org/images/meter-100-96.png" srcset="https://www.kivakit.org/images/meter-100-96-2x.png 2x"/>
+ &nbsp; &nbsp; [**metadata**](metadata/README.md)
 
 [//]: # (start-user-text)
 
