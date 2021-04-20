@@ -1,3 +1,23 @@
+
+[//]: # (start-user-text)
+
+<a href="https://www.kivakit.org">
+<img src="https://www.kivakit.org/images/web-32.png" srcset="https://www.kivakit.org/images/web-32-2x.png 2x"/>
+</a>&nbsp;
+<a href="https://twitter.com/openkivakit">
+<img src="https://www.kivakit.org/images/twitter-32.png" srcset="https://www.kivakit.org/images/twitter-32-2x.png 2x"/>
+</a>
+&nbsp;
+<a href="https://kivakit.zulipchat.com">
+<img src="https://www.kivakit.org/images/zulip-32.png" srcset="https://www.kivakit.org/images/zulip-32-2x.png 2x"/>
+</a>
+
+<p></p>
+
+<img src="https://www.kivakit.org/images/kivakit-background-512.png" srcset="https://www.kivakit.org/images/kivakit-background-512-2x.png 2x"/>
+
+[//]: # (end-user-text)
+
 # kivakit-build &nbsp;&nbsp; <img src="https://www.kivakit.org/images/kivakit-64.png" srcset="https://www.kivakit.org/images/kivakit-64-2x.png 2x"/>
 
 This module contains tools for building KivaKit modules and user applications.
