@@ -27,6 +27,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class Metadata
     public static final int KIVAKIT_EPOCH_DAY = 18_601;
 
     /** Metadata for projects */
-    private static final Map<Class<?>, Metadata> projectToMetadata = new HashMap<>();
+    private static final Map<Class<?>, Metadata> projectToMetadata = new ConcurrentHashMap<>();
 
     /**
      * @param projectType A class in the caller's project for loading resources
