@@ -18,11 +18,10 @@
 
 package com.telenav.kivakit.build.metadata;
 
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-
-import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
  * This application is run from Maven builds to produce a <i>build.properties</i> file in <i>src/main/java</i>
@@ -69,8 +68,11 @@ public class MetadataUpdater
                     lines.add(key + " = " + properties.get(key));
                 }
 
-                // and write them out in the output folder.
-                Files.writeString(outputPath.resolve("build.properties"), String.join("\n", lines) + "\n", CREATE);
+                // and write them to the output folder.
+                try (final var out = new PrintStream(outputPath.resolve("build.properties").toFile()))
+                {
+                    out.println(String.join("\n", lines));
+                }
             }
             catch (final Exception cause)
             {

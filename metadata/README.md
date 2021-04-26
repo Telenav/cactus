@@ -36,7 +36,7 @@ This module saves and loads build metadata to *src/main/java/build.properties*.
     <dependency>
         <groupId>com.telenav.kivakit</groupId>
         <artifactId>kivakit-build-metadata</artifactId>
-        <version>0.9.4</version>
+        <version>0.9.5-alpha</version>
     </dependency>
 
 

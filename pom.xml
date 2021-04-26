@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.telenav.kivakit</groupId>
     <artifactId>kivakit-build</artifactId>
-    <version>0.9.4</version>
+    <version>0.9.5-alpha</version>
     <packaging>pom</packaging>
 
     <name>KivaKit Build</name>
@@ -224,10 +224,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M5</version>
                     <configuration>
-                        <!--suppress UnresolvedMavenProperty -->
                         <excludedGroups>${exclude.test.groups}</excludedGroups>
                         <systemPropertyVariables>
-                            <!--suppress UnresolvedMavenProperty -->
                             <testQuick>${testQuick}</testQuick>
                         </systemPropertyVariables>
                         <argLine>-Xmx2g</argLine>
