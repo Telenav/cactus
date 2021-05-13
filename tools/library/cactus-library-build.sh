@@ -14,13 +14,13 @@ usage() {
     echo " "
     echo "  Build types:"
     echo " "
-    echo "       [default] - compile, shade and run quick tests"
+    echo "       [default] - compile, and run quick tests"
     echo " "
-    echo "             all - all-clean, compile, shade, run tests, build tools and javadoc"
+    echo "             all - all-clean, compile, run tests, build tools and javadoc"
     echo " "
-    echo "           tools - compile, shade, run tests, build tools"
+    echo "           tools - compile, run tests, build tools"
     echo " "
-    echo "         compile - compile and shade (no tests)"
+    echo "         compile - compile (no tests)"
     echo " "
     echo "         javadoc - compile and build javadoc"
     echo " "
@@ -41,8 +41,6 @@ usage() {
     echo "        no-tests - do not run tests"
     echo " "
     echo " single-threaded - build with only one thread"
-    echo " "
-    echo "     quick-tests - run only quick tests"
     echo " "
     echo "           quiet - build with minimal output"
     echo " "
@@ -83,7 +81,7 @@ build() {
     "all")
         JAVADOC=true
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS="multi-threaded clean-all tests shade tools ${@:3}"
+        BUILD_MODIFIERS="multi-threaded clean-all tests tools ${@:3}"
         ;;
 
     "test")
@@ -93,12 +91,12 @@ build() {
 
     "tools")
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(multi-threaded tests shade tools no-javadoc ${@:3})
+        BUILD_MODIFIERS=(multi-threaded tests tools no-javadoc ${@:3})
         ;;
 
     "compile")
         BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(multi-threaded no-tests shade no-javadoc quiet ${@:3})
+        BUILD_MODIFIERS=(multi-threaded no-tests no-javadoc quiet ${@:3})
         ;;
 
     "javadoc")
@@ -116,7 +114,7 @@ build() {
     *)
         BUILD_TYPE="default"
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(multi-threaded quick-tests shade no-javadoc ${@:2})
+        BUILD_MODIFIERS=(multi-threaded no-javadoc ${@:2})
         ;;
 
     esac
@@ -181,20 +179,12 @@ build() {
 
         "tests") ;;
 
-        "quick-tests")
-            addSwitch "-P test-quick"
-            ;;
-
         "quiet")
             addSwitch "-q -Dsurefire.printSummary=false -DKIVAKIT_LOG_LEVEL=Warning"
             ;;
 
         "graphs")
             POST_BUILD_SCRIPT="kivakit-build-all-graphs.sh"
-            ;;
-
-        "shade")
-            addSwitch "-P shade"
             ;;
 
         "show")

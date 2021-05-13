@@ -3,6 +3,7 @@
 **/.project
 **/.idea/
 **/target/
+**/target.nosync/
 **/test-output/
 **/*.iml
 **/*.eml
