@@ -9,18 +9,18 @@
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.telenav.kivakit</groupId>
-    <artifactId>kivakit-build</artifactId>
+    <groupId>com.telenav.cactus</groupId>
+    <artifactId>cactus-build</artifactId>
     <version>0.9.5-alpha-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>KivaKit Build</name>
+    <name>Cactus Build</name>
 
     <modules>
         <module>metadata</module>
     </modules>
 
-    <description>The kivakit-build project generates build metadata consumed by KivaKit and other projects.</description>
+    <description>The cactus-build project generates build metadata consumed by KivaKit and other projects.</description>
 
     <organization>
         <name>Telenav</name>
@@ -39,7 +39,7 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Telenav/kivakit-build/issues</url>
+        <url>https://github.com/Telenav/cactus-build/issues</url>
     </issueManagement>
 
     <developers>
@@ -79,8 +79,8 @@
 
         <repository>
             <id>github</id>
-            <name>KivaKit - Build</name>
-            <url>https://maven.pkg.github.com/Telenav/kivakit-build</url>
+            <name>Cactus - Build</name>
+            <url>https://maven.pkg.github.com/Telenav/cactus-build</url>
         </repository>
 
     </distributionManagement>
@@ -152,21 +152,11 @@
                                         <echo file = "src/main/java/project.properties">
                                             project-name        = ${project.name}${line.separator}project-version     = ${project.version}${line.separator}project-group-id    = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
                                         </echo>
-                                        <java jar = "${env.KIVAKIT_DATA_HOME}/docs/applications/kivakit-build-metadata-${env.KIVAKIT_BUILD_METADATA_VERSION}.jar"
-                                              failonerror = "true"
-                                              fork = "true">
-                                            <arg value = "src/main/java"/>
-                                        </java>
                                     </then>
                                     <else>
                                         <echo file = "${project.basedir}/project.properties">
                                             project-name        = ${project.name}${line.separator}project-version     = ${project.version}${line.separator}project-group-id    = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
                                         </echo>
-                                        <java jar = "${env.KIVAKIT_DATA_HOME}/docs/applications/kivakit-build-metadata-${env.KIVAKIT_BUILD_METADATA_VERSION}.jar"
-                                              failonerror = "true"
-                                              fork = "true">
-                                            <arg value = "${project.basedir}"/>
-                                        </java>
                                     </else>
                                 </if>
                             </target>
@@ -244,8 +234,8 @@
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
-                        <reportOutputDirectory>${env.KIVAKIT_DATA_HOME}/docs/javadoc</reportOutputDirectory>
-                        <destDir>kivakit-build</destDir>
+                        <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/javadoc</reportOutputDirectory>
+                        <destDir>cactus-build</destDir>
                         <additionalOptions>-notimestamp --show-module-contents all --show-packages all --show-types private</additionalOptions>
                     </configuration>
                     <executions>

@@ -13,7 +13,7 @@
 
 [//]: # (end-user-text)
 
-# kivakit-build metadata &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
+# cactus-build metadata &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 
@@ -29,13 +29,13 @@ This module saves and loads build metadata to *src/main/java/build.properties*.
 
 ### Dependencies <a name="dependencies"></a> &nbsp;&nbsp; <img src="https://www.kivakit.org/images/dependencies-32.png" srcset="https://www.kivakit.org/images/dependencies-32-2x.png 2x"/>
 
-[*Dependency Diagram*](https://www.kivakit.org/lexakai/kivakit-build/metadata/documentation/diagrams/dependencies.svg)
+[*Dependency Diagram*](https://www.kivakit.org/lexakai/cactus-build/metadata/documentation/diagrams/dependencies.svg)
 
 #### Maven Dependency
 
     <dependency>
-        <groupId>com.telenav.kivakit</groupId>
-        <artifactId>kivakit-build-metadata</artifactId>
+        <groupId>com.telenav.cactus</groupId>
+        <artifactId>cactus-build-metadata</artifactId>
         <version>0.9.5-alpha-SNAPSHOT</version>
     </dependency>
 
@@ -69,7 +69,7 @@ None
 
 ### Package Diagrams <a name="package-diagrams"></a> &nbsp;&nbsp; <img src="https://www.kivakit.org/images/box-32.png" srcset="https://www.kivakit.org/images/box-32-2x.png 2x"/>
 
-[*com.telenav.kivakit.build.metadata*](https://www.kivakit.org/lexakai/kivakit-build/metadata/documentation/diagrams/com.telenav.kivakit.build.metadata.svg)
+[*com.telenav.cactus.build.metadata*](https://www.kivakit.org/lexakai/cactus-build/metadata/documentation/diagrams/com.telenav.cactus.build.metadata.svg)
 
 <img src="https://www.kivakit.org/images/horizontal-line-128.png" srcset="https://www.kivakit.org/images/horizontal-line-128-2x.png 2x"/>
 
@@ -84,10 +84,10 @@ Javadoc coverage for this project is 100.0%.
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildName*](https://www.kivakit.org/javadoc/kivakit-build/kivakit.build.metadata/com/telenav/kivakit/build/metadata/BuildName.html) |  |  
-| [*Metadata*](https://www.kivakit.org/javadoc/kivakit-build/kivakit.build.metadata/com/telenav/kivakit/build/metadata/Metadata.html) |  |  
-| [*Metadata.Type*](https://www.kivakit.org/javadoc/kivakit-build/kivakit.build.metadata/com/telenav/kivakit/build/metadata/Metadata.Type.html) |  |  
-| [*MetadataUpdater*](https://www.kivakit.org/javadoc/kivakit-build/kivakit.build.metadata/com/telenav/kivakit/build/metadata/MetadataUpdater.html) |  |  
+| [*BuildName*](https://www.kivakit.org/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/BuildName.html) |  |  
+| [*Metadata*](https://www.kivakit.org/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/Metadata.html) |  |  
+| [*Metadata.Type*](https://www.kivakit.org/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/Metadata.Type.html) |  |  
+| [*MetadataUpdater*](https://www.kivakit.org/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/MetadataUpdater.html) |  |  
 
 [//]: # (start-user-text)
 

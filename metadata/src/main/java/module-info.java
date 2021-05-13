@@ -1,4 +1,4 @@
-open module  kivakit.build.metadata
+open module cactus.build.metadata
 {
-    exports com.telenav.kivakit.build.metadata;
+    exports com.telenav.cactus.build.metadata;
 }

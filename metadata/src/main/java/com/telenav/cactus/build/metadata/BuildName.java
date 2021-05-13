@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.kivakit.build.metadata;
+package com.telenav.cactus.build.metadata;
 
 /**
  * This class provides memorable names for build numbers through the method {@link #name(int)}. Build numbers are
