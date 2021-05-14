@@ -168,11 +168,7 @@ build() {
         "tests") ;;
 
         "quiet")
-            addSwitch "-q -Dsurefire.printSummary=false -DKIVAKIT_LOG_LEVEL=Warning"
-            ;;
-
-        "graphs")
-            POST_BUILD_SCRIPT="kivakit-build-all-graphs.sh"
+            addSwitch "-q -Dsurefire.printSummary=false"
             ;;
 
         "show")
@@ -192,10 +188,6 @@ build() {
 
     addSwitch "--threads $THREADS"
 
-    if [ -z "$KIVAKIT_DEBUG" ]; then
-        KIVAKIT_DEBUG="!Debug"
-    fi
-
     BUILD_FOLDER="$PROJECT"
 
     FILTER_OUT="grep -y -v --line-buffered"
@@ -208,7 +200,7 @@ build() {
         echo "┋         Build-Folder: $BUILD_FOLDER"
         echo "┋           Build-Type: $BUILD_TYPE"
         echo "┋      Build-Modifiers: $BUILD_MODIFIERS_STRING"
-        echo "┋   Maven Command Line: mvn -DKIVAKIT_DEBUG=\"$KIVAKIT_DEBUG\" $SWITCHES $BUILD_ARGUMENTS"
+        echo "┋   Maven Command Line: mvn $SWITCHES $BUILD_ARGUMENTS"
         echo "┋"
 
         if [ -z "$SHOW" ]; then
@@ -216,7 +208,7 @@ build() {
             $PRE_BUILD_SCRIPT
 
             cd $BUILD_FOLDER
-            $M2_HOME/bin/mvn -DKIVAKIT_DEBUG="$KIVAKIT_DEBUG" $SWITCHES $BUILD_ARGUMENTS 2>&1 | $FILTER_OUT "illegal reflective access\|denied in a future release\|please consider reporting"
+            $M2_HOME/bin/mvn $SWITCHES $BUILD_ARGUMENTS 2>&1 | $FILTER_OUT "illegal reflective access\|denied in a future release\|please consider reporting"
 
             if [ ${PIPESTATUS[0]} -ne "0" ]; then
 
