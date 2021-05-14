@@ -16,7 +16,7 @@ usage() {
     echo " "
     echo "       [default] - compile, and run quick tests"
     echo " "
-    echo "             all - all-clean, compile, run tests, build tools and javadoc"
+    echo "             all - compile, run tests, build tools and javadoc"
     echo " "
     echo "           tools - compile, run tests, build tools"
     echo " "
@@ -27,10 +27,6 @@ usage() {
     echo " javadoc-package - package and build javadoc"
     echo " "
     echo "  Build modifiers:"
-    echo " "
-    echo "           clean - prompt to remove cached and temporary files"
-    echo " "
-    echo "       all-clean - prompt to remove cached and temporary files and kivakit artifacts from ~/.m2"
     echo " "
     echo "           debug - turn maven debug mode on"
     echo " "
@@ -81,7 +77,7 @@ build() {
     "all")
         JAVADOC=true
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS="multi-threaded clean-all tests tools ${@:3}"
+        BUILD_MODIFIERS="multi-threaded tests tools ${@:3}"
         ;;
 
     "test")
@@ -133,14 +129,6 @@ build() {
             addSwitch "-P tools"
             ;;
 
-        "clean-all")
-            PRE_BUILD_SCRIPT="kivakit-clean-all.sh"
-            ;;
-
-        "clean")
-            PRE_BUILD_SCRIPT="kivakit-clean.sh"
-            ;;
-
         "javadoc")
             if [ ! -z "$JAVADOC" ]; then
                 BUILD_ARGUMENTS="$BUILD_ARGUMENTS javadoc:aggregate"
@@ -189,10 +177,6 @@ build() {
 
         "show")
             SHOW="true"
-            ;;
-
-        "sparkling")
-            PRE_BUILD_SCRIPT="kivakit-clean-sparkling.sh"
             ;;
 
         *)
