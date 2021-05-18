@@ -1,5 +1,5 @@
 
-name: Build Master
+name: Build
 
 on:
   workflow_dispatch:
