@@ -25,17 +25,17 @@ jobs:
 
       - name: Install GPG Secret Key
         run: |
-          echo -n "$OSSRH_GPG_SECRET_KEY" | base64 --decode | gpg --batch --import
+          echo -n "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode | gpg --batch --import
         env:
           OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
 
       - name: Publish Snapshot to OSSRH
         env:
-          MAVEN_USERNAME: $
-          MAVEN_PASSWORD: $
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         run: |
           mvn -P attach-jars -P sign-artifacts \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=$ \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY }} \
             clean deploy
