@@ -14,16 +14,13 @@ jobs:
 
     steps:
 
-      - id: checkout
       - name: Checkout Project
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
-      - id: setup-java
       - name: Set up JDK 12
         uses: actions/setup-java@v1
         with:
           java-version: 12
 
-      - id: build-master
-        name: Build Master
+      - name: Build Master
         run: mvn --no-transfer-progress --batch-mode clean install
