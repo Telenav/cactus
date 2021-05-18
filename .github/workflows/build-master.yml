@@ -26,5 +26,4 @@ jobs:
 
       - id: build-master
         name: Build Master
-        env:
-          run: mvn --no-transfer-progress --batch-mode clean install
+        run: mvn --no-transfer-progress --batch-mode clean install
