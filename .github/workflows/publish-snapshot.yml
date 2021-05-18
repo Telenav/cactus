@@ -22,6 +22,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 12
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
 
       - name: Install GPG Secret Key
         run: |
@@ -30,12 +33,9 @@ jobs:
           OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
 
       - name: Publish Snapshot to OSSRH
+        run: |
+          mvn -P attach-jars -P sign-artifacts --no-transfer-progress --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        run: |
-          mvn -P attach-jars -P sign-artifacts \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            clean deploy
