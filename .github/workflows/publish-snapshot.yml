@@ -1,0 +1,45 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - id: checkout
+      - name: Checkout Project
+      - uses: actions/checkout@v2
+
+      - id: setup-java
+      - name: Set up JDK 12
+        uses: actions/setup-java@v1
+        with:
+          java-version: 12
+
+      - id: install-gpg-key
+        name: Install GPG Secret Key
+        run: |
+          cat <(echo -e "$") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - id: publish-snapshot
+        name: Publish Snapshot to OSSRH
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+         run: |
+          mvn \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            clean deploy -P attach-jars -P sign-artifacts
