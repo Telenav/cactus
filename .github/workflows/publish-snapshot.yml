@@ -25,13 +25,14 @@ jobs:
 
       - name: Install GPG Secret Key
         run: |
-          cat <(echo -e "$") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
+          echo -n "$OSSRH_GPG_SECRET_KEY" | base64 --decode | gpg --import
+        env:
+          OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
 
       - name: Publish Snapshot to OSSRH
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         run: |
           mvn \
             --no-transfer-progress \
