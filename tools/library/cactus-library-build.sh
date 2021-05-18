@@ -18,31 +18,31 @@ usage() {
     echo " "
     echo "             all - compile, run tests, build tools and javadoc"
     echo " "
-    echo "           tools - compile, run tests, build tools"
-    echo " "
     echo "         compile - compile (no tests)"
+    echo " "
+    echo "    deploy-ossrh - compile, run tests, attach jars, build javadoc, sign artifacts and deploy to OSSRH"
+    echo " "
+    echo "    deploy-local - compile, run tests, attach jars, build javadoc, sign artifacts and deploy to local Maven repository"
     echo " "
     echo "         javadoc - compile and build javadoc"
     echo " "
-    echo " javadoc-package - package and build javadoc"
-    echo " "
     echo "  Build modifiers:"
+    echo " "
+    echo "     attach-jars - attach source and javadoc jars to maven artifacts"
+    echo " "
+    echo "  sign-artifacts - sign artifacts with PGP"
     echo " "
     echo "           debug - turn maven debug mode on"
     echo " "
     echo "     debug-tests - stop in debugger on surefire tests"
     echo " "
+    echo "         dry-run - show maven command line but don't build"
+    echo " "
     echo "      no-javadoc - do not build javadoc"
     echo " "
     echo "        no-tests - do not run tests"
     echo " "
-    echo " single-threaded - build with only one thread"
-    echo " "
     echo "           quiet - build with minimal output"
-    echo " "
-    echo "            show - show maven command line but don't build"
-    echo " "
-    echo "       sparkling - prompt to remove entire .m2 repository and all cached and temporary files"
     echo " "
     echo "           tests - run all tests"
     echo " "
@@ -77,40 +77,36 @@ build() {
     "all")
         JAVADOC=true
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS="multi-threaded tests tools ${@:3}"
-        ;;
-
-    "test")
-        BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS="single-threaded tests no-javadoc ${@:3}"
-        ;;
-
-    "tools")
-        BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(multi-threaded tests tools no-javadoc ${@:3})
+        BUILD_MODIFIERS="tests tools ${@:3}"
         ;;
 
     "compile")
         BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(multi-threaded no-tests no-javadoc quiet ${@:3})
+        BUILD_MODIFIERS=(no-tests no-javadoc quiet ${@:3})
+        ;;
+
+    "deploy-ossrh")
+        JAVADOC=true
+        BUILD_ARGUMENTS="clean deploy"
+        BUILD_MODIFIERS="tests attach-jars sign-artifacts ${@:3}"
+        ;;
+
+    "deploy-local")
+        JAVADOC=true
+        BUILD_ARGUMENTS="clean install"
+        BUILD_MODIFIERS="tests attach-jars sign-artifacts ${@:3}"
         ;;
 
     "javadoc")
         JAVADOC="true"
         BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(multi-threaded no-tests javadoc ${@:3})
-        ;;
-
-    "javadoc-package")
-        JAVADOC="true"
-        BUILD_ARGUMENTS="clean package"
-        BUILD_MODIFIERS=(multi-threaded no-tests javadoc-package ${@:3})
+        BUILD_MODIFIERS=(no-tests javadoc ${@:3})
         ;;
 
     *)
         BUILD_TYPE="default"
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(multi-threaded no-javadoc ${@:2})
+        BUILD_MODIFIERS=(no-javadoc ${@:2})
         ;;
 
     esac
@@ -125,28 +121,17 @@ build() {
 
         case "$MODIFIER" in
 
-        "tools")
-            addSwitch "-P tools"
+        "attach-jars")
+            BUILD_ARGUMENTS="$BUILD_ARGUMENTS -P attach-jars"
             ;;
 
-        "javadoc")
-            if [ ! -z "$JAVADOC" ]; then
-                BUILD_ARGUMENTS="$BUILD_ARGUMENTS javadoc:aggregate"
-            fi
+        "compile")
+            BUILD_ARGUMENTS="clean compile"
+            BUILD_MODIFIERS=(no-tests shade no-javadoc quiet ${@:3})
             ;;
 
-        "javadoc-package")
-            if [ ! -z "$JAVADOC" ]; then
-                BUILD_ARGUMENTS="$BUILD_ARGUMENTS javadoc:aggregate"
-            fi
-            ;;
-
-        "multi-threaded")
-            THREADS=12
-            ;;
-
-        "single-threaded")
-            THREADS=1
+        "dry-run")
+            DRY_RUN="true"
             ;;
 
         "no-javadoc")
@@ -161,19 +146,25 @@ build() {
             addSwitch "-Dmaven.surefire.debug"
             ;;
 
+        "javadoc")
+            if [ ! -z "$JAVADOC" ]; then
+                BUILD_ARGUMENTS="$BUILD_ARGUMENTS javadoc:aggregate"
+            fi
+            ;;
+
         "no-tests")
             addSwitch "-Dmaven.test.skip=true"
             ;;
-
-        "tests") ;;
 
         "quiet")
             addSwitch "-q -Dsurefire.printSummary=false"
             ;;
 
-        "show")
-            SHOW="true"
+        "sign-artifacts")
+            BUILD_ARGUMENTS="$BUILD_ARGUMENTS -P sign-artifacts"
             ;;
+
+        "tests") ;;
 
         *)
             echo " "
@@ -185,8 +176,6 @@ build() {
         shift
 
     done
-
-    addSwitch "--threads $THREADS"
 
     BUILD_FOLDER="$PROJECT"
 
@@ -203,7 +192,7 @@ build() {
         echo "┋   Maven Command Line: mvn $SWITCHES $BUILD_ARGUMENTS"
         echo "┋"
 
-        if [ -z "$SHOW" ]; then
+        if [ -z "$DRY_RUN" ]; then
 
             $PRE_BUILD_SCRIPT
 
