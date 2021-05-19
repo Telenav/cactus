@@ -11,7 +11,9 @@ system_variable LEXAKAI_VERSION 0.9.5-alpha-SNAPSHOT
 system_variable LEXAKAI_URL "https://s01.oss.sonatype.org/service/local/repositories/snapshots/content/com/telenav/lexakai/lexakai/0.9.5-alpha-SNAPSHOT/lexakai-0.9.5-alpha-20210519.035416-1.jar"
 
 append_path "$CACTUS_TOOLS/building"
+append_path "$CACTUS_TOOLS/developing"
 append_path "$CACTUS_TOOLS/library"
+append_path "$CACTUS_TOOLS/releasing"
 
 echo " "
 echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Cactus Environment ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"

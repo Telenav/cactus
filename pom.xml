@@ -14,27 +14,35 @@
     <version>0.9.5-alpha-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <!-- Project Metadata -->
+
     <name>Cactus Build</name>
     <description>The cactus-build project generates build metadata consumed by KivaKit and other projects.</description>
     <url>http://www.kivakit.org</url>
     <inceptionYear>2021</inceptionYear>
-
     <organization>
         <name>Telenav</name>
         <url>https://www.telenav.com</url>
     </organization>
 
+    <!-- Licensing -->
+
     <licenses>
+
         <license>
             <name>Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
+
     </licenses>
 
+    <!-- Contributors -->
+
     <developers>
+
         <developer>
-            <id>jonathanl</id>
+            <id>jonathan</id>
             <name>Jonathan Locke (Luo Shibo)</name>
             <email>jonathanl@telenav.com</email>
             <organization>Telenav</organization>
@@ -44,8 +52,9 @@
                 <role>administrator</role>
             </roles>
         </developer>
+
         <developer>
-            <id>hfzhu</id>
+            <id>haifeng</id>
             <name>Haifeng Zhu</name>
             <email>hfzhu@telenav.com</email>
             <organization>Telenav</organization>
@@ -55,18 +64,29 @@
                 <role>administrator</role>
             </roles>
         </developer>
+
     </developers>
 
+    <!-- Source Code -->
+
     <scm>
+
         <connection>scm:git:https://Telenav/cactus-build.git</connection>
         <developerConnection>scm:git:https://Telenav/cactus-build.git</developerConnection>
         <url>https://Telenav/cactus-build.git</url>
+
     </scm>
 
+    <!-- Issue Tracking -->
+
     <issueManagement>
+
         <system>GitHub</system>
         <url>https://github.com/Telenav/cactus-build/issues</url>
+
     </issueManagement>
+
+    <!-- Publishing -->
 
     <distributionManagement>
 
@@ -81,6 +101,8 @@
         </repository>
 
     </distributionManagement>
+
+    <!-- Snapshots -->
 
     <repositories>
 
@@ -97,17 +119,17 @@
 
     </repositories>
 
+    <!-- Modules -->
+
     <modules>
 
         <module>metadata</module>
 
     </modules>
 
+    <!-- Properties -->
+
     <properties>
-
-        <!-- Cactus -->
-
-        <cactus.jar>cactus-build-metadata-${project.version}.jar</cactus.jar>
 
         <!-- Java -->
 
@@ -127,9 +149,11 @@
 
     </properties>
 
+    <!-- Profiles -->
+
     <profiles>
 
-        <!-- Attach JARs -->
+        <!-- Attaching -->
 
         <profile>
             <id>attach-jars</id>
@@ -174,7 +198,7 @@
             </build>
         </profile>
 
-        <!-- Sign Artifacts -->
+        <!-- Signing -->
 
         <profile>
 
@@ -229,6 +253,7 @@
                 </includes>
             </resource>
         </resources>
+
         <testResources>
             <testResource>
                 <directory>src/test/java</directory>
@@ -247,11 +272,13 @@
             </testResource>
         </testResources>
 
+        <!-- Plugins -->
+
         <pluginManagement>
 
             <plugins>
 
-                <!-- Compiler -->
+                <!-- Compiling -->
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -268,7 +295,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Maven Build -->
+                <!-- Building -->
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -287,7 +314,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Javadoc -->
+                <!-- Documentation -->
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
