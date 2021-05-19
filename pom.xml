@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
-    <version>0.9.5-alpha-SNAPSHOT</version>
+    <version>0.9.6-alpha</version>
     <packaging>pom</packaging>
 
     <!-- Project Metadata -->

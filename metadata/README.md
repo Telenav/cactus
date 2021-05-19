@@ -36,7 +36,7 @@ This module saves and loads build metadata to *src/main/java/build.properties*.
     <dependency>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build-metadata</artifactId>
-        <version>0.9.5-alpha-SNAPSHOT</version>
+        <version>0.9.6-alpha</version>
     </dependency>
 
 <img src="https://www.kivakit.org/images/horizontal-line-128.png" srcset="https://www.kivakit.org/images/horizontal-line-128-2x.png 2x"/>

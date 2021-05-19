@@ -158,14 +158,14 @@ git_flow_release_start() {
     git checkout release/$version
 
     # and update its version
-    bash kivakit-release-version.sh $VERSION
+    bash cactus-release-version.sh $VERSION
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Branch Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
     echo "┋  VERSION: $version"
     echo "┋"
-    echo "┋  1. A new release branch 'release/$version' has been created using git flow."
+    echo "┋  1. A new release branch 'release/$version' have been created using git flow."
     echo "┋  2. POM files and other version-related information in this branch has been updated to $version."
     echo "┋  3. When the release branch is FULLY READY, run the release finish script to merge the branch into master."
     echo "┋"
