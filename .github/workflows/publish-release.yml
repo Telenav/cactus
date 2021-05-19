@@ -8,13 +8,14 @@
 
 #
 # GitHub action that publishes signed release artifacts with Javadoc and source code attachments to
-# Maven Central (https://maven.apache.org/repository/) when the action is run manually on GitHub
+# Maven Central (https://maven.apache.org/repository/) when a new release is created
 #
 
 name: Publish Release
 
 on:
-  workflow_dispatch:
+  release:
+    types: [created]
 
 jobs:
 
