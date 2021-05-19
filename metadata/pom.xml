@@ -5,6 +5,7 @@
 <!--                                                                                                                 -->
 <!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
 
+<!--suppress MavenModelInspection -->
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -67,22 +68,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
-                    <execution>
-                        <id>install-cactus-metadata-jar</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target name = "Install ${cactus.jar}">
-                                <echo message = "Installing ${cactus.jar}"/>
-                                <copy file = "${project.build.directory}/${cactus.jar}"
-                                      tofile = "${env.CACTUS_ASSETS_HOME}/docs/applications/${cactus.jar}"/>
-                                <copy file = "${project.build.directory}/${cactus.jar}"
-                                      tofile = "${env.KIVAKIT_ASSETS_HOME}/docs/applications/${cactus.jar}"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>project-metadata</id>
                         <phase>validate</phase>
