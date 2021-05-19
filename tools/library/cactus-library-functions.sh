@@ -158,14 +158,14 @@ git_flow_release_start() {
     git checkout release/$version
 
     # and update its version
-    bash kivakit-release-version.sh $VERSION
+    bash cactus-release-version.sh $VERSION
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Branch Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
     echo "┋  VERSION: $version"
     echo "┋"
-    echo "┋  1. A new release branch 'release/$version' has been created using git flow."
+    echo "┋  1. A new release branch 'release/$version' have been created using git flow."
     echo "┋  2. POM files and other version-related information in this branch has been updated to $version."
     echo "┋  3. When the release branch is FULLY READY, run the release finish script to merge the branch into master."
     echo "┋"
@@ -274,7 +274,12 @@ is_mac() {
 lexakai() {
 
     # -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044
-    java -jar $KIVAKIT_ASSETS_HOME/docs/applications/lexakai-$LEXAKAI_VERSION.jar -overwrite-resources=true -update-readme=true $@
+    lexakai_cache="$HOME/.lexakai/${LEXAKAI_VERSION}"
+    lexakai_jar="${lexakai_cache}/lexakai-${LEXAKAI_VERSION}.jar"
+    if [ ! -e $lexakai_jar ]; then
+        wget --timestamping $LEXAKAI_URL --output-document=$lexakai_jar
+    fi
+    java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $@
 }
 
 yes_no() {

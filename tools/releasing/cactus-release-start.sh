@@ -7,4 +7,17 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bash cactus-build.sh javadoc
+source library-functions.sh
+source cactus-projects.sh
+
+help="[version]"
+
+version=$1
+
+require_variable version "$help"
+
+for project_home in "${CACTUS_ALL_HOMES[@]}"; do
+
+    git_flow_release_start $project_home $version
+
+done

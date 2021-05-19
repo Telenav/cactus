@@ -7,4 +7,17 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bash cactus-build.sh javadoc
+source library-functions.sh
+source cactus-projects.sh
+
+version="${1%-SNAPSHOT}-SNAPSHOT"
+
+help="[version]"
+
+require_variable version "$help"
+
+for project_home in "${CACTUS_ALL_HOMES[@]}"; do
+
+    update_version $project_home $version
+
+done
