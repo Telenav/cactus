@@ -13,7 +13,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-build metadata &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
+# cactus-build metadata 0.9.6-alpha &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 

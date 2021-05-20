@@ -14,7 +14,7 @@
     <version>0.9.6-alpha</version>
     <packaging>pom</packaging>
 
-    <!-- Project Metadata -->
+    <!-- Project -->
 
     <name>Cactus Build</name>
     <description>The cactus-build project generates build metadata consumed by KivaKit and other projects.</description>
@@ -139,7 +139,6 @@
         <!-- Maven -->
 
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-compiler-plugin-java.version>12</maven-compiler-plugin-java.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
@@ -285,8 +284,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <source>${maven-compiler-plugin-java.version}</source>
-                        <target>${maven-compiler-plugin-java.version}</target>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                         <release>${java.version}</release>
                         <compilerArgs>
                             <compilerArgument>-Xlint:unchecked</compilerArgument>

@@ -124,7 +124,7 @@ public class Metadata
      *
      * <pre>
      * project-name        = KivaKit - Application
-     * project-version     = 0.9.5-alpha-SNAPSHOT
+     * project-version     = 1.3.5
      * project-group-id    = com.telenav.kivakit
      * project-artifact-id = kivakit-core-application
      * </pre>
