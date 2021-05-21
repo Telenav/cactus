@@ -13,7 +13,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-build metadata 0.9.6-alpha &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
+# cactus-build metadata 0.9.8-SNAPSHOT &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 
@@ -36,7 +36,7 @@ This module saves and loads build metadata to *src/main/java/build.properties*.
     <dependency>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build-metadata</artifactId>
-        <version>0.9.6-alpha</version>
+        <version>0.9.8-SNAPSHOT</version>
     </dependency>
 
 <img src="https://www.kivakit.org/images/horizontal-line-128.png" srcset="https://www.kivakit.org/images/horizontal-line-128-2x.png 2x"/>
