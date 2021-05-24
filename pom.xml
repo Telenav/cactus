@@ -325,7 +325,7 @@
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
-                        <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/javadoc</reportOutputDirectory>
+                        <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/${env.CACTUS_VERSION}/javadoc</reportOutputDirectory>
                         <destDir>cactus-build</destDir>
                         <additionalOptions>-notimestamp --show-module-contents all --show-packages all --show-types private</additionalOptions>
                     </configuration>
