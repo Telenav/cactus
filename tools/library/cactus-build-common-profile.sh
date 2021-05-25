@@ -12,12 +12,18 @@ append_path "$CACTUS_TOOLS/developing"
 append_path "$CACTUS_TOOLS/library"
 append_path "$CACTUS_TOOLS/releasing"
 
-echo " "
-echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Cactus Environment ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
-echo "┋"
-echo -e "┋              CACTUS_HOME: ${ATTENTION}$CACTUS_HOME${NORMAL}"
-echo -e "┋           CACTUS_VERSION: ${ATTENTION}$CACTUS_VERSION${NORMAL}"
-echo "┋       CACTUS_ASSETS_HOME: $CACTUS_ASSETS_HOME"
-echo "┋"
-echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
-echo " "
+if [ "$SHOW_CACTUS_ENVIRONMENT" != "false" ]; then
+
+    echo " "
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Cactus Environment ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┋"
+    echo -e "┋              CACTUS_HOME: ${ATTENTION}$CACTUS_HOME${NORMAL}"
+    echo -e "┋           CACTUS_VERSION: ${ATTENTION}$CACTUS_VERSION${NORMAL}"
+    echo "┋       CACTUS_ASSETS_HOME: $CACTUS_ASSETS_HOME"
+    echo "┋"
+    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+    echo " "
+
+    SHOW_CACTUS_ENVIRONMENT=false
+
+fi
