@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
-    <version>0.9.6-alpha</version>
+    <version>0.9.8-beta</version>
     <packaging>pom</packaging>
 
     <!-- Project -->
@@ -325,7 +325,7 @@
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
-                        <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/javadoc</reportOutputDirectory>
+                        <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/${env.CACTUS_VERSION}/javadoc</reportOutputDirectory>
                         <destDir>cactus-build</destDir>
                         <additionalOptions>-notimestamp --show-module-contents all --show-packages all --show-types private</additionalOptions>
                     </configuration>

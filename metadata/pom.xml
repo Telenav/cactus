@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build</artifactId>
-        <version>0.9.6-alpha</version>
+        <version>0.9.8-beta</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -89,12 +89,12 @@
                                     <equals arg1 = "${source.exists}" arg2 = "true"/>
                                     <then>
                                         <echo file = "src/main/java/project.properties">
-                                            project-name        = ${project.name}${line.separator}project-version     = ${project.version}${line.separator}project-group-id    = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
+                                            project-name = ${project.name}${line.separator}project-version = ${project.version}${line.separator}project-group-id = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
                                         </echo>
                                     </then>
                                     <else>
                                         <echo file = "${project.basedir}/project.properties">
-                                            project-name        = ${project.name}${line.separator}project-version     = ${project.version}${line.separator}project-group-id    = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
+                                            project-name = ${project.name}${line.separator}project-version = ${project.version}${line.separator}project-group-id = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
                                         </echo>
                                     </else>
                                 </if>

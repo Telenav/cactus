@@ -14,6 +14,8 @@ for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
 
     project_name=$(project_name $project_home)
 
-    lexakai -project-version=$CACTUS_VERSION -output-folder=$CACTUS_ASSETS_HOME/docs/lexakai/$project_name $project_home
+    echo "lexakai -project-version=$CACTUS_VERSION -output-folder=$CACTUS_ASSETS_HOME/docs/$CACTUS_VERSION/lexakai/$project_name $project_home"
+
+    lexakai -project-version=$CACTUS_VERSION -output-folder=$CACTUS_ASSETS_HOME/docs/$CACTUS_VERSION/lexakai/$project_name $project_home
 
 done

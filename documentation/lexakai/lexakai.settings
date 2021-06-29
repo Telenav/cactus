@@ -7,8 +7,8 @@
 #
 # Locations of resources linked to from README.md files
 #
-lexakai-documentation-location = https://www.kivakit.org/lexakai
-lexakai-javadoc-location       = https://www.kivakit.org/javadoc
+lexakai-documentation-location = https://github.com/Telenav/cactus-build-assets/tree/publish/docs/${project-version}/lexakai
+lexakai-javadoc-location       = https://github.com/Telenav/cactus-build-assets/tree/publish/docs/${project-version}/javadoc
 lexakai-images-location        = https://www.kivakit.org/images
 
 #

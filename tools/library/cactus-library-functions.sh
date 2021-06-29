@@ -85,9 +85,13 @@ clean_maven_repository() {
 
 remove_maven_repository() {
 
-    if yes_no "Remove ALL artifacts in ~\.m2"; then
+    if [ -d "$HOME/.m2/repository" ]; then
 
-        rm -rf ~/.m2
+        if yes_no "Remove ALL artifacts in ~/.m2/repository"; then
+
+            rm -rf ~/.m2/repository
+
+        fi
 
     fi
 }
@@ -273,21 +277,33 @@ is_mac() {
 
 lexakai() {
 
-    lexakai_version=0.9.5-alpha-SNAPSHOT
-    lexakai_url="https://s01.oss.sonatype.org/service/local/repositories/snapshots/content/com/telenav/lexakai/lexakai/0.9.5-alpha-SNAPSHOT/lexakai-0.9.5-alpha-20210519.035416-1.jar"
+    lexakai_download_version="0.9.8-beta"
+    lexakai_download_snapshot_version=""
+
     lexakai_downloads="$HOME/.lexakai/downloads"
-    lexakai_jar="${lexakai_downloads}/lexakai-${lexakai_version}.jar"
+
+    if [[ "$lexakai_download_version" == *"SNAPSHOT"* ]]; then
+
+        lexakai_snapshot_repository="https://s01.oss.sonatype.org/content/repositories/snapshots/com/telenav/lexakai/lexakai"
+        lexakai_url="$lexakai_snapshot_repository/${lexakai_download_version}/lexakai-${lexakai_download_version%-SNAPSHOT}-${lexakai_download_snapshot_version}.jar"
+        lexakai_jar="${lexakai_downloads}/lexakai-${lexakai_download_version}-${lexakai_download_snapshot_version}.jar"
+
+    else
+
+        lexakai_url="https://repo1.maven.org/maven2/com/telenav/lexakai/lexakai/${lexakai_download_version}/lexakai-${lexakai_download_version}.jar"
+        lexakai_jar="${lexakai_downloads}/lexakai-${lexakai_download_version}.jar"
+
+    fi
 
     mkdir -p ${lexakai_downloads}
 
     if [ ! -e "$lexakai_jar" ]; then
 
-        wget $KIVAKIT_LEXAKAI_URL --output-document=$lexakai_jar
+        wget $lexakai_url --output-document=$lexakai_jar
 
     fi
 
     # -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044
-    echo "java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $@"
     java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $@
 }
 
