@@ -17,7 +17,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-build 0.9.8-alpha-SNAPSHOT &nbsp;&nbsp; <img src="https://www.kivakit.org/images/kivakit-64.png" srcset="https://www.kivakit.org/images/kivakit-64-2x.png 2x"/>
+# cactus-build 0.9.8-beta &nbsp;&nbsp; <img src="https://www.kivakit.org/images/kivakit-64.png" srcset="https://www.kivakit.org/images/kivakit-64-2x.png 2x"/>
 
 This module contains tools for building modules and applications.
 
