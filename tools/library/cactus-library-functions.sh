@@ -14,7 +14,7 @@ property_value() {
     file=$1
     key=$2
 
-    cat $file | grep "$key" | cut -d'=' -f2 | xargs echo
+    cat "$file" | grep "$key" | cut -d'=' -f2 | xargs echo
 }
 
 project_version() {
@@ -22,11 +22,15 @@ project_version() {
     project_home=$1
     project_properties=$project_home/project.properties
 
-    echo $(property_value $project_properties project-version)
+    # shellcheck disable=SC2046
+    echo $(property_value "$project_properties" project-version)
 }
 
 project_name() {
+
     project_home=$1
+
+    # shellcheck disable=SC2046
     echo $(basename -- "$project_home")
 }
 
@@ -38,9 +42,9 @@ project_build() {
 
     if [ -e "$build_properties" ]; then
 
-        build_name=$(property_value $build_properties build-name)
-        build_number=$(property_value $build_properties build-number)
-        build_date=$(property_value $build_properties build-date)
+        build_name=$(property_value "$build_properties" build-name)
+        build_number=$(property_value "$build_properties" build-number)
+        build_date=$(property_value "$build_properties" build-date)
 
         echo "build #$build_number on $build_date '$build_name'"
 
@@ -50,10 +54,10 @@ project_build() {
 showVersion() {
 
     project_home=$1
-    project_name=$(project_name $project_home)
-    project_version=$(project_version $project_home)
+    project_name=$(project_name "$project_home")
+    project_version=$(project_version "$project_home")
 
-    echo -e "${ATTENTION}$project_name $project_version $(project_build $project_home)${NORMAL}"
+    echo -e "${ATTENTION}$project_name $project_version $(project_build "$project_home")${NORMAL}"
 }
 
 ################ CLEAN ################################################################################################
@@ -66,7 +70,7 @@ clean_cache() {
         read -p "┋ Remove ALL cached files in $cache (y/n)? " -n 1 -r
         echo "┋ "
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            rm -rf $cache
+            rm -rf "$cache"
         fi
     fi
 }
@@ -78,7 +82,7 @@ clean_maven_repository() {
 
     if yes_no "Remove all $name artifacts from ~\.m2"; then
 
-        rm -rf "~/.m2/repository/com/telenav/$name"
+        rm -rf "$HOME/.m2/repository/com/telenav/$name"
 
     fi
 }
@@ -102,7 +106,7 @@ clean_temporary_files() {
 
     if yes_no "Remove temporary files (.DS_Store, .metadata, .classpath, .project, *.hprof, *~) from $project_home tree"; then
 
-        find $project_home \( -name \.DS_Store -o -name \.metadata -o -name \.classpath -o -name \.project -o -name \*\.hprof -o -name \*~ \) | xargs rm
+        find "$project_home" \( -name \.DS_Store -o -name \.metadata -o -name \.classpath -o -name \.project -o -name \*\.hprof -o -name \*~ \) | xargs rm
 
     fi
 }
@@ -110,6 +114,8 @@ clean_temporary_files() {
 ################ COMMAND LINE ################################################################################################
 
 script() {
+
+    # shellcheck disable=SC2046
     echo $(basename -- "$0")
 }
 
@@ -126,7 +132,7 @@ require_variable() {
 
     if [[ -z "${!variable}" ]]; then
 
-        usage $argument_help
+        usage "$argument_help"
 
     fi
 }
@@ -152,17 +158,17 @@ git_flow_release_start() {
     version=$2
 
     # Check out the develop branch
-    cd $project_home
+    cd "$project_home"
     git checkout develop
 
     # then start a new release branch
-    git flow release start $version
+    git flow release start "$version"
 
     # switch to the release branch
-    git checkout release/$version
+    git checkout release/"$version"
 
     # and update its version
-    bash cactus-release-version.sh $VERSION
+    bash cactus-release-version.sh "$version"
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Branch Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
@@ -182,10 +188,10 @@ git_flow_release_finish() {
     project_home=$1
     version=$2
 
-    cd $project_home
+    cd "$project_home"
 
-    git checkout release/$version
-    git flow release finish $version
+    git checkout release/"$version"
+    git flow release finish "$version"
     git push origin --tags
 
     echo " "
@@ -205,10 +211,10 @@ git_flow_feature_start() {
     project_home=$1
     feature_name=$2
 
-    if yes_no "Start 'Feature-$feature_name' branch of $project_home"; then
+    if yes_no "Start '$feature_name' branch of $project_home"; then
 
-        cd $project_home
-        git-flow feature start Feature-$feature_name
+        cd "$project_home"
+        git-flow feature start "$feature_name"
 
     fi
 }
@@ -218,9 +224,9 @@ git_flow_feature_finish() {
     project_home=$1
     feature_name=$2
 
-    if yes_no "Finish 'Feature-$feature_name' branch of $project_home"; then
-        cd $project_home
-        git-flow feature finish Feature-$1
+    if yes_no "Finish '$feature_name' branch of $project_home"; then
+        cd "$project_home"
+        git-flow feature finish "$feature_name"
     fi
 }
 
@@ -231,13 +237,13 @@ update_version() {
     project_home=$1
     new_version=$2
 
-    old_version=$(project_version $project_home)
+    old_version=$(project_version "$project_home")
 
     echo " "
-    echo "Updating $(project_name $project_home) version from $old_version to $new_version"
+    echo "Updating $(project_name "$project_home") version from $old_version to $new_version"
 
     # Update POM versions and .md files
-    update-version.pl $project_home $old_version $new_version
+    update-version.pl "$project_home" "$old_version" "$new_version"
 
     echo "Updated"
     echo " "
@@ -259,11 +265,11 @@ system_variable() {
     value=$2
     temporary="$TMPDIR/export.txt"
 
-    echo "export $variable=\"$value\"" >$temporary
+    echo "export $variable=\"$value\"" >"$temporary"
     source "$temporary"
 
     if is_mac; then
-        launchctl setenv $variable "$value"
+        launchctl setenv "$variable" "$value"
     fi
 }
 
@@ -295,20 +301,20 @@ lexakai() {
 
     fi
 
-    mkdir -p ${lexakai_downloads}
+    mkdir -p "${lexakai_downloads}"
 
     if [ ! -e "$lexakai_jar" ]; then
 
         echo "$lexakai_jar doesn't exist"
 
-        wget $lexakai_url --output-document=$lexakai_jar
+        wget $lexakai_url --output-document="$lexakai_jar"
 
     fi
 
     # -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044
-    echo "java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $@"
+    echo "java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $*"
 
-    java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $@
+    java -jar "$lexakai_jar" -overwrite-resources=true -update-readme=true $@
 }
 
 
