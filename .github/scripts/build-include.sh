@@ -8,9 +8,9 @@
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 WORKSPACE="$(pwd)"
+
 KIVAKIT_HOME="$WORKSPACE/kivakit"
 MESAKIT_HOME="$WORKSPACE/mesakit"
-PASSPHRASE="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}"
 
 #
 # Print error message and exit
@@ -21,7 +21,8 @@ die() {
     echo " "
     echo "Fatal problem: $1"
     echo " "
-    exit 1
+
+    kill -SIGKILL $$
 }
 
 #
@@ -39,11 +40,13 @@ say() {
 
 check_branch() {
 
-    if [[ -z "$1" ]]; then
+    branch=$1
+
+    if [ -z "$branch" ]; then
         die "Must supply a branch"
     fi
 
-    echo "$1"
+    echo "$branch"
 }
 
 #
@@ -77,11 +80,13 @@ check_build_type() {
 
 check_repository() {
 
-    if [[ -z "$1" ]]; then
+    repository=$1
+
+    if [ -z "$repository" ]; then
         die "Must supply a repository"
     fi
 
-    echo "https://github.com/Telenav/$1.git"
+    echo "https://github.com/Telenav/$repository.git"
 }
 
 #
@@ -100,8 +105,7 @@ github_branch() {
 github_pull_request_identifier() {
 
     PATTERN='.*\/([0-9)]+)/.*'
-    if [[ "$GITHUB_REF" =~ $PATTERN ]]
-    then
+    if [[ "$GITHUB_REF" =~ $PATTERN ]]; then
         echo "${BASH_REMATCH[1]}"
     fi
 }
@@ -112,7 +116,7 @@ github_pull_request_identifier() {
 
 is_github_pull_request() {
 
-    if [[ -z "$(github_pull_request_identifier)" ]]; then
+    if [ -z "$(github_pull_request_identifier)" ]; then
         0
     else
         1
@@ -193,7 +197,7 @@ build() {
         ;;
 
     "publish")
-        mvn -P attach-jars -P sign-artifacts -P shade -P tools --no-transfer-progress --batch-mode -Dgpg.passphrase="$PASSPHRASE" clean deploy
+        mvn -P attach-jars -P sign-artifacts -P shade -P tools --no-transfer-progress --batch-mode -Dgpg.passphrase="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" clean deploy
         ;;
 
     "*")
