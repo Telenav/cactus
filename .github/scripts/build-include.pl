@@ -346,7 +346,7 @@ sub build
 
     if ($build_type eq "package")
     {
-        die "Package build failed" if !run("cd $folder && mvn -Dmaven.javadoc.skip=true -DKIVAKIT_DEBUG='!Debug' -P shade -P tools --no-transfer-progress --batch-mode clean install");
+        die "Package build failed" if !run("cd $folder && export MESAKIT_HOME=$MESAKIT_HOME && mvn -Dmaven.javadoc.skip=true -DKIVAKIT_DEBUG='!Debug' -P shade -P tools --no-transfer-progress --batch-mode clean install");
     }
     elsif ($build_type eq "publish")
     {
