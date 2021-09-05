@@ -125,9 +125,9 @@ github_pull_request_identifier() {
 is_github_pull_request() {
 
     if [ -z "$(github_pull_request_identifier)" ]; then
-        0
+        return 0
     else
-        1
+        return 1
     fi
 }
 
