@@ -263,7 +263,7 @@ sub branch
         if ($is_pull_request != 0)
         {
             # then return that branch,
-            return check_branch(pull_request_branch());
+            return check_branch($repository, pull_request_branch());
         }
 
         # otherwise return the build branch.
