@@ -126,7 +126,7 @@ sub clone
 
     if (index($from_branch, "pull/") == 0)
     {
-        run("cd $WORKSPACE && clone $repository master && git fetch origin '$from_branch/head:pull-request' && git checkout pull-request");
+        run("cd $WORKSPACE && git clone $repository master && git fetch origin '$from_branch/head:pull-request' && git checkout pull-request");
     }
     else
     {
