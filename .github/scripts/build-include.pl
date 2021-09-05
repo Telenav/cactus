@@ -404,10 +404,11 @@ sub build_mesakit
     my ($build_type) = @_;
     check_build_type($build_type);
 
+    install_pom("$MESAKIT_HOME/superpom");
+
     say("Installing shape file reader");
     die "Unable to install shape file reader" if !run("mvn install:install-file -Dfile='$WORKSPACE/mesakit/mesakit-map/geography/libraries/shapefilereader-1.0.jar' -DgroupId=org.nocrala -DartifactId=shapefilereader -Dversion=1.0 -Dpackaging=jar");
 
-    install_pom("$MESAKIT_HOME/superpom");
     build($build_type, $MESAKIT_HOME);
 }
 
