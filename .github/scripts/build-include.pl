@@ -39,7 +39,7 @@ sub run
     my ($command) = @_;
 
     say("Executing: $command");
-    return system($command);
+    return !system($command);
 }
 
 #
@@ -104,7 +104,7 @@ sub install_pom
     my ($folder) = @_;
 
     say("Installing super POM in $folder");
-    run("cd $folder && mvn --batch-mode --no-transfer-progress clean install") || die "Cannot install super pom";
+    die "Cannot install super pom" if !run("cd $folder && mvn --batch-mode --no-transfer-progress clean install");
 }
 
 sub branch_exists
@@ -136,24 +136,24 @@ sub clone
         if ($pull_request_allowed)
         {
             # then check out the branch as a pull request
-            run("cd $WORKSPACE && git clone $repository master && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
+            die "Cannot check out pull request $branch" if !run("cd $WORKSPACE && git clone $repository master && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
         }
         else
         {
             # otherwise if pull requests are not allowed, check out the develop branch.
-            run("cd $WORKSPACE && git clone --branch develop --quiet $repository");
+            die "Cannot check out develop branch" if !run("cd $WORKSPACE && git clone --branch develop --quiet $repository");
         }
     }
     else
     {
-        # If the branch is not a pull request, clone the requested branch,
+        # If the branch is not a pull request, clone the requested branch (which may fail),
         run("cd $WORKSPACE && git clone --branch $branch --quiet $repository");
 
         # and if that fails (because there is no such branch),
         if (!branch_exists($branch))
         {
             # then clone the develop branch.
-            run("cd $WORKSPACE && git clone --branch develop --quiet $repository");
+            die "Cannot check out develop branch" if !run("cd $WORKSPACE && git clone --branch develop --quiet $repository");
         }
     }
 }
@@ -172,11 +172,11 @@ sub build
 
     if ($build_type eq "package")
     {
-        run("cd $folder && mvn -Dmaven.javadoc.skip=true -DKIVAKIT_DEBUG='!Debug' -P shade -P tools --no-transfer-progress --batch-mode clean install") || die "Package build failed";
+        die "Package build failed" if !run("cd $folder && mvn -Dmaven.javadoc.skip=true -DKIVAKIT_DEBUG='!Debug' -P shade -P tools --no-transfer-progress --batch-mode clean install");
     }
     elsif ($build_type eq "publish")
     {
-        run("cd $folder && mvn -P attach-jars -P sign-artifacts -P shade -P tools --no-transfer-progress --batch-mode -Dgpg.passphrase='$passphrase' clean deploy") || die "Publish failed";
+        die "Publish failed" if !run("cd $folder && mvn -P attach-jars -P sign-artifacts -P shade -P tools --no-transfer-progress --batch-mode -Dgpg.passphrase='$passphrase' clean deploy");
     }
     else
     {
@@ -231,7 +231,7 @@ sub build_mesakit
     check_build_type($build_type);
 
     say("Installing shape file reader");
-    run("mvn install:install-file -Dfile='$WORKSPACE/mesakit/mesakit-map/geography/libraries/shapefilereader-1.0.jar' -DgroupId=org.nocrala -DartifactId=shapefilereader -Dversion=1.0 -Dpackaging=jar") || die "Unable to install shape file reader";
+    die "Unable to install shape file reader" if !run("mvn install:install-file -Dfile='$WORKSPACE/mesakit/mesakit-map/geography/libraries/shapefilereader-1.0.jar' -DgroupId=org.nocrala -DartifactId=shapefilereader -Dversion=1.0 -Dpackaging=jar");
 
     install_pom("$MESAKIT_HOME/superpom");
     build($build_type, $MESAKIT_HOME);
