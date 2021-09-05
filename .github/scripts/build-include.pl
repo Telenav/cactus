@@ -47,7 +47,7 @@ sub check_branch
 {
     my ($branch) = @_;
 
-    die "Must supply a branch" if ($branch eq "");
+    die "Must supply a branch" if (!defined $branch || $branch eq "");
 }
 
 #
@@ -87,39 +87,23 @@ sub check_repository
 }
 
 #
-# Get any branch name for this build
+# Converts a GitHub ref like "refs/heads/feature/lasers" into a branch name like "feature/lasers"
 #
 
-sub github_branch
+sub reference_to_branch
 {
-    return $ENV{"GITHUB_REF"} =~ s!refs/heads/!!;
-}
-
-#
-# Get any pull-request identifier for this build
-#
-
-sub github_pull_request_identifier
-{
-    my $reference = $ENV{"GITHUB_REF"};
+    my ($reference) = @_;
 
     if ($reference =~ m!.*/(\d+)/.*!)
     {
         my $identifier = $1;
         check_pull_request_identifier($identifier);
-        return $identifier;
+        return "pull/$identifier"
     }
 
-    return 0;
-}
+    $reference =~ s!refs/heads/!!;
 
-#
-# Returns true if a pull-request is being built
-#
-
-sub is_github_pull_request
-{
-    return github_pull_request_identifier() != 0;
+    return $reference;
 }
 
 #
@@ -140,46 +124,19 @@ sub install_pom
 
 sub clone
 {
-    my ($repository, $branch) = @_;
+    my ($repository, $from_branch) = @_;
     check_repository($repository);
-    check_branch($branch);
+    check_branch($from_branch);
 
-    say("Cloning $repository ($branch)");
-    run("cd $WORKSPACE && git clone --branch $branch --quiet $repository");
-}
+    say("Cloning $repository ($from_branch)");
 
-#
-# Clones the given pull request identifier in the given repository into the given branch
-#
-
-sub clone_pull_request
-{
-    my ($repository, $branch, $identifier) = @_;
-    check_repository($repository);
-    check_branch($branch);
-    check_pull_request_identifier($identifier);
-
-    say("Cloning pull request $identifier into branch $branch");
-    run("cd $WORKSPACE && clone $repository master && git fetch origin 'pull/$identifier/head:$branch' && git checkout $branch");
-}
-
-#
-# Clones the GitHub repository that we are building
-#
-
-sub clone_this
-{
-    my ($repository, $branch) = @_;
-    check_repository($repository);
-    check_branch($branch);
-
-    if (is_github_pull_request())
+    if (index($from_branch, "pull/") == 0)
     {
-        clone_pull_request($repository, $branch, github_pull_request_identifier())
+        run("cd $WORKSPACE && clone $repository master && git fetch origin '$from_branch/head:pull-request' && git checkout pull-request");
     }
     else
     {
-        clone($repository, $branch)
+        run("cd $WORKSPACE && git clone --branch $from_branch --quiet $repository");
     }
 }
 
@@ -260,5 +217,5 @@ sub build_mesakit_examples
     check_build_type($build_type);
 
     build($build_type, "$WORKSPACE/mesakit-examples");
- }
+}
 
