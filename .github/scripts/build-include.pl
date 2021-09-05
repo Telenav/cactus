@@ -126,6 +126,11 @@ sub clone
 
     say("Cloning $repository ($branch)");
 
+    my $repository_name;
+    if ($repository =~ m/([^\/]+)$/)
+    {
+        $repository_name = $1;
+    }
     my $is_pull_request = (index($branch, "pull/") == 0);
     my $pull_request_allowed = defined $allow_pull_request && ($allow_pull_request eq "allow-pull-request");
 
@@ -136,7 +141,7 @@ sub clone
         if ($pull_request_allowed)
         {
             # then check out the branch as a pull request
-            die "Cannot check out pull request $branch" if !run("cd $WORKSPACE && git clone --branch develop $repository && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
+            die "Cannot check out pull request $branch" if !run("cd $WORKSPACE && git clone --branch develop $repository && cd $repository_name && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
         }
         else
         {
