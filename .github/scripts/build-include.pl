@@ -59,18 +59,6 @@ sub check_branch
 }
 
 #
-# Checks the pull request identifier
-#
-
-sub check_pull_request_identifier
-{
-    my ($identifier) = @_;
-
-    die "Must supply a pull request identifier" if ($identifier eq "");
-    die "Pull request identifier must be a number" if (!($identifier =~ /d+/));
-}
-
-#
 # Checks the build type
 #
 
@@ -104,9 +92,7 @@ sub reference_to_branch
 
     if ($reference =~ m!.*/(\d+)/.*!)
     {
-        my $identifier = $1;
-        check_pull_request_identifier($identifier);
-        return "pull/$identifier"
+        return "pull/$1"
     }
 
     $reference =~ s!refs/heads/!!;
