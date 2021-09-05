@@ -20,18 +20,30 @@ $ENV{$KIVAKIT_HOME} = $KIVAKIT_HOME;
 $ENV{$MESAKIT_HOME} = $MESAKIT_HOME;
 
 #
-# Print the given string
+# Print the given text to the console
 #
 
 sub say
 {
     my ($text) = @_;
 
-    print "===> $text\n"
+    print "===> $text\n";
+    return $text;
 }
 
 #
-# Run the given command in bash
+# Returns true if the given value is not defined or is the empty string
+#
+
+sub is_empty
+{
+    my ($value) = @_;
+
+    return !defined $value || $value eq "";
+}
+
+#
+# Runs the given command and returns true if is is successful
 #
 
 sub run
@@ -43,30 +55,79 @@ sub run
 }
 
 #
-# Checks the given branch name
+# The name of the given repository
+#
+#     https://github.com/Telenav/kivakit ==> kivakit
+#
+
+sub repository_name
+{
+    my ($repository) = @_;
+
+    if ($repository =~ m/([^\/]+)$/)
+    {
+        return $1;
+    }
+
+    die "Not a valid repository: $repository";
+}
+
+#
+# Returns true if the given branch of the given repository exists
+#
+
+sub branch_exists
+{
+    my ($repository, $branch) = @_;
+
+    clone_branch($repository, $branch);
+
+    my $repository_name = repository_name($repository);
+    my $folder = "$WORKSPACE/$repository_name";
+    if (-d "$folder")
+    {
+        my $output = `cd $folder && git branch --list $branch`;
+        if (is_empty($output))
+        {
+            say("Branch $repository:$branch does not exist: $output");
+        }
+        return $output;
+    }
+    return 0;
+}
+
+#
+# Checks the given repository branch to ensure that it exists in the given repository
 #
 
 sub check_branch
 {
-    my ($branch) = @_;
+    my ($repository, $branch) = @_;
 
-    die "Must supply a branch" if (!defined $branch || $branch eq "");
+    die "Must supply a branch for repository $repository" if is_empty($branch);
+    die "Branch does not exist: $repository:$branch" if (!branch_exists($repository, $branch));
+
+    say("Validated $repository:$branch");
+
+    return $branch;
 }
 
 #
-# Checks the build type
+# Checks the build type (either "package" or "publish")
 #
 
 sub check_build_type
 {
     my ($build_type) = @_;
 
-    die "Must supply build type" if (!defined $build_type || $build_type eq "");
+    die "Must supply build type (package or publish)" if (is_empty($build_type));
     die "Unrecognized build type: $build_type" if (!($build_type eq "package" || $build_type eq "publish"));
+
+    return $build_type;
 }
 
 #
-# Check the given repository name, returning the full GitHub URL if it is valid
+# Check the given repository (it must start with https://github.com/)
 #
 
 sub check_repository
@@ -74,25 +135,144 @@ sub check_repository
     my ($repository) = @_;
 
     die "Must supply a repository" if ($repository eq "");
-    die "Must supply a github repository URL" if (index($repository, "https://github.com/Telenav/") != 0);
+    die "Must supply a github repository URL" if (index($repository, "https://github.com/") != 0);
+
+    return $repository;
 }
 
 #
-# Converts a GitHub ref like "refs/heads/feature/lasers" into a branch name like "feature/lasers"
+# Gets the name of a branch from the GitHub "ref":
+#
+#     refs/heads/develop ==> develop
+#     refs/heads/feature/lasers ==> feature/lasers
+#     refs/pull/13/merge ==> pull/13
 #
 
 sub reference_to_branch
 {
     my ($reference) = @_;
 
-    if ($reference =~ m!.*/(\d+)/.*!)
+    if (is_empty($reference))
     {
-        return "pull/$1"
+        return $reference;
     }
 
-    $reference =~ s!refs/heads/!!;
+    my $branch = $reference;
+    $branch =~ s!refs/heads/!!;
 
-    return $reference;
+    if ($branch =~ m!.*/(\d+)/.*!)
+    {
+        $branch = "pull/$1";
+    }
+
+    return $branch;
+}
+
+sub show_github_variables
+{
+    say("GITHUB_REF = $ENV{'GITHUB_REF'}");
+    say("GITHUB_BASE_REF = $ENV{'GITHUB_BASE_REF'}") if !is_empty($ENV{'GITHUB_BASE_REF'});
+    say("GITHUB_HEAD_REF = $ENV{'GITHUB_HEAD_REF'}") if !is_empty($ENV{'GITHUB_HEAD_REF'});
+}
+
+#
+# Returns the branch that our action is building (pull request, feature branch, master or develop)
+#
+
+sub build_branch
+{
+    return reference_to_branch($ENV{'GITHUB_REF'});
+}
+
+#
+# Returns the branch that our action's branch is based on (will ultimately merge to)
+#
+
+sub destination_branch
+{
+    return reference_to_branch($ENV{'GITHUB_BASE_REF'});
+}
+
+#
+# Returns the pull request branch we are building (if any)
+#
+
+sub pull_request_branch
+{
+    return reference_to_branch($ENV{'GITHUB_HEAD_REF'});
+}
+
+#
+# Returns true if our action is building a pull request
+#
+
+sub is_pull_request
+{
+    my ($branch) = @_;
+
+    return index($branch, "pull") == 0;
+}
+
+#
+# Returns the branch that should be used for the given repository and type
+#
+
+sub branch
+{
+    my ($repository, $repository_type) = @_;
+    my $is_pull_request = is_pull_request(build_branch());
+
+    # If the repository is a dependency (it's not the branch our action is building),
+    if ($repository_type eq "dependency")
+    {
+        # and we're working on a pull request,
+        if ($is_pull_request != 0)
+        {
+            # and there's a matching pull request branch in this dependent repository,
+            if (branch_exists($repository, pull_request_branch()))
+            {
+                # then return that branch,
+                return pull_request_branch();
+            }
+            else
+            {
+                # otherwise, return the destination branch for the pull request.
+                return check_branch($repository, destination_branch());
+            }
+        }
+        # If we're working on a normal branch,
+        else
+        {
+            # and a matching build branch exists in this dependent repository,
+            if (branch_exists($repository, build_branch()))
+            {
+                # then return that branch.
+                return build_branch();
+            }
+            else
+            {
+                # otherwise, return the "develop" branch as a default.
+                return check_branch($repository, "develop");
+            }
+        }
+    }
+    # If the repository is the one we're building,
+    elsif ($repository_type eq "build")
+    {
+        # and it's a pull request,
+        if ($is_pull_request != 0)
+        {
+            # then return that branch,
+            return check_branch(pull_request_branch());
+        }
+
+        # otherwise return the build branch.
+        return check_branch($repository, build_branch());
+    }
+    else
+    {
+        die "Unrecognized repository type: $repository_type";
+    }
 }
 
 #
@@ -107,11 +287,19 @@ sub install_pom
     die "Cannot install super pom" if !run("cd $folder && mvn --batch-mode --no-transfer-progress clean install");
 }
 
-sub branch_exists
+sub clone_branch
 {
-    my ($branch) = @_;
+    my ($repository, $branch) = @_;
+    my $repository_name = repository_name($repository);
 
-    return `git branch --list $branch`;
+    if (!-d "$WORKSPACE/$repository_name")
+    {
+        say("Cloning $repository:$branch");
+        return run("cd $WORKSPACE && git clone --branch $branch --quiet $repository");
+    }
+
+    say("Branch $repository:$branch already exists");
+    return 1;
 }
 
 #
@@ -120,45 +308,26 @@ sub branch_exists
 
 sub clone
 {
-    my ($repository, $branch, $allow_pull_request) = @_;
+    my ($repository, $repository_type) = @_;
     check_repository($repository);
-    check_branch($branch);
-
-    say("Cloning $repository ($branch)");
-
-    my $repository_name;
-    if ($repository =~ m/([^\/]+)$/)
-    {
-        $repository_name = $1;
-    }
-    my $is_pull_request = (index($branch, "pull/") == 0);
-    my $pull_request_allowed = defined $allow_pull_request && ($allow_pull_request eq "allow-pull-request");
+    my $repository_name = repository_name($repository);
+    my $branch = branch($repository, $repository_type);
 
     # If the branch is a pull request,
-    if ($is_pull_request)
+    if (is_pull_request($branch))
     {
-        # and pull requests are allowed,
-        if ($pull_request_allowed)
+        # then check out the branch as a pull request,
+        if (!branch_exists($repository, "pull-request"))
         {
-            # then check out the branch as a pull request
-            die "Cannot check out pull request $branch" if !run("cd $WORKSPACE && git clone --branch develop $repository && cd $repository_name && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
-        }
-        else
-        {
-            # otherwise if pull requests are not allowed, check out the develop branch.
-            die "Cannot check out develop branch" if !run("cd $WORKSPACE && git clone --branch develop --quiet $repository");
+            die "Cannot clone pull request $branch" if !run("cd $WORKSPACE/$repository_name && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
         }
     }
     else
     {
-        # If the branch is not a pull request, clone the requested branch (which may fail),
-        run("cd $WORKSPACE && git clone --branch $branch --quiet $repository");
-
-        # and if that fails (because there is no such branch),
-        if (!branch_exists($branch))
+        # otherwise, simply check out the branch.
+        if (!branch_exists($repository, $branch))
         {
-            # then clone the develop branch.
-            die "Cannot check out develop branch" if !run("cd $WORKSPACE && git clone --branch develop --quiet $repository");
+            die "Cannot checkout $repository:$branch" if !run("cd $WORKSPACE/$repository_name && git checkout $branch");
         }
     }
 }
