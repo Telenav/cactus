@@ -7,13 +7,18 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-set -E
-trap '[ "$?" -ne 77 ] || exit 77' ERR
-
 WORKSPACE="$(pwd)"
 
 KIVAKIT_HOME="$WORKSPACE/kivakit"
 MESAKIT_HOME="$WORKSPACE/mesakit"
+
+#
+# Try to execute a command or die
+#
+
+try() {
+    "$@" || die "Cannot $*";
+}
 
 #
 # Print error message and exit
@@ -21,13 +26,11 @@ MESAKIT_HOME="$WORKSPACE/mesakit"
 
 die() {
 
-    stdbuf -o0 echo " "
-    stdbuf -o0 echo "Fatal problem: $1"
-    stdbuf -o0 echo " "
+    echo " "
+    echo "Fatal problem: $1"
+    echo " "
 
-    sleep 1
-
-    kill -SIGKILL $$
+    exit 1
 }
 
 #
