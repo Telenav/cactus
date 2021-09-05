@@ -136,7 +136,7 @@ sub clone
         if ($pull_request_allowed)
         {
             # then check out the branch as a pull request
-            die "Cannot check out pull request $branch" if !run("cd $WORKSPACE && git clone $repository master && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
+            die "Cannot check out pull request $branch" if !run("cd $WORKSPACE && git clone --branch develop $repository && git fetch origin '$branch/head:pull-request' && git checkout pull-request");
         }
         else
         {
