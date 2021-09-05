@@ -16,6 +16,9 @@ $WORKSPACE =~ s/\n+//g;
 my $KIVAKIT_HOME = "$WORKSPACE/kivakit";
 my $MESAKIT_HOME = "$WORKSPACE/mesakit";
 
+$ENV{$KIVAKIT_HOME} = $KIVAKIT_HOME;
+$ENV{$MESAKIT_HOME} = $MESAKIT_HOME;
+
 #
 # Print the given string
 #
@@ -36,7 +39,12 @@ sub run
     my ($command) = @_;
 
     say("Executing: $command");
-    system($command);
+    my $exit_code = system($command);
+
+    if ($exit_code != 0)
+    {
+        die "Command failed: $command";
+    }
 }
 
 #
@@ -189,6 +197,22 @@ sub build_kivakit_examples
     check_build_type($build_type);
 
     build($build_type, "$WORKSPACE/kivakit-examples");
+}
+
+sub build_lexakai
+{
+    my ($build_type) = @_;
+    check_build_type($build_type);
+
+    build($build_type, "$WORKSPACE/lexakai");
+}
+
+sub build_lexakai_annotations
+{
+    my ($build_type) = @_;
+    check_build_type($build_type);
+
+    build($build_type, "$WORKSPACE/lexakai-annotations");
 }
 
 sub build_mesakit
