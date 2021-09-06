@@ -287,6 +287,20 @@ sub install_pom
     die "Cannot install super pom" if !run("cd $folder && mvn --batch-mode --no-transfer-progress clean install");
 }
 
+sub include_access_key
+{
+    my ($repository) = @_;
+
+    my $access_token = $ENV{'ACCESS_TOKEN'};
+    if (!is_empty($access_token))
+    {
+        $repository =~ s/github.com/Telenav:$access_token\@github.com/;
+    }
+
+    return $repository;
+}
+
+
 sub clone_branch
 {
     my ($repository, $branch) = @_;
@@ -295,7 +309,8 @@ sub clone_branch
     if (!-d "$WORKSPACE/$repository_name")
     {
         say("Cloning $repository:$branch");
-        return run("cd $WORKSPACE && git clone --branch $branch --quiet $repository");
+        my $repository_with_access = include_access_key($repository);
+        return run("cd $WORKSPACE && git clone --branch $branch --quiet $repository_with_access");
     }
 
     say("Branch $repository:$branch already exists");
@@ -308,7 +323,7 @@ sub clone_branch
 
 sub clone
 {
-    my ($repository, $repository_type) = @_;
+    my ($repository, $repository_type, $access_token) = @_;
     check_repository($repository);
     my $repository_name = repository_name($repository);
     my $branch = branch($repository, $repository_type);
