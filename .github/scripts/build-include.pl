@@ -323,7 +323,7 @@ sub clone_branch
 
 sub clone
 {
-    my ($repository, $repository_type, $access_token) = @_;
+    my ($repository, $repository_type) = @_;
     check_repository($repository);
     my $repository_name = repository_name($repository);
     my $branch = branch($repository, $repository_type);
