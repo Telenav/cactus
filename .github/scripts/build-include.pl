@@ -365,7 +365,7 @@ sub build
     }
     elsif ($build_type eq "publish")
     {
-        die "Publish failed" if !run("cd $folder && mvn -P attach-jars -P sign-artifacts -P shade -P tools --no-transfer-progress --batch-mode -Dgpg.passphrase='$passphrase' clean deploy");
+        die "Publish failed" if !run("cd $folder && mvn -P attach-jars -P sign-artifacts --no-transfer-progress --batch-mode -Dgpg.passphrase='$passphrase' clean deploy");
     }
     else
     {
