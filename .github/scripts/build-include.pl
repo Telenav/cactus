@@ -354,7 +354,7 @@ sub clone
 sub build
 {
     my ($build_type, $folder) = @_;
-    my $passphrase = $ENV{"secrets.OSSRH_GPG_SECRET_KEY_PASSWORD"};
+    my $passphrase = $ENV{"OSSRH_GPG_SECRET_KEY_PASSWORD"};
     check_build_type($build_type);
 
     say("Building $folder ($build_type)");
