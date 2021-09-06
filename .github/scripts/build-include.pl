@@ -328,6 +328,9 @@ sub clone
     my $repository_name = repository_name($repository);
     my $branch = branch($repository, $repository_type);
 
+    # Allow other repositories to finish committing before possibly cloning them
+    sleep 15;
+
     # If the branch is a pull request,
     if (is_pull_request($branch))
     {
