@@ -177,7 +177,7 @@
                         <version>${maven-javadoc-plugin.version}</version>
                         <configuration>
                             <show>public</show>
-                            <source>16</source>
+                            <source>11</source>
                             <sourcepath>src/main/java</sourcepath>
                             <detectJavaApiLink>false</detectJavaApiLink>
                             <doclint>none</doclint>
