@@ -28,9 +28,9 @@ import java.util.ArrayList;
  * containing the build number, date and name.
  *
  * @author jonathanl (shibo)
- * @see Metadata
+ * @see BuildMetadata
  */
-public class MetadataUpdater
+public class BuildMetadataUpdater
 {
     /**
      * Writes a build.properties file out to the given output folder with the following entries:
@@ -61,7 +61,7 @@ public class MetadataUpdater
                 }
 
                 // formulate the lines of the build.properties file,
-                final var properties = new Metadata(null, Metadata.Type.CURRENT).buildProperties();
+                final var properties = new BuildMetadata(null, BuildMetadata.Type.CURRENT).buildProperties();
                 final var lines = new ArrayList<String>();
                 for (final var key : properties.keySet())
                 {

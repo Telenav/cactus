@@ -24,7 +24,7 @@ package com.telenav.cactus.build.metadata;
  *
  * @author jonathanl (shibo)
  */
-class BuildName
+public class BuildName
 {
     private static final String[] nouns = new String[]
             {
@@ -49,10 +49,15 @@ class BuildName
                     "grumpy", "cornflower", "chartreuse", "neon", "mustard", "rubber", "paper", "plastic"
             };
 
+    public static String current()
+    {
+        return name(BuildMetadata.currentBuildNumber());
+    }
+
     /**
      * @return The name for the given build number, like "sparkling piglet"
      */
-    static String name(final int buildNumber)
+    public static String name(final int buildNumber)
     {
         final var noun = nouns[buildNumber % nouns.length];
         final var adjective = adjectives[(buildNumber / nouns.length) % adjectives.length];

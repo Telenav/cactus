@@ -37,21 +37,29 @@ import java.util.stream.Collectors;
  *
  * @author jonathanl (shibo)
  */
-public class Metadata
+public class BuildMetadata
 {
     /** Start of KivaKit epoch is December 5, 2020 (blue monkey) */
     public static final int KIVAKIT_EPOCH_DAY = 18_601;
 
     /** Metadata for projects */
-    private static final Map<Class<?>, Metadata> projectToMetadata = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, BuildMetadata> projectToMetadata = new ConcurrentHashMap<>();
+
+    /**
+     * @return The build number for the given date in days since {@link #KIVAKIT_EPOCH_DAY}
+     */
+    public static int currentBuildNumber()
+    {
+        return (int) (currentBuildDate().toEpochDay() - KIVAKIT_EPOCH_DAY);
+    }
 
     /**
      * @param projectType A class in the caller's project for loading resources
      * @return Metadata for the given project
      */
-    public static Metadata of(final Class<?> projectType)
+    public static BuildMetadata of(final Class<?> projectType)
     {
-        return projectToMetadata.computeIfAbsent(projectType, ignored -> new Metadata(projectType, Type.PROJECT));
+        return projectToMetadata.computeIfAbsent(projectType, ignored -> new BuildMetadata(projectType, Type.PROJECT));
     }
 
     /**
@@ -78,7 +86,7 @@ public class Metadata
     /** Project property map */
     private Map<String, String> projectProperties;
 
-    Metadata(final Class<?> projectType, final Type type)
+    BuildMetadata(final Class<?> projectType, final Type type)
     {
         this.projectType = projectType;
         this.type = type;
@@ -146,14 +154,6 @@ public class Metadata
     private static LocalDate currentBuildDate()
     {
         return LocalDateTime.now().atZone(ZoneId.of(ZoneOffset.UTC.getId())).toLocalDate();
-    }
-
-    /**
-     * @return The build number for the given date in days since {@link #KIVAKIT_EPOCH_DAY}
-     */
-    private static int currentBuildNumber()
-    {
-        return (int) (currentBuildDate().toEpochDay() - KIVAKIT_EPOCH_DAY);
     }
 
     /**
