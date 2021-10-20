@@ -93,7 +93,7 @@ public class BuildMetadata
     }
 
     /**
-     * Retrieves the properties in the /project.properties resource, similar to this:
+     * Retrieves the properties in the /build.properties resource, similar to this:
      *
      * <pre>
      * build-number = 104
