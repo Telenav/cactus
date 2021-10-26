@@ -64,14 +64,18 @@ showVersion() {
 
 clean_cache() {
 
-    cache=$1
+    if [[ "$ALLOW_CLEANING" == "true" ]]; then
 
-    if [ -d "$cache" ]; then
-        read -p "┋ Remove ALL cached files in $cache (y/n)? " -n 1 -r
-        echo "┋ "
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            rm -rf "$cache"
+        cache=$1
+
+        if [ -d "$cache" ]; then
+            read -p "┋ Remove ALL cached files in $cache (y/n)? " -n 1 -r
+            echo "┋ "
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                rm -rf "$cache"
+            fi
         fi
+
     fi
 }
 
