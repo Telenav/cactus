@@ -47,34 +47,34 @@ public class BuildMetadataUpdater
      *
      * @param arguments Output folder to write metadata to
      */
-    public static void main(final String[] arguments)
+    public static void main(String[] arguments)
     {
         if (arguments.length == 1)
         {
             try
             {
                 // Get output path and ensure it exists,
-                final var outputPath = Path.of(arguments[0]);
+                var outputPath = Path.of(arguments[0]);
                 if (!Files.isDirectory(outputPath))
                 {
                     Files.createDirectory(outputPath);
                 }
 
                 // formulate the lines of the build.properties file,
-                final var properties = new BuildMetadata(null, BuildMetadata.Type.CURRENT).buildProperties();
-                final var lines = new ArrayList<String>();
-                for (final var key : properties.keySet())
+                var properties = new BuildMetadata(null, BuildMetadata.Type.CURRENT).buildProperties();
+                var lines = new ArrayList<String>();
+                for (var key : properties.keySet())
                 {
                     lines.add(key + " = " + properties.get(key));
                 }
 
                 // and write them to the output folder.
-                try (final var out = new PrintStream(outputPath.resolve("build.properties").toFile()))
+                try (var out = new PrintStream(outputPath.resolve("build.properties").toFile()))
                 {
                     out.println(String.join("\n", lines));
                 }
             }
-            catch (final Exception cause)
+            catch (Exception cause)
             {
                 throw new IllegalStateException("Unable to write metadata", cause);
             }
