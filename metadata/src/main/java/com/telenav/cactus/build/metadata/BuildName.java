@@ -57,10 +57,10 @@ public class BuildName
     /**
      * @return The name for the given build number, like "sparkling piglet"
      */
-    public static String name(final int buildNumber)
+    public static String name(int buildNumber)
     {
-        final var noun = nouns[buildNumber % nouns.length];
-        final var adjective = adjectives[(buildNumber / nouns.length) % adjectives.length];
+        var noun = nouns[buildNumber % nouns.length];
+        var adjective = adjectives[(buildNumber / nouns.length) % adjectives.length];
         return adjective + " " + noun;
     }
 }

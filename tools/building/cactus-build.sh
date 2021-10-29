@@ -7,12 +7,12 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source $CACTUS_HOME/tools/library/cactus-library-functions.sh
-source $CACTUS_HOME/tools/library/cactus-library-build.sh
-source $CACTUS_HOME/tools/library/cactus-projects.sh
+source "$CACTUS_HOME"/tools/library/cactus-library-functions.sh
+source "$CACTUS_HOME"/tools/library/cactus-library-build.sh
+source "$CACTUS_HOME"/tools/library/cactus-projects.sh
 
 for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
 
-    build $project_home $@
+    build "$project_home" "$@"
 
 done

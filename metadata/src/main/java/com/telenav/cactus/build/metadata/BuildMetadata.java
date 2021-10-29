@@ -57,7 +57,7 @@ public class BuildMetadata
      * @param projectType A class in the caller's project for loading resources
      * @return Metadata for the given project
      */
-    public static BuildMetadata of(final Class<?> projectType)
+    public static BuildMetadata of(Class<?> projectType)
     {
         return projectToMetadata.computeIfAbsent(projectType, ignored -> new BuildMetadata(projectType, Type.PROJECT));
     }
@@ -86,7 +86,7 @@ public class BuildMetadata
     /** Project property map */
     private Map<String, String> projectProperties;
 
-    BuildMetadata(final Class<?> projectType, final Type type)
+    BuildMetadata(Class<?> projectType, Type type)
     {
         this.projectType = projectType;
         this.type = type;
@@ -111,7 +111,7 @@ public class BuildMetadata
             if (type == Type.CURRENT)
             {
                 // then use current build metadata based on the time
-                final var properties = new HashMap<String, String>();
+                var properties = new HashMap<String, String>();
                 properties.put("build-number", Integer.toString(currentBuildNumber()));
                 properties.put("build-date", DateTimeFormatter.ofPattern("yyyy.MM.dd").format(currentBuildDate()));
                 properties.put("build-name", BuildName.name(currentBuildNumber()));
@@ -159,17 +159,17 @@ public class BuildMetadata
     /**
      * @return The contents of the metadata resource at the given path
      */
-    private static String metadata(final Class<?> project, final String path)
+    private static String metadata(Class<?> project, String path)
     {
         try
         {
-            final var input = project.getResourceAsStream(path);
+            var input = project.getResourceAsStream(path);
             return input == null ? null : new BufferedReader(new InputStreamReader(input))
                     .lines()
                     .collect(Collectors.joining("\n"))
                     .trim();
         }
-        catch (final Exception cause)
+        catch (Exception cause)
         {
             throw new IllegalStateException("Unable to read: " + path, cause);
         }
@@ -178,19 +178,19 @@ public class BuildMetadata
     /**
      * @return A properties map from the given text
      */
-    private static Map<String, String> properties(final String text)
+    private static Map<String, String> properties(String text)
     {
-        final var properties = new HashMap<String, String>();
+        var properties = new HashMap<String, String>();
         try
         {
-            final var pattern = Pattern.compile("(?x) (?<key> [\\w-]+?) \\s* = \\s* (?<value> .*)");
-            final var matcher = pattern.matcher(text);
+            var pattern = Pattern.compile("(?x) (?<key> [\\w-]+?) \\s* = \\s* (?<value> .*)");
+            var matcher = pattern.matcher(text);
             while (matcher.find())
             {
                 properties.put(matcher.group("key"), matcher.group("value"));
             }
         }
-        catch (final Exception ignored)
+        catch (Exception ignored)
         {
         }
         return properties;

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #
 #  © 2011-2021 Telenav, Inc.
@@ -52,7 +54,7 @@ usage() {
 if [[ "$1" == "help" ]]; then
 
     SCRIPT=$(basename -- "$0")
-    usage $SCRIPT
+    usage "$SCRIPT"
 fi
 
 addSwitch() {
@@ -69,7 +71,7 @@ addSwitch() {
 build() {
 
     PROJECT=$1
-    PROJECT_NAME=$(basename $PROJECT)
+    PROJECT_NAME=$(basename "$PROJECT")
     BUILD_TYPE=$2
 
     case "${BUILD_TYPE}" in
@@ -77,36 +79,36 @@ build() {
     "all")
         JAVADOC=true
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS="tests tools ${@:3}"
+        BUILD_MODIFIERS=(tests tools "${@:3}")
         ;;
 
     "compile")
         BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(no-tests no-javadoc quiet ${@:3})
+        BUILD_MODIFIERS=(no-tests no-javadoc quiet "${@:3}")
         ;;
 
     "deploy-ossrh")
         JAVADOC=true
         BUILD_ARGUMENTS="clean deploy"
-        BUILD_MODIFIERS="tests attach-jars sign-artifacts ${@:3}"
+        BUILD_MODIFIERS=(tests attach-jars sign-artifacts "${@:3}")
         ;;
 
     "deploy-local")
         JAVADOC=true
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS="tests attach-jars sign-artifacts ${@:3}"
+        BUILD_MODIFIERS=(tests attach-jars sign-artifacts "${@:3}")
         ;;
 
     "javadoc")
         JAVADOC="true"
         BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(no-tests javadoc ${@:3})
+        BUILD_MODIFIERS=(no-tests javadoc "${@:3}")
         ;;
 
     *)
         BUILD_TYPE="default"
         BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(no-javadoc ${@:2})
+        BUILD_MODIFIERS=(no-javadoc "${@:2}")
         ;;
 
     esac
@@ -114,7 +116,7 @@ build() {
     BUILD_MODIFIERS_STRING=""
     DELIMITER=""
 
-    for MODIFIER in ${BUILD_MODIFIERS[@]}; do
+    for MODIFIER in "${BUILD_MODIFIERS[@]}"; do
 
         BUILD_MODIFIERS_STRING="$BUILD_MODIFIERS_STRING$DELIMITER$MODIFIER"
         DELIMITER=" "
@@ -127,7 +129,7 @@ build() {
 
         "compile")
             BUILD_ARGUMENTS="clean compile"
-            BUILD_MODIFIERS=(no-tests shade no-javadoc quiet ${@:3})
+            BUILD_MODIFIERS=(no-tests shade no-javadoc quiet "${@:3}")
             ;;
 
         "dry-run")
@@ -147,7 +149,7 @@ build() {
             ;;
 
         "javadoc")
-            if [ ! -z "$JAVADOC" ]; then
+            if [ -n "$JAVADOC" ]; then
                 BUILD_ARGUMENTS="$BUILD_ARGUMENTS javadoc:aggregate"
             fi
             ;;
@@ -169,7 +171,7 @@ build() {
         *)
             echo " "
             echo "Build modifier '$MODIFIER' is not recognized"
-            usage $SCRIPT
+            usage "$SCRIPT"
             ;;
 
         esac
@@ -196,10 +198,10 @@ build() {
 
             $PRE_BUILD_SCRIPT
 
-            cd $BUILD_FOLDER
-            $M2_HOME/bin/mvn $SWITCHES $BUILD_ARGUMENTS 2>&1 | $FILTER_OUT "illegal reflective access\|denied in a future release\|please consider reporting"
+            cd "$BUILD_FOLDER"
+            "$M2_HOME"/bin/mvn "$SWITCHES" "$BUILD_ARGUMENTS" 2>&1 | $FILTER_OUT "illegal reflective access\|denied in a future release\|please consider reporting"
 
-            if [ ${PIPESTATUS[0]} -ne "0" ]; then
+            if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 
                 echo "Unable to build $PROJECT_NAME."
                 exit 1
