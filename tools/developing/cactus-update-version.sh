@@ -10,4 +10,4 @@
 source library-functions.sh
 source cactus-projects.sh
 
-showVersion $CACTUS_HOME
+showVersion "$CACTUS_HOME"

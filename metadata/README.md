@@ -13,7 +13,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-build metadata 1.1.0-SNAPSHOT &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
+# cactus-build metadata 1.1.0 &nbsp;&nbsp; <img src="https://www.kivakit.org/images/tag-32.png" srcset="https://www.kivakit.org/images/tag-32-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 
@@ -29,14 +29,14 @@ This module saves and loads build metadata to *src/main/java/build.properties*.
 
 ### Dependencies <a name="dependencies"></a> &nbsp;&nbsp; <img src="https://www.kivakit.org/images/dependencies-32.png" srcset="https://www.kivakit.org/images/dependencies-32-2x.png 2x"/>
 
-[*Dependency Diagram*](https://telenav.github.io/cactus-build-assets/1.1.0-SNAPSHOT/lexakai/cactus-build/metadata/documentation/diagrams/dependencies.svg)
+[*Dependency Diagram*](https://telenav.github.io/cactus-build-assets/1.1.0/lexakai/cactus-build/metadata/documentation/diagrams/dependencies.svg)
 
 #### Maven Dependency
 
     <dependency>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build-metadata</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0</version>
     </dependency>
 
 <img src="https://www.kivakit.org/images/horizontal-line-128.png" srcset="https://www.kivakit.org/images/horizontal-line-128-2x.png 2x"/>
@@ -65,13 +65,13 @@ None
 
 ### Package Diagrams <a name="package-diagrams"></a> &nbsp;&nbsp; <img src="https://www.kivakit.org/images/box-32.png" srcset="https://www.kivakit.org/images/box-32-2x.png 2x"/>
 
-[*com.telenav.cactus.build.metadata*](https://telenav.github.io/cactus-build-assets/1.1.0-SNAPSHOT/lexakai/cactus-build/metadata/documentation/diagrams/com.telenav.cactus.build.metadata.svg)
+[*com.telenav.cactus.build.metadata*](https://telenav.github.io/cactus-build-assets/1.1.0/lexakai/cactus-build/metadata/documentation/diagrams/com.telenav.cactus.build.metadata.svg)
 
 <img src="https://www.kivakit.org/images/horizontal-line-128.png" srcset="https://www.kivakit.org/images/horizontal-line-128-2x.png 2x"/>
 
 ### Javadoc <a name="javadoc"></a> &nbsp;&nbsp; <img src="https://www.kivakit.org/images/books-32.png" srcset="https://www.kivakit.org/images/books-32-2x.png 2x"/>
 
-Javadoc coverage for this project is 1.1.0-SNAPSHOT%.  
+Javadoc coverage for this project is 100.0%.  
   
 &nbsp; &nbsp; <img src="https://www.kivakit.org/images/meter-100-96.png" srcset="https://www.kivakit.org/images/meter-100-96-2x.png 2x"/>
 
@@ -80,10 +80,10 @@ Javadoc coverage for this project is 1.1.0-SNAPSHOT%.
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildName*](https://telenav.github.io/cactus-build-assets/1.1.0-SNAPSHOT/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/BuildName.html) |  |  
-| [*Metadata*](https://telenav.github.io/cactus-build-assets/1.1.0-SNAPSHOT/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/Metadata.html) |  |  
-| [*Metadata.Type*](https://telenav.github.io/cactus-build-assets/1.1.0-SNAPSHOT/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/Metadata.Type.html) |  |  
-| [*MetadataUpdater*](https://telenav.github.io/cactus-build-assets/1.1.0-SNAPSHOT/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/MetadataUpdater.html) |  |  
+| [*BuildMetadata*](https://telenav.github.io/cactus-build-assets/1.1.0/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/BuildMetadata.html) |  |  
+| [*BuildMetadata.Type*](https://telenav.github.io/cactus-build-assets/1.1.0/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/BuildMetadata.Type.html) |  |  
+| [*BuildMetadataUpdater*](https://telenav.github.io/cactus-build-assets/1.1.0/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/BuildMetadataUpdater.html) |  |  
+| [*BuildName*](https://telenav.github.io/cactus-build-assets/1.1.0/javadoc/cactus-build/cactus.build.metadata/com/telenav/cactus/build/metadata/BuildName.html) |  |  
 
 [//]: # (start-user-text)
 

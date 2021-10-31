@@ -13,6 +13,6 @@ source "$CACTUS_HOME"/tools/library/cactus-projects.sh
 
 for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
 
-    build "$project_home" "$@"
+    build "$project_home" $@
 
 done
