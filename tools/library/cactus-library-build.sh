@@ -57,19 +57,18 @@ if [[ "$1" == "help" ]]; then
     usage "$SCRIPT"
 fi
 
-addSwitch() {
-
-    SWITCH="$1"
-
-    if [ -z "$SWITCHES" ]; then
-        SWITCHES=$SWITCH
-    else
-        SWITCHES="$SWITCHES $SWITCH"
-    fi
+addSwitch()
+{
+    SWITCHES=(${SWITCHES[@]} $1)
 }
 
-build() {
+addBuildArgument()
+{
+    BUILD_ARGUMENTS=(${BUILD_ARGUMENTS[@]} $1)
+}
 
+build()
+{
     PROJECT=$1
     PROJECT_NAME=$(basename "$PROJECT")
     BUILD_TYPE=$2
@@ -78,37 +77,37 @@ build() {
 
     "all")
         JAVADOC=true
-        BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(tests tools "${@:3}")
+        BUILD_ARGUMENTS=(clean install)
+        BUILD_MODIFIERS=(tests tools ${@:3})
         ;;
 
     "compile")
-        BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(no-tests no-javadoc quiet "${@:3}")
+        BUILD_ARGUMENTS=(clean compile)
+        BUILD_MODIFIERS=(no-tests no-javadoc quiet ${@:3})
         ;;
 
     "deploy-ossrh")
         JAVADOC=true
-        BUILD_ARGUMENTS="clean deploy"
-        BUILD_MODIFIERS=(tests attach-jars sign-artifacts "${@:3}")
+        BUILD_ARGUMENTS=(clean deploy)
+        BUILD_MODIFIERS=(tests attach-jars sign-artifacts ${@:3})
         ;;
 
     "deploy-local")
         JAVADOC=true
-        BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(tests attach-jars sign-artifacts "${@:3}")
+        BUILD_ARGUMENTS=(clean install)
+        BUILD_MODIFIERS=(tests attach-jars sign-artifacts ${@:3})
         ;;
 
     "javadoc")
         JAVADOC="true"
-        BUILD_ARGUMENTS="clean compile"
-        BUILD_MODIFIERS=(no-tests javadoc "${@:3}")
+        BUILD_ARGUMENTS=(clean compile)
+        BUILD_MODIFIERS=(no-tests javadoc ${@:3})
         ;;
 
     *)
         BUILD_TYPE="default"
-        BUILD_ARGUMENTS="clean install"
-        BUILD_MODIFIERS=(no-javadoc "${@:2}")
+        BUILD_ARGUMENTS=(clean install)
+        BUILD_MODIFIERS=(no-javadoc ${@:2})
         ;;
 
     esac
@@ -124,11 +123,12 @@ build() {
         case "$MODIFIER" in
 
         "attach-jars")
-            BUILD_ARGUMENTS="$BUILD_ARGUMENTS -P attach-jars"
+            addBuildArgument "-P"
+            addBuildArgument "attach-jars"
             ;;
 
         "compile")
-            BUILD_ARGUMENTS="clean compile"
+            BUILD_ARGUMENTS=(clean compile)
             BUILD_MODIFIERS=(no-tests shade no-javadoc quiet "${@:3}")
             ;;
 
@@ -150,7 +150,7 @@ build() {
 
         "javadoc")
             if [ -n "$JAVADOC" ]; then
-                BUILD_ARGUMENTS="$BUILD_ARGUMENTS javadoc:aggregate"
+                addBuildArgument "javadoc:aggregate"
             fi
             ;;
 
@@ -163,7 +163,8 @@ build() {
             ;;
 
         "sign-artifacts")
-            BUILD_ARGUMENTS="$BUILD_ARGUMENTS -P sign-artifacts"
+            addBuildArgument "-P"
+            addBuildArgument "sign-artifacts"
             ;;
 
         "tests") ;;
@@ -190,8 +191,8 @@ build() {
         echo "┋"
         echo "┋         Build-Folder: $BUILD_FOLDER"
         echo "┋           Build-Type: $BUILD_TYPE"
-        echo "┋      Build-Modifiers: $BUILD_MODIFIERS_STRING"
-        echo "┋   Maven Command Line: mvn $SWITCHES $BUILD_ARGUMENTS"
+        echo "┋      Build-Modifiers: ${BUILD_MODIFIERS_STRING[*]}"
+        echo "┋   Maven Command Line: mvn ${SWITCHES[*]} ${BUILD_ARGUMENTS[*]}"
         echo "┋"
 
         if [ -z "$DRY_RUN" ]; then
@@ -199,7 +200,7 @@ build() {
             $PRE_BUILD_SCRIPT
 
             cd "$BUILD_FOLDER"
-            "$M2_HOME"/bin/mvn "$SWITCHES" "$BUILD_ARGUMENTS" 2>&1 | $FILTER_OUT "illegal reflective access\|denied in a future release\|please consider reporting"
+            "$M2_HOME"/bin/mvn "${SWITCHES[@]}" "${BUILD_ARGUMENTS[@]}" 2>&1 | $FILTER_OUT "illegal reflective access\|denied in a future release\|please consider reporting"
 
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 
