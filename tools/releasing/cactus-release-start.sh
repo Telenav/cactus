@@ -7,7 +7,7 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source library-functions.sh
+source cactus-library-functions.sh
 source cactus-projects.sh
 
 help="[version]"
@@ -18,6 +18,6 @@ require_variable version "$help"
 
 for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
 
-    git_flow_release_start $project_home $version
+    git_flow_release_start "$project_home" "$version"
 
 done

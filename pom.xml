@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <packaging>pom</packaging>
 
     <!-- Project -->
@@ -45,7 +45,7 @@
             <name>Jonathan Locke (Luo Shibo)</name>
             <email>jonathanl@telenav.com</email>
             <organization>Telenav</organization>
-            <organizationUrl>http://www.telenav.com/</organizationUrl>
+            <organizationUrl>https://www.telenav.com/</organizationUrl>
             <roles>
                 <role>lead</role>
                 <role>administrator</role>

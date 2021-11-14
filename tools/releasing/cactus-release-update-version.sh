@@ -18,6 +18,6 @@ require_variable version "$help"
 
 for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
 
-    update_version $project_home $version
+    update_version "$project_home" "$version"
 
 done
