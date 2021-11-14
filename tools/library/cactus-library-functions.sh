@@ -161,6 +161,14 @@ git_flow_release_start() {
     project_home=$1
     version=$2
 
+    echo " "
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release Branch  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┋"
+    echo "┋  Creating branch release/$version"
+    echo "┋"
+    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+    echo " "
+
     # Check out the develop branch
     cd "$project_home"
     git checkout develop
@@ -172,7 +180,7 @@ git_flow_release_start() {
     git checkout release/"$version"
 
     # and update its version
-    bash cactus-release-version.sh "$version"
+    bash cactus-release-update-version.sh "$version"
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Branch Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
@@ -199,14 +207,11 @@ git_flow_release_finish() {
     git push origin --tags
 
     echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Merged and Published  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Merged to Master  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  VERSION: $version"
+    echo "┋  The branch 'release/$version' has been merged into master using git flow."
     echo "┋"
-    echo "┋  1. The branch 'release/$version' has been merged into master using git flow."
-    echo "┋  2. Artifacts from the release will be published shortly by Jenkins"
-    echo "┋"
-    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
 }
 
