@@ -8,19 +8,20 @@
 <!--suppress MavenModelInspection -->
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build</artifactId>
         <version>1.1.2</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
+    <name>cactus-build-metadata</name>
     <artifactId>cactus-build-metadata</artifactId>
     <packaging>jar</packaging>
 
     <!-- Project Metadata -->
 
-    <name>Cactus Build - Metadata</name>
     <description>The cactus-build-metadata project generates build metadata consumed by KivaKit and other projects.</description>
 
     <build>
