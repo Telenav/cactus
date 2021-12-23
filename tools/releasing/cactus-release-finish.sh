@@ -16,8 +16,10 @@ version=$1
 
 require_variable version "$help"
 
+echo "v $version"
+
 for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
 
-    git_flow_release_finish $project_home $version
+    git_flow_release_finish "$project_home" "$version"
 
 done

@@ -14,6 +14,7 @@ property_value() {
     file=$1
     key=$2
 
+    # shellcheck disable=SC2002
     cat "$file" | grep "$key" | cut -d'=' -f2 | xargs echo
 }
 
@@ -23,6 +24,7 @@ project_version() {
     project_properties=$project_home/project.properties
 
     # shellcheck disable=SC2046
+    # shellcheck disable=SC2005
     echo $(property_value "$project_properties" project-version)
 }
 
@@ -31,6 +33,7 @@ project_name() {
     project_home=$1
 
     # shellcheck disable=SC2046
+    # shellcheck disable=SC2005
     echo $(basename -- "$project_home")
 }
 
@@ -111,6 +114,7 @@ clean_temporary_files() {
 
     if yes_no "┋ Remove temporary files (.DS_Store, .metadata, .classpath, .project, *.hprof, *~) from $project_home tree"; then
 
+        # shellcheck disable=SC2038
         find "$project_home" \( -name \.DS_Store -o -name \.metadata -o -name \.classpath -o -name \.project -o -name \*\.hprof -o -name \*~ \) | xargs rm
 
     fi
@@ -121,6 +125,7 @@ clean_temporary_files() {
 script() {
 
     # shellcheck disable=SC2046
+    # shellcheck disable=SC2005
     echo $(basename -- "$0")
 }
 
@@ -171,7 +176,7 @@ git_flow_release_start() {
     echo " "
 
     # Check out the develop branch
-    cd "$project_home"
+    cd "$project_home" || exit
     git checkout develop
 
     # then start a new release branch
@@ -199,7 +204,7 @@ git_flow_release_finish() {
     project_home=$1
     version=$2
 
-    cd "$project_home"
+    cd "$project_home" || exit
 
     git checkout release/"$version"
     git flow release finish "$version"
@@ -221,7 +226,7 @@ git_flow_feature_start() {
 
     if yes_no "Start '$feature_name' branch of $project_home"; then
 
-        cd "$project_home"
+        cd "$project_home" || exit
         git-flow feature start "$feature_name"
 
     fi
@@ -233,6 +238,7 @@ git_flow_feature_finish() {
     feature_name=$2
 
     if yes_no "Finish '$feature_name' branch of $project_home"; then
+        # shellcheck disable=SC2164
         cd "$project_home"
         git-flow feature finish "$feature_name"
     fi
@@ -322,6 +328,7 @@ lexakai() {
     # -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044
     echo "java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $*"
 
+    # shellcheck disable=SC2068
     java -jar "$lexakai_jar" -overwrite-resources=true -update-readme=true $@
 }
 
