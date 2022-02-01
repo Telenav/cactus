@@ -1,0 +1,34 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.messaging.alarms"
+    
+    interface MessageAlarm
+    
+    MessageAlarm <|-- BaseMessageAlarm
+    abstract class BaseMessageAlarm
+    {
+        --
+        +Rate triggerRate()
+        #void onTrigger(Rate)
+        #Rate rate()
+        --(messaging)--
+        +BaseMessageAlarm maximumTriggerFrequency(Frequency maximumTriggerFrequency)
+        +BaseMessageAlarm triggerRate(Rate triggerRate)
+        --(status)--
+        #boolean isError(Message)
+    }
+    
+    interface Listener
+    Listener <|-- MessageAlarm
+    interface MessageAlarm
+    {
+        --
+        +void trigger(Rate)
+        --(checks)--
+        +boolean shouldTrigger()
+    }
+    
+@enduml
+

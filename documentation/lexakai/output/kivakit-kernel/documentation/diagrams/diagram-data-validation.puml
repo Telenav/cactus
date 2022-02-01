@@ -1,0 +1,128 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Data - Validation"
+    
+    interface FailureReporter
+    interface MessageCounter
+    interface Validator
+    
+    FailureReporter <|-- BaseFailureReporter
+    abstract class BaseFailureReporter
+    {
+    }
+    
+    Validator <|-- BaseValidator
+    abstract class BaseValidator
+    {
+        --(constructors)--
+        +BaseValidator()
+        +BaseValidator(Validator)
+        --
+        #Glitch glitch(String message, Object... parameters)
+        #Glitch glitchIf(boolean invalid, String message, Object... parameters)
+        #OperationHalted halt(String message, Object... parameters)
+        #void onValidate()
+        #boolean validate(Validator)
+        #boolean validate(Validatable, ValidationType)
+        #boolean validationReport()
+        #String validationTarget()
+        --(checks)--
+        +boolean isInvalid()
+        +boolean isValid()
+        #boolean isEmpty(String value)
+        #boolean isEmpty(Collection<?>)
+        #boolean isZero(Count)
+        --(collection)--
+        #Glitch addGlitch(String message, Object... parameters)
+        --(messaging)--
+        #Problem addProblem(String message, Object... parameters)
+        #Quibble addQuibble(String message, Object... parameters)
+        #Warning addWarning(String message, Object... parameters)
+        #Problem problem(String message, Object... parameters)
+        #Problem problemIf(boolean invalid, String message, Object... parameters)
+        #void problemIfNotValueInRangeInclusive(int value, String name, int minimum, int maximum)
+        #Problem problemIfNull(Object, String message, Object... parameters)
+        #Quibble quibble(String message, Object... parameters)
+        #Quibble quibbleIf(boolean invalid, String message, Object... parameters)
+        #Warning warning(String message, Object... parameters)
+        #Warning warningIf(boolean invalid, String message, Object... parameters)
+    }
+    
+    interface Listener
+    Listener <|-- FailureReporter
+    interface FailureReporter
+    {
+        --
+        +void report(Message)
+    }
+    
+    interface Listener
+    Listener <|-- MessageCounter
+    interface MessageCounter
+    {
+        --(collection)--
+        +Count count(Message.Status type)
+        +Count count(Class<? extends Message> type)
+        +Count countWorseThanOrEqualTo(Message.Status)
+    }
+    
+    ObjectList <|-- MessageList
+    MessageCounter <|-- MessageList
+    class MessageList
+    {
+        --(constructors)--
+        +MessageList()
+        +MessageList(Matcher<Message>)
+        +MessageList(Maximum, Matcher<Message>)
+        --(collection)--
+        +StringList formatted()
+        +ObjectList<Message> messages(Class<? extends Message> type)
+        +StringList statistics(Message.Status... statuses)
+        +StringList statisticsByType(Class<? extends Message>... types)
+    }
+    
+    Validatable --> ValidationType : "how to validate"
+    Validatable --> Validator : "provides"
+    interface Validatable
+    {
+        --
+        +Validator validator()
+        +Validator validator(ValidationType)
+        --(checks)--
+        +boolean isValid()
+        +boolean isValid(Listener)
+    }
+    
+    MessageList <|-- ValidationIssues
+    class ValidationIssues
+    {
+        --(constructors)--
+        +ValidationIssues()
+        --(checks)--
+        +boolean isValid()
+    }
+    
+    Name <|-- ValidationType
+    class ValidationType
+    {
+        --(constructors)--
+        +ValidationType(String)
+        --(checks)--
+        +boolean shouldValidate(Class<?> type)
+        --(filtering)--
+        +ValidationType exclude(Class<?> type)
+        +ValidationType include(Class<?> type)
+    }
+    
+    Validator --> Listener : "reports to"
+    interface Validator
+    {
+        --
+        +boolean validate(Listener)
+        +boolean validate()
+    }
+    
+@enduml
+

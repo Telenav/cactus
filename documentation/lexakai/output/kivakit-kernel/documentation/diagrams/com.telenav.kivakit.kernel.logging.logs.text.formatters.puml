@@ -1,0 +1,45 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.logging.logs.text.formatters"
+    
+    interface LogFormatter
+    
+    class ColumnarLogFormatter.Column
+    {
+    }
+    
+    LogFormatter <|-- ColumnarLogFormatter
+    class ColumnarLogFormatter
+    {
+    }
+    
+    enum ColumnarLogFormatter.Layout
+    {
+        CLIP_LEFT
+        CLIP_RIGHT
+        WRAP
+    }
+    
+    class ColumnarLogFormatter.LineOutput
+    {
+    }
+    
+    LogFormatter <|-- SimpleLogFormatter
+    class SimpleLogFormatter
+    {
+    }
+    
+    LogFormatter <|-- TimeAndMessageLogFormatter
+    class TimeAndMessageLogFormatter
+    {
+    }
+    
+    LogFormatter <|-- UtcDateTimeLogFormatter
+    class UtcDateTimeLogFormatter
+    {
+    }
+    
+@enduml
+

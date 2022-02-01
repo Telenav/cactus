@@ -1,0 +1,78 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Switch Parsing"
+    
+    interface Named
+    
+    enum Quantifier
+    {
+        ONE_OR_MORE
+        OPTIONAL
+        REQUIRED
+        TWO_OR_MORE
+        ZERO_OR_MORE
+    }
+    
+    Argument <|-- Switch
+    Named <|-- Switch
+    Switch --> SwitchParser : "gets value with"
+    class Switch
+    {
+        --(constructors)--
+        +Switch(String, String)
+        --(command line parsing)--
+        +T get(SwitchParser<T>)
+    }
+    
+    SwitchList "1" o-- "*" Switch
+    -class SwitchList
+    {
+        --(collection)--
+        +void add(Switch _switch)
+        --(command line parsing)--
+        +T get(SwitchParser<T>)
+    }
+    
+    SwitchParser --> SwitchParser.Builder : "creates"
+    SwitchParser --> T : "gets"
+    SwitchParser o-- Quantifier
+    SwitchParser o-- Converter : "converts values with"
+    SwitchParser o-- T : "default value"
+    class SwitchParser<T>
+    {
+        --
+        +T defaultValue()
+        +T get(Switch _switch)
+        +String help()
+        --(checks)--
+        +boolean isRequired()
+        --(collection)--
+        +Set<T> validValues()
+        --(command line parsing)--
+        +Builder<Boolean> booleanSwitchParser(Listener, String name, String description)
+        +Builder<T> builder(Class<T> type)
+        +Builder<Bytes> bytesSwitchParser(Listener, String name, String description)
+        +Builder<Count> countSwitchParser(Listener, String name, String description)
+        +Builder<Double> doubleSwitchParser(Listener, String name, String description)
+        +Builder<Duration> durationSwitchParser(Listener, String name, String description)
+        +Builder<E> enumSwitchParser(Listener, String name, String description, Class<E> type)
+        +Builder<Integer> integerSwitchParser(Listener, String name, String description)
+        +Builder<ObjectList<E>> listSwitchParser(Listener, String name, String description, StringConverter<E> elementConverter, Class<E> elementType, String delimiter)
+        +Builder<LocalTime> localDateSwitchParser(Listener, String name, String description)
+        +Builder<LocalTime> localDateTimeSwitchParser(Listener, String name, String description)
+        +Builder<Long> longSwitchParser(Listener, String name, String description)
+        +Builder<Maximum> maximumSwitchParser(Listener, String name, String description)
+        +Builder<Minimum> minimumSwitchParser(Listener, String name, String description)
+        +Builder<Pattern> patternSwitchParser(Listener, String name, String description)
+        +Builder<Percent> percentSwitchParser(Listener, String name, String description)
+        +Builder<T> quantizableSwitchParser(Listener, String name, String description, Class<T> type, MapFactory<Long,T>)
+        +Builder<ObjectSet<E>> setSwitchParser(Listener, String name, String description, StringConverter<E> elementConverter, Class<E> elementType, String delimiter)
+        +Builder<String> stringSwitchParser(Listener, String name, String description)
+        +SwitchParser<Count> threadCountSwitchParser(Listener, Count maximum)
+        +Builder<Version> versionSwitchParser(Listener, String name, String description)
+    }
+    
+@enduml
+

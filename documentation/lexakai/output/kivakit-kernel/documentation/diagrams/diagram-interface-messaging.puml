@@ -1,0 +1,34 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Interfaces - Messaging"
+    
+    Receiver --> Transmittable : "receives"
+    interface Receiver
+    {
+        --(checks)--
+        +boolean isReceiving()
+        --(messaging)--
+        +void onReceive(Transmittable message)
+        +M receive(M message)
+    }
+    
+    interface Transmittable
+    {
+    }
+    
+    Transmitter --> Transmittable : "transmits"
+    interface Transmitter
+    {
+        --(checks)--
+        +boolean isTransmitting()
+        --(functional)--
+        +T withoutTransmitting(Code<T>)
+        --(messaging)--
+        +void onTransmit(Transmittable message)
+        +M transmit(M message)
+    }
+    
+@enduml
+

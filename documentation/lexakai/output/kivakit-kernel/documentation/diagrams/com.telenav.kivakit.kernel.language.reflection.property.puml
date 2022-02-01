@@ -1,0 +1,73 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.language.reflection.property"
+    
+    interface Named
+    interface Comparable
+    
+    enum IncludeProperty
+    {
+        CONVERTED_FIELDS_AND_METHODS
+        INCLUDED_FIELDS
+        INCLUDED_FIELDS_AND_METHODS
+        NON_PUBLIC_METHODS
+        PUBLIC_METHODS
+    }
+    
+    annotation KivaKitExcludeProperty
+    
+    annotation KivaKitIncludeProperty
+    
+    enum NamingConvention
+    {
+        JAVA_BEANS
+        KIVAKIT
+    }
+    
+    Named <|-- Property
+    Comparable <|-- Property
+    class Property
+    {
+        --(constructors)--
+        +Property(String, Getter, Setter)
+        --
+        +Field field()
+        +Object get(Object)
+        +void getter(Getter)
+        +Getter getter()
+        +Member member()
+        +Method method()
+        +void setter(Setter)
+        +Setter setter()
+        +Type<?> type()
+        --(checks)--
+        +boolean isNull(Object)
+        +boolean isOptional()
+        --(messaging)--
+        +Message clear(Object)
+        +Message set(Listener, Object, Object value)
+    }
+    
+    interface PropertyFilter
+    {
+        --(filtering)--
+        +PropertyFilter beansProperties(IncludeProperty... included)
+        +boolean includeAsGetter(Method)
+        +boolean includeAsSetter(Method)
+        +boolean includeField(Field)
+        +PropertyFilter kivakitProperties(IncludeProperty... included)
+        --(naming)--
+        +String nameForField(Field)
+        +String nameForMethod(Method)
+    }
+    
+    interface PropertyValueSource
+    {
+        --
+        +Object valueFor(Property)
+    }
+    
+@enduml
+

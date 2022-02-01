@@ -1,0 +1,70 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Applications"
+    
+    abstract BaseComponent
+    
+    interface Named
+    interface ApplicationMetadata
+    
+    BaseComponent <|-- Application
+    Named <|-- Application
+    ApplicationMetadata <|-- Application
+    Application --> CommandLine : "parses arguments into"
+    Application --> Application.Identifier : "identified by"
+    Application o-- CommandLine
+    Application o-- Project : "initializes and uses"
+    abstract class Application
+    {
+        --(constructors)--
+        #Application(Project)
+        --
+        +Application get()
+        +Project project()
+        +void ready()
+        #boolean ignoreDeployments()
+        --(collection)--
+        +PropertyMap localizedProperties(Locale)
+        +PropertyMap properties()
+        --(command line parsing)--
+        +T argument(int index, ArgumentParser<T>)
+        +T argument(ArgumentParser<T>)
+        +ArgumentList argumentList()
+        +ObjectList<T> arguments(ArgumentParser<T>)
+        +CommandLine commandLine()
+        +String commandLineDescription(String title)
+        +T get(SwitchParser<T>, T defaultValue)
+        +T get(SwitchParser<T>)
+        +boolean has(SwitchParser<T>)
+        #List<ArgumentParser<?>> argumentParsers()
+        #ObjectSet<SwitchParser<?>> switchParsers()
+        --(factory)--
+        #Project newProject()
+        --(identity)--
+        +Identifier identifier()
+        --(lifecycle)--
+        +void exit(String message, Object... arguments)
+        +void run(String[] arguments)
+        #void onRun()
+        --(thread)--
+        +void waitForReady()
+    }
+    
+    class Application.Identifier
+    {
+        --(constructors)--
+        #Identifier()
+        +Identifier(String)
+    }
+    
+    Application <|-- Server
+    abstract class Server
+    {
+        --(constructors)--
+        #Server(Project)
+    }
+    
+@enduml
+

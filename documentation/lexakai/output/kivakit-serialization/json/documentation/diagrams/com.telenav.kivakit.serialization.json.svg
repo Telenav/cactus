@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="871.875px" preserveAspectRatio="none" style="width:1606px;height:871px;background:#333333;" version="1.1" viewBox="0 0 1606 871" width="1606.25px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="391.6667" x="600.2604" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="368.75" x="611.7188" y="30.5583">com.telenav.kivakit.serialization.json</text><!--MD5=[762aa3d0df6a9d47bd8e105afbd066b5]
+class BaseRepeater--><rect codeLine="6" fill="#282828" height="48.055" id="BaseRepeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="123.9583" x="243.2292" y="299.0153"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="123.9583" x="243.2292" y="299.0153"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="123.9583" x="243.2292" y="322.0703"/><rect codeLine="6" fill="none" height="48.055" id="BaseRepeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="123.9583" x="243.2292" y="299.0153"/><ellipse cx="257.8125" cy="314.7095" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M257.4056,311.4115 L256.5572,315.1408 L258.2601,315.1408 Z M256.307,309.7636 L258.5103,309.7636 L260.9701,318.8761 L259.1695,318.8761 L258.608,316.6239 L256.1971,316.6239 L255.6478,318.8761 L253.8472,318.8761 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="86.4583" x="274.4792" y="319.4336">BaseRepeater</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="244.2708" x2="366.1458" y1="330.4036" y2="330.4036"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="244.2708" x2="366.1458" y1="338.737" y2="338.737"/><!--MD5=[99ec5c3a7d3933242caaf654deadae8e]
+class GsonFactorySource--><rect codeLine="54" fill="#282828" height="83.3781" id="GsonFactorySource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="184.375" x="22.3958" y="281.307"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="184.375" x="22.3958" y="281.307"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="184.375" x="22.3958" y="304.362"/><rect codeLine="54" fill="none" height="83.3781" id="GsonFactorySource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="184.375" x="22.3958" y="281.307"/><ellipse cx="47.7604" cy="297.0011" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M45.1644,294.163 L45.1644,292.5761 L50.5904,292.5761 L50.5904,294.163 L48.7777,294.163 L48.7777,300.1017 L50.5904,300.1017 L50.5904,301.6886 L45.1644,301.6886 L45.1644,300.1017 L46.9771,300.1017 L46.9771,294.163 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="122.9167" x="66.8229" y="301.7253">GsonFactorySource</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="23.4375" x2="205.7292" y1="312.6953" y2="312.6953"/><ellipse cx="33.8542" cy="348.0652" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="152.0833" x="45.3125" y="354.9764">GsonFactory gsonFactory()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="23.4375" x2="87.5" y1="330.9011" y2="330.9011"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="47.9167" x="90.625" y="334.7107">(factory)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="141.6667" x2="205.7292" y1="330.9011" y2="330.9011"/><!--MD5=[2f6b322feb96bb2631e1a0e875047f13]
+class GsonFactory--><rect codeLine="34" fill="#282828" height="308.905" id="GsonFactory" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="452.0833" x="404.1667" y="168.2861"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="452.0833" x="404.1667" y="168.2861"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="452.0833" x="404.1667" y="191.3411"/><rect codeLine="34" fill="none" height="308.905" id="GsonFactory" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="452.0833" x="404.1667" y="168.2861"/><ellipse cx="582.8125" cy="183.9803" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M580.2165,181.1422 L580.2165,179.5553 L585.6425,179.5553 L585.6425,181.1422 L583.8298,181.1422 L583.8298,187.0809 L585.6425,187.0809 L585.6425,188.6678 L580.2165,188.6678 L580.2165,187.0809 L582.0292,187.0809 L582.0292,181.1422 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="80.2083" x="605.7292" y="188.7044">GsonFactory</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="405.2083" x2="855.2083" y1="199.6745" y2="199.6745"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="405.2083" x2="855.2083" y1="208.0078" y2="208.0078"/><ellipse cx="415.625" cy="219.4661" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="68.75" x="427.0833" y="226.3774">Gson gson()</text><ellipse cx="415.625" cy="263.1226" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="269.7917" x="427.0833" y="270.0338">GsonFactory withDateFormat(String dateFormat)</text><ellipse cx="415.625" cy="282.8674" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="376.0417" x="427.0833" y="289.7786">GsonFactory withDeserializer(Class&lt;T&gt; type, JsonDeserializer&lt;T&gt;)</text><ellipse cx="415.625" cy="302.6123" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="305.2083" x="427.0833" y="309.5235">GsonFactory withExclusionStrategy(ExclusionStrategy)</text><ellipse cx="415.625" cy="322.3572" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="267.7083" x="427.0833" y="329.2684">GsonFactory withHtmlEscaping(boolean escape)</text><ellipse cx="415.625" cy="342.1021" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="306.25" x="427.0833" y="349.0133">GsonFactory withPrettyPrinting(boolean prettyPrinting)</text><ellipse cx="415.625" cy="361.8469" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="339.5833" x="427.0833" y="368.7581">GsonFactory withRequireExposeAnnotation(boolean require)</text><ellipse cx="415.625" cy="381.5918" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="330.2083" x="427.0833" y="388.503">GsonFactory withSerialization(Class&lt;T&gt; type, Serialization)</text><ellipse cx="415.625" cy="401.3367" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="301.0417" x="427.0833" y="408.2479">GsonFactory withSerializeNulls(boolean serializeNulls)</text><ellipse cx="415.625" cy="421.0815" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="403.125" x="427.0833" y="427.9928">GsonFactory withSerializer(Class&lt;T&gt; type, JsonSerializer&lt;? extends T&gt;)</text><ellipse cx="415.625" cy="440.8264" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="419.7917" x="427.0833" y="447.7376">GsonFactory withTypeAdapterFactory(Class&lt;?&gt; type, TypeAdapterFactory)</text><ellipse cx="415.625" cy="460.5713" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="190.625" x="427.0833" y="467.4825">GsonFactory withVersion(Version)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="405.2083" x2="594.7917" y1="245.9585" y2="245.9585"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="597.9167" y="249.7681">(functional)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="665.625" x2="855.2083" y1="245.9585" y2="245.9585"/><!--MD5=[bf1d930a0a1a598005068bb24aa7fae7]
+class GsonSerializer--><rect codeLine="73" fill="#282828" height="48.055" id="GsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="148.9583" x="1190.1042" y="299.0153"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="148.9583" x="1190.1042" y="299.0153"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="148.9583" x="1190.1042" y="322.0703"/><rect codeLine="73" fill="none" height="48.055" id="GsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="148.9583" x="1190.1042" y="299.0153"/><ellipse cx="1204.6875" cy="314.7095" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1202.0915,311.8713 L1202.0915,310.2844 L1207.5175,310.2844 L1207.5175,311.8713 L1205.7048,311.8713 L1205.7048,317.8101 L1207.5175,317.8101 L1207.5175,319.397 L1202.0915,319.397 L1202.0915,317.8101 L1203.9042,317.8101 L1203.9042,311.8713 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="92.7083" x="1221.3542" y="319.4336">GsonSerializer</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="16.6667" x="1325.5208" y="295.8903"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="1329.6875" y="312.1419">T</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1191.1458" x2="1338.0208" y1="330.4036" y2="330.4036"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1191.1458" x2="1338.0208" y1="338.737" y2="338.737"/><!--MD5=[24878845c1c3c483972b30c4956b2a4f]
+class BaseGsonFactorySource--><rect codeLine="14" fill="#282828" height="67.7999" id="BaseGsonFactorySource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="406.25" x="9.375" y="602.6611"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="406.25" x="9.375" y="602.6611"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="406.25" x="9.375" y="625.7161"/><rect codeLine="14" fill="none" height="67.7999" id="BaseGsonFactorySource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="406.25" x="9.375" y="602.6611"/><ellipse cx="128.6458" cy="618.3553" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M128.2389,615.0574 L127.3905,618.7866 L129.0934,618.7866 Z M127.1403,613.4094 L129.3437,613.4094 L131.8034,622.522 L130.0028,622.522 L129.4413,620.2698 L127.0304,620.2698 L126.4811,622.522 L124.6806,622.522 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="153.125" x="151.5625" y="623.0794">BaseGsonFactorySource</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="10.4167" x2="414.5833" y1="634.0495" y2="634.0495"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="10.4167" x2="414.5833" y1="642.3828" y2="642.3828"/><polygon fill="#FFFF44" points="20.8333,648.6328,25,652.7995,20.8333,656.9661,16.6667,652.7995" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="373.9583" x="32.2917" y="660.7524">StringConverterGsonSerializer&lt;T&gt; serializer(StringConverter&lt;T&gt;)</text><!--MD5=[6e7c6edfab5577e389da45b2e25a60cf]
+class DefaultGsonFactory--><rect codeLine="23" fill="#282828" height="146.7794" id="DefaultGsonFactory" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="261.4583" x="475.5208" y="563.0778"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="261.4583" x="475.5208" y="563.0778"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="261.4583" x="475.5208" y="586.1328"/><rect codeLine="23" fill="none" height="146.7794" id="DefaultGsonFactory" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="261.4583" x="475.5208" y="563.0778"/><ellipse cx="534.8958" cy="578.772" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M536.8062,583.197 Q536.379,583.4167 535.909,583.5266 Q535.439,583.6365 534.9202,583.6365 Q533.077,583.6365 532.1065,582.4219 Q531.1361,581.2073 531.1361,578.9124 Q531.1361,576.6113 532.1065,575.3967 Q533.077,574.1821 534.9202,574.1821 Q535.439,574.1821 535.9151,574.292 Q536.3912,574.4019 536.8062,574.6216 L536.8062,576.6235 Q536.3424,576.1963 535.906,575.9979 Q535.4696,575.7996 535.0057,575.7996 Q534.0169,575.7996 533.5134,576.5839 Q533.0098,577.3682 533.0098,578.9124 Q533.0098,580.4504 533.5134,581.2347 Q534.0169,582.019 535.0057,582.019 Q535.4696,582.019 535.906,581.8207 Q536.3424,581.6223 536.8062,581.1951 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="128.125" x="557.8125" y="583.4961">DefaultGsonFactory</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="476.5625" x2="735.9375" y1="594.4661" y2="594.4661"/><ellipse cx="486.9792" cy="629.836" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="229.1667" x="498.4375" y="636.7472">DefaultGsonFactory(DefaultGsonFactory)</text><ellipse cx="486.9792" cy="649.5809" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="163.5417" x="498.4375" y="656.4921">DefaultGsonFactory(Listener)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="476.5625" x2="562.5" y1="612.6719" y2="612.6719"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="565.625" y="616.4815">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="650" x2="735.9375" y1="612.6719" y2="612.6719"/><polygon fill="#FFFF44" points="486.9792,688.029,491.1458,692.1956,486.9792,696.3623,482.8125,692.1956" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="118.75" x="498.4375" y="700.1485">GsonBuilder builder()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="476.5625" x2="576.0417" y1="676.0732" y2="676.0732"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="54.1667" x="579.1667" y="679.8828">(building)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="636.4583" x2="735.9375" y1="676.0732" y2="676.0732"/><!--MD5=[49936866ab43cd9ce486532a8341c54a]
+class GsonBuilder--><rect fill="#282828" height="48.055" id="GsonBuilder" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="116.6667" x="669.7917" y="817.2445"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="116.6667" x="669.7917" y="817.2445"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="116.6667" x="669.7917" y="840.2995"/><rect fill="none" height="48.055" id="GsonBuilder" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="116.6667" x="669.7917" y="817.2445"/><ellipse cx="684.375" cy="832.9386" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M686.2854,837.3637 Q685.8582,837.5834 685.3882,837.6933 Q684.9182,837.8031 684.3994,837.8031 Q682.5562,837.8031 681.5857,836.5885 Q680.6152,835.3739 680.6152,833.079 Q680.6152,830.778 681.5857,829.5634 Q682.5562,828.3488 684.3994,828.3488 Q684.9182,828.3488 685.3943,828.4587 Q685.8704,828.5685 686.2854,828.7882 L686.2854,830.7902 Q685.8215,830.363 685.3851,830.1646 Q684.9487,829.9662 684.4849,829.9662 Q683.4961,829.9662 682.9926,830.7505 Q682.489,831.5348 682.489,833.079 Q682.489,834.6171 682.9926,835.4014 Q683.4961,836.1857 684.4849,836.1857 Q684.9487,836.1857 685.3851,835.9873 Q685.8215,835.789 686.2854,835.3617 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="79.1667" x="701.0417" y="837.6628">GsonBuilder</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="670.8333" x2="785.4167" y1="848.6328" y2="848.6328"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="670.8333" x2="785.4167" y1="856.9661" y2="856.9661"/><!--MD5=[5ec8c00c13391aeaac8c08bdf7a77295]
+class Repeater--><rect codeLine="52" fill="#282828" height="48.055" id="Repeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="93.75" x="266.6667" y="56.8278"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="93.75" x="266.6667" y="56.8278"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="93.75" x="266.6667" y="79.8828"/><rect codeLine="52" fill="none" height="48.055" id="Repeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="93.75" x="266.6667" y="56.8278"/><ellipse cx="281.25" cy="72.522" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M278.654,69.6838 L278.654,68.0969 L284.08,68.0969 L284.08,69.6838 L282.2673,69.6838 L282.2673,75.6226 L284.08,75.6226 L284.08,77.2095 L278.654,77.2095 L278.654,75.6226 L280.4667,75.6226 L280.4667,69.6838 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="297.9167" y="77.2461">Repeater</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="267.7083" x2="359.375" y1="88.2161" y2="88.2161"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="267.7083" x2="359.375" y1="96.5495" y2="96.5495"/><!--MD5=[79d378210367c0c6ec62ef762ddfbd1b]
+class Project--><rect fill="#282828" height="48.055" id="Project" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="81.25" x="1433.3333" y="56.8278"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="81.25" x="1433.3333" y="56.8278"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="81.25" x="1433.3333" y="79.8828"/><rect fill="none" height="48.055" id="Project" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="81.25" x="1433.3333" y="56.8278"/><ellipse cx="1447.9167" cy="72.522" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M1449.8271,76.947 Q1449.3998,77.1667 1448.9299,77.2766 Q1448.4599,77.3865 1447.9411,77.3865 Q1446.0978,77.3865 1445.1274,76.1719 Q1444.1569,74.9573 1444.1569,72.6624 Q1444.1569,70.3613 1445.1274,69.1467 Q1446.0978,67.9321 1447.9411,67.9321 Q1448.4599,67.9321 1448.936,68.042 Q1449.412,68.1519 1449.8271,68.3716 L1449.8271,70.3735 Q1449.3632,69.9463 1448.9268,69.7479 Q1448.4904,69.5496 1448.0265,69.5496 Q1447.0378,69.5496 1446.5342,70.3339 Q1446.0307,71.1182 1446.0307,72.6624 Q1446.0307,74.2004 1446.5342,74.9847 Q1447.0378,75.769 1448.0265,75.769 Q1448.4904,75.769 1448.9268,75.5707 Q1449.3632,75.3723 1449.8271,74.9451 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="43.75" x="1464.5833" y="77.2461">Project</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1434.375" x2="1513.5417" y1="88.2161" y2="88.2161"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1434.375" x2="1513.5417" y1="96.5495" y2="96.5495"/><!--MD5=[9b392c7e96cc3f16e5a17c4c40fb40c2]
+class GsonSerializationProject--><rect codeLine="61" fill="#282828" height="127.0345" id="GsonSerializationProject" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="196.875" x="1375.5208" y="259.432"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="196.875" x="1375.5208" y="259.432"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="196.875" x="1375.5208" y="282.487"/><rect codeLine="61" fill="none" height="127.0345" id="GsonSerializationProject" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="196.875" x="1375.5208" y="259.432"/><ellipse cx="1391.0417" cy="275.1261" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M1392.9521,279.5512 Q1392.5248,279.7709 1392.0549,279.8808 Q1391.5849,279.9906 1391.0661,279.9906 Q1389.2228,279.9906 1388.2524,278.776 Q1387.2819,277.5614 1387.2819,275.2665 Q1387.2819,272.9655 1388.2524,271.7509 Q1389.2228,270.5363 1391.0661,270.5363 Q1391.5849,270.5363 1392.061,270.6462 Q1392.537,270.756 1392.9521,270.9757 L1392.9521,272.9777 Q1392.4882,272.5505 1392.0518,272.3521 Q1391.6154,272.1537 1391.1515,272.1537 Q1390.1628,272.1537 1389.6592,272.938 Q1389.1557,273.7223 1389.1557,275.2665 Q1389.1557,276.8046 1389.6592,277.5889 Q1390.1628,278.3732 1391.1515,278.3732 Q1391.6154,278.3732 1392.0518,278.1748 Q1392.4882,277.9765 1392.9521,277.5492 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="157.2917" x="1407.9167" y="279.8503">GsonSerializationProject</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="1376.5625" x2="1571.3542" y1="290.8203" y2="290.8203"/><polygon fill="#FFFF44" points="1386.9792,320.9819,1391.1458,325.1485,1386.9792,329.3152,1382.8125,325.1485" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="143.75" x="1398.4375" y="333.1014">GsonSerializationProject()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1376.5625" x2="1430.2083" y1="309.0261" y2="309.0261"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="1433.3333" y="312.8357">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1517.7083" x2="1571.3542" y1="309.0261" y2="309.0261"/><ellipse cx="1386.9792" cy="369.8466" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="164.5833" x="1398.4375" y="376.7578">GsonSerializationProject get()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1376.5625" x2="1432.8125" y1="352.6825" y2="352.6825"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="76.0417" x="1435.9375" y="356.4921">(serialization)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1515.1042" x2="1571.3542" y1="352.6825" y2="352.6825"/><!--MD5=[c04c9295e01f428445c71975bdd8b5e9]
+class JsonDeserializer--><rect codeLine="69" fill="#282828" height="48.055" id="JsonDeserializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="162.5" x="1021.875" y="56.8278"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="162.5" x="1021.875" y="56.8278"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="162.5" x="1021.875" y="79.8828"/><rect codeLine="69" fill="none" height="48.055" id="JsonDeserializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="162.5" x="1021.875" y="56.8278"/><ellipse cx="1036.4583" cy="72.522" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1033.8623,69.6838 L1033.8623,68.0969 L1039.2883,68.0969 L1039.2883,69.6838 L1037.4756,69.6838 L1037.4756,75.6226 L1039.2883,75.6226 L1039.2883,77.2095 L1033.8623,77.2095 L1033.8623,75.6226 L1035.675,75.6226 L1035.675,69.6838 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="106.25" x="1053.125" y="77.2461">JsonDeserializer</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="16.6667" x="1170.8333" y="53.7028"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="1175" y="69.9544">T</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1022.9167" x2="1183.3333" y1="88.2161" y2="88.2161"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1022.9167" x2="1183.3333" y1="96.5495" y2="96.5495"/><!--MD5=[0469281133f5120cce6c8ecdd1573efa]
+class JsonSerializer--><rect codeLine="70" fill="#282828" height="48.055" id="JsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="144.7917" x="1221.3542" y="56.8278"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="144.7917" x="1221.3542" y="56.8278"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="144.7917" x="1221.3542" y="79.8828"/><rect codeLine="70" fill="none" height="48.055" id="JsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="144.7917" x="1221.3542" y="56.8278"/><ellipse cx="1235.9375" cy="72.522" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1233.3415,69.6838 L1233.3415,68.0969 L1238.7675,68.0969 L1238.7675,69.6838 L1236.9548,69.6838 L1236.9548,75.6226 L1238.7675,75.6226 L1238.7675,77.2095 L1233.3415,77.2095 L1233.3415,75.6226 L1235.1542,75.6226 L1235.1542,69.6838 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="88.5417" x="1252.6042" y="77.2461">JsonSerializer</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="16.6667" x="1352.6042" y="53.7028"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="1356.7708" y="69.9544">T</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1222.3958" x2="1365.1042" y1="88.2161" y2="88.2161"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1222.3958" x2="1365.1042" y1="96.5495" y2="96.5495"/><!--MD5=[3a02e24aed122bd624ab5f4d81125687]
+class PrimitiveGsonSerializer--><rect codeLine="78" fill="#282828" height="146.7794" id="PrimitiveGsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="270.8333" x="961.4583" y="563.0778"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="270.8333" x="961.4583" y="563.0778"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="270.8333" x="961.4583" y="586.1328"/><rect codeLine="78" fill="none" height="146.7794" id="PrimitiveGsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="270.8333" x="961.4583" y="563.0778"/><ellipse cx="976.0417" cy="578.772" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M975.6348,575.474 L974.7864,579.2033 L976.4893,579.2033 Z M974.5361,573.8261 L976.7395,573.8261 L979.1992,582.9386 L977.3987,582.9386 L976.8372,580.6864 L974.4263,580.6864 L973.877,582.9386 L972.0764,582.9386 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="150" x="992.7083" y="583.4961">PrimitiveGsonSerializer</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="81.25" x="1154.1667" y="559.9528"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="72.9167" x="1158.3333" y="576.2044">T, Primitive</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="962.5" x2="1231.25" y1="594.4661" y2="594.4661"/><polygon fill="#FFFF44" points="972.9167,624.6277,977.0833,628.7944,972.9167,632.961,968.75,628.7944" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="233.3333" x="984.375" y="636.7472">PrimitiveGsonSerializer(Class&lt;Primitive&gt;)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="962.5" x2="1053.125" y1="612.6719" y2="612.6719"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="1056.25" y="616.4815">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1140.625" x2="1231.25" y1="612.6719" y2="612.6719"/><polygon fill="#FFFF44" points="972.9167,668.2841,977.0833,672.4508,972.9167,676.6174,968.75,672.4508" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="151.0417" x="984.375" y="680.4036">T toObject(Primitive scalar)</text><polygon fill="#FFFF44" points="972.9167,688.029,977.0833,692.1956,972.9167,696.3623,968.75,692.1956" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="163.5417" x="984.375" y="700.1485">Primitive toPrimitive(T object)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="962.5" x2="1058.3333" y1="656.3283" y2="656.3283"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="70.8333" x="1061.4583" y="660.1379">(conversion)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1135.4167" x2="1231.25" y1="656.3283" y2="656.3283"/><!--MD5=[c179fcf289eafe240f74ae55553c7e24]
+class DefaultGsonFactory.Settings--><rect codeLine="88" fill="#282828" height="190.4358" id="DefaultGsonFactory.Settings" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="151.0417" x="773.4375" y="541.2028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="151.0417" x="773.4375" y="541.2028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="151.0417" x="773.4375" y="564.2578"/><rect codeLine="88" fill="none" height="190.4358" id="DefaultGsonFactory.Settings" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="151.0417" x="773.4375" y="541.2028"/><ellipse cx="815.2083" cy="556.897" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M817.1187,561.322 Q816.6915,561.5417 816.2215,561.6516 Q815.7515,561.7615 815.2327,561.7615 Q813.3895,561.7615 812.419,560.5469 Q811.4486,559.3323 811.4486,557.0374 Q811.4486,554.7363 812.419,553.5217 Q813.3895,552.3071 815.2327,552.3071 Q815.7515,552.3071 816.2276,552.417 Q816.7037,552.5269 817.1187,552.7466 L817.1187,554.7485 Q816.6549,554.3213 816.2185,554.1229 Q815.7821,553.9246 815.3182,553.9246 Q814.3294,553.9246 813.8259,554.7089 Q813.3223,555.4932 813.3223,557.0374 Q813.3223,558.5754 813.8259,559.3597 Q814.3294,560.144 815.3182,560.144 Q815.7821,560.144 816.2185,559.9457 Q816.6549,559.7473 817.1187,559.3201 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="53.125" x="837.9167" y="561.6211">Settings</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="774.4792" x2="923.4375" y1="572.5911" y2="572.5911"/><ellipse cx="784.8958" cy="607.961" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="53.125" x="796.3542" y="614.8722">Settings()</text><ellipse cx="784.8958" cy="627.7059" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="97.9167" x="796.3542" y="634.6171">Settings(Settings)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="774.4792" x2="805.2083" y1="590.7969" y2="590.7969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="808.3333" y="594.6065">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="892.7083" x2="923.4375" y1="590.7969" y2="590.7969"/><ellipse cx="784.8958" cy="671.3623" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="118.75" x="796.3542" y="678.2735">GsonBuilder builder()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="774.4792" x2="818.75" y1="654.1982" y2="654.1982"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="54.1667" x="821.875" y="658.0078">(building)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="879.1667" x2="923.4375" y1="654.1982" y2="654.1982"/><ellipse cx="784.8958" cy="715.0187" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="83.3333" x="796.3542" y="721.9299">Settings copy()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="774.4792" x2="813.5417" y1="697.8546" y2="697.8546"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="816.6667" y="701.6642">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="884.375" x2="923.4375" y1="697.8546" y2="697.8546"/><!--MD5=[2c5472d55dc10e6cb3690bf84f88b1d6]
+class StringConverterGsonSerializer--><rect codeLine="100" fill="#282828" height="83.3781" id="StringConverterGsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="326.0417" x="1269.2708" y="594.8486"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="326.0417" x="1269.2708" y="594.8486"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="326.0417" x="1269.2708" y="617.9036"/><rect codeLine="100" fill="none" height="83.3781" id="StringConverterGsonSerializer" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="326.0417" x="1269.2708" y="594.8486"/><ellipse cx="1318.2292" cy="610.5428" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M1320.1396,614.9679 Q1319.7123,615.1876 1319.2424,615.2974 Q1318.7724,615.4073 1318.2536,615.4073 Q1316.4103,615.4073 1315.4399,614.1927 Q1314.4694,612.9781 1314.4694,610.6832 Q1314.4694,608.3822 1315.4399,607.1676 Q1316.4103,605.953 1318.2536,605.953 Q1318.7724,605.953 1319.2485,606.0628 Q1319.7245,606.1727 1320.1396,606.3924 L1320.1396,608.3944 Q1319.6757,607.9671 1319.2393,607.7688 Q1318.8029,607.5704 1318.339,607.5704 Q1317.3503,607.5704 1316.8467,608.3547 Q1316.3432,609.139 1316.3432,610.6832 Q1316.3432,612.2213 1316.8467,613.0056 Q1317.3503,613.7899 1318.339,613.7899 Q1318.8029,613.7899 1319.2393,613.5915 Q1319.6757,613.3931 1320.1396,612.9659 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="194.7917" x="1341.1458" y="615.2669">StringConverterGsonSerializer</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="16.6667" x="1581.7708" y="591.7236"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="1585.9375" y="607.9753">T</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="1270.3125" x2="1594.2708" y1="626.237" y2="626.237"/><ellipse cx="1280.7292" cy="661.6069" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="293.75" x="1292.1875" y="668.5181">StringConverterGsonSerializer(StringConverter&lt;T&gt;)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1270.3125" x2="1388.5417" y1="644.4427" y2="644.4427"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="1391.6667" y="648.2524">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1476.0417" x2="1594.2708" y1="644.4427" y2="644.4427"/><!--MD5=[89441ecb6f763c957120e6b2b964f8f8]
+reverse link BaseRepeater to BaseGsonFactorySource--><path codeLine="12" d="M292.1875,367.7653 C273.3854,430.9215 239.0625,546.2236 222.2813,602.6299 " fill="none" id="BaseRepeater-backto-BaseGsonFactorySource" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="285.3125,365.3174,298.2396,347.4215,299.2813,369.4736,285.3125,365.3174" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[2f40f2a518887e5aebe39cc1dc30a55c]
+reverse link GsonFactorySource to BaseGsonFactorySource--><path codeLine="13" d="M133.7188,384.9007 C154.1771,449.9424 185.8333,550.6507 202.0833,602.359 " fill="none" id="GsonFactorySource-backto-BaseGsonFactorySource" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="126.6771,386.7965,127.3854,364.734,140.5833,382.4215,126.6771,386.7965" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[2319ce10208b3b7e7883daf214f20ef1]
+reverse link BaseRepeater to DefaultGsonFactory--><path codeLine="20" d="M321.0521,366.6403 C334.6771,399.4424 356.6667,444.5986 385.4167,477.6611 C413.3229,509.7549 449,538.8278 483.5,563.0361 " fill="none" id="BaseRepeater-backto-DefaultGsonFactory" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="314.2188,369.182,313.3229,347.1299,327.7708,363.807,314.2188,369.182" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[2488030dd338927588eec06ac09e0b66]
+reverse link GsonFactory to DefaultGsonFactory--><path codeLine="21" d="M616.7604,498.7861 C615.0208,521.4007 613.3229,543.4632 611.8229,563.0465 " fill="none" id="GsonFactory-backto-DefaultGsonFactory" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="609.5,498.1299,618.3646,477.9215,624.0417,499.2549,609.5,498.1299" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[9bbec9915d1711ece489f6fb47a77993]
+link DefaultGsonFactory to GsonBuilder--><path codeLine="22" d="M649.9063,710.1299 C671.25,745.6195 695.6875,786.234 711.4792,812.4945 " fill="none" id="DefaultGsonFactory-to-GsonBuilder" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="714.3229,817.2236,713.0475,807.044,711.6323,812.7641,705.9122,811.3489,714.3229,817.2236" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="45.8333" x="700" y="779.3294">creates</text><!--MD5=[3ad8a9a76c3af81e48dd2db92c2ab218]
+reverse link Repeater to GsonFactory--><path codeLine="33" d="M360.6354,117.5361 C379.5417,131.8695 402.7188,149.4424 427.4792,168.2132 " fill="none" id="Repeater-backto-GsonFactory" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="356.1042,123.2445,343.9063,104.8486,364.9167,111.6299,356.1042,123.2445" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[f21dbfe6c69486a96f7e7c7c83ae16c0]
+reverse link Repeater to GsonFactorySource--><path codeLine="53" d="M272.3333,119.1924 C256.8854,133.932 239.5521,151.359 225,168.2861 C193.8333,204.5257 162.4271,249.2028 141.125,281.0257 " fill="none" id="Repeater-backto-GsonFactorySource" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="267.3646,113.859,287.5625,104.9528,277.3229,124.5049,267.3646,113.859" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[d083246075fb6c4d530b7ee1bea9cc24]
+reverse link Project to GsonSerializationProject--><path codeLine="60" d="M1473.9583,125.6924 C1473.9583,163.0778 1473.9583,217.2445 1473.9583,259.2132 " fill="none" id="Project-backto-GsonSerializationProject" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1466.6667,125.682,1473.9583,104.8486,1481.25,125.682,1466.6667,125.682" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[e6fa6a8128e3ddb1225009fa3215770a]
+reverse link JsonSerializer to GsonSerializer--><path codeLine="71" d="M1288.4063,125.859 C1282.1979,176.9424 1272.1979,259.234 1267.375,298.984 " fill="none" id="JsonSerializer-backto-GsonSerializer" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1281.1979,124.6507,1290.9583,104.8486,1295.6771,126.4111,1281.1979,124.6507" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[23ea91a58894e2368cf21ca113b60d9d]
+reverse link JsonDeserializer to GsonSerializer--><path codeLine="72" d="M1130.4479,122.4528 C1164.5833,173.2132 1221.8229,258.3382 1249.1458,298.984 " fill="none" id="JsonDeserializer-backto-GsonSerializer" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1124.1771,126.2028,1118.6042,104.8486,1136.2813,118.0674,1124.1771,126.2028" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[85a0d96d9cdfc7038c2fa1ce3ff1671e]
+reverse link GsonSerializer to PrimitiveGsonSerializer--><path codeLine="77" d="M1242.0938,365.7757 C1214.9896,416.109 1168.9896,501.5465 1136.0208,562.7757 " fill="none" id="GsonSerializer-backto-PrimitiveGsonSerializer" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1235.6771,362.307,1251.9792,347.4215,1248.5208,369.2236,1235.6771,362.307" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[3dea77c0175f029c6b2abb7fc66378f4]
+link DefaultGsonFactory.Settings to GsonBuilder--><path codeLine="87" d="M792.6146,732.0361 C775.1042,761.3903 757.1458,791.5049 744.6354,812.4736 " fill="none" id="DefaultGsonFactory.Settings-to-GsonBuilder" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="741.8958,817.0674,750.269,811.1393,744.558,812.5908,743.1064,806.8798,741.8958,817.0674" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="45.8333" x="775" y="779.3294">creates</text><!--MD5=[9714bcca399e0624556e2e2d65bd8680]
+reverse link GsonSerializer to StringConverterGsonSerializer--><path codeLine="99" d="M1287.2292,366.0778 C1319.5313,426.057 1378.4375,535.4528 1410.3438,594.7132 " fill="none" id="GsonSerializer-backto-StringConverterGsonSerializer" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1280.6458,369.2236,1277.1875,347.4215,1293.4896,362.307,1280.6458,369.2236" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[0f371c872a29ed012a83d835aef1fc21]
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.serialization.json"
+    
+    abstract BaseRepeater
+    
+    interface GsonFactorySource
+    interface GsonFactory
+    interface GsonSerializer
+    
+    BaseRepeater <|- - BaseGsonFactorySource
+    GsonFactorySource <|- - BaseGsonFactorySource
+    abstract class BaseGsonFactorySource
+    {
+        - -
+        #StringConverterGsonSerializer<T> serializer(StringConverter<T>)
+    }
+    
+    BaseRepeater <|- - DefaultGsonFactory
+    GsonFactory <|- - DefaultGsonFactory
+    DefaultGsonFactory - -> GsonBuilder : "creates"
+    class DefaultGsonFactory
+    {
+        - -(constructors)- -
+        +DefaultGsonFactory(DefaultGsonFactory)
+        +DefaultGsonFactory(Listener)
+        - -(building)- -
+        #GsonBuilder builder()
+    }
+    
+    interface Repeater
+    Repeater <|- - GsonFactory
+    interface GsonFactory
+    {
+        - -
+        +Gson gson()
+        - -(functional)- -
+        +GsonFactory withDateFormat(String dateFormat)
+        +GsonFactory withDeserializer(Class<T> type, JsonDeserializer<T>)
+        +GsonFactory withExclusionStrategy(ExclusionStrategy)
+        +GsonFactory withHtmlEscaping(boolean escape)
+        +GsonFactory withPrettyPrinting(boolean prettyPrinting)
+        +GsonFactory withRequireExposeAnnotation(boolean require)
+        +GsonFactory withSerialization(Class<T> type, Serialization)
+        +GsonFactory withSerializeNulls(boolean serializeNulls)
+        +GsonFactory withSerializer(Class<T> type, JsonSerializer<? extends T>)
+        +GsonFactory withTypeAdapterFactory(Class<?> type, TypeAdapterFactory)
+        +GsonFactory withVersion(Version)
+    }
+    
+    interface Repeater
+    Repeater <|- - GsonFactorySource
+    interface GsonFactorySource
+    {
+        - -(factory)- -
+        +GsonFactory gsonFactory()
+    }
+    
+    Project <|- - GsonSerializationProject
+    class GsonSerializationProject
+    {
+        - -(constructors)- -
+        #GsonSerializationProject()
+        - -(serialization)- -
+        +GsonSerializationProject get()
+    }
+    
+    interface JsonDeserializer<T>
+    interface JsonSerializer<T>
+    JsonSerializer <|- - GsonSerializer
+    JsonDeserializer <|- - GsonSerializer
+    interface GsonSerializer<T>
+    {
+    }
+    
+    GsonSerializer <|- - PrimitiveGsonSerializer
+    abstract class PrimitiveGsonSerializer<T, Primitive>
+    {
+        - -(constructors)- -
+        #PrimitiveGsonSerializer(Class<Primitive>)
+        - -(conversion)- -
+        #T toObject(Primitive scalar)
+        #Primitive toPrimitive(T object)
+    }
+    
+    DefaultGsonFactory.Settings - -> GsonBuilder : "creates"
+    class DefaultGsonFactory.Settings
+    {
+        - -(constructors)- -
+        +Settings()
+        +Settings(Settings)
+        - -(building)- -
+        +GsonBuilder builder()
+        - -(filesystem)- -
+        +Settings copy()
+    }
+    
+    GsonSerializer <|- - StringConverterGsonSerializer
+    class StringConverterGsonSerializer<T>
+    {
+        - -(constructors)- -
+        +StringConverterGsonSerializer(StringConverter<T>)
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "com.telenav.kivakit.serialization.json"
+    
+    abstract BaseRepeater
+    
+    interface GsonFactorySource
+    interface GsonFactory
+    interface GsonSerializer
+    
+    BaseRepeater <|- - BaseGsonFactorySource
+    GsonFactorySource <|- - BaseGsonFactorySource
+    abstract class BaseGsonFactorySource
+    {
+        - -
+        #StringConverterGsonSerializer<T> serializer(StringConverter<T>)
+    }
+    
+    BaseRepeater <|- - DefaultGsonFactory
+    GsonFactory <|- - DefaultGsonFactory
+    DefaultGsonFactory - -> GsonBuilder : "creates"
+    class DefaultGsonFactory
+    {
+        - -(constructors)- -
+        +DefaultGsonFactory(DefaultGsonFactory)
+        +DefaultGsonFactory(Listener)
+        - -(building)- -
+        #GsonBuilder builder()
+    }
+    
+    interface Repeater
+    Repeater <|- - GsonFactory
+    interface GsonFactory
+    {
+        - -
+        +Gson gson()
+        - -(functional)- -
+        +GsonFactory withDateFormat(String dateFormat)
+        +GsonFactory withDeserializer(Class<T> type, JsonDeserializer<T>)
+        +GsonFactory withExclusionStrategy(ExclusionStrategy)
+        +GsonFactory withHtmlEscaping(boolean escape)
+        +GsonFactory withPrettyPrinting(boolean prettyPrinting)
+        +GsonFactory withRequireExposeAnnotation(boolean require)
+        +GsonFactory withSerialization(Class<T> type, Serialization)
+        +GsonFactory withSerializeNulls(boolean serializeNulls)
+        +GsonFactory withSerializer(Class<T> type, JsonSerializer<? extends T>)
+        +GsonFactory withTypeAdapterFactory(Class<?> type, TypeAdapterFactory)
+        +GsonFactory withVersion(Version)
+    }
+    
+    interface Repeater
+    Repeater <|- - GsonFactorySource
+    interface GsonFactorySource
+    {
+        - -(factory)- -
+        +GsonFactory gsonFactory()
+    }
+    
+    Project <|- - GsonSerializationProject
+    class GsonSerializationProject
+    {
+        - -(constructors)- -
+        #GsonSerializationProject()
+        - -(serialization)- -
+        +GsonSerializationProject get()
+    }
+    
+    interface JsonDeserializer<T>
+    interface JsonSerializer<T>
+    JsonSerializer <|- - GsonSerializer
+    JsonDeserializer <|- - GsonSerializer
+    interface GsonSerializer<T>
+    {
+    }
+    
+    GsonSerializer <|- - PrimitiveGsonSerializer
+    abstract class PrimitiveGsonSerializer<T, Primitive>
+    {
+        - -(constructors)- -
+        #PrimitiveGsonSerializer(Class<Primitive>)
+        - -(conversion)- -
+        #T toObject(Primitive scalar)
+        #Primitive toPrimitive(T object)
+    }
+    
+    DefaultGsonFactory.Settings - -> GsonBuilder : "creates"
+    class DefaultGsonFactory.Settings
+    {
+        - -(constructors)- -
+        +Settings()
+        +Settings(Settings)
+        - -(building)- -
+        +GsonBuilder builder()
+        - -(filesystem)- -
+        +Settings copy()
+    }
+    
+    GsonSerializer <|- - StringConverterGsonSerializer
+    class StringConverterGsonSerializer<T>
+    {
+        - -(constructors)- -
+        +StringConverterGsonSerializer(StringConverter<T>)
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

@@ -1,0 +1,32 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.interfaces.time"
+    
+    interface ChangedAt
+    {
+        --
+        +boolean wasChangedAfter(ChangedAt that)
+        +boolean wasChangedBefore(ChangedAt that)
+        --(time)--
+        +Time lastModified()
+    }
+    
+    interface CreatedAt
+    {
+        --
+        +boolean wasCreatedAfter(CreatedAt that)
+        +boolean wasCreatedBefore(CreatedAt that)
+        --(time)--
+        +Time created()
+    }
+    
+    interface Modifiable
+    {
+        --(time)--
+        +boolean lastModified(Time)
+    }
+    
+@enduml
+

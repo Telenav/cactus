@@ -1,0 +1,38 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.data.validation.ensure.reporters"
+    
+    abstract BaseFailureReporter
+    
+    BaseFailureReporter <|-- AssertingFailureReporter
+    class AssertingFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|-- LogFailureReporter
+    class LogFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|-- NullFailureReporter
+    class NullFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|-- ThrowingFailureReporter
+    ThrowingFailureReporter --> ValidationFailure : "throws"
+    class ThrowingFailureReporter
+    {
+    }
+    
+    RuntimeException <|-- ValidationFailure
+    class ValidationFailure
+    {
+        --(constructors)--
+        +ValidationFailure(Throwable, String)
+    }
+    
+@enduml
+

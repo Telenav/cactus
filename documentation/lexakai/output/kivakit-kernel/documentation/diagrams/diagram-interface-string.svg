@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="439.5833px" preserveAspectRatio="none" style="width:452px;height:439px;background:#333333;" version="1.1" viewBox="0 0 452 439" width="452.0833px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="203.125" x="117.1875" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="180.2083" x="128.6458" y="30.5583">Interfaces - String</text><!--MD5=[f39ad9880bdb1ab85099c19a5add36ec]
+class AsString--><rect codeLine="7" fill="#282828" height="103.123" id="AsString" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="195.8333" x="52.0833" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="195.8333" x="52.0833" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="195.8333" x="52.0833" y="76.7578"/><rect codeLine="7" fill="none" height="103.123" id="AsString" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="195.8333" x="52.0833" y="53.7028"/><ellipse cx="115.1042" cy="69.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M112.5081,66.5588 L112.5081,64.9719 L117.9342,64.9719 L117.9342,66.5588 L116.1214,66.5588 L116.1214,72.4976 L117.9342,72.4976 L117.9342,74.0845 L112.5081,74.0845 L112.5081,72.4976 L114.3209,72.4976 L114.3209,66.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="55.2083" x="138.0208" y="74.1211">AsString</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="53.125" x2="246.875" y1="85.0911" y2="85.0911"/><ellipse cx="63.5417" cy="120.461" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="163.5417" x="75" y="127.3722">String asString(StringFormat)</text><ellipse cx="63.5417" cy="140.2059" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="90.625" x="75" y="147.1171">String asString()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="53.125" x2="111.4583" y1="103.2969" y2="103.2969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="70.8333" x="114.5833" y="107.1065">(conversion)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="188.5417" x2="246.875" y1="103.2969" y2="103.2969"/><!--MD5=[996ac6a52658a55545bd1a69d7408e22]
+class StringFormat--><rect codeLine="14" fill="#282828" height="190.4358" id="StringFormat" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="285.4167" x="7.2917" y="242.2445"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="285.4167" x="7.2917" y="242.2445"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="285.4167" x="7.2917" y="265.2995"/><rect codeLine="14" fill="none" height="190.4358" id="StringFormat" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="285.4167" x="7.2917" y="242.2445"/><ellipse cx="100.5208" cy="257.9386" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M102.4312,262.3637 Q102.004,262.5834 101.534,262.6933 Q101.064,262.8031 100.5452,262.8031 Q98.702,262.8031 97.7315,261.5885 Q96.7611,260.3739 96.7611,258.079 Q96.7611,255.778 97.7315,254.5634 Q98.702,253.3488 100.5452,253.3488 Q101.064,253.3488 101.5401,253.4587 Q102.0162,253.5685 102.4312,253.7882 L102.4312,255.7902 Q101.9674,255.363 101.531,255.1646 Q101.0946,254.9662 100.6307,254.9662 Q99.6419,254.9662 99.1384,255.7505 Q98.6348,256.5348 98.6348,258.079 Q98.6348,259.6171 99.1384,260.4014 Q99.6419,261.1857 100.6307,261.1857 Q101.0946,261.1857 101.531,260.9873 Q101.9674,260.789 102.4312,260.3617 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="84.375" x="123.4375" y="262.6628">StringFormat</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="8.3333" x2="291.6667" y1="273.6328" y2="273.6328"/><ellipse cx="18.75" cy="309.0027" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="114.5833" x="30.2083" y="315.9139">StringFormat(String)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="106.25" y1="291.8386" y2="291.8386"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="109.375" y="295.6482">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="193.75" x2="291.6667" y1="291.8386" y2="291.8386"/><ellipse cx="18.75" cy="352.6591" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="91.6667" x="30.2083" y="359.5703">boolean isHtml()</text><ellipse cx="18.75" cy="372.404" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="90.625" x="30.2083" y="379.3152">boolean isText()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="123.4375" y1="335.495" y2="335.495"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="126.5625" y="339.3046">(checks)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="176.5625" x2="291.6667" y1="335.495" y2="335.495"/><ellipse cx="18.75" cy="416.0604" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="253.125" x="30.2083" y="422.9716">StringFormat parse(Listener, String identifier)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="121.3542" y1="398.8963" y2="398.8963"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="51.0417" x="124.4792" y="402.7059">(parsing)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="178.6458" x2="291.6667" y1="398.8963" y2="398.8963"/><!--MD5=[09ef6601717585a17d4b551d98c1eac7]
+class StringSource--><rect codeLine="25" fill="#282828" height="87.5448" id="StringSource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="160.4167" x="284.375" y="61.5153"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="160.4167" x="284.375" y="61.5153"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="160.4167" x="284.375" y="84.5703"/><rect codeLine="25" fill="none" height="87.5448" id="StringSource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="160.4167" x="284.375" y="61.5153"/><ellipse cx="317.7083" cy="77.2095" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M315.1123,74.3713 L315.1123,72.7844 L320.5383,72.7844 L320.5383,74.3713 L318.7256,74.3713 L318.7256,80.3101 L320.5383,80.3101 L320.5383,81.897 L315.1123,81.897 L315.1123,80.3101 L316.925,80.3101 L316.925,74.3713 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="81.25" x="338.5417" y="81.9336">StringSource</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="285.4167" x2="443.75" y1="92.9036" y2="92.9036"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="285.4167" x2="443.75" y1="101.237" y2="101.237"/><ellipse cx="295.8333" cy="112.6953" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="128.125" x="307.2917" y="119.6065">StringSource of(String)</text><ellipse cx="295.8333" cy="132.4402" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="78.125" x="307.2917" y="139.3514">String string()</text><!--MD5=[907c7b1b247f509ce155cf746118db29]
+link AsString to StringFormat--><path codeLine="6" d="M150,157.109 C150,180.4528 150,208.9736 150,236.359 " fill="none" id="AsString-to-StringFormat" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="150,241.8174,154.1667,232.4424,150,236.609,145.8333,232.4424,150,241.8174" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="83.3333" x="154.1667" y="204.3294">formats with</text><!--MD5=[7b5387b18c6d412b245680fc1037f1ae]
+@startuml
+
+    !include lexakai.theme
+    
+    title "Interfaces - String"
+    
+    AsString - -> StringFormat : "formats with"
+    interface AsString
+    {
+        - -(conversion)- -
+        +String asString(StringFormat)
+        +String asString()
+    }
+    
+    class StringFormat
+    {
+        - -(constructors)- -
+        +StringFormat(String)
+        - -(checks)- -
+        +boolean isHtml()
+        +boolean isText()
+        - -(parsing)- -
+        +StringFormat parse(Listener, String identifier)
+    }
+    
+    interface StringSource
+    {
+        - -
+        +StringSource of(String)
+        +String string()
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "Interfaces - String"
+    
+    AsString - -> StringFormat : "formats with"
+    interface AsString
+    {
+        - -(conversion)- -
+        +String asString(StringFormat)
+        +String asString()
+    }
+    
+    class StringFormat
+    {
+        - -(constructors)- -
+        +StringFormat(String)
+        - -(checks)- -
+        +boolean isHtml()
+        +boolean isText()
+        - -(parsing)- -
+        +StringFormat parse(Listener, String identifier)
+    }
+    
+    interface StringSource
+    {
+        - -
+        +StringSource of(String)
+        +String string()
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

@@ -1,0 +1,17 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.collections"
+    
+    Project <|-- CollectionsProject
+    class CollectionsProject
+    {
+        --(constructors)--
+        #CollectionsProject()
+        --
+        +CollectionsProject get()
+    }
+    
+@enduml
+

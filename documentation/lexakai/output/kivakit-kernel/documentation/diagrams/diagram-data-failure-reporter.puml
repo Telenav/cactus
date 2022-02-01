@@ -1,0 +1,67 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Data - Failure Reporting"
+    
+    abstract BaseFailureReporter
+    
+    interface FailureReporter
+    
+    BaseFailureReporter <|-- AssertingFailureReporter
+    class AssertingFailureReporter
+    {
+    }
+    
+    FailureReporter <|-- BaseFailureReporter
+    abstract class BaseFailureReporter
+    {
+    }
+    
+    interface Listener
+    Listener <|-- FailureReporter
+    interface FailureReporter
+    {
+        --
+        +void report(Message)
+    }
+    
+    interface Transceiver
+    Transceiver <|-- Listener
+    interface Listener
+    {
+        --(messaging)--
+        +Listener console()
+        +T listenTo(T broadcaster, MessageFilter)
+        +T listenTo(T broadcaster)
+        +Listener logger()
+        +Listener none()
+        +void onMessage(Message)
+        +Listener throwing()
+    }
+    
+    BaseFailureReporter <|-- LogFailureReporter
+    class LogFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|-- NullFailureReporter
+    class NullFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|-- ThrowingFailureReporter
+    ThrowingFailureReporter --> ValidationFailure : "throws"
+    class ThrowingFailureReporter
+    {
+    }
+    
+    RuntimeException <|-- ValidationFailure
+    class ValidationFailure
+    {
+        --(constructors)--
+        +ValidationFailure(Throwable, String)
+    }
+    
+@enduml
+

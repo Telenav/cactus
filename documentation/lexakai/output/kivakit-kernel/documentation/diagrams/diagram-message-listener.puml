@@ -1,0 +1,122 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Messaging - Listening"
+    
+    interface Transceiver
+    Transceiver <|-- Listener
+    interface Listener
+    {
+        --(messaging)--
+        +Listener console()
+        +T listenTo(T broadcaster, MessageFilter)
+        +T listenTo(T broadcaster)
+        +Listener logger()
+        +Listener none()
+        +void onMessage(Message)
+        +Listener throwing()
+    }
+    
+    interface Named
+    interface Transmittable
+    interface Triaged
+    Transmittable <|-- Message
+    Triaged <|-- Message
+    Named <|-- Message
+    Message --> Importance : "message importance"
+    Message --> Message.OperationStatus : "operation status"
+    Message --> Severity : "message severity"
+    Message --> Message.Status : "message status"
+    interface Message
+    {
+        --
+        +Throwable cause()
+        +CodeContext context()
+        +String description()
+        +String escape(String text)
+        +String format(String message, Object... arguments)
+        +String formatted(MessageFormatter.Format)
+        +String formatted()
+        +Importance importance()
+        +void println(String message, Object... arguments)
+        +String text()
+        +^Severity severity()
+        --(command line parsing)--
+        +Object[] arguments()
+        --(conversion)--
+        +RuntimeException asException()
+        --(messaging)--
+        +Message cause(Throwable cause)
+        +OperationStatus operationStatus()
+        +Message parseMessageName(Listener, String name)
+        +StackTrace stackTrace()
+        +Status status()
+        --(time)--
+        +Time created()
+        +Frequency maximumFrequency()
+    }
+    
+    Receiver --> Transmittable : "receives"
+    interface Receiver
+    {
+        --(checks)--
+        +boolean isReceiving()
+        --(messaging)--
+        +void onReceive(Transmittable message)
+        +M receive(M message)
+    }
+    
+    interface Receiver
+    interface Transmitter
+    Receiver <|-- Transceiver
+    Transmitter <|-- Transceiver
+    Transceiver --> Debug : "delegates to"
+    note right of Transceiver
+        Functionality common to transmitters and receivers
+    endnote
+    interface Transceiver
+    {
+        --
+        +Debug debug()
+        +T fatal(String text, Object... arguments)
+        +T fatal(Throwable cause, String text, Object... arguments)
+        +Glitch glitch(Throwable cause, String text, Object... arguments)
+        +Glitch glitch(Frequency maximumFrequency, Throwable cause, String text, Object... arguments)
+        +Glitch glitch(Frequency maximumFrequency, String text, Object... arguments)
+        +Glitch glitch(String text, Object... arguments)
+        +void ifDebug(Runnable code)
+        +T illegalState(Throwable, String text, Object... arguments)
+        +T illegalState(String message, Object... arguments)
+        --(checks)--
+        +boolean isDebugOn()
+        --(command line parsing)--
+        +T illegalArgument(String message, Object... arguments)
+        --(functional)--
+        +OperationHalted halted(String text, Object... arguments)
+        +OperationHalted halted(Throwable cause, String text, Object... arguments)
+        --(messaging)--
+        +Announcement announce(String text, Object... arguments)
+        +Information information(String text, Object... arguments)
+        +Narration narrate(String text, Object... arguments)
+        +Problem problem(Frequency maximumFrequency, Throwable cause, String text, Object... arguments)
+        +Problem problem(Throwable cause, String text, Object... arguments)
+        +Problem problem(Frequency maximumFrequency, String text, Object... arguments)
+        +Problem problem(String text, Object... arguments)
+        +T problemIfNull(T value, String text, Object... arguments)
+        +Quibble quibble(String text, Object... arguments)
+        +Quibble quibble(Frequency maximumFrequency, String text, Object... arguments)
+        +Quibble quibble(Throwable cause, String text, Object... arguments)
+        +Quibble quibble(Frequency maximumFrequency, Throwable cause, String text, Object... arguments)
+        +Trace trace(Throwable cause, String text, Object... arguments)
+        +Trace trace(Frequency maximumFrequency, Throwable cause, String text, Object... arguments)
+        +Trace trace(String text, Object... arguments)
+        +Trace trace(Frequency maximumFrequency, String text, Object... arguments)
+        +Warning warning(Frequency maximumFrequency, String text, Object... arguments)
+        +Warning warning(String text, Object... arguments)
+        +Warning warning(Frequency maximumFrequency, Throwable cause, String text, Object... arguments)
+        +Warning warning(Throwable cause, String text, Object... arguments)
+    }
+    
+@enduml
+

@@ -1,0 +1,14 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.language.functions"
+    
+    class Functions
+    {
+        --(write)--
+        +Output apply(Input value, Function<Input,Output>)
+    }
+    
+@enduml
+

@@ -1,0 +1,53 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.configuration.lookup"
+    
+    interface RegistryTrait
+    
+    class InstanceIdentifier
+    {
+        --(constructors)--
+        #InstanceIdentifier(String)
+        --(identity)--
+        +InstanceIdentifier of(Class<?> value)
+        +InstanceIdentifier of(String value)
+        +InstanceIdentifier of(Enum<?> value)
+    }
+    
+    RegistryTrait <|-- Registry
+    Registry --> InstanceIdentifier : "locates instances with"
+    class Registry
+    {
+        --
+        +Registry global()
+        +Registry of(Object)
+    }
+    
+    interface RegistryTrait
+    {
+        --
+        +Registry registry()
+        +void unregister(Object, String instance)
+        +void unregister(Object, InstanceIdentifier)
+        +void unregister(Object)
+        +void unregister(Object, Enum<?> instance)
+        +void unregisterAll()
+        --(lookup)--
+        +T lookup(Class<T> type, Enum<?> instance)
+        +T lookup(Class<T> type)
+        +T lookup(Class<T> type, InstanceIdentifier)
+        +T lookup(Class<T> type, String instance)
+        +T register(T object, String instance)
+        +T register(T object, Enum<?> instance)
+        +T register(T object)
+        +T register(T object, InstanceIdentifier)
+        +T require(Class<T> type, String instance)
+        +T require(Class<T> type, InstanceIdentifier)
+        +T require(Class<T> type, Enum<?> instance)
+        +T require(Class<T> type)
+    }
+    
+@enduml
+

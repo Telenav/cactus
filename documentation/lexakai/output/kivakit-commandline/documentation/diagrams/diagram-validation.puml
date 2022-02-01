@@ -1,0 +1,67 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Command Line Validation"
+    
+    abstract BaseValidator
+    
+    ArgumentList "1" o-- "*" Argument
+    class ArgumentList
+    {
+        --(collection)--
+        +void add(Argument)
+        --(command line parsing)--
+        +Argument first()
+        +Argument get(int index)
+    }
+    
+    BaseValidator <|-- ArgumentListValidator
+    ArgumentListValidator o-- ArgumentList
+    ArgumentListValidator o-- ArgumentParserList
+    -class ArgumentListValidator
+    {
+        --(constructors)--
+        +ArgumentListValidator(ArgumentParserList, ArgumentList)
+    }
+    
+    ArgumentParserList "1" o-- "*" ArgumentParser
+    -class ArgumentParserList
+    {
+        --
+        +String help()
+        --(collection)--
+        +boolean add(ArgumentParser<?>)
+        +boolean isEmpty()
+    }
+    
+    SwitchList "1" o-- "*" Switch
+    -class SwitchList
+    {
+        --(collection)--
+        +void add(Switch _switch)
+        --(command line parsing)--
+        +T get(SwitchParser<T>)
+    }
+    
+    BaseValidator <|-- SwitchListValidator
+    SwitchListValidator o-- SwitchList
+    SwitchListValidator o-- SwitchParserList
+    -class SwitchListValidator
+    {
+        --(constructors)--
+        +SwitchListValidator(SwitchParserList, SwitchList)
+    }
+    
+    SwitchParserList "1" o-- "*" SwitchParser
+    -class SwitchParserList
+    {
+        --
+        +String help()
+        --(command line parsing)--
+        +void add(SwitchParser<?>)
+        +SwitchParser<?> forName(String name)
+    }
+    
+@enduml
+

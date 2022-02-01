@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="384.375px" preserveAspectRatio="none" style="width:565px;height:384px;background:#333333;" version="1.1" viewBox="0 0 565 384" width="565.625px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="501.0417" x="25" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="478.125" x="36.4583" y="30.5583">com.telenav.kivakit.kernel.interfaces.messaging</text><!--MD5=[bcee973e2623bef0127252815a37a6e8]
+class Receiver--><rect codeLine="7" fill="#282828" height="146.7794" id="Receiver" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="253.125" x="7.2917" y="75.5778"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="253.125" x="7.2917" y="75.5778"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="253.125" x="7.2917" y="98.6328"/><rect codeLine="7" fill="none" height="146.7794" id="Receiver" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="253.125" x="7.2917" y="75.5778"/><ellipse cx="100" cy="91.272" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M97.404,88.4338 L97.404,86.8469 L102.83,86.8469 L102.83,88.4338 L101.0173,88.4338 L101.0173,94.3726 L102.83,94.3726 L102.83,95.9595 L97.404,95.9595 L97.404,94.3726 L99.2167,94.3726 L99.2167,88.4338 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="53.125" x="122.9167" y="95.9961">Receiver</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="8.3333" x2="259.375" y1="106.9661" y2="106.9661"/><ellipse cx="18.75" cy="142.336" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="118.75" x="30.2083" y="149.2472">boolean isReceiving()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="107.2917" y1="125.1719" y2="125.1719"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="110.4167" y="128.9815">(checks)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="160.4167" x2="259.375" y1="125.1719" y2="125.1719"/><ellipse cx="18.75" cy="185.9924" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="220.8333" x="30.2083" y="192.9036">void onReceive(Transmittable message)</text><ellipse cx="18.75" cy="205.7373" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="121.875" x="30.2083" y="212.6485">M receive(M message)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="96.3542" y1="168.8283" y2="168.8283"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="68.75" x="99.4792" y="172.6379">(messaging)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="171.3542" x2="259.375" y1="168.8283" y2="168.8283"/><!--MD5=[675dfcd73141fd4bc1be07838130124b]
+class Transmittable--><rect codeLine="16" fill="#282828" height="48.055" id="Transmittable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="128.125" x="216.6667" y="329.7445"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="128.125" x="216.6667" y="329.7445"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="128.125" x="216.6667" y="352.7995"/><rect codeLine="16" fill="none" height="48.055" id="Transmittable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="128.125" x="216.6667" y="329.7445"/><ellipse cx="231.25" cy="345.4386" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M228.654,342.6005 L228.654,341.0136 L234.08,341.0136 L234.08,342.6005 L232.2673,342.6005 L232.2673,348.5392 L234.08,348.5392 L234.08,350.1261 L228.654,350.1261 L228.654,348.5392 L230.4667,348.5392 L230.4667,342.6005 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="90.625" x="247.9167" y="350.1628">Transmittable</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="217.7083" x2="343.75" y1="361.1328" y2="361.1328"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="217.7083" x2="343.75" y1="369.4661" y2="369.4661"/><!--MD5=[420e6a45c6a80cbe6318bbd76f7d46ce]
+class Transmitter--><rect codeLine="21" fill="#282828" height="190.4358" id="Transmitter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="261.4583" x="296.875" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="261.4583" x="296.875" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="261.4583" x="296.875" y="76.7578"/><rect codeLine="21" fill="none" height="190.4358" id="Transmitter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="261.4583" x="296.875" y="53.7028"/><ellipse cx="382.2917" cy="69.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M379.6956,66.5588 L379.6956,64.9719 L385.1217,64.9719 L385.1217,66.5588 L383.3089,66.5588 L383.3089,72.4976 L385.1217,72.4976 L385.1217,74.0845 L379.6956,74.0845 L379.6956,72.4976 L381.5084,72.4976 L381.5084,66.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="76.0417" x="405.2083" y="74.1211">Transmitter</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="297.9167" x2="557.2917" y1="85.0911" y2="85.0911"/><ellipse cx="308.3333" cy="120.461" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="137.5" x="319.7917" y="127.3722">boolean isTransmitting()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="297.9167" x2="401.0417" y1="103.2969" y2="103.2969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="404.1667" y="107.1065">(checks)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="454.1667" x2="557.2917" y1="103.2969" y2="103.2969"/><ellipse cx="308.3333" cy="164.1174" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="187.5" x="319.7917" y="171.0286">T withoutTransmitting(Code&lt;T&gt;)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="297.9167" x2="392.1875" y1="146.9533" y2="146.9533"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="395.3125" y="150.7629">(functional)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="463.0208" x2="557.2917" y1="146.9533" y2="146.9533"/><ellipse cx="308.3333" cy="207.7738" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="229.1667" x="319.7917" y="214.6851">void onTransmit(Transmittable message)</text><ellipse cx="308.3333" cy="227.5187" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="129.1667" x="319.7917" y="234.4299">M transmit(M message)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="297.9167" x2="390.1042" y1="190.6097" y2="190.6097"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="68.75" x="393.2292" y="194.4194">(messaging)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="465.1042" x2="557.2917" y1="190.6097" y2="190.6097"/><!--MD5=[b5c06c75e95d1f52e2791e962d278e67]
+link Receiver to Transmittable--><path codeLine="6" d="M186.4688,222.6299 C212.3021,258.2653 241.875,299.0674 260.9063,325.3174 " fill="none" id="Receiver-to-Transmittable" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="264.1042,329.7236,261.9788,319.687,261.0488,325.5057,255.2301,324.5756,264.1042,329.7236" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="52.0833" x="246.3542" y="291.8294">receives</text><!--MD5=[d5a86fe269cd55d5bcbf146d6590990d]
+link Transmitter to Transmittable--><path codeLine="20" d="M359.1146,244.5361 C337.75,274.0049 315.8229,304.2549 300.6146,325.234 " fill="none" id="Transmitter-to-Transmittable" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="297.4688,329.5674,306.3547,324.4399,300.5339,325.3565,299.6173,319.5357,297.4688,329.5674" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="62.5" x="335.9375" y="291.8294">transmits</text><!--MD5=[48ebd5f91fa96598a1ebcb60ddfc78cf]
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.interfaces.messaging"
+    
+    Receiver - -> Transmittable : "receives"
+    interface Receiver
+    {
+        - -(checks)- -
+        +boolean isReceiving()
+        - -(messaging)- -
+        +void onReceive(Transmittable message)
+        +M receive(M message)
+    }
+    
+    interface Transmittable
+    {
+    }
+    
+    Transmitter - -> Transmittable : "transmits"
+    interface Transmitter
+    {
+        - -(checks)- -
+        +boolean isTransmitting()
+        - -(functional)- -
+        +T withoutTransmitting(Code<T>)
+        - -(messaging)- -
+        +void onTransmit(Transmittable message)
+        +M transmit(M message)
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "com.telenav.kivakit.kernel.interfaces.messaging"
+    
+    Receiver - -> Transmittable : "receives"
+    interface Receiver
+    {
+        - -(checks)- -
+        +boolean isReceiving()
+        - -(messaging)- -
+        +void onReceive(Transmittable message)
+        +M receive(M message)
+    }
+    
+    interface Transmittable
+    {
+    }
+    
+    Transmitter - -> Transmittable : "transmits"
+    interface Transmitter
+    {
+        - -(checks)- -
+        +boolean isTransmitting()
+        - -(functional)- -
+        +T withoutTransmitting(Code<T>)
+        - -(messaging)- -
+        +void onTransmit(Transmittable message)
+        +M transmit(M message)
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

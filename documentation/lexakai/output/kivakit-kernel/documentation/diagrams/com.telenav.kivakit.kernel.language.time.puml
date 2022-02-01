@@ -1,0 +1,369 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel.language.time"
+    
+    abstract BaseStringConverter
+    
+    interface AsString
+    interface Comparable
+    interface Minimizable
+    interface Maximizable
+    interface Quantizable
+    
+    BaseStringConverter <|-- Duration.Converter
+    class Duration.Converter
+    {
+        --(constructors)--
+        +Converter(Listener)
+    }
+    
+    BaseStringConverter <|-- Frequency.Converter
+    class Frequency.Converter
+    {
+        --(constructors)--
+        +Converter(Listener)
+    }
+    
+    class Frequency.Cycle
+    {
+        --(constructors)--
+        +Cycle(Time)
+        --(iteration)--
+        +Time next()
+        +Duration waitTimeBeforeNextCycle()
+    }
+    
+    enum DayOfWeek
+    {
+        FRIDAY
+        MONDAY
+        SATURDAY
+        SUNDAY
+        THURSDAY
+        TUESDAY
+        WEDNESDAY
+    }
+    
+    Comparable <|-- Duration
+    AsString <|-- Duration
+    Quantizable <|-- Duration
+    class Duration
+    {
+        --(constructors)--
+        #Duration(long, Range)
+        +Duration()
+        --
+        +void after(Callback<Timer> onTimer)
+        +void every(Callback<Timer> onTimer)
+        +void profile(Listener, String message, Runnable code)
+        --(checks)--
+        +boolean isApproximately(Duration that, Duration within)
+        +boolean isGreaterThan(Duration that)
+        +boolean isGreaterThanOrEqualTo(Duration that)
+        +boolean isLessThan(Duration that)
+        +boolean isLessThanOrEqualTo(Duration that)
+        +boolean isNone()
+        +boolean isSome()
+        --(conversion)--
+        +double asWeeks()
+        --(iteration)--
+        +void loop(Listener, Runnable)
+        --(lifecycle)--
+        +String fromStartOfWeekModuloWeekLength()
+        --(math)--
+        +double divide(Duration that)
+        +Percent percentageOf(Duration that)
+        --(thread)--
+        +boolean await(Condition)
+        +void sleep()
+        +boolean wait(Object monitor)
+        --(time)--
+        +Duration add(Duration that)
+        +Duration add(Duration that, Range)
+        +double asDays()
+        +Frequency asFrequency()
+        +double asHours()
+        +java.time.Duration asJavaDuration()
+        +long asMilliseconds()
+        +double asMinutes()
+        +double asSeconds()
+        +double asYears()
+        +Duration days(double days)
+        +Duration days(int days)
+        +Duration difference(Duration that)
+        +Duration divide(int divisor)
+        +Duration hours(int hours)
+        +Duration hours(double hours)
+        +Duration longer(Percent percentage)
+        +Duration maximum(Duration that)
+        +Duration milliseconds(long milliseconds)
+        +Duration milliseconds(double milliseconds)
+        +Duration minimum(Duration that)
+        +Duration minus(Duration that)
+        +Duration minus(Duration that, Range)
+        +Duration minutes(double minutes)
+        +Duration minutes(int minutes)
+        +Duration modulus(Duration that)
+        +Duration nanoseconds(long nanoseconds)
+        +Duration nearestHour()
+        +Duration parse(Listener, String)
+        +Duration plus(Duration that)
+        +Duration profile(Runnable code)
+        +Duration seconds(double seconds)
+        +Duration seconds(int seconds)
+        +Duration shorter(Percent percentage)
+        +Duration times(double multiplier)
+        +Duration untilNextSecond()
+        +Duration weeks(double scalar)
+        +Duration years(double scalar)
+    }
+    
+    class Frequency
+    {
+        --(constructors)--
+        #Frequency(Duration)
+        --(time)--
+        +Duration cycleLength()
+        +Frequency cyclesPerDay(int times)
+        +Frequency cyclesPerHour(int times)
+        +Frequency cyclesPerMinute(int times)
+        +Frequency cyclesPerSecond(int times)
+        +Frequency every(Duration)
+        +Cycle start(Time start)
+        +Cycle start()
+    }
+    
+    Time <|-- LocalTime
+    class LocalTime
+    {
+        --(constructors)--
+        #LocalTime()
+        #LocalTime(ZoneId, Time)
+        #LocalTime(ZoneId, long)
+        --
+        +Meridiem meridiem()
+        +int quarter()
+        +int weekOfYear()
+        +int year()
+        --(conversion)--
+        +String asDateString()
+        +String asDateString(ZoneId)
+        --(time)--
+        +String asDateTimeString(ZoneId)
+        +String asDateTimeString()
+        +String asTimeString(ZoneId)
+        +String asTimeString()
+        +long asZonedMilliseconds()
+        +int day()
+        +DayOfWeek dayOfWeek()
+        +int dayOfYear()
+        +int epochDay()
+        +LocalTime from(ZoneId, LocalDateTime)
+        +int hour()
+        +int hourOfDay()
+        +int hourOfWeek()
+        +String humanizedDateTime()
+        +LocalDateTime javaLocalDateTime()
+        +java.time.LocalTime javaLocalTime()
+        +ZonedDateTime javaZonedDate()
+        +ZonedDateTime javaZonedDateTime(ZoneOffset)
+        +ZoneId localTimeZone()
+        +int meridiemHour()
+        +LocalTime milliseconds(ZoneId, long milliseconds)
+        +int minute()
+        +int minuteOfDay()
+        +int minuteOfHour()
+        +int month()
+        +LocalTime now()
+        +LocalTime of(ZoneId, Time)
+        +LocalTime of(ZoneId, LocalDateTime)
+        +LocalTime of(ZoneId, int year, int month, int dayOfMonth, int hour, int minute, int second, Meridiem ampm)
+        +LocalTime parseDateTime(String text)
+        +LocalTime seconds(ZoneId, long seconds)
+        +LocalTime startOfDay()
+        +LocalTime startOfHour()
+        +LocalTime startOfNextHour()
+        +LocalTime startOfTomorrow()
+        +ZoneId timeZone()
+        +ZoneId utcTimeZone()
+        +LocalTime withDayOfWeek(int day)
+        +LocalTime withDayOfYear(int dayOfYear)
+        +LocalTime withEpochDay(int day)
+        +LocalTime withHourOfDay(int hour)
+        +LocalTime withHourOfMeridiem(int hour, Meridiem)
+        +LocalTime withMinuteOfHour(int minute)
+    }
+    
+    enum Meridiem
+    {
+        AM
+        PM
+    }
+    
+    BaseStringConverter <|-- Duration.MillisecondsConverter
+    class Duration.MillisecondsConverter
+    {
+        --(constructors)--
+        +MillisecondsConverter(Listener)
+    }
+    
+    class PreciseDuration
+    {
+        --(checks)--
+        +boolean isGreaterThan(PreciseDuration that)
+        +boolean isLessThan(PreciseDuration that)
+        --(conversion)--
+        +double asMicroseconds()
+        +double asWeeks()
+        --(time)--
+        +double asDays()
+        +Duration asDuration()
+        +double asHours()
+        +double asMilliseconds()
+        +double asMinutes()
+        +long asNanoseconds()
+        +double asSeconds()
+        +double asYears()
+        +PreciseDuration cpuTime()
+        +PreciseDuration microseconds(double microseconds)
+        +PreciseDuration milliseconds(double milliseconds)
+        +PreciseDuration minus(PreciseDuration that)
+        +PreciseDuration nanoseconds(long nanoseconds)
+        +PreciseDuration plus(PreciseDuration that)
+        +PreciseDuration seconds(double seconds)
+    }
+    
+    enum Duration.Range
+    {
+        ALLOW_NEGATIVE
+        POSITIVE_ONLY
+    }
+    
+    Comparable <|-- Rate
+    Quantizable <|-- Rate
+    Maximizable <|-- Rate
+    Minimizable <|-- Rate
+    class Rate
+    {
+        --(constructors)--
+        +Rate(double, Duration)
+        --
+        +Rate perYear()
+        +Rate perYear(double count)
+        +void throttle(Rate maximumRate)
+        --(checks)--
+        +boolean isFasterThan(Rate that)
+        +boolean isSlowerThan(Rate that)
+        --(collection)--
+        +double count()
+        --(math)--
+        +Rate plus(Rate that)
+        --(time)--
+        +Rate perDay(double count)
+        +Rate perDay()
+        +Rate perHour(double count)
+        +Rate perHour()
+        +Rate perMinute(double count)
+        +Rate perMinute()
+        +Rate perSecond(double count)
+        +Rate perSecond()
+    }
+    
+    class RateCalculator
+    {
+        --(constructors)--
+        +RateCalculator(Duration)
+        --
+        +Rate rate()
+        --(lifecycle)--
+        +void reset()
+        --(math)--
+        +void add(int count)
+        +void increment()
+    }
+    
+    BaseStringConverter <|-- Duration.SecondsConverter
+    class Duration.SecondsConverter
+    {
+        --(constructors)--
+        +SecondsConverter(Listener)
+    }
+    
+    Quantizable <|-- Time
+    class Time
+    {
+        --(constructors)--
+        #Time()
+        #Time(long)
+        --
+        +int compareTo(Time that)
+        --(checks)--
+        +boolean isAfter(Time that)
+        +boolean isAtOrAfter(Time that)
+        +boolean isAtOrBefore(Time that)
+        +boolean isBefore(Time that)
+        +boolean isNewerThan(Duration)
+        +boolean isNewerThanOrEqual(Duration)
+        +boolean isOlderThan(Duration)
+        +boolean isOlderThanOrEqual(Duration)
+        --(conversion)--
+        +Instant asInstant()
+        --(time)--
+        +long asMilliseconds()
+        +int asSeconds()
+        +Duration elapsedSince()
+        +Duration fromNow()
+        +Duration leftUntil(Duration elapsed)
+        +LocalTime localTime(String zone)
+        +LocalTime localTime(ZoneId)
+        +LocalTime localTime()
+        +Time maximum(Time that)
+        +Time milliseconds(long milliseconds)
+        +Time minimum(Time that)
+        +Time minus(Duration)
+        +Duration minus(Time that)
+        +Time nanoseconds(long nanoseconds)
+        +Time nearest(Duration unit)
+        +Time now()
+        +Time plus(Duration)
+        +Time roundDown(Duration unit)
+        +Time roundUp(Duration unit)
+        +Time seconds(double seconds)
+        +LocalTime utc()
+    }
+    
+    class TimeSpan
+    {
+        --(constructors)--
+        #TimeSpan(Time, Time)
+        --(collection)--
+        +boolean contains(Time)
+        --(time)--
+        +TimeSpan all()
+        +Duration duration()
+        +Time end()
+        +TimeSpan future(Duration)
+        +TimeSpan of(Time start, Duration)
+        +TimeSpan of(Time start, Time end)
+        +TimeSpan past(Duration)
+        +Time start()
+    }
+    
+    class TimeZones
+    {
+        --(checks)--
+        +boolean isUtc(ZoneId)
+        +boolean isValidZoneId(String identifier)
+        --(identity)--
+        +ZoneId parseZoneId(Listener, String identifier)
+        --(naming)--
+        +boolean isValidShortDisplayName(String identifier)
+        +ZoneId parseShortDisplayName(Listener, String displayName)
+        +ZoneId parseZoneIdOrDisplayName(Listener, String identifier)
+        +String shortDisplayName(ZoneId)
+    }
+    
+@enduml
+
