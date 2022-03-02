@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.messaging.broadcasters"
+    title "com.telenav.kivakit.coremessaging.broadcasters"
     
     interface Broadcaster
     

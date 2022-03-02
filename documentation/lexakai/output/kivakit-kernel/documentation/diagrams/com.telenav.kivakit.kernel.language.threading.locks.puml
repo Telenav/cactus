@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.threading.locks"
+    title "com.telenav.kivakit.corelanguage.threading.locks"
     
     ReentrantLock <|-- Lock
     class Lock

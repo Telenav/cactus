@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.logging.logs.text.formatters"
+    title "com.telenav.kivakit.corelogging.logs.text.formatters"
     
     interface LogFormatter
     

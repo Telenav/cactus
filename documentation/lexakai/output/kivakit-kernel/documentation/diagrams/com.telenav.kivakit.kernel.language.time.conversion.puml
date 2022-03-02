@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.time.conversion"
+    title "com.telenav.kivakit.corelanguage.time.conversion"
     
     abstract BaseFormattedConverter
     abstract BaseStringConverter

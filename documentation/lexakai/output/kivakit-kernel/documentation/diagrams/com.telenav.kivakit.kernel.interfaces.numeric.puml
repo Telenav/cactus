@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.numeric"
+    title "com.telenav.kivakit.coreinterfaces.numeric"
     
     abstract BaseStringConverter
     

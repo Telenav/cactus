@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.values.mutable"
+    title "com.telenav.kivakit.corelanguage.values.mutable"
     
     class ConcurrentMutableValue<T>
     {

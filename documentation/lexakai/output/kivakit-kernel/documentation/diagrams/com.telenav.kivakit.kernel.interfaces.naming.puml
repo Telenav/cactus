@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.naming"
+    title "com.telenav.kivakit.coreinterfaces.naming"
     
     interface Nameable
     {

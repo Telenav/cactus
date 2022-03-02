@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.logging.filters"
+    title "com.telenav.kivakit.corelogging.filters"
     
     interface Filter
     

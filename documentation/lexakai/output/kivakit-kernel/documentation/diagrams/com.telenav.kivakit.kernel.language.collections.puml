@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.collections"
+    title "com.telenav.kivakit.corelanguage.collections"
     
     interface Transmittable
     

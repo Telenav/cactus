@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.io"
+    title "com.telenav.kivakit.corelanguage.io"
     
     interface ByteSized
     

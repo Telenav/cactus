@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.collections.map.string"
+    title "com.telenav.kivakit.corelanguage.collections.map.string"
     
     abstract BaseStringMap
     abstract BaseMap

@@ -93,7 +93,7 @@
         #FilePath(StringList, String, List<String>)
         #FilePath(StringList, StringPath)
         --
-        +boolean matches(com.telenav.kivakit.kernel.interfaces.comparison.Matcher<String>)
+        +boolean matches(com.telenav.kivakit.coreinterfaces.comparison.Matcher<String>)
         --(checks)--
         +boolean hasTrailingSlash()
         --(collection)--

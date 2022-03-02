@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.bits"
+    title "com.telenav.kivakit.corelanguage.bits"
     
     class BitDiagram
     {

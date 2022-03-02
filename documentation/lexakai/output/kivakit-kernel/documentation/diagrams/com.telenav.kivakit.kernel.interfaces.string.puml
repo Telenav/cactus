@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.string"
+    title "com.telenav.kivakit.coreinterfaces.string"
     
     interface StringSource
     {

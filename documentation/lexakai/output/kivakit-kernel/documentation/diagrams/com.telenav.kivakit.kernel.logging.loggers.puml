@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.logging.loggers"
+    title "com.telenav.kivakit.corelogging.loggers"
     
     abstract BaseLogger
     

@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "kivakit-kernel"
+    title "kivakit-core"
     
     artifact jackson_annotations
     artifact cactus_build_metadata

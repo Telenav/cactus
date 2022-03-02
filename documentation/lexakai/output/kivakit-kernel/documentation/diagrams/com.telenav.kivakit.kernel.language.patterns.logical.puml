@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.patterns.logical"
+    title "com.telenav.kivakit.corelanguage.patterns.logical"
     
     Pattern <|-- Or
     class Or

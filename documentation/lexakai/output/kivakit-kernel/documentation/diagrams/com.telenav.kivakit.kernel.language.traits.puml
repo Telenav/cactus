@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.traits"
+    title "com.telenav.kivakit.corelanguage.traits"
     
     interface Broadcaster
     Broadcaster <|-- LanguageTrait

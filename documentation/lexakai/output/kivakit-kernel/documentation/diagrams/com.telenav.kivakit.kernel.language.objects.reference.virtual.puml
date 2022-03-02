@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.objects.reference.virtual"
+    title "com.telenav.kivakit.corelanguage.objects.reference.virtual"
     
     abstract BaseRepeater
     

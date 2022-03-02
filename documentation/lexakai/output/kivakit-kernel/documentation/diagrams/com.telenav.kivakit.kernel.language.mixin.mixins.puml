@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.mixin.mixins"
+    title "com.telenav.kivakit.corelanguage.mixin.mixins"
     
     interface Mixin
     Mixin <|-- AttributedMixin

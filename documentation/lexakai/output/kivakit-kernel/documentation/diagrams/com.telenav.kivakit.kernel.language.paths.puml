@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.paths"
+    title "com.telenav.kivakit.corelanguage.paths"
     
     interface Sized
     interface Comparable

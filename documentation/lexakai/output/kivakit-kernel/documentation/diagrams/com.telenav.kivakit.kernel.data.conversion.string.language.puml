@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.data.conversion.string.language"
+    title "com.telenav.kivakit.coredata.conversion.string.language"
     
     abstract BaseStringConverter
     

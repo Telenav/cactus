@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.model"
+    title "com.telenav.kivakit.coreinterfaces.model"
     
     interface Quantizable
     Quantizable <|-- Identifiable

@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.reflection.property"
+    title "com.telenav.kivakit.corelanguage.reflection.property"
     
     interface Named
     interface Comparable

@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.messaging.messages.status.activity"
+    title "com.telenav.kivakit.coremessaging.messages.status.activity"
     
     OperationStatusMessage <|-- Activity
     class Activity

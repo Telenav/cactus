@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.comparison"
+    title "com.telenav.kivakit.coreinterfaces.comparison"
     
     interface Matcher
     

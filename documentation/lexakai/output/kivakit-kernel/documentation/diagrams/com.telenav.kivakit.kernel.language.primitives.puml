@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.primitives"
+    title "com.telenav.kivakit.corelanguage.primitives"
     
     class Arrays
     {

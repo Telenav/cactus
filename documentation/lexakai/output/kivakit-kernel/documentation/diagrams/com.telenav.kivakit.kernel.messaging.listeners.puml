@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.messaging.listeners"
+    title "com.telenav.kivakit.coremessaging.listeners"
     
     abstract BaseRepeater
     

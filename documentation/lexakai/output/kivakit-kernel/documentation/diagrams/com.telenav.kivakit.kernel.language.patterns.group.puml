@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.patterns.group"
+    title "com.telenav.kivakit.corelanguage.patterns.group"
     
     Group <|-- EnumGroup
     class EnumGroup<T>

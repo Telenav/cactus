@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.strings.conversion"
+    title "com.telenav.kivakit.corelanguage.strings.conversion"
     
     interface AsString
     AsString <|-- AsIndentedString

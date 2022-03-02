@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.logging.logs.text"
+    title "com.telenav.kivakit.corelogging.logs.text"
     
     abstract BaseTextLog
     abstract BaseLog

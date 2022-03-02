@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.progress.reporters"
+    title "com.telenav.kivakit.corelanguage.progress.reporters"
     
     interface ProgressReporter
     

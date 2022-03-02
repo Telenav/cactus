@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.messaging"
+    title "com.telenav.kivakit.coreinterfaces.messaging"
     
     Receiver --> Transmittable : "receives"
     interface Receiver

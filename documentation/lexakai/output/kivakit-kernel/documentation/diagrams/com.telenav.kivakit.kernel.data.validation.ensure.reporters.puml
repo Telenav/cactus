@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.data.validation.ensure.reporters"
+    title "com.telenav.kivakit.coredata.validation.ensure.reporters"
     
     abstract BaseFailureReporter
     

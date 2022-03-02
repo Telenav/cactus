@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.messaging.filters.operators"
+    title "com.telenav.kivakit.coremessaging.filters.operators"
     
     interface Filter
     

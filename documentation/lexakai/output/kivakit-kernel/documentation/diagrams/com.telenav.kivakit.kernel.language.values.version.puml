@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.values.version"
+    title "com.telenav.kivakit.corelanguage.values.version"
     
     interface Versioned
     interface NamedObject

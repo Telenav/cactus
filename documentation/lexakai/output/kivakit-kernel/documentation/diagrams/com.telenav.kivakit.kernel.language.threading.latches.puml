@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.threading.latches"
+    title "com.telenav.kivakit.corelanguage.threading.latches"
     
     CompletionLatch --> WakeState : "waits until"
     class CompletionLatch

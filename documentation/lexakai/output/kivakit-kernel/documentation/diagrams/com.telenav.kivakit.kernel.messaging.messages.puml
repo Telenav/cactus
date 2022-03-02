@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.messaging.messages"
+    title "com.telenav.kivakit.coremessaging.messages"
     
     interface Named
     interface Message

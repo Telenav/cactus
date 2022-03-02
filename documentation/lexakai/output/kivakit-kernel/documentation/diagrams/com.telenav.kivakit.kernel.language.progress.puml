@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.progress"
+    title "com.telenav.kivakit.corelanguage.progress"
     
     interface ProgressListener
     {

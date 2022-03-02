@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.function"
+    title "com.telenav.kivakit.coreinterfaces.function"
     
     interface BooleanFunction<Value>
     {

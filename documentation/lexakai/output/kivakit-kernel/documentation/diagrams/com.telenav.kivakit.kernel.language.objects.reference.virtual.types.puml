@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.objects.reference.virtual.types"
+    title "com.telenav.kivakit.corelanguage.objects.reference.virtual.types"
     
     class HardReferencedValue<T>
     {

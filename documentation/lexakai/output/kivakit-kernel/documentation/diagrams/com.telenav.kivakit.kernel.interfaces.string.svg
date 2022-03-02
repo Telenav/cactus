@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="147.9167px" preserveAspectRatio="none" style="width:463px;height:147px;background:#333333;" version="1.1" viewBox="0 0 463 147" width="463.5417px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="451.0417" x="2.0833" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="428.125" x="13.5417" y="30.5583">com.telenav.kivakit.kernel.interfaces.string</text><!--MD5=[09ef6601717585a17d4b551d98c1eac7]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="147.9167px" preserveAspectRatio="none" style="width:463px;height:147px;background:#333333;" version="1.1" viewBox="0 0 463 147" width="463.5417px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="451.0417" x="2.0833" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="428.125" x="13.5417" y="30.5583">com.telenav.kivakit.coreinterfaces.string</text><!--MD5=[09ef6601717585a17d4b551d98c1eac7]
 class StringSource--><rect codeLine="6" fill="#282828" height="87.5448" id="StringSource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="160.4167" x="147.9167" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="160.4167" x="147.9167" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="160.4167" x="147.9167" y="76.7578"/><rect codeLine="6" fill="none" height="87.5448" id="StringSource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="160.4167" x="147.9167" y="53.7028"/><ellipse cx="181.25" cy="69.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M178.654,66.5588 L178.654,64.9719 L184.08,64.9719 L184.08,66.5588 L182.2673,66.5588 L182.2673,72.4976 L184.08,72.4976 L184.08,74.0845 L178.654,74.0845 L178.654,72.4976 L180.4667,72.4976 L180.4667,66.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="81.25" x="202.0833" y="74.1211">StringSource</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="148.9583" x2="307.2917" y1="85.0911" y2="85.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="148.9583" x2="307.2917" y1="93.4245" y2="93.4245"/><ellipse cx="159.375" cy="104.8828" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="128.125" x="170.8333" y="111.794">StringSource of(String)</text><ellipse cx="159.375" cy="124.6277" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="78.125" x="170.8333" y="131.5389">String string()</text><!--MD5=[90805d801ea5c21696bacbac93bb0453]
 @startuml
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.string"
+    title "com.telenav.kivakit.coreinterfaces.string"
     
     interface StringSource
     {
@@ -364,7 +364,7 @@ skinparam stack {
 }
 
     
-    title "com.telenav.kivakit.kernel.interfaces.string"
+    title "com.telenav.kivakit.coreinterfaces.string"
     
     interface StringSource
     {

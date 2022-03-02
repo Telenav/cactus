@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.lifecycle"
+    title "com.telenav.kivakit.coreinterfaces.lifecycle"
     
     interface Configured<T>
     {

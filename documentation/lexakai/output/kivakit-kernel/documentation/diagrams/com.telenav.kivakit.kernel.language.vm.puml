@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.vm"
+    title "com.telenav.kivakit.corelanguage.vm"
     
     interface Named
     interface Flushable

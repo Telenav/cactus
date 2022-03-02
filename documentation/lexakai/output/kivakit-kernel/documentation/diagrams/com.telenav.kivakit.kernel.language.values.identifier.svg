@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="614.5833px" preserveAspectRatio="none" style="width:1383px;height:614px;background:#333333;" version="1.1" viewBox="0 0 1383 614" width="1383.3333px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="546.875" x="410.9375" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="523.9583" x="422.3958" y="30.5583">com.telenav.kivakit.kernel.language.values.identifier</text><!--MD5=[da920ddc9e944f7a976030e827abc6c8]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="614.5833px" preserveAspectRatio="none" style="width:1383px;height:614px;background:#333333;" version="1.1" viewBox="0 0 1383 614" width="1383.3333px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="546.875" x="410.9375" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="523.9583" x="422.3958" y="30.5583">com.telenav.kivakit.corelanguage.values.identifier</text><!--MD5=[da920ddc9e944f7a976030e827abc6c8]
 cluster Quantizable--><polygon fill="#333333" points="1075,52.6611,1165.625,52.6611,1172.9167,79.8828,1210.4167,79.8828,1210.4167,157.8695,1075,157.8695,1075,52.6611" style="stroke:#333333;stroke-width:2.0833333333333335;"/><line style="stroke:#333333;stroke-width:2.0833333333333335;" x1="1075" x2="1172.9167" y1="79.8828" y2="79.8828"/><text fill="#C8AC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="78.125" x="1082.2917" y="69.9544">Quantizable</text><!--MD5=[593c12ac691d8dce04de31d77d69b1fd]
 cluster Identifier--><polygon fill="#333333" points="901.0417,228.182,972.9167,228.182,980.2083,255.4036,1112.5,255.4036,1112.5,385.4736,901.0417,385.4736,901.0417,228.182" style="stroke:#333333;stroke-width:2.0833333333333335;"/><line style="stroke:#333333;stroke-width:2.0833333333333335;" x1="901.0417" x2="980.2083" y1="255.4036" y2="255.4036"/><text fill="#C8AC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="59.375" x="908.3333" y="245.4753">Identifier</text><!--MD5=[64d32281bd21eee04bda0cfba0fbe6e9]
 cluster IntegerIdentifier--><polygon fill="#333333" points="1154.1667,228.182,1271.875,228.182,1279.1667,255.4036,1365.625,255.4036,1365.625,385.4736,1154.1667,385.4736,1154.1667,228.182" style="stroke:#333333;stroke-width:2.0833333333333335;"/><line style="stroke:#333333;stroke-width:2.0833333333333335;" x1="1154.1667" x2="1279.1667" y1="255.4036" y2="255.4036"/><text fill="#C8AC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="105.2083" x="1161.4583" y="245.4753">IntegerIdentifier</text><!--MD5=[62c603a9dcfcc0ab95396a2141668507]
@@ -29,7 +29,7 @@ link Identifier to ObjectIdentifier--><!--MD5=[bcf879e14cddc0956b61af9645aa45cc]
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.values.identifier"
+    title "com.telenav.kivakit.corelanguage.values.identifier"
     
     interface Comparable
     interface LongKeyed
@@ -457,7 +457,7 @@ skinparam stack {
 }
 
     
-    title "com.telenav.kivakit.kernel.language.values.identifier"
+    title "com.telenav.kivakit.corelanguage.values.identifier"
     
     interface Comparable
     interface LongKeyed

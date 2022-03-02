@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.data.extraction"
+    title "com.telenav.kivakit.coredata.extraction"
     
     abstract BaseRepeater
     

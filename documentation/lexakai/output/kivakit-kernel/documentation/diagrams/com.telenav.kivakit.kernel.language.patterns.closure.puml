@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.patterns.closure"
+    title "com.telenav.kivakit.corelanguage.patterns.closure"
     
     Pattern <|-- Closure
     abstract class Closure

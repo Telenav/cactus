@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.reflection.populator"
+    title "com.telenav.kivakit.corelanguage.reflection.populator"
     
     annotation KivaKitOptionalProperty
     

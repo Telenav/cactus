@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.data.validation"
+    title "com.telenav.kivakit.coredata.validation"
     
     interface Validator
     

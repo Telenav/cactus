@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.logging"
+    title "com.telenav.kivakit.corelogging"
     
     interface Triaged
     

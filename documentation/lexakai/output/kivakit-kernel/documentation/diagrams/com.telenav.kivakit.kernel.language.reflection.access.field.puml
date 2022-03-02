@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.reflection.access.field"
+    title "com.telenav.kivakit.corelanguage.reflection.access.field"
     
     interface Getter
     interface Setter

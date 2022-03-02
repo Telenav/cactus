@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.logging.logs"
+    title "com.telenav.kivakit.corelogging.logs"
     
     interface Startable
     interface Log

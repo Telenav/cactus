@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.factory"
+    title "com.telenav.kivakit.coreinterfaces.factory"
     
     interface Source
     Source <|-- Factory

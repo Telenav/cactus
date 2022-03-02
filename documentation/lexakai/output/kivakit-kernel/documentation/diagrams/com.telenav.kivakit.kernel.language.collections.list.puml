@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.collections.list"
+    title "com.telenav.kivakit.corelanguage.collections.list"
     
     abstract BaseList
     abstract BaseStringConverter

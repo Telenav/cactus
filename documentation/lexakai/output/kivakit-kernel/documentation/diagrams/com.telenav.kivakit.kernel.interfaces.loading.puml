@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.interfaces.loading"
+    title "com.telenav.kivakit.coreinterfaces.loading"
     
     interface Loadable
     {

@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.language.objects"
+    title "com.telenav.kivakit.corelanguage.objects"
     
     interface Loadable
     interface Iterable

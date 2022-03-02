@@ -2,7 +2,7 @@
 
     !include lexakai.theme
     
-    title "com.telenav.kivakit.kernel.data.comparison"
+    title "com.telenav.kivakit.coredata.comparison"
     
     interface Sized
     
