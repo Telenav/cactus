@@ -42,7 +42,7 @@ public class BuildMetadataUpdater
      * </ul>
      *
      * <p>
-     * Some KivaKit scripts read this information, as well as kivakit-core-kernel.
+     * Some KivaKit scripts read this information, as well as kivakit-core.
      * </p>
      *
      * @param arguments Output folder to write metadata to
