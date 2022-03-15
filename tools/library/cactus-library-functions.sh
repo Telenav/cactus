@@ -235,7 +235,6 @@ git_flow_release_finish() {
     git tag -a "$version" -m "$version"
     git checkout release/"$version"
     git flow release finish "$version"
-    git push origin --tags
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Merged to Master  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
