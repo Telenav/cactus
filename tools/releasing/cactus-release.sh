@@ -66,9 +66,9 @@ else
         echo "┋  1. The branch release/$version has been created with git flow "
         echo "┋  2. Build files have been updated from $CACTUS_VERSION to $version"
         echo "┋"
-        echo "┋  Exit your terminal program entirely and restart it, then re-execute the command:"
+        echo "┋  EXIT YOUR TERMINAL PROGRAM ENTIRELY and restart it, then re-execute the command:"
         echo "┋"
-        echo "┋  $0"
+        echo "┋  $(basename $0) $1"
         echo "┋"
         echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
 
