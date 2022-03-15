@@ -16,7 +16,15 @@ version=$1
 
 require_variable version "$help"
 
-if [ "$CACTUS_HOME" = "$version" ]; then
+if [ "$CACTUS_VERSION" = "$version" ]; then
+
+    echo " "
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Building Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┋"
+    echo "┋ Release Version: $version"
+    echo "┋"
+    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+    echo " "
 
     bash cactus-build.sh
     bash cactus-build-documentation.sh
@@ -42,21 +50,29 @@ if [ "$CACTUS_HOME" = "$version" ]; then
 
 else
 
-    bash cactus-release-start.sh "$version"
-    bash cactus-release-update-version.sh "$version"
-
     echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  1. The branch release/$version has been created with git flow "
-    echo "┋  2. Files containing version information such as pom.xml files have been updated to $version"
-    echo "┋"
-    echo "┋  Exit your terminal program entirely and restart it, then re-execute the command:"
-    echo "┋"
-    echo "┋  $0"
+    echo "┋ Current Version: $CACTUS_VERSION"
+    echo "┋ Release Version: $version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
 
+    if cactus-release-start.sh "$version"; then
+
+        echo " "
+        echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+        echo "┋"
+        echo "┋  1. The branch release/$version has been created with git flow "
+        echo "┋  2. Build files have been updated from $CACTUS_VERSION to $version"
+        echo "┋"
+        echo "┋  Exit your terminal program entirely and restart it, then re-execute the command:"
+        echo "┋"
+        echo "┋  $0"
+        echo "┋"
+        echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+
+    fi
 
 fi
 
