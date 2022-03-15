@@ -164,18 +164,28 @@ require_folder() {
 
 ################ GIT ################################################################################################
 
+
+git_flow_check_changes() {
+
+    project_home=$1
+
+    cd $project_home
+
+    if [[  `git status --porcelain` ]]; then
+        echo " "
+        echo "Project contains changes that must be committed first: $project_home"
+        echo " "
+        exit 1
+    fi
+}
+
 git_flow_init() {
 
     project_home=$1
 
     cd $project_home
 
-    if [[ `git status --porcelain` ]]; then
-        echo " "
-        echo "Project contains changes that must be committed first: $project_home"
-        echo " "
-        exit 1
-    fi
+    git_flow_check_changes $project_home
 
     git flow init -d /dev/null 2>&1
 
@@ -213,16 +223,6 @@ git_flow_release_start() {
 
     # and update its version
     bash cactus-release-update-version.sh "$version"
-
-    echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Branch Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
-    echo "┋"
-    echo "┋  1. Created git flow branch release/$version"
-    echo "┋  2. POM files and other version-related information in this branch has been updated to $version."
-    echo "┋  3. When the release branch is FULLY READY, run the release finish script to merge the branch into master."
-    echo "┋"
-    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
-    echo " "
 }
 
 git_flow_release_finish() {
