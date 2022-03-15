@@ -164,18 +164,28 @@ require_folder() {
 
 ################ GIT ################################################################################################
 
+
+git_flow_check_changes() {
+
+    project_home=$1
+
+    cd $project_home
+
+    if [[  `git status --porcelain` ]]; then
+        echo " "
+        echo "Project contains changes that must be committed first: $project_home"
+        echo " "
+        exit 1
+    fi
+}
+
 git_flow_init() {
 
     project_home=$1
 
     cd $project_home
 
-    if [[ `git status --porcelain` ]]; then
-        echo " "
-        echo "Project contains changes that must be committed first: $project_home"
-        echo " "
-        exit 1
-    fi
+    git_flow_check_changes $project_home
 
     git flow init -d /dev/null 2>&1
 

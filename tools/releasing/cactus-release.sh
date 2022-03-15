@@ -19,9 +19,9 @@ require_variable version "$help"
 if [ "$CACTUS_VERSION" = "$version" ]; then
 
     echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Building Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Building Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋ Release Version: $version"
+    echo "┋  Release Version: $version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
@@ -31,19 +31,15 @@ if [ "$CACTUS_VERSION" = "$version" ]; then
     bash cactus-build.sh deploy-local
 
     echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Built  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  1. The branch release/$version has been created with git flow "
-    echo "┋  2. Files containing version information such as pom.xml files have been updated to $version"
-    echo "┋  3. The project and its documentation have been built"
-    echo "┋  4. The project has been re-built from scratch and deployed to the local repository"
+    echo "┋  1. The project and its documentation have been built"
+    echo "┋  2. The project has been re-built from scratch and deployed to the local repository"
     echo "┋"
     echo "┋  Next Steps:"
     echo "┋"
     echo "┋  1. Check the release/$version branch carefully to make sure it's ready to go"
     echo "┋  2. Run cactus-release-finish.sh $version"
-    echo "┋  3. Run cactus-build.sh deploy-ossrh"
-    echo "┋  4. Sign into OSSRH and release to Maven Central"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
@@ -51,10 +47,10 @@ if [ "$CACTUS_VERSION" = "$version" ]; then
 else
 
     echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋ Current Version: $CACTUS_VERSION"
-    echo "┋ Release Version: $version"
+    echo "┋  Current Version: $CACTUS_VERSION"
+    echo "┋  Release Version: $version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
 
@@ -71,6 +67,7 @@ else
         echo "┋  $(basename $0) $1"
         echo "┋"
         echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+        echo " "
 
     fi
 
