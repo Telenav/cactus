@@ -7,16 +7,18 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source library-functions.sh
+source cactus-library-functions.sh
 source cactus-projects.sh
 
-version="${1%-SNAPSHOT}-SNAPSHOT"
+version="$1"
 
 help="[version]"
 
-require_variable version "$help"
+require_variable version "[version]"
 
-for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
+snapshot_version="${1%-SNAPSHOT}-SNAPSHOT"
+
+for project_home in "${CACTUS_REPOSITORY_HOMES[@]}"; do
 
     update_version "$project_home" "$version"
 

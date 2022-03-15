@@ -4,13 +4,15 @@ export NORMAL='\033[0m'
 export ATTENTION='\033[1;32m'
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
+
     export HISTCONTROL=ignoreboth:erasedups
+
 fi
 
 ################ PROJECT ################################################################################################
 
-property_value() {
-
+property_value()
+{
     file=$1
     key=$2
 
@@ -18,8 +20,8 @@ property_value() {
     cat "$file" | grep "$key" | cut -d'=' -f2 | xargs echo
 }
 
-project_version() {
-
+project_version()
+{
     project_home=$1
     project_properties=$project_home/project.properties
 
@@ -28,8 +30,8 @@ project_version() {
     echo $(property_value "$project_properties" project-version)
 }
 
-project_name() {
-
+project_name()
+{
     project_home=$1
 
     # shellcheck disable=SC2046
@@ -37,8 +39,8 @@ project_name() {
     echo $(basename -- "$project_home")
 }
 
-project_build() {
-
+project_build()
+{
     project_home=$1
 
     build_properties=$project_home/build.properties
@@ -56,8 +58,8 @@ project_build() {
     fi
 }
 
-showVersion() {
-
+showVersion()
+{
     project_home=$1
     project_name=$(project_name "$project_home")
     project_version=$(project_version "$project_home")
@@ -90,7 +92,7 @@ clean_maven_repository() {
     project_home=$1
     name=$(basename -- "$project_home")
 
-    if yes_no "┋ Remove all $name artifacts from ~\.m2"; then
+    if yes_no "┋ Remove all $name artifacts from $HOME/.m2/repository"; then
 
         rm -rf "$HOME/.m2/repository/com/telenav/$name"
 
@@ -101,9 +103,9 @@ remove_maven_repository() {
 
     if [ -d "$HOME/.m2/repository" ]; then
 
-        if yes_no "┋ Remove ALL artifacts in ~/.m2/repository"; then
+        if yes_no "┋ Remove ALL artifacts in $HOME/.m2/repository"; then
 
-            rm -rf ~/.m2/repository
+            rm -rf "$HOME/.m2/repository"
 
         fi
 
@@ -132,7 +134,9 @@ script() {
 }
 
 usage() {
+
     argument_help=$1
+
     echo "Usage: $(script) $argument_help"
     exit 1
 }
@@ -206,7 +210,7 @@ git_flow_release_start() {
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release Branch  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  Creating branch release/$version"
+    echo "┋  Creating $project_name git flow branch release/$version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
@@ -225,16 +229,25 @@ git_flow_release_start() {
     bash cactus-release-update-version.sh "$version"
 }
 
-git_flow_release_finish() {
+git_branch_name()
+{
+    project_home=$1
+    cd "$project_home" || exit
+    branch_name=$(git rev-parse --abbrev-ref HEAD)
+    echo "$branch_name"
+}
 
+git_flow_release_finish()
+{
     project_home=$1
     version=$2
 
     cd "$project_home" || exit
 
+    git checkout master
     git tag -a "$version" -m "$version"
     git checkout release/"$version"
-    git flow release finish "$version"
+    git flow merge finish "$version"
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Merged to Master  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
@@ -270,6 +283,30 @@ git_flow_feature_finish() {
     fi
 }
 
+git_flow_hotfix_start() {
+
+    project_home=$1
+    feature_name=$2
+
+    if yes_no "Start '$feature_name' branch of $project_home"; then
+
+        cd "$project_home" || exit
+        git-flow hotfix start "$feature_name"
+
+    fi
+}
+
+git_flow_hotfix_finish() {
+
+    project_home=$1
+    feature_name=$2
+
+    if yes_no "Finish '$feature_name' branch of $project_home"; then
+        cd "$project_home" || exit
+        git-flow hotfix finish "$feature_name"
+    fi
+}
+
 ################ VERSIONING ################################################################################################
 
 update_version() {
@@ -299,6 +336,24 @@ prepend_path() {
     export PATH="$1:$PATH"
 }
 
+source_project_profile() {
+
+    project_name=$1
+
+    common_profile="$KIVAKIT_WORKSPACE/${project_name}/tools/library/${project_name}-common-profile.sh"
+    project_profile="$HOME/.${project_name}-profile"
+
+    if test -e "$common_profile"; then
+        # shellcheck disable=SC1090
+        source "$common_profile"
+    fi
+
+    if test -e "$project_profile"; then
+        # shellcheck disable=SC1090
+        source "$project_profile"
+    fi
+}
+
 system_variable() {
 
     variable=$1
@@ -306,6 +361,7 @@ system_variable() {
     temporary="${TMPDIR%/}/export.txt"
 
     echo "export $variable=\"$value\"" >"$temporary"
+    # shellcheck disable=SC1090
     source "$temporary"
 
     if is_mac; then
@@ -314,6 +370,7 @@ system_variable() {
 }
 
 is_mac() {
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         true
     else
@@ -358,18 +415,25 @@ lexakai() {
     java -jar "$lexakai_jar" -overwrite-resources=true -update-readme=true $@
 }
 
-
 yes_no() {
 
-    prompt=$1
+    if [ -z "${NO_PROMPT}" ]; then
 
-    read -p "$prompt (y/n)? " -n 1 -r
-    echo " "
+        prompt=$1
 
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        true
+        read -p "$prompt (y/n)? " -n 1 -r
+        echo " "
+
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            true
+        else
+            false
+        fi
+
     else
-        false
+
+        true
+
     fi
 }
 
