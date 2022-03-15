@@ -18,6 +18,7 @@ require_variable version "$help"
 
 bash cactus-release-start.sh "$version"
 bash cactus-release-update-version.sh "$version"
+
 bash cactus-build.sh
 bash cactus-build-documentation.sh
 bash cactus-build.sh deploy-local
