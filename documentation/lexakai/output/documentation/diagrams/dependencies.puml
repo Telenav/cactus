@@ -1,0 +1,9 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "kivakit"
+    
+    artifact xml_apis
+    
+@enduml

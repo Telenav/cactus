@@ -1,0 +1,108 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.serialization.json"
+    
+    abstract BaseRepeater
+    
+    interface GsonFactorySource
+    interface GsonFactory
+    interface GsonSerializer
+    
+    BaseRepeater <|-- BaseGsonFactorySource
+    GsonFactorySource <|-- BaseGsonFactorySource
+    abstract class BaseGsonFactorySource
+    {
+        --
+        #StringConverterGsonSerializer<T> serializer(StringConverter<T>)
+    }
+    
+    BaseRepeater <|-- DefaultGsonFactory
+    GsonFactory <|-- DefaultGsonFactory
+    DefaultGsonFactory --> GsonBuilder : "creates"
+    class DefaultGsonFactory
+    {
+        --(constructors)--
+        +DefaultGsonFactory(DefaultGsonFactory)
+        +DefaultGsonFactory(Listener)
+        --(building)--
+        #GsonBuilder builder()
+    }
+    
+    interface Repeater
+    Repeater <|-- GsonFactory
+    interface GsonFactory
+    {
+        --
+        +Gson gson()
+        --(functional)--
+        +GsonFactory withDateFormat(String dateFormat)
+        +GsonFactory withDeserializer(Class<T> type, JsonDeserializer<T>)
+        +GsonFactory withExclusionStrategy(ExclusionStrategy)
+        +GsonFactory withHtmlEscaping(boolean escape)
+        +GsonFactory withPrettyPrinting(boolean prettyPrinting)
+        +GsonFactory withRequireExposeAnnotation(boolean require)
+        +GsonFactory withSerialization(Class<T> type, Serialization)
+        +GsonFactory withSerializeNulls(boolean serializeNulls)
+        +GsonFactory withSerializer(Class<T> type, JsonSerializer<? extends T>)
+        +GsonFactory withTypeAdapterFactory(Class<?> type, TypeAdapterFactory)
+        +GsonFactory withVersion(Version)
+    }
+    
+    interface Repeater
+    Repeater <|-- GsonFactorySource
+    interface GsonFactorySource
+    {
+        --(factory)--
+        +GsonFactory gsonFactory()
+    }
+    
+    Project <|-- GsonSerializationProject
+    class GsonSerializationProject
+    {
+        --(constructors)--
+        #GsonSerializationProject()
+        --(serialization)--
+        +GsonSerializationProject get()
+    }
+    
+    interface JsonDeserializer<T>
+    interface JsonSerializer<T>
+    JsonSerializer <|-- GsonSerializer
+    JsonDeserializer <|-- GsonSerializer
+    interface GsonSerializer<T>
+    {
+    }
+    
+    GsonSerializer <|-- PrimitiveGsonSerializer
+    abstract class PrimitiveGsonSerializer<T, Primitive>
+    {
+        --(constructors)--
+        #PrimitiveGsonSerializer(Class<Primitive>)
+        --(conversion)--
+        #T toObject(Primitive scalar)
+        #Primitive toPrimitive(T object)
+    }
+    
+    DefaultGsonFactory.Settings --> GsonBuilder : "creates"
+    class DefaultGsonFactory.Settings
+    {
+        --(constructors)--
+        +Settings()
+        +Settings(Settings)
+        --(building)--
+        +GsonBuilder builder()
+        --(filesystem)--
+        +Settings copy()
+    }
+    
+    GsonSerializer <|-- StringConverterGsonSerializer
+    class StringConverterGsonSerializer<T>
+    {
+        --(constructors)--
+        +StringConverterGsonSerializer(StringConverter<T>)
+    }
+    
+@enduml
+

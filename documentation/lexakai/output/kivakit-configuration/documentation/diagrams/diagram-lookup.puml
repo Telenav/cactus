@@ -1,0 +1,29 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Lookup"
+    
+    interface RegistryTrait
+    
+    class InstanceIdentifier
+    {
+        --(constructors)--
+        #InstanceIdentifier(String)
+        --(identity)--
+        +InstanceIdentifier of(Class<?> value)
+        +InstanceIdentifier of(String value)
+        +InstanceIdentifier of(Enum<?> value)
+    }
+    
+    RegistryTrait <|-- Registry
+    Registry --> InstanceIdentifier : "locates instances with"
+    class Registry
+    {
+        --
+        +Registry global()
+        +Registry of(Object)
+    }
+    
+@enduml
+

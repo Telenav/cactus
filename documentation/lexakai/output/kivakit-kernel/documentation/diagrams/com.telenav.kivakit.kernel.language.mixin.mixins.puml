@@ -1,0 +1,19 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.mixin.mixins"
+    
+    interface Mixin
+    Mixin <|-- AttributedMixin
+    interface AttributedMixin<Key, Value>
+    {
+        --
+        +Value attribute(Key)
+        +Value attribute(Key, Value)
+        --(collection)--
+        +HashMap<Key,Value> map()
+    }
+    
+@enduml
+

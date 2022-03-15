@@ -1,0 +1,17 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.threading.local"
+    
+    abstract AbstractMap
+    
+    AbstractMap <|-- ThreadLocalMap
+    class ThreadLocalMap<Key, Value>
+    {
+        --(constructors)--
+        +ThreadLocalMap()
+    }
+    
+@enduml
+

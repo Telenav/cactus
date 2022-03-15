@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="633.3333px" preserveAspectRatio="none" style="width:513px;height:633px;background:#333333;" version="1.1" viewBox="0 0 513 633" width="513.5417px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="101.0417" x="198.9583" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="78.125" x="210.4167" y="30.5583">Security</text><!--MD5=[2f01b1126ff33a0669651ec2488a5ef9]
+class Password--><rect codeLine="17" fill="#282828" height="48.055" id="Password" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="98.9583" x="120.3125" y="203.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="98.9583" x="120.3125" y="203.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="98.9583" x="120.3125" y="226.7578"/><rect codeLine="17" fill="none" height="48.055" id="Password" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="98.9583" x="120.3125" y="203.7028"/><ellipse cx="134.8958" cy="219.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M132.2998,216.5588 L132.2998,214.9719 L137.7258,214.9719 L137.7258,216.5588 L135.9131,216.5588 L135.9131,222.4976 L137.7258,222.4976 L137.7258,224.0845 L132.2998,224.0845 L132.2998,222.4976 L134.1125,222.4976 L134.1125,216.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="61.4583" x="151.5625" y="224.1211">Password</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="121.3542" x2="218.2292" y1="235.0911" y2="235.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="121.3542" x2="218.2292" y1="243.4245" y2="243.4245"/><!--MD5=[114a269c9049b2c2dec090c34e8cbb7c]
+class PlainTextPassword--><rect codeLine="22" fill="#282828" height="127.0345" id="PlainTextPassword" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="320.8333" x="9.375" y="353.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="320.8333" x="9.375" y="353.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="320.8333" x="9.375" y="376.7578"/><rect codeLine="22" fill="none" height="127.0345" id="PlainTextPassword" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="320.8333" x="9.375" y="353.7028"/><ellipse cx="102.0833" cy="369.397" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M103.9937,373.822 Q103.5665,374.0417 103.0965,374.1516 Q102.6265,374.2615 102.1077,374.2615 Q100.2645,374.2615 99.294,373.0469 Q98.3236,371.8323 98.3236,369.5374 Q98.3236,367.2363 99.294,366.0217 Q100.2645,364.8071 102.1077,364.8071 Q102.6265,364.8071 103.1026,364.917 Q103.5787,365.0269 103.9937,365.2466 L103.9937,367.2485 Q103.5299,366.8213 103.0935,366.6229 Q102.6571,366.4246 102.1932,366.4246 Q101.2044,366.4246 100.7009,367.2089 Q100.1973,367.9932 100.1973,369.5374 Q100.1973,371.0754 100.7009,371.8597 Q101.2044,372.644 102.1932,372.644 Q102.6571,372.644 103.0935,372.4457 Q103.5299,372.2473 103.9937,371.8201 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="120.8333" x="125" y="374.1211">PlainTextPassword</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="10.4167" x2="329.1667" y1="385.0911" y2="385.0911"/><polygon fill="#FFFF44" points="20.8333,415.2527,25,419.4194,20.8333,423.586,16.6667,419.4194" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="145.8333" x="32.2917" y="427.3722">PlainTextPassword(String)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="10.4167" x2="126.0417" y1="403.2969" y2="403.2969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="129.1667" y="407.1065">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="213.5417" x2="329.1667" y1="403.2969" y2="403.2969"/><ellipse cx="20.8333" cy="464.1174" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="288.5417" x="32.2917" y="471.0286">PlainTextPassword parse(Listener, String password)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="10.4167" x2="141.1458" y1="446.9533" y2="446.9533"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="51.0417" x="144.2708" y="450.7629">(parsing)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="198.4375" x2="329.1667" y1="446.9533" y2="446.9533"/><!--MD5=[aa56c61dbba11fc464ede4fe00272aac]
+class DigestPassword--><rect codeLine="9" fill="#282828" height="83.3781" id="DigestPassword" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="162.5" x="88.5417" y="543.2861"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="162.5" x="88.5417" y="543.2861"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="162.5" x="88.5417" y="566.3411"/><rect codeLine="9" fill="none" height="83.3781" id="DigestPassword" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="162.5" x="88.5417" y="543.2861"/><ellipse cx="112.5" cy="558.9803" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M114.4104,563.4054 Q113.9832,563.6251 113.5132,563.7349 Q113.0432,563.8448 112.5244,563.8448 Q110.6812,563.8448 109.7107,562.6302 Q108.7402,561.4156 108.7402,559.1207 Q108.7402,556.8197 109.7107,555.6051 Q110.6812,554.3905 112.5244,554.3905 Q113.0432,554.3905 113.5193,554.5003 Q113.9954,554.6102 114.4104,554.8299 L114.4104,556.8319 Q113.9465,556.4046 113.5101,556.2063 Q113.0737,556.0079 112.6099,556.0079 Q111.6211,556.0079 111.1176,556.7922 Q110.614,557.5765 110.614,559.1207 Q110.614,560.6588 111.1176,561.4431 Q111.6211,562.2274 112.6099,562.2274 Q113.0737,562.2274 113.5101,562.029 Q113.9465,561.8306 114.4104,561.4034 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="104.1667" x="131.25" y="563.7044">DigestPassword</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="89.5833" x2="250" y1="574.6745" y2="574.6745"/><ellipse cx="100" cy="610.0444" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="130.2083" x="111.4583" y="616.9556">DigestPassword(String)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="89.5833" x2="126.0417" y1="592.8802" y2="592.8802"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="129.1667" y="596.6899">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="213.5417" x2="250" y1="592.8802" y2="592.8802"/><!--MD5=[c249847c086044a14a4ecd1d09905030]
+class Matcher--><rect codeLine="15" fill="#282828" height="48.055" id="Matcher" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="88.5417" x="125.5208" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="88.5417" x="125.5208" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="88.5417" x="125.5208" y="76.7578"/><rect codeLine="15" fill="none" height="48.055" id="Matcher" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="88.5417" x="125.5208" y="53.7028"/><ellipse cx="140.1042" cy="69.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M137.5081,66.5588 L137.5081,64.9719 L142.9342,64.9719 L142.9342,66.5588 L141.1214,66.5588 L141.1214,72.4976 L142.9342,72.4976 L142.9342,74.0845 L137.5081,74.0845 L137.5081,72.4976 L139.3209,72.4976 L139.3209,66.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="51.0417" x="156.7708" y="74.1211">Matcher</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="126.5625" x2="213.0208" y1="85.0911" y2="85.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="126.5625" x2="213.0208" y1="93.4245" y2="93.4245"/><!--MD5=[53f6a92bd21ca2f2960392a061f3a1c6]
+class Name--><rect fill="#282828" height="48.055" id="Name" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="73.9583" x="344.2708" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="73.9583" x="344.2708" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="73.9583" x="344.2708" y="76.7578"/><rect fill="none" height="48.055" id="Name" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="73.9583" x="344.2708" y="53.7028"/><ellipse cx="358.8542" cy="69.397" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M360.7646,73.822 Q360.3373,74.0417 359.8674,74.1516 Q359.3974,74.2615 358.8786,74.2615 Q357.0353,74.2615 356.0649,73.0469 Q355.0944,71.8323 355.0944,69.5374 Q355.0944,67.2363 356.0649,66.0217 Q357.0353,64.8071 358.8786,64.8071 Q359.3974,64.8071 359.8735,64.917 Q360.3495,65.0269 360.7646,65.2466 L360.7646,67.2485 Q360.3007,66.8213 359.8643,66.6229 Q359.4279,66.4246 358.964,66.4246 Q357.9753,66.4246 357.4717,67.2089 Q356.9682,67.9932 356.9682,69.5374 Q356.9682,71.0754 357.4717,71.8597 Q357.9753,72.644 358.964,72.644 Q359.4279,72.644 359.8643,72.4457 Q360.3007,72.2473 360.7646,71.8201 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="36.4583" x="375.5208" y="74.1211">Name</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="345.3125" x2="417.1875" y1="85.0911" y2="85.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="345.3125" x2="417.1875" y1="93.4245" y2="93.4245"/><!--MD5=[9a6e98b13a389138a8ee3cd2798f9215]
+class UserName--><rect codeLine="31" fill="#282828" height="127.0345" id="UserName" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="250" x="256.25" y="164.1195"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="250" x="256.25" y="164.1195"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="250" x="256.25" y="187.1745"/><rect codeLine="31" fill="none" height="127.0345" id="UserName" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="250" x="256.25" y="164.1195"/><ellipse cx="341.1458" cy="179.8136" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M343.0562,184.2387 Q342.629,184.4584 342.159,184.5683 Q341.689,184.6781 341.1702,184.6781 Q339.327,184.6781 338.3565,183.4635 Q337.3861,182.2489 337.3861,179.954 Q337.3861,177.653 338.3565,176.4384 Q339.327,175.2238 341.1702,175.2238 Q341.689,175.2238 342.1651,175.3337 Q342.6412,175.4435 343.0562,175.6632 L343.0562,177.6652 Q342.5924,177.238 342.156,177.0396 Q341.7196,176.8412 341.2557,176.8412 Q340.2669,176.8412 339.7634,177.6255 Q339.2598,178.4098 339.2598,179.954 Q339.2598,181.4921 339.7634,182.2764 Q340.2669,183.0607 341.2557,183.0607 Q341.7196,183.0607 342.156,182.8623 Q342.5924,182.664 343.0562,182.2367 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="65.625" x="364.0625" y="184.5378">UserName</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="257.2917" x2="505.2083" y1="195.5078" y2="195.5078"/><polygon fill="#FFFF44" points="267.7083,225.6694,271.875,229.836,267.7083,234.0027,263.5417,229.836" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="98.9583" x="279.1667" y="237.7889">UserName(String)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="257.2917" x2="337.5" y1="213.7136" y2="213.7136"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="340.625" y="217.5232">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="425" x2="505.2083" y1="213.7136" y2="213.7136"/><ellipse cx="267.7083" cy="274.5341" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="217.7083" x="279.1667" y="281.4453">UserName parse(Listener, String name)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="257.2917" x2="353.125" y1="257.37" y2="257.37"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="50" x="356.25" y="261.1796">(naming)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="409.375" x2="505.2083" y1="257.37" y2="257.37"/><!--MD5=[2e9b830b971b066d7b5339520985d499]
+reverse link PlainTextPassword to DigestPassword--><path codeLine="8" d="M169.7917,501.8486 C169.7917,516.2653 169.7917,530.6611 169.7917,543.2653 " fill="none" id="PlainTextPassword-backto-DigestPassword" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="162.5,501.734,169.7917,480.9007,177.0833,501.734,162.5,501.734" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[036dbf88fe21588b167464dfd06d0a82]
+reverse link Matcher to Password--><path codeLine="16" d="M169.7917,122.7236 C169.7917,149.3174 169.7917,182.1299 169.7917,203.6715 " fill="none" id="Matcher-backto-Password" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="162.5,122.6507,169.7917,101.8174,177.0833,122.6507,162.5,122.6507" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[ed560bf051555b58ce317faf923aefe0]
+reverse link Password to PlainTextPassword--><path codeLine="21" d="M169.7917,272.5778 C169.7917,296.682 169.7917,326.984 169.7917,353.5361 " fill="none" id="Password-backto-PlainTextPassword" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="162.5,272.5257,169.7917,251.6924,177.0833,272.5257,162.5,272.5257" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[4d3229fda4852fb7e4dfe4503a4a9021]
+reverse link Name to UserName--><path codeLine="30" d="M381.25,123.057 C381.25,135.9632 381.25,150.307 381.25,164.109 " fill="none" id="Name-backto-UserName" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="373.9583,122.6507,381.25,101.8174,388.5417,122.6507,373.9583,122.6507" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[3829e53a71c4ddeefaf559a3d370bdb5]
+@startuml
+
+    !include lexakai.theme
+    
+    title "Security"
+    
+    interface Password
+    
+    PlainTextPassword <|- - DigestPassword
+    class DigestPassword
+    {
+        - -(constructors)- -
+        +DigestPassword(String)
+    }
+    
+    interface Matcher
+    Matcher <|- - Password
+    interface Password
+    {
+    }
+    
+    Password <|- - PlainTextPassword
+    class PlainTextPassword
+    {
+        - -(constructors)- -
+        #PlainTextPassword(String)
+        - -(parsing)- -
+        +PlainTextPassword parse(Listener, String password)
+    }
+    
+    Name <|- - UserName
+    class UserName
+    {
+        - -(constructors)- -
+        #UserName(String)
+        - -(naming)- -
+        +UserName parse(Listener, String name)
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "Security"
+    
+    interface Password
+    
+    PlainTextPassword <|- - DigestPassword
+    class DigestPassword
+    {
+        - -(constructors)- -
+        +DigestPassword(String)
+    }
+    
+    interface Matcher
+    Matcher <|- - Password
+    interface Password
+    {
+    }
+    
+    Password <|- - PlainTextPassword
+    class PlainTextPassword
+    {
+        - -(constructors)- -
+        #PlainTextPassword(String)
+        - -(parsing)- -
+        +PlainTextPassword parse(Listener, String password)
+    }
+    
+    Name <|- - UserName
+    class UserName
+    {
+        - -(constructors)- -
+        #UserName(String)
+        - -(naming)- -
+        +UserName parse(Listener, String name)
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

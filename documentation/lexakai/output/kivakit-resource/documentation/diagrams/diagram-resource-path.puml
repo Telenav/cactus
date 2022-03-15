@@ -1,0 +1,164 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Resources - Paths"
+    
+    interface Named
+    interface Comparable
+    interface UriIdentified
+    
+    Named <|-- Extension
+    class Extension
+    {
+        --(constructors)--
+        #Extension(String)
+        --
+        +Codec codec()
+        +boolean ends(Resource)
+        +boolean ends(FilePath)
+        --(checks)--
+        +boolean endsWith(Extension)
+        +boolean isArchive()
+        +boolean isExecutable()
+        --(filesystem)--
+        +List<Extension> archive()
+        +List<Extension> executable()
+        +Matcher<File> fileMatcher()
+        +Extension gzipped()
+        +List<Extension> known()
+        +Extension parse(Listener, String value)
+        +Extension withExtension(Extension)
+    }
+    
+    Named <|-- FileName
+    Comparable <|-- FileName
+    class FileName
+    {
+        --(constructors)--
+        #FileName(String)
+        --
+        +boolean matches(Pattern)
+        --(checks)--
+        +boolean endsWith(String suffix)
+        +boolean endsWith(Extension)
+        +boolean startsWith(String prefix)
+        --(filesystem)--
+        +FilePath asPath()
+        +FileName base()
+        +Extension compoundExtension()
+        +FileName date(LocalTime)
+        +FileName date(LocalTime, ZoneId)
+        +FileName date()
+        +FileName dateTime(LocalTime)
+        +FileName dateTime(LocalTime, ZoneId)
+        +FileName dateTime()
+        +Extension extension()
+        +Matcher<File> fileMatcher()
+        +FileName normalized()
+        +FileName parse(Listener, String name)
+        +FileName prefixedWith(String prefix)
+        +FileName time(LocalTime, ZoneId)
+        +FileName time(LocalTime)
+        +FileName toLowerCase()
+        +FileName toUpperCase()
+        +FileName withExtension(Extension)
+        +FileName withSuffix(String suffix)
+        +FileName withoutCompoundExtension()
+        +FileName withoutExtension(Extension)
+        +FileName withoutExtension()
+        +FileName withoutKnownExtensions()
+        --(matching)--
+        +Matcher<FileName> matcher()
+        --(time)--
+        +LocalTime localDateTime()
+        +LocalTime localDateTime(Listener)
+        +LocalTime parseDateTime(Listener, String dateTime)
+        +LocalTime parseDateTime(Listener, String dateTime, ZoneId)
+    }
+    
+    ResourcePath <|-- FilePath
+    class FilePath
+    {
+        --(constructors)--
+        #FilePath(FilePath)
+        #FilePath(StringList, String, List<String>)
+        #FilePath(StringList, StringPath)
+        --
+        +boolean matches(com.telenav.kivakit.coreinterfaces.comparison.Matcher<String>)
+        --(checks)--
+        +boolean hasTrailingSlash()
+        --(collection)--
+        +String last()
+        --(conversion)--
+        +StringPath asStringPath()
+        +String asUnixString()
+        +URI asUri()
+        --(filesystem)--
+        +FilePath absolute()
+        +FilePath file(FileName child)
+        +FilePath filePath(FileName)
+        +FilePath filePath(java.nio.file.Path)
+        +FilePath filePath(URI)
+        +FilePath filePath(java.io.File)
+        +FilePath filePath(StringPath)
+        +boolean hasExtension(Extension)
+        +boolean isCurrentFolder()
+        +FilePath parseFilePath(Listener, String path, Object... arguments)
+        +FilePath withPrefix(String prefix)
+        +FilePath withScheme(String scheme)
+        +FilePath withSchemes(StringList scheme)
+        +FilePath withTrailingSlash()
+        +FilePath withoutFileScheme()
+        +FilePath withoutPrefix(String prefix)
+        +FilePath withoutSchemes()
+        +FilePath withoutTrailingSlash()
+    }
+    
+    StringPath <|-- ResourcePath
+    UriIdentified <|-- ResourcePath
+    class ResourcePath
+    {
+        --(constructors)--
+        #ResourcePath(ResourcePath)
+        #ResourcePath(StringList, List<String>)
+        #ResourcePath(StringList, String, List<String>)
+        --(checks)--
+        +boolean hasScheme()
+        --(collection)--
+        +StringList schemes()
+        --(filesystem)--
+        +File asFile()
+        +Extension extension()
+        +FileName fileName()
+        --(path)--
+        +FilePath asFilePath()
+        +ResourcePath normalized()
+        +ResourcePath parseResourcePath(Listener, String path)
+        +ResourcePath parseUnixResourcePath(Listener, String path)
+        +ResourcePath resourcePath(StringPath)
+        +SwitchParser.Builder<ResourcePath> resourcePathSwitchParser(Listener, String name, String description)
+        +FilePath withExtension(Extension)
+        +ResourcePath withSchemes(StringList schemes)
+        +ResourcePath withoutSchemes()
+    }
+    
+    interface UriIdentified
+    UriIdentified <|-- ResourcePathed
+    ResourcePathed --> ResourcePath : "supplies"
+    interface ResourcePathed
+    {
+        --
+        +boolean matches(Matcher<String>)
+        --(filesystem)--
+        +FileName baseName()
+        +Extension compoundExtension()
+        +Extension extension()
+        +FileName fileName()
+        +boolean hasExtension(Extension)
+        --(path)--
+        +ResourcePath path()
+    }
+    
+@enduml
+

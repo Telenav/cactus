@@ -1,0 +1,686 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1628.125px" preserveAspectRatio="none" style="width:1539px;height:1628px;background:#333333;" version="1.1" viewBox="0 0 1539 1628" width="1539.5833px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="128.125" x="698.6979" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="105.2083" x="710.1563" y="30.5583">Messaging</text><!--MD5=[7c5c88a606935469d5f89b0b5794816c]
+class Named--><rect codeLine="18" fill="#282828" height="48.055" id="Named" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="82.2917" x="239.5833" y="503.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="82.2917" x="239.5833" y="503.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="82.2917" x="239.5833" y="526.7578"/><rect codeLine="18" fill="none" height="48.055" id="Named" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="82.2917" x="239.5833" y="503.7028"/><ellipse cx="254.1667" cy="519.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M251.5706,516.5588 L251.5706,514.9719 L256.9967,514.9719 L256.9967,516.5588 L255.1839,516.5588 L255.1839,522.4976 L256.9967,522.4976 L256.9967,524.0845 L251.5706,524.0845 L251.5706,522.4976 L253.3834,522.4976 L253.3834,516.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="44.7917" x="270.8333" y="524.1211">Named</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="240.625" x2="320.8333" y1="535.0911" y2="535.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="240.625" x2="320.8333" y1="543.4245" y2="543.4245"/><!--MD5=[eedde156c9dded963040b22578af45fa]
+class Level--><rect fill="#282828" height="48.055" id="Level" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="70.8333" x="302.6042" y="1056.307"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="70.8333" x="302.6042" y="1056.307"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="70.8333" x="302.6042" y="1079.362"/><rect fill="none" height="48.055" id="Level" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="70.8333" x="302.6042" y="1056.307"/><ellipse cx="317.1875" cy="1072.0011" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M319.0979,1076.4262 Q318.6707,1076.6459 318.2007,1076.7558 Q317.7307,1076.8656 317.2119,1076.8656 Q315.3687,1076.8656 314.3982,1075.651 Q313.4277,1074.4364 313.4277,1072.1415 Q313.4277,1069.8405 314.3982,1068.6259 Q315.3687,1067.4113 317.2119,1067.4113 Q317.7307,1067.4113 318.2068,1067.5212 Q318.6829,1067.631 319.0979,1067.8507 L319.0979,1069.8527 Q318.634,1069.4255 318.1976,1069.2271 Q317.7612,1069.0287 317.2974,1069.0287 Q316.3086,1069.0287 315.8051,1069.813 Q315.3015,1070.5973 315.3015,1072.1415 Q315.3015,1073.6796 315.8051,1074.4639 Q316.3086,1075.2482 317.2974,1075.2482 Q317.7612,1075.2482 318.1976,1075.0498 Q318.634,1074.8515 319.0979,1074.4242 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="33.3333" x="333.8542" y="1076.7253">Level</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="303.6458" x2="372.3958" y1="1087.6953" y2="1087.6953"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="303.6458" x2="372.3958" y1="1096.0286" y2="1096.0286"/><!--MD5=[7a3a9862f101fd7334ff6ce2bd9f21ba]
+class Importance--><rect codeLine="9" fill="#282828" height="131.2012" id="Importance" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="513.5417" x="323.9583" y="1462.557"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="513.5417" x="323.9583" y="1462.557"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="513.5417" x="323.9583" y="1485.612"/><rect codeLine="9" fill="none" height="131.2012" id="Importance" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="513.5417" x="323.9583" y="1462.557"/><ellipse cx="536.9792" cy="1478.2511" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M538.8896,1482.6762 Q538.4623,1482.8959 537.9924,1483.0058 Q537.5224,1483.1156 537.0036,1483.1156 Q535.1603,1483.1156 534.1899,1481.901 Q533.2194,1480.6864 533.2194,1478.3915 Q533.2194,1476.0905 534.1899,1474.8759 Q535.1603,1473.6613 537.0036,1473.6613 Q537.5224,1473.6613 537.9985,1473.7712 Q538.4745,1473.881 538.8896,1474.1007 L538.8896,1476.1027 Q538.4257,1475.6755 537.9893,1475.4771 Q537.5529,1475.2787 537.089,1475.2787 Q536.1003,1475.2787 535.5967,1476.063 Q535.0932,1476.8473 535.0932,1478.3915 Q535.0932,1479.9296 535.5967,1480.7139 Q536.1003,1481.4982 537.089,1481.4982 Q537.5529,1481.4982 537.9893,1481.2998 Q538.4257,1481.1015 538.8896,1480.6742 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="72.9167" x="559.8958" y="1482.9753">Importance</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="325" x2="836.4583" y1="1493.9453" y2="1493.9453"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="325" x2="836.4583" y1="1502.2786" y2="1502.2786"/><ellipse cx="335.4167" cy="1513.737" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="205.2083" x="346.875" y="1520.6482">Importance importance(double level)</text><ellipse cx="335.4167" cy="1533.4819" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="318.75" x="346.875" y="1540.3931">Importance importance(Class&lt;? extends Message&gt; type)</text><ellipse cx="335.4167" cy="1577.1383" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="481.25" x="346.875" y="1584.0495">Importance register(Class&lt;? extends Message&gt; low, Class&lt;? extends Message&gt; high)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="325" x2="554.1667" y1="1559.9742" y2="1559.9742"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="557.2917" y="1563.7838">(lookup)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="607.2917" x2="836.4583" y1="1559.9742" y2="1559.9742"/><!--MD5=[675dfcd73141fd4bc1be07838130124b]
+class Transmittable--><rect codeLine="127" fill="#282828" height="48.055" id="Transmittable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="128.125" x="847.9167" y="503.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="128.125" x="847.9167" y="503.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="128.125" x="847.9167" y="526.7578"/><rect codeLine="127" fill="none" height="48.055" id="Transmittable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="128.125" x="847.9167" y="503.7028"/><ellipse cx="862.5" cy="519.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M859.904,516.5588 L859.904,514.9719 L865.33,514.9719 L865.33,516.5588 L863.5173,516.5588 L863.5173,522.4976 L865.33,522.4976 L865.33,524.0845 L859.904,524.0845 L859.904,522.4976 L861.7167,522.4976 L861.7167,516.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="90.625" x="879.1667" y="524.1211">Transmittable</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="848.9583" x2="975" y1="535.0911" y2="535.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="848.9583" x2="975" y1="543.4245" y2="543.4245"/><!--MD5=[90d87ca4cb856169f1dc9dcc6f2e2a50]
+class Triaged--><rect codeLine="144" fill="#282828" height="67.7999" id="Triaged" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="131.25" x="71.3542" y="493.807"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="131.25" x="71.3542" y="493.807"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="131.25" x="71.3542" y="516.862"/><rect codeLine="144" fill="none" height="67.7999" id="Triaged" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="131.25" x="71.3542" y="493.807"/><ellipse cx="106.0938" cy="509.5011" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M103.4977,506.663 L103.4977,505.0761 L108.9237,505.0761 L108.9237,506.663 L107.111,506.663 L107.111,512.6017 L108.9237,512.6017 L108.9237,514.1886 L103.4977,514.1886 L103.4977,512.6017 L105.3105,512.6017 L105.3105,506.663 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="48.9583" x="127.2396" y="514.2253">Triaged</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="72.3958" x2="201.5625" y1="525.1953" y2="525.1953"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="72.3958" x2="201.5625" y1="533.5286" y2="533.5286"/><ellipse cx="82.8125" cy="544.987" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="98.9583" x="94.2708" y="551.8982">Severity severity()</text><!--MD5=[bea5b0d46523efab5ea1c1d339f396f0]
+class Message--><rect codeLine="28" fill="#282828" height="538.5986" id="Message" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="319.7917" x="423.9583" y="810.9945"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="319.7917" x="423.9583" y="810.9945"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="319.7917" x="423.9583" y="834.0495"/><rect codeLine="28" fill="none" height="538.5986" id="Message" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="319.7917" x="423.9583" y="810.9945"/><ellipse cx="548.4375" cy="826.6886" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M545.8415,823.8505 L545.8415,822.2636 L551.2675,822.2636 L551.2675,823.8505 L549.4548,823.8505 L549.4548,829.7892 L551.2675,829.7892 L551.2675,831.3761 L545.8415,831.3761 L545.8415,829.7892 L547.6542,829.7892 L547.6542,823.8505 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="571.3542" y="831.4128">Message</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="425" x2="742.7083" y1="842.3828" y2="842.3828"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="425" x2="742.7083" y1="850.7161" y2="850.7161"/><ellipse cx="435.4167" cy="862.1745" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="102.0833" x="446.875" y="869.0857">Throwable cause()</text><ellipse cx="435.4167" cy="881.9194" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="128.125" x="446.875" y="888.8306">CodeContext context()</text><ellipse cx="435.4167" cy="901.6642" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="108.3333" x="446.875" y="908.5754">String description()</text><ellipse cx="435.4167" cy="921.4091" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="141.6667" x="446.875" y="928.3203">String escape(String text)</text><ellipse cx="435.4167" cy="941.154" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="283.3333" x="446.875" y="948.0652">String format(String message, Object... arguments)</text><ellipse cx="435.4167" cy="960.8988" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="245.8333" x="446.875" y="967.8101">String formatted(MessageFormatter.Format)</text><ellipse cx="435.4167" cy="980.6437" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="100" x="446.875" y="987.5549">String formatted()</text><ellipse cx="435.4167" cy="1000.3886" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="138.5417" x="446.875" y="1007.2998">Importance importance()</text><ellipse cx="435.4167" cy="1020.1335" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="273.9583" x="446.875" y="1027.0447">void println(String message, Object... arguments)</text><ellipse cx="435.4167" cy="1039.8783" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="66.6667" x="446.875" y="1046.7896">String text()</text><ellipse cx="435.4167" cy="1059.6232" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="106.25" x="446.875" y="1066.5344">^Severity severity()</text><ellipse cx="435.4167" cy="1103.2796" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="116.6667" x="446.875" y="1110.1908">Object[] arguments()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="425" x2="514.5833" y1="1086.1155" y2="1086.1155"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="132.2917" x="517.7083" y="1089.9251">(command line parsing)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="653.125" x2="742.7083" y1="1086.1155" y2="1086.1155"/><ellipse cx="435.4167" cy="1146.936" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="180.2083" x="446.875" y="1153.8472">RuntimeException asException()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="425" x2="545.3125" y1="1129.7719" y2="1129.7719"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="70.8333" x="548.4375" y="1133.5815">(conversion)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="622.3958" x2="742.7083" y1="1129.7719" y2="1129.7719"/><ellipse cx="435.4167" cy="1190.5924" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="185.4167" x="446.875" y="1197.5037">Message cause(Throwable cause)</text><ellipse cx="435.4167" cy="1210.3373" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="190.625" x="446.875" y="1217.2485">OperationStatus operationStatus()</text><ellipse cx="435.4167" cy="1230.0822" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="287.5" x="446.875" y="1236.9934">Message parseMessageName(Listener, String name)</text><ellipse cx="435.4167" cy="1249.8271" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="132.2917" x="446.875" y="1256.7383">StackTrace stackTrace()</text><ellipse cx="435.4167" cy="1269.5719" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="80.2083" x="446.875" y="1276.4832">Status status()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="425" x2="546.3542" y1="1173.4283" y2="1173.4283"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="68.75" x="549.4792" y="1177.238">(messaging)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="621.3542" x2="742.7083" y1="1173.4283" y2="1173.4283"/><ellipse cx="435.4167" cy="1313.2284" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="80.2083" x="446.875" y="1320.1396">Time created()</text><ellipse cx="435.4167" cy="1332.9732" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="183.3333" x="446.875" y="1339.8844">Frequency maximumFrequency()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="425" x2="564.5833" y1="1296.0642" y2="1296.0642"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="32.2917" x="567.7083" y="1299.8739">(time)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="603.125" x2="742.7083" y1="1296.0642" y2="1296.0642"/><!--MD5=[07c7cc4db334341c0bafabd0da5a1c41]
+class Message.OperationStatus--><rect codeLine="73" fill="#282828" height="166.5243" id="Message.OperationStatus" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="142.7083" x="1061.4583" y="1444.8486"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="142.7083" x="1061.4583" y="1444.8486"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="142.7083" x="1061.4583" y="1467.9036"/><rect codeLine="73" fill="none" height="166.5243" id="Message.OperationStatus" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="142.7083" x="1061.4583" y="1444.8486"/><ellipse cx="1076.0417" cy="1460.5428" fill="#CF6300" rx="10.4167" ry="10.4167" style="stroke:#EF8300;stroke-width:1.0416666666666667;"/><path d="M1079.0975,1465.2303 L1073.4212,1465.2303 L1073.4212,1456.1178 L1079.0975,1456.1178 L1079.0975,1457.7047 L1075.2218,1457.7047 L1075.2218,1459.67 L1078.7313,1459.67 L1078.7313,1461.2569 L1075.2218,1461.2569 L1075.2218,1463.6434 L1079.0975,1463.6434 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="105.2083" x="1092.7083" y="1465.2669">OperationStatus</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1062.5" x2="1203.125" y1="1476.237" y2="1476.237"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="38.5417" x="1070.8333" y="1494.6065">FAILED</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="44.7917" x="1070.8333" y="1514.3514">HALTED</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="96.875" x="1070.8333" y="1534.0963">NOT_APPLICABLE</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="52.0833" x="1070.8333" y="1553.8411">RUNNING</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="51.0417" x="1070.8333" y="1573.586">STARTED</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="66.6667" x="1070.8333" y="1593.3309">SUCCEEDED</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1062.5" x2="1203.125" y1="1603.0396" y2="1603.0396"/><!--MD5=[41b3e0deefa0fbdaaef97f1db5961522]
+class Severity--><rect codeLine="108" fill="#282828" height="127.0345" id="Severity" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="280.2083" x="7.2917" y="1464.6403"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="280.2083" x="7.2917" y="1464.6403"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="280.2083" x="7.2917" y="1487.6953"/><rect codeLine="108" fill="none" height="127.0345" id="Severity" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="280.2083" x="7.2917" y="1464.6403"/><ellipse cx="114.5833" cy="1480.3345" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M116.4937,1484.7595 Q116.0665,1484.9792 115.5965,1485.0891 Q115.1265,1485.199 114.6077,1485.199 Q112.7645,1485.199 111.794,1483.9844 Q110.8236,1482.7698 110.8236,1480.4749 Q110.8236,1478.1738 111.794,1476.9592 Q112.7645,1475.7446 114.6077,1475.7446 Q115.1265,1475.7446 115.6026,1475.8545 Q116.0787,1475.9644 116.4937,1476.1841 L116.4937,1478.186 Q116.0299,1477.7588 115.5935,1477.5604 Q115.1571,1477.3621 114.6932,1477.3621 Q113.7044,1477.3621 113.2009,1478.1464 Q112.6973,1478.9307 112.6973,1480.4749 Q112.6973,1482.0129 113.2009,1482.7972 Q113.7044,1483.5815 114.6932,1483.5815 Q115.1571,1483.5815 115.5935,1483.3832 Q116.0299,1483.1848 116.4937,1482.7576 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="51.0417" x="137.5" y="1485.0586">Severity</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="8.3333" x2="286.4583" y1="1496.0286" y2="1496.0286"/><ellipse cx="18.75" cy="1531.3985" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="130.2083" x="30.2083" y="1538.3097">Severity(String, double)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="103.6458" y1="1514.2344" y2="1514.2344"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="106.7708" y="1518.044">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="191.1458" x2="286.4583" y1="1514.2344" y2="1514.2344"/><ellipse cx="18.75" cy="1575.0549" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="247.9167" x="30.2083" y="1581.9661">Severity parseSeverity(Listener, String name)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="118.75" y1="1557.8908" y2="1557.8908"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="51.0417" x="121.875" y="1561.7004">(parsing)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="176.0417" x2="286.4583" y1="1557.8908" y2="1557.8908"/><!--MD5=[6048f5097177fd515e0ce207704f1a4f]
+class Message.Status--><rect codeLine="116" fill="#282828" height="186.2691" id="Message.Status" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="150" x="874.4792" y="1434.9528"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="150" x="874.4792" y="1434.9528"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="150" x="874.4792" y="1458.0078"/><rect codeLine="116" fill="none" height="186.2691" id="Message.Status" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="150" x="874.4792" y="1434.9528"/><ellipse cx="921.875" cy="1450.647" fill="#CF6300" rx="10.4167" ry="10.4167" style="stroke:#EF8300;stroke-width:1.0416666666666667;"/><path d="M924.9308,1455.3345 L919.2546,1455.3345 L919.2546,1446.2219 L924.9308,1446.2219 L924.9308,1447.8088 L921.0551,1447.8088 L921.0551,1449.7742 L924.5646,1449.7742 L924.5646,1451.3611 L921.0551,1451.3611 L921.0551,1453.7476 L924.9308,1453.7476 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="40.625" x="944.7917" y="1455.3711">Status</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="875.5208" x2="1023.4375" y1="1466.3411" y2="1466.3411"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="67.7083" x="883.8542" y="1484.7107">COMPLETED</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="38.5417" x="883.8542" y="1504.4556">FAILED</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="96.875" x="883.8542" y="1524.2004">NOT_APPLICABLE</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="51.0417" x="883.8542" y="1543.9453">PROBLEM</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="131.25" x="883.8542" y="1563.6902">RESULT_COMPROMISED</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="118.75" x="883.8542" y="1583.4351">RESULT_INCOMPLETE</text><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="66.6667" x="883.8542" y="1603.1799">SUCCEEDED</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="875.5208" x2="1023.4375" y1="1612.8886" y2="1612.8886"/><!--MD5=[bddb511951cf0a1d6a79f67b0c2ed87d]
+class Filter--><rect codeLine="57" fill="#282828" height="48.055" id="Filter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="70.8333" x="1079.6875" y="125.057"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="70.8333" x="1079.6875" y="125.057"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="70.8333" x="1079.6875" y="148.112"/><rect codeLine="57" fill="none" height="48.055" id="Filter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="70.8333" x="1079.6875" y="125.057"/><ellipse cx="1094.2708" cy="140.7511" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1091.6748,137.913 L1091.6748,136.3261 L1097.1008,136.3261 L1097.1008,137.913 L1095.2881,137.913 L1095.2881,143.8517 L1097.1008,143.8517 L1097.1008,145.4386 L1091.6748,145.4386 L1091.6748,143.8517 L1093.4875,143.8517 L1093.4875,137.913 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="33.3333" x="1110.9375" y="145.4753">Filter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1080.7292" x2="1149.4792" y1="156.4453" y2="156.4453"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1080.7292" x2="1149.4792" y1="164.7786" y2="164.7786"/><!--MD5=[4d77889c2c3825d623a5c51f6f55affc]
+class MessageFilter--><rect codeLine="59" fill="#282828" height="83.3781" id="MessageFilter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="179.1667" x="1025.5208" y="485.9945"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="179.1667" x="1025.5208" y="485.9945"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="179.1667" x="1025.5208" y="509.0495"/><rect codeLine="59" fill="none" height="83.3781" id="MessageFilter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="179.1667" x="1025.5208" y="485.9945"/><ellipse cx="1063.5417" cy="501.6886" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1060.9456,498.8505 L1060.9456,497.2636 L1066.3717,497.2636 L1066.3717,498.8505 L1064.5589,498.8505 L1064.5589,504.7892 L1066.3717,504.7892 L1066.3717,506.3761 L1060.9456,506.3761 L1060.9456,504.7892 L1062.7584,504.7892 L1062.7584,498.8505 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="89.5833" x="1085.4167" y="506.4128">MessageFilter</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="1026.5625" x2="1203.6458" y1="517.3828" y2="517.3828"/><ellipse cx="1036.9792" cy="552.7527" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="146.875" x="1048.4375" y="559.6639">boolean accepts(Message)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1026.5625" x2="1085.9375" y1="535.5886" y2="535.5886"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="52.0833" x="1089.0625" y="539.3982">(filtering)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1144.2708" x2="1203.6458" y1="535.5886" y2="535.5886"/><!--MD5=[f7d5ad6fb87f2ef8bc4f3eadbfaf744b]
+class MessageFormatter--><rect codeLine="65" fill="#282828" height="111.4563" id="MessageFormatter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="345.8333" x="1186.9792" y="93.2861"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="345.8333" x="1186.9792" y="93.2861"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="345.8333" x="1186.9792" y="116.3411"/><rect codeLine="65" fill="none" height="111.4563" id="MessageFormatter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="345.8333" x="1186.9792" y="93.2861"/><ellipse cx="1292.7083" cy="108.9803" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M1294.6187,113.4054 Q1294.1915,113.6251 1293.7215,113.7349 Q1293.2515,113.8448 1292.7327,113.8448 Q1290.8895,113.8448 1289.919,112.6302 Q1288.9486,111.4156 1288.9486,109.1207 Q1288.9486,106.8197 1289.919,105.6051 Q1290.8895,104.3905 1292.7327,104.3905 Q1293.2515,104.3905 1293.7276,104.5003 Q1294.2037,104.6102 1294.6187,104.8299 L1294.6187,106.8319 Q1294.1549,106.4046 1293.7185,106.2063 Q1293.2821,106.0079 1292.8182,106.0079 Q1291.8294,106.0079 1291.3259,106.7922 Q1290.8223,107.5765 1290.8223,109.1207 Q1290.8223,110.6588 1291.3259,111.4431 Q1291.8294,112.2274 1292.8182,112.2274 Q1293.2821,112.2274 1293.7185,112.029 Q1294.1549,111.8306 1294.6187,111.4034 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="119.7917" x="1315.625" y="113.7044">MessageFormatter</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="1188.0208" x2="1531.7708" y1="124.6745" y2="124.6745"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1188.0208" x2="1531.7708" y1="133.0078" y2="133.0078"/><ellipse cx="1198.4375" cy="144.4661" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="283.3333" x="1209.8958" y="151.3774">String format(String message, Object... arguments)</text><ellipse cx="1198.4375" cy="188.1226" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="313.5417" x="1209.8958" y="195.0338">String formatArray(String message, Object[] arguments)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1188.0208" x2="1325.5208" y1="170.9585" y2="170.9585"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="62.5" x="1328.6458" y="174.7681">(collection)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1394.2708" x2="1531.7708" y1="170.9585" y2="170.9585"/><!--MD5=[2741598bdf59a7d7e0d5c97658fd3022]
+class Result--><rect codeLine="84" fill="#282828" height="396.2179" id="Result" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="452.0833" x="358.8542" y="329.7445"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="452.0833" x="358.8542" y="329.7445"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="452.0833" x="358.8542" y="352.7995"/><rect codeLine="84" fill="none" height="396.2179" id="Result" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="452.0833" x="358.8542" y="329.7445"/><ellipse cx="547.9167" cy="345.4386" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M549.8271,349.8637 Q549.3998,350.0834 548.9299,350.1933 Q548.4599,350.3031 547.9411,350.3031 Q546.0978,350.3031 545.1274,349.0885 Q544.1569,347.8739 544.1569,345.579 Q544.1569,343.278 545.1274,342.0634 Q546.0978,340.8488 547.9411,340.8488 Q548.4599,340.8488 548.936,340.9587 Q549.412,341.0685 549.8271,341.2882 L549.8271,343.2902 Q549.3632,342.863 548.9268,342.6646 Q548.4904,342.4662 548.0265,342.4662 Q547.0378,342.4662 546.5342,343.2505 Q546.0307,344.0348 546.0307,345.579 Q546.0307,347.1171 546.5342,347.9014 Q547.0378,348.6857 548.0265,348.6857 Q548.4904,348.6857 548.9268,348.4873 Q549.3632,348.289 549.8271,347.8617 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="40.625" x="570.8333" y="350.1628">Result</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="16.6667" x="797.3958" y="326.6195"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="801.5625" y="342.8711">T</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="359.8958" x2="809.8958" y1="361.1328" y2="361.1328"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="359.8958" x2="809.8958" y1="369.4661" y2="369.4661"/><ellipse cx="370.3125" cy="380.9245" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="86.4583" x="381.7708" y="387.8357">boolean failed()</text><ellipse cx="370.3125" cy="400.6694" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="36.4583" x="381.7708" y="407.5806">T get()</text><ellipse cx="370.3125" cy="420.4142" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="76.0417" x="381.7708" y="427.3254">boolean has()</text><ellipse cx="370.3125" cy="440.1591" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="131.25" x="381.7708" y="447.0703">Result&lt;T&gt; set(T result)</text><ellipse cx="370.3125" cy="459.904" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="347.9167" x="381.7708" y="466.8152">Result&lt;T&gt; with(Result&lt;T&gt; that, BiFunction&lt;T,T,T&gt; combiner)</text><ellipse cx="370.3125" cy="503.5604" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="367.7083" x="381.7708" y="510.4716">Result&lt;T&gt; failed(Result&lt;?&gt;, String message, Object... arguments)</text><ellipse cx="370.3125" cy="523.3053" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="403.125" x="381.7708" y="530.2165">Result&lt;T&gt; failed(Throwable cause, String message, Object... arguments)</text><ellipse cx="370.3125" cy="543.0501" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="303.125" x="381.7708" y="549.9613">Result&lt;T&gt; failed(String message, Object... arguments)</text><ellipse cx="370.3125" cy="562.795" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="150" x="381.7708" y="569.7062">Result&lt;T&gt; failed(Message)</text><ellipse cx="370.3125" cy="582.5399" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="170.8333" x="381.7708" y="589.4511">Result&lt;T&gt; succeeded(T value)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="359.8958" x2="549.4792" y1="486.3963" y2="486.3963"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="552.6042" y="490.2059">(functional)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="620.3125" x2="809.8958" y1="486.3963" y2="486.3963"/><ellipse cx="370.3125" cy="626.1963" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="319.7917" x="381.7708" y="633.1075">Result&lt;T&gt; problem(String message, Object... arguments)</text><ellipse cx="370.3125" cy="645.9412" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="419.7917" x="381.7708" y="652.8524">Result&lt;T&gt; problem(Throwable cause, String message, Object... arguments)</text><ellipse cx="370.3125" cy="665.686" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="381.7708" y="672.5972">Message why()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="359.8958" x2="547.3958" y1="609.0322" y2="609.0322"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="68.75" x="550.5208" y="612.8418">(messaging)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="622.3958" x2="809.8958" y1="609.0322" y2="609.0322"/><ellipse cx="370.3125" cy="709.3424" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="115.625" x="381.7708" y="716.2537">boolean succeeded()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="359.8958" x2="560.4167" y1="692.1783" y2="692.1783"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="42.7083" x="563.5417" y="695.988">(status)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="609.375" x2="809.8958" y1="692.1783" y2="692.1783"/><!--MD5=[420e6a45c6a80cbe6318bbd76f7d46ce]
+class Transmitter--><rect codeLine="132" fill="#282828" height="190.4358" id="Transmitter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="261.4583" x="781.25" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="261.4583" x="781.25" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="261.4583" x="781.25" y="76.7578"/><rect codeLine="132" fill="none" height="190.4358" id="Transmitter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="261.4583" x="781.25" y="53.7028"/><ellipse cx="866.6667" cy="69.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M864.0706,66.5588 L864.0706,64.9719 L869.4967,64.9719 L869.4967,66.5588 L867.6839,66.5588 L867.6839,72.4976 L869.4967,72.4976 L869.4967,74.0845 L864.0706,74.0845 L864.0706,72.4976 L865.8834,72.4976 L865.8834,66.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="76.0417" x="889.5833" y="74.1211">Transmitter</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="782.2917" x2="1041.6667" y1="85.0911" y2="85.0911"/><ellipse cx="792.7083" cy="120.461" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="137.5" x="804.1667" y="127.3722">boolean isTransmitting()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="782.2917" x2="885.4167" y1="103.2969" y2="103.2969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="888.5417" y="107.1065">(checks)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="938.5417" x2="1041.6667" y1="103.2969" y2="103.2969"/><ellipse cx="792.7083" cy="164.1174" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="187.5" x="804.1667" y="171.0286">T withoutTransmitting(Code&lt;T&gt;)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="782.2917" x2="876.5625" y1="146.9533" y2="146.9533"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="879.6875" y="150.7629">(functional)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="947.3958" x2="1041.6667" y1="146.9533" y2="146.9533"/><ellipse cx="792.7083" cy="207.7738" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="229.1667" x="804.1667" y="214.6851">void onTransmit(Transmittable message)</text><ellipse cx="792.7083" cy="227.5187" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="129.1667" x="804.1667" y="234.4299">M transmit(M message)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="782.2917" x2="874.4792" y1="190.6097" y2="190.6097"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="68.75" x="877.6042" y="194.4194">(messaging)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="949.4792" x2="1041.6667" y1="190.6097" y2="190.6097"/><!--MD5=[b7fdac8b0343063a55ee18b5d81a8ae2]
+reverse link Level to Importance--><path codeLine="8" d="M329.9271,1124.9007 C320.1354,1190.8695 311.1354,1317.484 366.1458,1403.7028 C381.0521,1427.0674 402.0729,1446.5049 425.1771,1462.4945 " fill="none" id="Level-backto-Importance" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="322.75,1123.6403,333.3229,1104.2653,337.1354,1126.0049,322.75,1123.6403" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[7fbbe37ab29e65c9217b8f2c4fd364fd]
+reverse link Transmittable to Message--><path codeLine="21" d="M896.7813,571.4945 C881.6563,612.1924 856.6979,674.5778 828.6458,725.5778 C803.4479,771.3695 773.7292,818.5674 743.8438,862.9736 " fill="none" id="Transmittable-backto-Message" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="889.9583,568.9215,903.9375,551.8486,903.6563,573.9215,889.9583,568.9215" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[ec99e972a8fcc6f98ec558619675ed02]
+reverse link Triaged to Message--><path codeLine="22" d="M149.0208,582.109 C161.0833,625.2653 183.4271,685.2549 221.3542,725.5778 C279.2292,787.109 326.9167,756.1299 391.1458,810.9945 C402.375,820.5882 413.2917,830.9632 423.8438,841.859 " fill="none" id="Triaged-backto-Message" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="141.9375,583.8486,143.7604,561.8486,156.0521,580.182,141.9375,583.8486" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[4e539350eac058e31387d11a6e02c435]
+reverse link Named to Message--><path codeLine="23" d="M289.7604,572.2549 C299.1667,613.1403 315.9479,675.3382 340.1042,725.5778 C354.1563,754.807 386.8125,805.0153 423.8021,858.5674 " fill="none" id="Named-backto-Message" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="282.5833,573.609,285.2292,551.6924,296.8333,570.4736,282.5833,573.609" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[aef396b1893b493639268070a852e906]
+link Message to Importance--><path codeLine="24" d="M581.9688,1349.6507 C581.6979,1389.0674 581.4375,1426.4945 581.2188,1456.734 " fill="none" id="Message-to-Importance" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="581.1875,1462.2965,585.4077,1452.9455,581.2173,1457.0883,577.0745,1452.8979,581.1875,1462.2965" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="134.375" x="585.9375" y="1397.0378">message importance</text><!--MD5=[9d25a4ed2b2b4c817fb4f63bd53d0e81]
+link Message to Message.OperationStatus--><path codeLine="25" d="M743.7604,1196.2757 C833.8229,1263.0778 946.9792,1350.5049 1042.1875,1434.9528 C1047.1354,1439.3486 1052.1458,1443.9424 1057.1458,1448.6507 " fill="none" id="Message-to-Message.OperationStatus" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="1060.9583,1452.2757,1057.0254,1442.8003,1057.1801,1448.6908,1051.2895,1448.8455,1060.9583,1452.2757" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="107.2917" x="999.4792" y="1397.0378">operation status</text><!--MD5=[2bc451be7e8a0eab5a13b5ebc3207a36]
+link Message to Severity--><path codeLine="26" d="M423.8958,1314.182 C413.2083,1326.4736 402.2604,1338.3486 391.1458,1349.5361 C349.6771,1391.2757 297.6458,1430.5986 252.3229,1461.5778 " fill="none" id="Message-to-Severity" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="247.9583,1464.5465,258.0589,1462.749,252.2735,1461.6301,253.3925,1455.8447,247.9583,1464.5465" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="112.5" x="359.8958" y="1397.0378">message severity</text><!--MD5=[a78085220e9f9fd92c927818d1ef311d]
+link Message to Message.Status--><path codeLine="27" d="M743.9583,1276.5361 C788.0417,1330.2861 833.9063,1386.2132 871.1042,1431.5674 " fill="none" id="Message-to-Message.Status" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="874.4479,1435.6403,871.7302,1425.7476,871.1474,1431.6113,865.2837,1431.0285,874.4479,1435.6403" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="102.0833" x="846.3542" y="1397.0378">message status</text><!--MD5=[3dde17ccb90791394c4c358b586bfcc0]
+reverse link Filter to MessageFilter--><path codeLine="58" d="M1115.1042,194.1924 C1115.1042,267.8382 1115.1042,414.7028 1115.1042,485.9632 " fill="none" id="Filter-backto-MessageFilter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1107.8125,193.8799,1115.1042,173.0465,1122.3958,193.8799,1107.8125,193.8799" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[478a268921f9a7a4cb7b8daeb48ad6b0]
+link Result to Message--><path codeLine="83" d="M584.5208,725.9007 C584.4688,751.7861 584.4271,778.682 584.375,805.5465 " fill="none" id="Result-to-Message" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="584.3646,810.9215,588.5313,801.5465,584.3646,805.7132,580.1979,801.5465,584.3646,810.9215" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="89.5833" x="589.0625" y="773.0794">failure reason</text><!--MD5=[453bea2c575dab2fbc7d0d3b53808f2a]
+reverse link Level to Severity--><path codeLine="106" d="M335.7188,1125.2549 C330.7292,1189.8382 315.0625,1312.5778 266.1458,1403.7028 C254.3958,1425.5778 237.6875,1446.3174 220.4896,1464.3278 " fill="none" id="Level-backto-Severity" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="328.4583,1124.557,337.1146,1104.2549,343.0104,1125.5257,328.4583,1124.557" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[b41a6456e0cdab78d30544d14c2cd70a]
+reverse link Named to Severity--><path codeLine="107" d="M277.1771,572.7965 C266.9271,696.0986 234.8333,1054.6924 185.9375,1349.5361 C179.5625,1387.9736 170.3646,1430.6611 162.5625,1464.5465 " fill="none" id="Named-backto-Severity" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="269.9479,571.8382,278.9167,551.6715,284.4792,573.0257,269.9479,571.8382" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[d5a86fe269cd55d5bcbf146d6590990d]
+link Transmitter to Transmittable--><path codeLine="131" d="M911.9792,244.5986 C911.9792,328.2132 911.9792,444.9528 911.9792,498.1611 " fill="none" id="Transmitter-to-Transmittable" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="911.9792,503.4215,916.1458,494.0465,911.9792,498.2132,907.8125,494.0465,911.9792,503.4215" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="62.5" x="916.1458" y="291.8294">transmits</text><!--MD5=[eeb86547afce8cb46fb021ae36fada85]
+link Triaged to Severity--><path codeLine="143" d="M137.3229,561.6403 C138.8021,703.3799 144.6458,1263.0778 146.6875,1458.984 " fill="none" id="Triaged-to-Severity" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="146.7396,1464.3903,150.7988,1454.9683,146.6801,1459.1823,142.4661,1455.0635,146.7396,1464.3903" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="22.9167" x="150.5208" y="1085.0586">has</text><!--MD5=[902d53198676ecde9d0bd4296f3da707]
+@startuml
+
+    !include lexakai.theme
+    
+    title "Messaging"
+    
+    interface Named
+    
+    Level <|- - Importance
+    class Importance
+    {
+        - -
+        +Importance importance(double level)
+        +Importance importance(Class<? extends Message> type)
+        - -(lookup)- -
+        +Importance register(Class<? extends Message> low, Class<? extends Message> high)
+    }
+    
+    interface Named
+    interface Transmittable
+    interface Triaged
+    Transmittable <|- - Message
+    Triaged <|- - Message
+    Named <|- - Message
+    Message - -> Importance : "message importance"
+    Message - -> Message.OperationStatus : "operation status"
+    Message - -> Severity : "message severity"
+    Message - -> Message.Status : "message status"
+    interface Message
+    {
+        - -
+        +Throwable cause()
+        +CodeContext context()
+        +String description()
+        +String escape(String text)
+        +String format(String message, Object... arguments)
+        +String formatted(MessageFormatter.Format)
+        +String formatted()
+        +Importance importance()
+        +void println(String message, Object... arguments)
+        +String text()
+        +^Severity severity()
+        - -(command line parsing)- -
+        +Object[] arguments()
+        - -(conversion)- -
+        +RuntimeException asException()
+        - -(messaging)- -
+        +Message cause(Throwable cause)
+        +OperationStatus operationStatus()
+        +Message parseMessageName(Listener, String name)
+        +StackTrace stackTrace()
+        +Status status()
+        - -(time)- -
+        +Time created()
+        +Frequency maximumFrequency()
+    }
+    
+    interface Filter
+    Filter <|- - MessageFilter
+    interface MessageFilter
+    {
+        - -(filtering)- -
+        +boolean accepts(Message)
+    }
+    
+    class MessageFormatter
+    {
+        - -
+        +String format(String message, Object... arguments)
+        - -(collection)- -
+        +String formatArray(String message, Object[] arguments)
+    }
+    
+    enum Message.OperationStatus
+    {
+        FAILED
+        HALTED
+        NOT_APPLICABLE
+        RUNNING
+        STARTED
+        SUCCEEDED
+    }
+    
+    Result - -> Message : "failure reason"
+    class Result<T>
+    {
+        - -
+        +boolean failed()
+        +T get()
+        +boolean has()
+        +Result<T> set(T result)
+        +Result<T> with(Result<T> that, BiFunction<T,T,T> combiner)
+        - -(functional)- -
+        +Result<T> failed(Result<?>, String message, Object... arguments)
+        +Result<T> failed(Throwable cause, String message, Object... arguments)
+        +Result<T> failed(String message, Object... arguments)
+        +Result<T> failed(Message)
+        +Result<T> succeeded(T value)
+        - -(messaging)- -
+        +Result<T> problem(String message, Object... arguments)
+        +Result<T> problem(Throwable cause, String message, Object... arguments)
+        +Message why()
+        - -(status)- -
+        +boolean succeeded()
+    }
+    
+    Level <|- - Severity
+    Named <|- - Severity
+    class Severity
+    {
+        - -(constructors)- -
+        +Severity(String, double)
+        - -(parsing)- -
+        +Severity parseSeverity(Listener, String name)
+    }
+    
+    enum Message.Status
+    {
+        COMPLETED
+        FAILED
+        NOT_APPLICABLE
+        PROBLEM
+        RESULT_COMPROMISED
+        RESULT_INCOMPLETE
+        SUCCEEDED
+    }
+    
+    interface Transmittable
+    {
+    }
+    
+    Transmitter - -> Transmittable : "transmits"
+    interface Transmitter
+    {
+        - -(checks)- -
+        +boolean isTransmitting()
+        - -(functional)- -
+        +T withoutTransmitting(Code<T>)
+        - -(messaging)- -
+        +void onTransmit(Transmittable message)
+        +M transmit(M message)
+    }
+    
+    Triaged - -> Severity : "has"
+    interface Triaged
+    {
+        - -
+        +Severity severity()
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "Messaging"
+    
+    interface Named
+    
+    Level <|- - Importance
+    class Importance
+    {
+        - -
+        +Importance importance(double level)
+        +Importance importance(Class<? extends Message> type)
+        - -(lookup)- -
+        +Importance register(Class<? extends Message> low, Class<? extends Message> high)
+    }
+    
+    interface Named
+    interface Transmittable
+    interface Triaged
+    Transmittable <|- - Message
+    Triaged <|- - Message
+    Named <|- - Message
+    Message - -> Importance : "message importance"
+    Message - -> Message.OperationStatus : "operation status"
+    Message - -> Severity : "message severity"
+    Message - -> Message.Status : "message status"
+    interface Message
+    {
+        - -
+        +Throwable cause()
+        +CodeContext context()
+        +String description()
+        +String escape(String text)
+        +String format(String message, Object... arguments)
+        +String formatted(MessageFormatter.Format)
+        +String formatted()
+        +Importance importance()
+        +void println(String message, Object... arguments)
+        +String text()
+        +^Severity severity()
+        - -(command line parsing)- -
+        +Object[] arguments()
+        - -(conversion)- -
+        +RuntimeException asException()
+        - -(messaging)- -
+        +Message cause(Throwable cause)
+        +OperationStatus operationStatus()
+        +Message parseMessageName(Listener, String name)
+        +StackTrace stackTrace()
+        +Status status()
+        - -(time)- -
+        +Time created()
+        +Frequency maximumFrequency()
+    }
+    
+    interface Filter
+    Filter <|- - MessageFilter
+    interface MessageFilter
+    {
+        - -(filtering)- -
+        +boolean accepts(Message)
+    }
+    
+    class MessageFormatter
+    {
+        - -
+        +String format(String message, Object... arguments)
+        - -(collection)- -
+        +String formatArray(String message, Object[] arguments)
+    }
+    
+    enum Message.OperationStatus
+    {
+        FAILED
+        HALTED
+        NOT_APPLICABLE
+        RUNNING
+        STARTED
+        SUCCEEDED
+    }
+    
+    Result - -> Message : "failure reason"
+    class Result<T>
+    {
+        - -
+        +boolean failed()
+        +T get()
+        +boolean has()
+        +Result<T> set(T result)
+        +Result<T> with(Result<T> that, BiFunction<T,T,T> combiner)
+        - -(functional)- -
+        +Result<T> failed(Result<?>, String message, Object... arguments)
+        +Result<T> failed(Throwable cause, String message, Object... arguments)
+        +Result<T> failed(String message, Object... arguments)
+        +Result<T> failed(Message)
+        +Result<T> succeeded(T value)
+        - -(messaging)- -
+        +Result<T> problem(String message, Object... arguments)
+        +Result<T> problem(Throwable cause, String message, Object... arguments)
+        +Message why()
+        - -(status)- -
+        +boolean succeeded()
+    }
+    
+    Level <|- - Severity
+    Named <|- - Severity
+    class Severity
+    {
+        - -(constructors)- -
+        +Severity(String, double)
+        - -(parsing)- -
+        +Severity parseSeverity(Listener, String name)
+    }
+    
+    enum Message.Status
+    {
+        COMPLETED
+        FAILED
+        NOT_APPLICABLE
+        PROBLEM
+        RESULT_COMPROMISED
+        RESULT_INCOMPLETE
+        SUCCEEDED
+    }
+    
+    interface Transmittable
+    {
+    }
+    
+    Transmitter - -> Transmittable : "transmits"
+    interface Transmitter
+    {
+        - -(checks)- -
+        +boolean isTransmitting()
+        - -(functional)- -
+        +T withoutTransmitting(Code<T>)
+        - -(messaging)- -
+        +void onTransmit(Transmittable message)
+        +M transmit(M message)
+    }
+    
+    Triaged - -> Severity : "has"
+    interface Triaged
+    {
+        - -
+        +Severity severity()
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

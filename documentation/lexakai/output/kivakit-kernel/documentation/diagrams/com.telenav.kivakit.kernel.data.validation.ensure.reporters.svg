@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="388.5417px" preserveAspectRatio="none" style="width:1034px;height:388px;background:#333333;" version="1.1" viewBox="0 0 1034 388" width="1034.375px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="609.375" x="205.4688" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="586.4583" x="216.9271" y="30.5583">com.telenav.kivakit.coredata.validation.ensure.reporters</text><!--MD5=[7a535da8fcaee73e58309ace831a7bb5]
+class BaseFailureReporter--><rect codeLine="6" fill="#282828" height="48.055" id="BaseFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="166.6667" x="339.0625" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="166.6667" x="339.0625" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="166.6667" x="339.0625" y="76.7578"/><rect codeLine="6" fill="none" height="48.055" id="BaseFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="166.6667" x="339.0625" y="53.7028"/><ellipse cx="353.6458" cy="69.397" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M353.2389,66.099 L352.3905,69.8283 L354.0934,69.8283 Z M352.1403,64.4511 L354.3437,64.4511 L356.8034,73.5636 L355.0028,73.5636 L354.4413,71.3114 L352.0304,71.3114 L351.4811,73.5636 L349.6806,73.5636 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="129.1667" x="370.3125" y="74.1211">BaseFailureReporter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="340.1042" x2="504.6875" y1="85.0911" y2="85.0911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="340.1042" x2="504.6875" y1="93.4245" y2="93.4245"/><!--MD5=[ffbf08625b38bc6debbf5f8c395ddd04]
+class AssertingFailureReporter--><rect codeLine="9" fill="#282828" height="48.055" id="AssertingFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="198.9583" x="7.2917" y="165.1611"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="198.9583" x="7.2917" y="165.1611"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="198.9583" x="7.2917" y="188.2161"/><rect codeLine="9" fill="none" height="48.055" id="AssertingFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="198.9583" x="7.2917" y="165.1611"/><ellipse cx="21.875" cy="180.8553" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M23.7854,185.2804 Q23.3582,185.5001 22.8882,185.6099 Q22.4182,185.7198 21.8994,185.7198 Q20.0562,185.7198 19.0857,184.5052 Q18.1152,183.2906 18.1152,180.9957 Q18.1152,178.6947 19.0857,177.4801 Q20.0562,176.2655 21.8994,176.2655 Q22.4182,176.2655 22.8943,176.3753 Q23.3704,176.4852 23.7854,176.7049 L23.7854,178.7069 Q23.3215,178.2796 22.8851,178.0813 Q22.4487,177.8829 21.9849,177.8829 Q20.9961,177.8829 20.4926,178.6672 Q19.989,179.4515 19.989,180.9957 Q19.989,182.5338 20.4926,183.3181 Q20.9961,184.1024 21.9849,184.1024 Q22.4487,184.1024 22.8851,183.904 Q23.3215,183.7056 23.7854,183.2784 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="161.4583" x="38.5417" y="185.5794">AssertingFailureReporter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="205.2083" y1="196.5495" y2="196.5495"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="205.2083" y1="204.8828" y2="204.8828"/><!--MD5=[fad029e269c32f0ac9afb7b69e7d9992]
+class LogFailureReporter--><rect codeLine="14" fill="#282828" height="48.055" id="LogFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="160.4167" x="243.2292" y="165.1611"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="160.4167" x="243.2292" y="165.1611"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="160.4167" x="243.2292" y="188.2161"/><rect codeLine="14" fill="none" height="48.055" id="LogFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="160.4167" x="243.2292" y="165.1611"/><ellipse cx="257.8125" cy="180.8553" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M259.7229,185.2804 Q259.2957,185.5001 258.8257,185.6099 Q258.3557,185.7198 257.8369,185.7198 Q255.9937,185.7198 255.0232,184.5052 Q254.0527,183.2906 254.0527,180.9957 Q254.0527,178.6947 255.0232,177.4801 Q255.9937,176.2655 257.8369,176.2655 Q258.3557,176.2655 258.8318,176.3753 Q259.3079,176.4852 259.7229,176.7049 L259.7229,178.7069 Q259.259,178.2796 258.8226,178.0813 Q258.3862,177.8829 257.9224,177.8829 Q256.9336,177.8829 256.4301,178.6672 Q255.9265,179.4515 255.9265,180.9957 Q255.9265,182.5338 256.4301,183.3181 Q256.9336,184.1024 257.9224,184.1024 Q258.3862,184.1024 258.8226,183.904 Q259.259,183.7056 259.7229,183.2784 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="122.9167" x="274.4792" y="185.5794">LogFailureReporter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="244.2708" x2="402.6042" y1="196.5495" y2="196.5495"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="244.2708" x2="402.6042" y1="204.8828" y2="204.8828"/><!--MD5=[029d5349c0a2cde5c36976f901536d69]
+class NullFailureReporter--><rect codeLine="19" fill="#282828" height="48.055" id="NullFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="162.5" x="440.1042" y="165.1611"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="162.5" x="440.1042" y="165.1611"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="162.5" x="440.1042" y="188.2161"/><rect codeLine="19" fill="none" height="48.055" id="NullFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="162.5" x="440.1042" y="165.1611"/><ellipse cx="454.6875" cy="180.8553" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M456.5979,185.2804 Q456.1707,185.5001 455.7007,185.6099 Q455.2307,185.7198 454.7119,185.7198 Q452.8687,185.7198 451.8982,184.5052 Q450.9277,183.2906 450.9277,180.9957 Q450.9277,178.6947 451.8982,177.4801 Q452.8687,176.2655 454.7119,176.2655 Q455.2307,176.2655 455.7068,176.3753 Q456.1829,176.4852 456.5979,176.7049 L456.5979,178.7069 Q456.134,178.2796 455.6976,178.0813 Q455.2612,177.8829 454.7974,177.8829 Q453.8086,177.8829 453.3051,178.6672 Q452.8015,179.4515 452.8015,180.9957 Q452.8015,182.5338 453.3051,183.3181 Q453.8086,184.1024 454.7974,184.1024 Q455.2612,184.1024 455.6976,183.904 Q456.134,183.7056 456.5979,183.2784 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="125" x="471.3542" y="185.5794">NullFailureReporter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="441.1458" x2="601.5625" y1="196.5495" y2="196.5495"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="441.1458" x2="601.5625" y1="204.8828" y2="204.8828"/><!--MD5=[060280bd453e90689f0841c50741faea]
+class ThrowingFailureReporter--><rect codeLine="25" fill="#282828" height="48.055" id="ThrowingFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="197.9167" x="639.0625" y="165.1611"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="197.9167" x="639.0625" y="165.1611"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="197.9167" x="639.0625" y="188.2161"/><rect codeLine="25" fill="none" height="48.055" id="ThrowingFailureReporter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="197.9167" x="639.0625" y="165.1611"/><ellipse cx="653.6458" cy="180.8553" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M655.5562,185.2804 Q655.129,185.5001 654.659,185.6099 Q654.189,185.7198 653.6702,185.7198 Q651.827,185.7198 650.8565,184.5052 Q649.8861,183.2906 649.8861,180.9957 Q649.8861,178.6947 650.8565,177.4801 Q651.827,176.2655 653.6702,176.2655 Q654.189,176.2655 654.6651,176.3753 Q655.1412,176.4852 655.5562,176.7049 L655.5562,178.7069 Q655.0924,178.2796 654.656,178.0813 Q654.2196,177.8829 653.7557,177.8829 Q652.7669,177.8829 652.2634,178.6672 Q651.7598,179.4515 651.7598,180.9957 Q651.7598,182.5338 652.2634,183.3181 Q652.7669,184.1024 653.7557,184.1024 Q654.2196,184.1024 654.656,183.904 Q655.0924,183.7056 655.5562,183.2784 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="160.4167" x="670.3125" y="185.5794">ThrowingFailureReporter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="640.1042" x2="835.9375" y1="196.5495" y2="196.5495"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="640.1042" x2="835.9375" y1="204.8828" y2="204.8828"/><!--MD5=[a1849a1295c25933b6d5d1a0114a5321]
+class ValidationFailure--><rect codeLine="30" fill="#282828" height="83.3781" id="ValidationFailure" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="231.25" x="728.6458" y="298.4945"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="231.25" x="728.6458" y="298.4945"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="231.25" x="728.6458" y="321.5495"/><rect codeLine="30" fill="none" height="83.3781" id="ValidationFailure" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="231.25" x="728.6458" y="298.4945"/><ellipse cx="782.2917" cy="314.1886" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M784.2021,318.6137 Q783.7748,318.8334 783.3049,318.9433 Q782.8349,319.0531 782.3161,319.0531 Q780.4728,319.0531 779.5024,317.8385 Q778.5319,316.6239 778.5319,314.329 Q778.5319,312.028 779.5024,310.8134 Q780.4728,309.5988 782.3161,309.5988 Q782.8349,309.5988 783.311,309.7087 Q783.787,309.8185 784.2021,310.0382 L784.2021,312.0402 Q783.7382,311.613 783.3018,311.4146 Q782.8654,311.2162 782.4015,311.2162 Q781.4128,311.2162 780.9092,312.0005 Q780.4057,312.7848 780.4057,314.329 Q780.4057,315.8671 780.9092,316.6514 Q781.4128,317.4357 782.4015,317.4357 Q782.8654,317.4357 783.3018,317.2373 Q783.7382,317.039 784.2021,316.6117 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="109.375" x="805.2083" y="318.9128">ValidationFailure</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="729.6875" x2="958.8542" y1="329.8828" y2="329.8828"/><ellipse cx="740.1042" cy="365.2527" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="198.9583" x="751.5625" y="372.1639">ValidationFailure(Throwable, String)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="729.6875" x2="800.5208" y1="348.0886" y2="348.0886"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="803.6458" y="351.8982">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="888.0208" x2="958.8542" y1="348.0886" y2="348.0886"/><!--MD5=[5c6c7d52e42032554528404b62c1d271]
+class RuntimeException--><rect fill="#282828" height="48.055" id="RuntimeException" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="154.1667" x="873.4375" y="165.1611"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="154.1667" x="873.4375" y="165.1611"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="154.1667" x="873.4375" y="188.2161"/><rect fill="none" height="48.055" id="RuntimeException" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="154.1667" x="873.4375" y="165.1611"/><ellipse cx="888.0208" cy="180.8553" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M889.9312,185.2804 Q889.504,185.5001 889.034,185.6099 Q888.564,185.7198 888.0452,185.7198 Q886.202,185.7198 885.2315,184.5052 Q884.2611,183.2906 884.2611,180.9957 Q884.2611,178.6947 885.2315,177.4801 Q886.202,176.2655 888.0452,176.2655 Q888.564,176.2655 889.0401,176.3753 Q889.5162,176.4852 889.9312,176.7049 L889.9312,178.7069 Q889.4674,178.2796 889.031,178.0813 Q888.5946,177.8829 888.1307,177.8829 Q887.1419,177.8829 886.6384,178.6672 Q886.1348,179.4515 886.1348,180.9957 Q886.1348,182.5338 886.6384,183.3181 Q887.1419,184.1024 888.1307,184.1024 Q888.5946,184.1024 889.031,183.904 Q889.4674,183.7056 889.9312,183.2784 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="116.6667" x="904.6875" y="185.5794">RuntimeException</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="874.4792" x2="1026.5625" y1="196.5495" y2="196.5495"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="874.4792" x2="1026.5625" y1="204.8828" y2="204.8828"/><!--MD5=[beea70234a74824cb3d8df4ea6de6658]
+reverse link BaseFailureReporter to AssertingFailureReporter--><path codeLine="8" d="M336.5,108.4736 C285.0521,126.2965 220.6354,148.6195 173.125,165.0882 " fill="none" id="BaseFailureReporter-backto-AssertingFailureReporter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="334.1563,101.5674,356.2292,101.6299,338.9375,115.3382,334.1563,101.5674" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[49dea3833b94c061a90f759a8ebdb3b1]
+reverse link BaseFailureReporter to LogFailureReporter--><path codeLine="13" d="M387.5625,117.2028 C373.1875,133.0882 357.0104,150.9736 344.5,164.807 " fill="none" id="BaseFailureReporter-backto-LogFailureReporter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="382.2708,112.1924,401.6458,101.6299,393.0833,121.9736,382.2708,112.1924" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[7c51c344bedf5cebf8bdb521c24e3ae6]
+reverse link BaseFailureReporter to NullFailureReporter--><path codeLine="18" d="M457.2292,117.2028 C471.6042,133.0882 487.7813,150.9736 500.2917,164.807 " fill="none" id="BaseFailureReporter-backto-NullFailureReporter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="451.7083,121.9736,443.1458,101.6299,462.5208,112.1924,451.7083,121.9736" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[c5f3f5001e586f810183a6c1664004d5]
+reverse link BaseFailureReporter to ThrowingFailureReporter--><path codeLine="23" d="M508.2917,108.4736 C559.7396,126.2965 624.1563,148.6195 671.6667,165.0882 " fill="none" id="BaseFailureReporter-backto-ThrowingFailureReporter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="505.8542,115.3382,488.5625,101.6299,510.6354,101.5674,505.8542,115.3382" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[4f7244cec892131e9d303ab515ad531f]
+link ThrowingFailureReporter to ValidationFailure--><path codeLine="24" d="M754.3854,213.109 C769.6875,234.557 792.9583,267.182 811.9896,293.8695 " fill="none" id="ThrowingFailureReporter-to-ValidationFailure" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="815.25,298.432,813.1814,288.3834,812.2185,294.1968,806.4052,293.2338,815.25,298.432" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="44.7917" x="795.3125" y="260.5794">throws</text><!--MD5=[a7fe76c4b0bab282007b7b9f6d60982b]
+reverse link RuntimeException to ValidationFailure--><path codeLine="29" d="M921.9479,230.2236 C906.875,251.3486 888.4271,277.2132 873.2917,298.432 " fill="none" id="RuntimeException-backto-ValidationFailure" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="916.1146,225.8382,934.1563,213.109,927.9896,234.307,916.1146,225.8382" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[334455bcc527e1a16256a12fffc1ace3]
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.coredata.validation.ensure.reporters"
+    
+    abstract BaseFailureReporter
+    
+    BaseFailureReporter <|- - AssertingFailureReporter
+    class AssertingFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|- - LogFailureReporter
+    class LogFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|- - NullFailureReporter
+    class NullFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|- - ThrowingFailureReporter
+    ThrowingFailureReporter - -> ValidationFailure : "throws"
+    class ThrowingFailureReporter
+    {
+    }
+    
+    RuntimeException <|- - ValidationFailure
+    class ValidationFailure
+    {
+        - -(constructors)- -
+        +ValidationFailure(Throwable, String)
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "com.telenav.kivakit.coredata.validation.ensure.reporters"
+    
+    abstract BaseFailureReporter
+    
+    BaseFailureReporter <|- - AssertingFailureReporter
+    class AssertingFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|- - LogFailureReporter
+    class LogFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|- - NullFailureReporter
+    class NullFailureReporter
+    {
+    }
+    
+    BaseFailureReporter <|- - ThrowingFailureReporter
+    ThrowingFailureReporter - -> ValidationFailure : "throws"
+    class ThrowingFailureReporter
+    {
+    }
+    
+    RuntimeException <|- - ValidationFailure
+    class ValidationFailure
+    {
+        - -(constructors)- -
+        +ValidationFailure(Throwable, String)
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

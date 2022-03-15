@@ -1,0 +1,31 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.reflection.access"
+    
+    interface Named
+    Named <|-- Getter
+    interface Getter
+    {
+        --
+        +T annotation(Class<T> annotationType)
+        +Object get(Object)
+        +Class<?> type()
+    }
+    
+    interface Named
+    Named <|-- Setter
+    interface Setter
+    {
+        --
+        +T annotation(Class<T> annotationType)
+        +Class<?> type()
+        --(checks)--
+        +boolean hasAnnotation(Class<? extends Annotation>)
+        --(messaging)--
+        +Message set(Object, Object value)
+    }
+    
+@enduml
+

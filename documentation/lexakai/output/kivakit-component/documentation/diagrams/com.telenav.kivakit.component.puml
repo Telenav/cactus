@@ -1,0 +1,72 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.component"
+    
+    abstract BaseRepeater
+    
+    interface SettingsTrait
+    interface Component
+    interface RegistryTrait
+    
+    BaseRepeater <|-- BaseComponent
+    Component <|-- BaseComponent
+    RegistryTrait <|-- BaseComponent
+    SettingsTrait <|-- BaseComponent
+    class BaseComponent
+    {
+        --(messaging)--
+        +void onMessage(Consumer<Message> handler)
+    }
+    
+    interface LanguageTrait
+    interface NamedObject
+    interface PackagePathTrait
+    interface RegistryTrait
+    interface Repeater
+    interface ResourceTrait
+    interface SettingsTrait
+    interface TryTrait
+    Repeater <|-- Component
+    NamedObject <|-- Component
+    SettingsTrait <|-- Component
+    RegistryTrait <|-- Component
+    PackagePathTrait <|-- Component
+    TryTrait <|-- Component
+    LanguageTrait <|-- Component
+    ResourceTrait <|-- Component
+    interface Component
+    {
+    }
+    
+    interface ComponentMixin
+    interface Function<From,To>
+    ComponentMixin <|-- ComponentFunction
+    Function <|-- ComponentFunction
+    interface ComponentFunction<From, To>
+    {
+    }
+    
+    interface Component
+    interface Mixin
+    interface RepeaterMixin
+    Component <|-- ComponentMixin
+    Mixin <|-- ComponentMixin
+    RepeaterMixin <|-- ComponentMixin
+    interface ComponentMixin
+    {
+        --
+        +BaseComponent component()
+    }
+    
+    interface ComponentMixin
+    interface Supplier<Value>
+    ComponentMixin <|-- ComponentSupplier
+    Supplier <|-- ComponentSupplier
+    interface ComponentSupplier<Value>
+    {
+    }
+    
+@enduml
+

@@ -1,0 +1,28 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.reflection.property.filters"
+    
+    interface PropertyFilter
+    
+    PropertyFilter <|-- PropertyFilterSet
+    PropertyFilterSet o-- NamingConvention
+    PropertyFilterSet "1" o-- "*" IncludeProperty
+    class PropertyFilterSet
+    {
+        --(constructors)--
+        +PropertyFilterSet(NamingConvention, IncludeProperty)
+        --(checks)--
+        #boolean isGetter(Method)
+        #boolean isIncluded(Field)
+        #boolean isIncluded(Method)
+        #boolean isKivaKitExcluded(Method)
+        #boolean isKivaKitExcluded(Field)
+        #boolean isKivaKitIncluded(Field)
+        #boolean isKivaKitIncluded(Method)
+        #boolean isSetter(Method)
+    }
+    
+@enduml
+

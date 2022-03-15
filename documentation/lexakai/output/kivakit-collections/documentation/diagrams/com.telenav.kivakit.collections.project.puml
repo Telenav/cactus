@@ -1,0 +1,13 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.collections.project"
+    
+    KryoUnitTest <|-- CollectionsUnitTest
+    abstract class CollectionsUnitTest
+    {
+    }
+    
+@enduml
+

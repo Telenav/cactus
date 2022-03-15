@@ -1,0 +1,15 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.coreinterfaces.string"
+    
+    interface StringSource
+    {
+        --
+        +StringSource of(String)
+        +String string()
+    }
+    
+@enduml
+

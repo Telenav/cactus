@@ -1,0 +1,15 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.test.reporters"
+    
+    abstract BaseFailureReporter
+    
+    BaseFailureReporter <|-- JUnitFailureReporter
+    class JUnitFailureReporter
+    {
+    }
+    
+@enduml
+

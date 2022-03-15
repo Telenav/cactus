@@ -1,0 +1,250 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.resource"
+    
+    abstract BaseStringConverter
+    
+    interface UriIdentified
+    
+    BaseStringConverter <|-- Resource.Converter
+    class Resource.Converter
+    {
+        --(constructors)--
+        +Converter(Listener)
+    }
+    
+    BaseStringConverter <|-- ResourcePath.Converter
+    class ResourcePath.Converter
+    {
+        --(constructors)--
+        +Converter(Listener)
+    }
+    
+    BaseStringConverter <|-- ResourceFolder.Converter
+    class ResourceFolder.Converter
+    {
+        --(constructors)--
+        +Converter(Listener)
+    }
+    
+    BaseStringConverter <|-- ResourceList.Converter
+    class ResourceList.Converter
+    {
+        --(constructors)--
+        +Converter(Listener, Extension)
+    }
+    
+    enum CopyMode
+    {
+        DO_NOT_OVERWRITE
+        OVERWRITE
+        UPDATE
+    }
+    
+    interface Readable
+    Readable <|-- ReadableResource
+    ReadableResource --> ResourceReader : "provides"
+    interface ReadableResource
+    {
+        --
+        +Charset charset()
+        +Resource resource()
+        --(conversion)--
+        +StringResource asStringResource()
+        --(filesystem)--
+        +void copyTo(WritableResource destination, CopyMode, ProgressReporter)
+        --(read)--
+        +ResourceReader reader(ProgressReporter)
+        +ResourceReader reader(ProgressReporter, Charset)
+        +ResourceReader reader()
+    }
+    
+    interface ByteSized
+    interface ChangedAt
+    interface Modifiable
+    interface ReadableResource
+    interface Repeater
+    interface ResourcePathed
+    interface Resourceful
+    interface StringSource
+    interface UriIdentified
+    ResourcePathed <|-- Resource
+    Modifiable <|-- Resource
+    ChangedAt <|-- Resource
+    ByteSized <|-- Resource
+    StringSource <|-- Resource
+    ReadableResource <|-- Resource
+    Repeater <|-- Resource
+    Resourceful <|-- Resource
+    UriIdentified <|-- Resource
+    Resource --> Codec : "uses"
+    interface Resource
+    {
+        --
+        +Codec codec()
+        +void dematerialize()
+        +Resource resolve(Listener, ResourcePath)
+        +Resource resolve(Listener, String identifier)
+        +Resource resolve(Listener, ResourceIdentifier)
+        --(checks)--
+        +boolean isEmpty()
+        +boolean isLocal()
+        +boolean isMaterializable()
+        +boolean isPackaged()
+        +boolean isRemote()
+        +boolean isSame(Resource that)
+        --(command line parsing)--
+        +ArgumentParser.Builder<ResourceList> argumentListParser(Listener, String description, Extension)
+        +ArgumentParser.Builder<Resource> argumentParser(Listener, String description)
+        +SwitchParser.Builder<ResourceList> resourceListSwitchParser(Listener, String name, String description, Extension)
+        +SwitchParser.Builder<Resource> resourceSwitchParser(Listener, String name, String description)
+        --(filesystem)--
+        +void ensureExists()
+        +boolean exists()
+        +void safeCopyTo(File destination, CopyMode)
+        +void safeCopyTo(Folder destination, CopyMode, ProgressReporter)
+        +void safeCopyTo(Folder destination, CopyMode)
+        +void safeCopyTo(File destination, CopyMode, ProgressReporter)
+        --(functional)--
+        +Resource materialized(ProgressReporter)
+        --(identity)--
+        +ResourceIdentifier identifier(String identifier)
+    }
+    
+    interface UriIdentified
+    UriIdentified <|-- ResourceFolder
+    interface ResourceFolder
+    {
+        --
+        +Resource resource(String name)
+        --(checks)--
+        +boolean isMaterialized()
+        --(collection)--
+        +List<? extends Resource> resources(Matcher<? super Resource>)
+        +List<? extends Resource> resources()
+        --(filesystem)--
+        +ResourceFolder folder(String path)
+        +ResourceFolderIdentifier identifier()
+        +ResourceFolderIdentifier identifier(String identifier)
+        +Folder materialize()
+        +Folder materializeTo(Folder)
+        +ResourceFolder resolve(Listener, String identifier)
+        +ResourceFolder resolve(Listener, ResourceFolderIdentifier)
+        +void safeCopyTo(Folder, CopyMode, ProgressReporter)
+    }
+    
+    class ResourceFolderIdentifier
+    {
+        --(constructors)--
+        +ResourceFolderIdentifier(String)
+        --(filesystem)--
+        +ResourceFolder resolve(Listener)
+        --(identity)--
+        +String identifier()
+    }
+    
+    class ResourceIdentifier
+    {
+        --(constructors)--
+        +ResourceIdentifier(String)
+        --
+        +Resource resolve(Listener)
+        --(identity)--
+        +String identifier()
+    }
+    
+    ArrayList <|-- ResourceList
+    ResourceList --> Resource : "contains"
+    class ResourceList
+    {
+        --(constructors)--
+        +ResourceList()
+        +ResourceList(Extension)
+        +ResourceList(Iterable<Resource>)
+        --(collection)--
+        +Count count()
+        +ResourceList matching(Matcher<Resource>)
+        +ResourceList matching(Extension)
+        +ResourceList relativeTo(Folder)
+        +void sortOldestToNewest()
+        +Bytes totalSize()
+        --(math)--
+        +Resource largest()
+        +Resource smallest()
+    }
+    
+    StringPath <|-- ResourcePath
+    UriIdentified <|-- ResourcePath
+    class ResourcePath
+    {
+        --(constructors)--
+        #ResourcePath(ResourcePath)
+        #ResourcePath(StringList, List<String>)
+        #ResourcePath(StringList, String, List<String>)
+        --(checks)--
+        +boolean hasScheme()
+        --(collection)--
+        +StringList schemes()
+        --(filesystem)--
+        +File asFile()
+        +Extension extension()
+        +FileName fileName()
+        --(path)--
+        +FilePath asFilePath()
+        +ResourcePath normalized()
+        +ResourcePath parseResourcePath(Listener, String path)
+        +ResourcePath parseUnixResourcePath(Listener, String path)
+        +ResourcePath resourcePath(StringPath)
+        +SwitchParser.Builder<ResourcePath> resourcePathSwitchParser(Listener, String name, String description)
+        +FilePath withExtension(Extension)
+        +ResourcePath withSchemes(StringList schemes)
+        +ResourcePath withoutSchemes()
+    }
+    
+    Project <|-- ResourceProject
+    class ResourceProject
+    {
+        --(constructors)--
+        #ResourceProject()
+        --
+        +ResourceProject get()
+    }
+    
+    interface Repeater
+    Repeater <|-- ResourceTrait
+    interface ResourceTrait
+    {
+        --
+        +Resource packageResource(String path)
+        +Package relativePackage(String path)
+    }
+    
+    interface Resourceful
+    {
+        --
+        +Resource resource()
+    }
+    
+    interface UriIdentified
+    {
+        --(network)--
+        +URI uri()
+    }
+    
+    interface Resource
+    interface Writable
+    Resource <|-- WritableResource
+    Writable <|-- WritableResource
+    WritableResource --> ResourceWriter : "provides"
+    interface WritableResource
+    {
+        --(write)--
+        +PrintWriter printWriter()
+        +ResourceWriter writer()
+        +ResourceWriter writer(Charset)
+    }
+    
+@enduml
+

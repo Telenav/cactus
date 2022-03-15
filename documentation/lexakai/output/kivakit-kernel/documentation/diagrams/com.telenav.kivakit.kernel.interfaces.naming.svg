@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="293.75px" preserveAspectRatio="none" style="width:678px;height:293px;background:#333333;" version="1.1" viewBox="0 0 678 293" width="678.125px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="468.75" x="97.3958" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="445.8333" x="108.8542" y="30.5583">com.telenav.kivakit.coreinterfaces.naming</text><!--MD5=[8e936f9b0c8a405e1c674edc8f191d2f]
+class Nameable--><rect codeLine="6" fill="#282828" height="83.3781" id="Nameable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="164.5833" x="7.2917" y="73.4945"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="164.5833" x="7.2917" y="73.4945"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="164.5833" x="7.2917" y="96.5495"/><rect codeLine="6" fill="none" height="83.3781" id="Nameable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="164.5833" x="7.2917" y="73.4945"/><ellipse cx="50.5208" cy="89.1886" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M47.9248,86.3505 L47.9248,84.7636 L53.3508,84.7636 L53.3508,86.3505 L51.5381,86.3505 L51.5381,92.2892 L53.3508,92.2892 L53.3508,93.8761 L47.9248,93.8761 L47.9248,92.2892 L49.7375,92.2892 L49.7375,86.3505 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="63.5417" x="73.4375" y="93.9128">Nameable</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="8.3333" x2="170.8333" y1="104.8828" y2="104.8828"/><ellipse cx="18.75" cy="140.2527" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="132.2917" x="30.2083" y="147.1639">void name(String name)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="61.4583" y1="123.0886" y2="123.0886"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="50" x="64.5833" y="126.8982">(naming)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="117.7083" x2="170.8333" y1="123.0886" y2="123.0886"/><!--MD5=[7c5c88a606935469d5f89b0b5794816c]
+class Named--><rect codeLine="26" fill="#282828" height="83.3781" id="Named" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="107.2917" x="208.8542" y="73.4945"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="107.2917" x="208.8542" y="73.4945"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="107.2917" x="208.8542" y="96.5495"/><rect codeLine="26" fill="none" height="83.3781" id="Named" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="107.2917" x="208.8542" y="73.4945"/><ellipse cx="234.6875" cy="89.1886" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M232.0915,86.3505 L232.0915,84.7636 L237.5175,84.7636 L237.5175,86.3505 L235.7048,86.3505 L235.7048,92.2892 L237.5175,92.2892 L237.5175,93.8761 L232.0915,93.8761 L232.0915,92.2892 L233.9042,92.2892 L233.9042,86.3505 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="44.7917" x="253.8542" y="93.9128">Named</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="209.8958" x2="315.1042" y1="104.8828" y2="104.8828"/><ellipse cx="220.3125" cy="140.2527" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="75" x="231.7708" y="147.1639">String name()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="209.8958" x2="234.375" y1="123.0886" y2="123.0886"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="50" x="237.5" y="126.8982">(naming)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="290.625" x2="315.1042" y1="123.0886" y2="123.0886"/><!--MD5=[5cc06ecdd9480702b567e3f11ad511a4]
+class NamedObject--><rect codeLine="18" fill="#282828" height="122.8678" id="NamedObject" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="200" x="470.8333" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="200" x="470.8333" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="200" x="470.8333" y="76.7578"/><rect codeLine="18" fill="none" height="122.8678" id="NamedObject" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="200" x="470.8333" y="53.7028"/><ellipse cx="520.3125" cy="69.397" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M517.7165,66.5588 L517.7165,64.9719 L523.1425,64.9719 L523.1425,66.5588 L521.3298,66.5588 L521.3298,72.4976 L523.1425,72.4976 L523.1425,74.0845 L517.7165,74.0845 L517.7165,72.4976 L519.5292,72.4976 L519.5292,66.5588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="86.4583" x="543.2292" y="74.1211">NamedObject</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="471.875" x2="669.7917" y1="85.0911" y2="85.0911"/><ellipse cx="482.2917" cy="120.461" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="158.3333" x="493.75" y="127.3722">boolean hasSyntheticName()</text><ellipse cx="482.2917" cy="140.2059" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="110.4167" x="493.75" y="147.1171">String objectName()</text><ellipse cx="482.2917" cy="159.9508" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="167.7083" x="493.75" y="166.862">void objectName(String name)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="471.875" x2="542.7083" y1="103.2969" y2="103.2969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="50" x="545.8333" y="107.1065">(naming)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="598.9583" x2="669.7917" y1="103.2969" y2="103.2969"/><!--MD5=[eb51e7e22b6fc0cf9a4168b1ddb7375d]
+class Valued--><rect codeLine="27" fill="#282828" height="48.055" id="Valued" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="81.25" x="353.125" y="91.2028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="81.25" x="353.125" y="91.2028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="81.25" x="353.125" y="114.2578"/><rect codeLine="27" fill="none" height="48.055" id="Valued" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="81.25" x="353.125" y="91.2028"/><ellipse cx="367.7083" cy="106.897" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M365.1123,104.0588 L365.1123,102.4719 L370.5383,102.4719 L370.5383,104.0588 L368.7256,104.0588 L368.7256,109.9976 L370.5383,109.9976 L370.5383,111.5845 L365.1123,111.5845 L365.1123,109.9976 L366.925,109.9976 L366.925,104.0588 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="43.75" x="384.375" y="111.6211">Valued</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="354.1667" x2="433.3333" y1="122.5911" y2="122.5911"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="354.1667" x2="433.3333" y1="130.9245" y2="130.9245"/><!--MD5=[495a4a3f06dd48565d2f8b99eeff7dc8]
+class NamedValue--><rect codeLine="30" fill="#282828" height="48.055" id="NamedValue" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="136.4583" x="259.8958" y="239.1195"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="136.4583" x="259.8958" y="239.1195"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="136.4583" x="259.8958" y="262.1745"/><rect codeLine="30" fill="none" height="48.055" id="NamedValue" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="136.4583" x="259.8958" y="239.1195"/><ellipse cx="274.4792" cy="254.8136" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M271.8831,251.9755 L271.8831,250.3886 L277.3092,250.3886 L277.3092,251.9755 L275.4964,251.9755 L275.4964,257.9142 L277.3092,257.9142 L277.3092,259.5011 L271.8831,259.5011 L271.8831,257.9142 L273.6959,257.9142 L273.6959,251.9755 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="80.2083" x="291.1458" y="259.5378">NamedValue</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="16.6667" x="382.8125" y="235.9945"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="386.9792" y="252.2461">T</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="260.9375" x2="395.3125" y1="270.5078" y2="270.5078"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="260.9375" x2="395.3125" y1="278.8411" y2="278.8411"/><!--MD5=[2362b6a9d3fb619dc3f24c8cf3a99e27]
+reverse link Named to NamedValue--><path codeLine="28" d="M289.5833,176.3903 C299.5208,198.4632 310.1771,222.1507 317.7604,239.0049 " fill="none" id="Named-backto-NamedValue" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="282.8542,179.2028,280.9583,157.2132,296.1563,173.2236,282.8542,179.2028" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[b12583d2e18867569bbc1475847ef837]
+reverse link Valued to NamedValue--><path codeLine="29" d="M374.6563,158.6403 C362.8438,184.8695 348.1563,217.5257 338.4792,239.0361 " fill="none" id="Valued-backto-NamedValue" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="368.1563,155.3174,383.3542,139.307,381.4479,161.2965,368.1563,155.3174" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[4e1f5b6c4084866c806f2c3db7c526c9]
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.coreinterfaces.naming"
+    
+    interface Nameable
+    {
+        - -(naming)- -
+        +void name(String name)
+    }
+    
+    interface Named
+    {
+        - -(naming)- -
+        +String name()
+    }
+    
+    interface NamedObject
+    {
+        - -(naming)- -
+        +boolean hasSyntheticName()
+        +String objectName()
+        +void objectName(String name)
+    }
+    
+    interface Named
+    interface Valued
+    Named <|- - NamedValue
+    Valued <|- - NamedValue
+    interface NamedValue<T>
+    {
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "com.telenav.kivakit.coreinterfaces.naming"
+    
+    interface Nameable
+    {
+        - -(naming)- -
+        +void name(String name)
+    }
+    
+    interface Named
+    {
+        - -(naming)- -
+        +String name()
+    }
+    
+    interface NamedObject
+    {
+        - -(naming)- -
+        +boolean hasSyntheticName()
+        +String objectName()
+        +void objectName(String name)
+    }
+    
+    interface Named
+    interface Valued
+    Named <|- - NamedValue
+    Valued <|- - NamedValue
+    interface NamedValue<T>
+    {
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

@@ -1,0 +1,17 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.security"
+    
+    Project <|-- SecurityProject
+    class SecurityProject
+    {
+        --(constructors)--
+        #SecurityProject()
+        --
+        +SecurityProject get()
+    }
+    
+@enduml
+

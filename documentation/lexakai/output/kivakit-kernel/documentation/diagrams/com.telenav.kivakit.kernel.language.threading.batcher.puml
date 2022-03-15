@@ -1,0 +1,69 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.threading.batcher"
+    
+    abstract BaseRepeater
+    
+    interface Addable
+    
+    ArrayList <|-- Batcher.Batch
+    class Batcher.Batch
+    {
+    }
+    
+    Addable <|-- Batcher.BatchAdder
+    class Batcher.BatchAdder
+    {
+    }
+    
+    BaseRepeater <|-- Batcher
+    class Batcher<Element>
+    {
+        --(constructors)--
+        #Batcher()
+        #Batcher(Batcher<Element>)
+        --
+        +BatchAdder adder()
+        +Batcher<Element> create()
+        #void onBatch(Batch)
+        --(filesystem)--
+        #Batcher<Element> copy()
+        --(functional)--
+        +Batcher<Element> withBatchFullPredicate(Predicate<Batch>)
+        +Batcher<Element> withBatchSize(Count size)
+        +Batcher<Element> withConsumer(Consumer<Batch>)
+        +Batcher<Element> withName(String name)
+        +Batcher<Element> withQueueSize(Count size)
+        --(lifecycle)--
+        +void start(Count workers)
+        +void stop()
+    }
+    
+    BaseRepeater <|-- BatcherTest
+    class BatcherTest
+    {
+        --
+        +void testRandom()
+        --(collection)--
+        +void testEmptyFlush()
+        --(lifecycle)--
+        +void testStop()
+    }
+    
+    enum Batcher.State
+    {
+        READY
+        RUNNING
+        STOPPED
+        STOPPING
+    }
+    
+    Batcher <|-- BatcherTest.TestBatcher
+    class BatcherTest.TestBatcher
+    {
+    }
+    
+@enduml
+

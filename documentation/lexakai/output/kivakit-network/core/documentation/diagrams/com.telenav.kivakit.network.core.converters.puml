@@ -1,0 +1,15 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.network.core.converters"
+    
+    DateTimeConverter <|-- HttpDateTimeConverter
+    class HttpDateTimeConverter
+    {
+        --(constructors)--
+        +HttpDateTimeConverter(Listener)
+    }
+    
+@enduml
+

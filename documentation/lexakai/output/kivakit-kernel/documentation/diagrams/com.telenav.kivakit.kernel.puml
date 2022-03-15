@@ -1,0 +1,29 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.kernel"
+    
+    Project <|-- KernelProject
+    class KernelProject
+    {
+        --(constructors)--
+        #KernelProject()
+        --
+        +KernelProject get()
+    }
+    
+    Project <|-- KivaKit
+    class KivaKit
+    {
+        --(constructors)--
+        #KivaKit()
+        --
+        +KivaKit get()
+        --(filesystem)--
+        +Path cacheFolderPath()
+        +Path homeFolderPath()
+    }
+    
+@enduml
+

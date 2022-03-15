@@ -1,0 +1,26 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.types"
+    
+    class Classes
+    {
+        --
+        +Constructor<T> constructor(Listener, Class<T> type, Class<?>... arguments)
+        +String simpleTopLevelClass(Class<?> type)
+        --(checks)--
+        +boolean isPrimitive(Class<?> type)
+        --(naming)--
+        +Class<T> forName(ClassLoader, String name)
+        +Class<T> forName(String name)
+        +String simpleName(Class<?> type)
+        --(network)--
+        +URI resourceUri(Listener, Class<?> base, String path)
+        +URL resourceUrl(Listener, Class<?> base, String path)
+        --(read)--
+        +InputStream openResource(Listener, Class<?> base, String path)
+    }
+    
+@enduml
+

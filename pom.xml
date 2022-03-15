@@ -13,13 +13,14 @@
     <name>cactus-build</name>
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
-    <version>1.1.2</version>
+    <version>1.4.0</version>
+
     <packaging>pom</packaging>
 
     <!-- Project -->
 
     <description>The cactus-build project generates build metadata consumed by KivaKit and other projects.</description>
-    <url>http://www.kivakit.org</url>
+    <url>https://www.kivakit.org</url>
     <inceptionYear>2021</inceptionYear>
     <organization>
         <name>Telenav</name>
@@ -59,7 +60,7 @@
             <name>Haifeng Zhu</name>
             <email>hfzhu@telenav.com</email>
             <organization>Telenav</organization>
-            <organizationUrl>http://www.telenav.com/</organizationUrl>
+            <organizationUrl>https://www.telenav.com/</organizationUrl>
             <roles>
                 <role>developer</role>
                 <role>administrator</role>
@@ -286,6 +287,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
+                        <source>${java.version}</source>
                         <release>${java.version}</release>
                         <compilerArgs>
                             <compilerArgument>-Xlint:unchecked</compilerArgument>

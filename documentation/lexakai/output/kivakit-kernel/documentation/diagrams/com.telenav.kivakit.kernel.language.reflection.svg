@@ -1,0 +1,1122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns = "http://www.w3.org/2000/svg"
+                                                           contentScriptType = "application/ecmascript" contentStyleType = "text/css" height = "1294.7917px"
+                                                           preserveAspectRatio = "none" style = "width:1139px;height:1294px;background:#333333;" version = "1.1"
+                                                           viewBox = "0 0 1139 1294" width = "1139.5833px" zoomAndPan = "magnify"><defs/><g><rect fill = "#48494B"
+                                                                                                                                                  height = "41.2028" rx = "8.3333"
+                                                                                                                                                  ry = "8.3333"
+                                                                                                                                                  style = "stroke:#545454;stroke-width:1.0416666666666667;"
+                                                                                                                                                  width = "481.25" x = "322.1354"
+                                                                                                                                                  y = "2.0833"/><text
+        fill = "#C0C0C0" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "20.8333" lengthAdjust = "spacing" textLength = "458.3333" x = "333.5938"
+        y = "30.5583">com.telenav.kivakit.corelanguage.reflection</text><!--MD5=[7c5c88a606935469d5f89b0b5794816c]
+class Named--><rect codeLine = "6" fill = "#282828" height = "48.055" id = "Named" rx = "8.3333" ry = "8.3333" style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                    width = "82.2917" x = "203.125" y = "127.1403"/><rect fill = "#1B1B1A" height = "31.3883" rx = "8.3333" ry = "8.3333"
+                                                                          style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "82.2917" x = "203.125" y = "127.1403"/><rect
+        fill = "#1B1B1A" height = "8.3333" style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "82.2917" x = "203.125" y = "150.1953"/><rect codeLine = "6"
+                                                                                                                                                           fill = "none"
+                                                                                                                                                           height = "48.055"
+                                                                                                                                                           id = "Named"
+                                                                                                                                                           rx = "8.3333"
+                                                                                                                                                           ry = "8.3333"
+                                                                                                                                                           style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                                                           width = "82.2917"
+                                                                                                                                                           x = "203.125"
+                                                                                                                                                           y = "127.1403"/><ellipse
+        cx = "217.7083" cy = "142.8345" fill = "#008400" rx = "10.4167" ry = "10.4167" style = "stroke:#239C23;stroke-width:1.0416666666666667;"/><path
+        d = "M215.1123,139.9963 L215.1123,138.4094 L220.5383,138.4094 L220.5383,139.9963 L218.7256,139.9963 L218.7256,145.9351 L220.5383,145.9351 L220.5383,147.522 L215.1123,147.522 L215.1123,145.9351 L216.925,145.9351 L216.925,139.9963 Z "
+        fill = "#000000"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "12.5" font-style = "italic" font-weight = "bold"
+                                lengthAdjust = "spacing" textLength = "44.7917" x = "234.375" y = "147.5586">Named</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "204.1667" x2 = "284.375" y1 = "158.5286" y2 = "158.5286"/><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "204.1667" x2 = "284.375" y1 = "166.862" y2 = "166.862"/><!--MD5=[f58fd777f29c17413488bea9e7cfcca3]
+class Member--><rect codeLine = "24" fill = "#282828" height = "194.6025" id = "Member" rx = "8.3333" ry = "8.3333" style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                     width = "266.6667" x = "698.4375" y = "53.7028"/><rect fill = "#1B1B1A" height = "31.3883" rx = "8.3333" ry = "8.3333"
+                                                                            style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "266.6667" x = "698.4375"
+                                                                            y = "53.7028"/><rect fill = "#1B1B1A" height = "8.3333"
+                                                                                                 style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "266.6667"
+                                                                                                 x = "698.4375" y = "76.7578"/><rect codeLine = "24" fill = "none"
+                                                                                                                                     height = "194.6025" id = "Member" rx = "8.3333"
+                                                                                                                                     ry = "8.3333"
+                                                                                                                                     style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                                     width = "266.6667" x = "698.4375"
+                                                                                                                                     y = "53.7028"/><ellipse cx = "798.4375"
+                                                                                                                                                             cy = "69.397"
+                                                                                                                                                             fill = "#C8AC00"
+                                                                                                                                                             rx = "10.4167"
+                                                                                                                                                             ry = "10.4167"
+                                                                                                                                                             style = "stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path
+        d = "M798.0306,66.099 L797.1822,69.8283 L798.8851,69.8283 Z M796.932,64.4511 L799.1353,64.4511 L801.5951,73.5636 L799.7945,73.5636 L799.233,71.3114 L796.8221,71.3114 L796.2728,73.5636 L794.4722,73.5636 Z "
+        fill = "#000000"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "12.5" font-style = "italic" font-weight = "bold"
+                                lengthAdjust = "spacing" textLength = "52.0833" x = "821.3542" y = "74.1211">Member</text><line style = "stroke:#5E5E5E;stroke-width:1.5625;"
+                                                                                                                                x1 = "699.4792" x2 = "964.0625" y1 = "85.0911"
+                                                                                                                                y2 = "85.0911"/><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "699.4792" x2 = "964.0625" y1 = "93.4245" y2 = "93.4245"/><ellipse cx = "709.8958" cy = "104.8828"
+                                                                                                                                          fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                                                                          style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "229.1667" x = "721.3542"
+        y = "111.794">T annotation(Class&lt;T&gt; annotationClass)</text><ellipse cx = "709.8958" cy = "124.6277" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                  style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                   font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                   font-size = "11.4583"
+                                                                                                                                                   lengthAdjust = "spacing"
+                                                                                                                                                   textLength = "86.4583"
+                                                                                                                                                   x = "721.3542" y = "131.5389">Type&lt;?&gt; type()</text><ellipse
+        cx = "709.8958" cy = "168.2841" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                    font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                    font-size = "11.4583"
+                                                                                                                                                    lengthAdjust = "spacing"
+                                                                                                                                                    textLength = "203.125"
+                                                                                                                                                    x = "721.3542" y = "175.1953">List&lt;Type&lt;T&gt;&gt; arrayElementType()</text><ellipse
+        cx = "709.8958" cy = "188.029" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                   font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                   font-size = "11.4583"
+                                                                                                                                                   lengthAdjust = "spacing"
+                                                                                                                                                   textLength = "234.375"
+                                                                                                                                                   x = "721.3542" y = "194.9402">List&lt;Type&lt;T&gt;&gt; genericTypeParameters()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "699.4792" x2 = "797.3958" y1 = "151.12" y2 = "151.12"/><text fill = "#D8BC00"
+                                                                                                                                     font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                     font-size = "11.4583" lengthAdjust = "spacing"
+                                                                                                                                     textLength = "62.5" x = "800.5208"
+                                                                                                                                     y = "154.9296">(collection)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "866.1458" x2 = "964.0625" y1 = "151.12" y2 = "151.12"/><ellipse cx = "709.8958" cy = "231.6854"
+                                                                                                                                        fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                                                                        style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "75" x = "721.3542"
+        y = "238.5966">String name()</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "699.4792" x2 = "803.6458" y1 = "214.5213" y2 = "214.5213"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "50" x = "806.7708"
+        y = "218.3309">(naming)</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "859.8958" x2 = "964.0625" y1 = "214.5213" y2 = "214.5213"/><!--MD5=[d9427b671d7d049aff2d6f2fe36a13b3]
+class Field--><rect codeLine = "9" fill = "#282828" height = "258.0037" id = "Field" rx = "8.3333" ry = "8.3333" style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                    width = "303.125" x = "517.7083" y = "670.3695"/><rect fill = "#1B1B1A" height = "31.3883" rx = "8.3333" ry = "8.3333"
+                                                                           style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "303.125" x = "517.7083"
+                                                                           y = "670.3695"/><rect fill = "#1B1B1A" height = "8.3333"
+                                                                                                 style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "303.125"
+                                                                                                 x = "517.7083" y = "693.4245"/><rect codeLine = "9" fill = "none"
+                                                                                                                                      height = "258.0037" id = "Field" rx = "8.3333"
+                                                                                                                                      ry = "8.3333"
+                                                                                                                                      style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                                      width = "303.125" x = "517.7083"
+                                                                                                                                      y = "670.3695"/><ellipse cx = "646.3542"
+                                                                                                                                                               cy = "686.0636"
+                                                                                                                                                               fill = "#0066CF"
+                                                                                                                                                               rx = "10.4167"
+                                                                                                                                                               ry = "10.4167"
+                                                                                                                                                               style = "stroke:#0086EF;stroke-width:1.0416666666666667;"/><path
+        d = "M648.2646,690.4887 Q647.8373,690.7084 647.3674,690.8183 Q646.8974,690.9281 646.3786,690.9281 Q644.5353,690.9281 643.5649,689.7135 Q642.5944,688.4989 642.5944,686.204 Q642.5944,683.903 643.5649,682.6884 Q644.5353,681.4738 646.3786,681.4738 Q646.8974,681.4738 647.3735,681.5837 Q647.8495,681.6935 648.2646,681.9132 L648.2646,683.9152 Q647.8007,683.488 647.3643,683.2896 Q646.9279,683.0912 646.464,683.0912 Q645.4753,683.0912 644.9717,683.8755 Q644.4682,684.6598 644.4682,686.204 Q644.4682,687.7421 644.9717,688.5264 Q645.4753,689.3107 646.464,689.3107 Q646.9279,689.3107 647.3643,689.1123 Q647.8007,688.914 648.2646,688.4867 Z "
+        fill = "#000000"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "12.5" font-weight = "bold" lengthAdjust = "spacing"
+                                textLength = "31.25" x = "669.2708" y = "690.7878">Field</text><line style = "stroke:#5E5E5E;stroke-width:1.5625;" x1 = "518.75" x2 = "819.7917"
+                                                                                                     y1 = "701.7578" y2 = "701.7578"/><ellipse cx = "529.1667" cy = "737.1277"
+                                                                                                                                               fill = "#84BE84" rx = "3.125"
+                                                                                                                                               ry = "3.125"
+                                                                                                                                               style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "193.75" x = "540.625"
+        y = "744.0389">Field(Object, java.lang.reflect.Field)</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "518.75" x2 = "625.5208" y1 = "719.9636"
+                                                                          y2 = "719.9636"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                 font-size = "11.4583" lengthAdjust = "spacing" textLength = "81.25" x = "628.6458"
+                                                                                                 y = "723.7732">(constructors)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "713.0208" x2 = "819.7917" y1 = "719.9636" y2 = "719.9636"/><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "518.75" x2 = "819.7917" y1 = "753.7476" y2 = "753.7476"/><ellipse cx = "529.1667" cy = "765.2059"
+                                                                                                                                          fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                                                                          style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "230.2083" x = "540.625"
+        y = "772.1171">boolean accessible(java.lang.reflect.Field)</text><ellipse cx = "529.1667" cy = "784.9508" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                  style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                   font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                   font-size = "11.4583"
+                                                                                                                                                   lengthAdjust = "spacing"
+                                                                                                                                                   textLength = "229.1667"
+                                                                                                                                                   x = "540.625" y = "791.862">T annotation(Class&lt;T&gt; annotationClass)</text><ellipse
+        cx = "529.1667" cy = "804.6956" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                    font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                    font-size = "11.4583"
+                                                                                                                                                    lengthAdjust = "spacing"
+                                                                                                                                                    textLength = "86.4583"
+                                                                                                                                                    x = "540.625" y = "811.6069">Type&lt;?&gt; type()</text><ellipse
+        cx = "529.1667" cy = "848.3521" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                    font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                    font-size = "11.4583"
+                                                                                                                                                    lengthAdjust = "spacing"
+                                                                                                                                                    textLength = "113.5417"
+                                                                                                                                                    x = "540.625" y = "855.2633">boolean isPrimitive()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "518.75" x2 = "642.7083" y1 = "831.1879" y2 = "831.1879"/><text fill = "#D8BC00"
+                                                                                                                                       font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                       font-size = "11.4583"
+                                                                                                                                       lengthAdjust = "spacing"
+                                                                                                                                       textLength = "46.875" x = "645.8333"
+                                                                                                                                       y = "834.9976">(checks)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "695.8333" x2 = "819.7917" y1 = "831.1879" y2 = "831.1879"/><ellipse cx = "529.1667" cy = "892.0085"
+                                                                                                                                            fill = "#84BE84" rx = "3.125"
+                                                                                                                                            ry = "3.125"
+                                                                                                                                            style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "270.8333" x = "540.625"
+        y = "898.9197">ObjectList&lt;Type&lt;T&gt;&gt; genericTypeParameters()</text><ellipse cx = "529.1667" cy = "911.7533" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                              style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                               font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                               font-size = "11.4583"
+                                                                                                                                                               lengthAdjust = "spacing"
+                                                                                                                                                               textLength = "77.0833"
+                                                                                                                                                               x = "540.625"
+                                                                                                                                                               y = "918.6646">Object value()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "518.75" x2 = "634.8958" y1 = "874.8444" y2 = "874.8444"/><text fill = "#D8BC00"
+                                                                                                                                       font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                       font-size = "11.4583"
+                                                                                                                                       lengthAdjust = "spacing" textLength = "62.5"
+                                                                                                                                       x = "638.0208"
+                                                                                                                                       y = "878.654">(collection)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "703.6458" x2 = "819.7917" y1 = "874.8444" y2 = "874.8444"/><!--MD5=[ed17eb27918d6d975aac91b8ab0bf633]
+class Method--><rect codeLine = "37" fill = "#282828" height = "277.7486" id = "Method" rx = "8.3333" ry = "8.3333" style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                     width = "275" x = "857.8125" y = "660.4736"/><rect fill = "#1B1B1A" height = "31.3883" rx = "8.3333" ry = "8.3333"
+                                                                        style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "275" x = "857.8125" y = "660.4736"/><rect
+        fill = "#1B1B1A" height = "8.3333" style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "275" x = "857.8125" y = "683.5286"/><rect codeLine = "37"
+                                                                                                                                                        fill = "none"
+                                                                                                                                                        height = "277.7486"
+                                                                                                                                                        id = "Method" rx = "8.3333"
+                                                                                                                                                        ry = "8.3333"
+                                                                                                                                                        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                                                        width = "275" x = "857.8125"
+                                                                                                                                                        y = "660.4736"/><ellipse
+        cx = "963.5417" cy = "676.1678" fill = "#0066CF" rx = "10.4167" ry = "10.4167" style = "stroke:#0086EF;stroke-width:1.0416666666666667;"/><path
+        d = "M965.4521,680.5929 Q965.0248,680.8126 964.5549,680.9224 Q964.0849,681.0323 963.5661,681.0323 Q961.7228,681.0323 960.7524,679.8177 Q959.7819,678.6031 959.7819,676.3082 Q959.7819,674.0072 960.7524,672.7926 Q961.7228,671.578 963.5661,671.578 Q964.0849,671.578 964.561,671.6878 Q965.037,671.7977 965.4521,672.0174 L965.4521,674.0194 Q964.9882,673.5921 964.5518,673.3938 Q964.1154,673.1954 963.6515,673.1954 Q962.6628,673.1954 962.1592,673.9797 Q961.6557,674.764 961.6557,676.3082 Q961.6557,677.8463 962.1592,678.6306 Q962.6628,679.4149 963.6515,679.4149 Q964.1154,679.4149 964.5518,679.2165 Q964.9882,679.0181 965.4521,678.5909 Z "
+        fill = "#000000"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "12.5" font-weight = "bold" lengthAdjust = "spacing"
+                                textLength = "48.9583" x = "986.4583" y = "680.8919">Method</text><line style = "stroke:#5E5E5E;stroke-width:1.5625;" x1 = "858.8542"
+                                                                                                        x2 = "1131.7708" y1 = "691.862" y2 = "691.862"/><ellipse cx = "869.2708"
+                                                                                                                                                                 cy = "727.2319"
+                                                                                                                                                                 fill = "#84BE84"
+                                                                                                                                                                 rx = "3.125"
+                                                                                                                                                                 ry = "3.125"
+                                                                                                                                                                 style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "143.75" x = "880.7292"
+        y = "734.1431">Method(Class&lt;?&gt;, String)</text><ellipse cx = "869.2708" cy = "746.9767" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                     style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                      font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                      font-size = "11.4583" lengthAdjust = "spacing"
+                                                                                                                                      textLength = "242.7083" x = "880.7292"
+                                                                                                                                      y = "753.8879">Method(Class&lt;?&gt;, java.lang.reflect.Method)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "858.8542" x2 = "951.5625" y1 = "710.0677" y2 = "710.0677"/><text fill = "#D8BC00"
+                                                                                                                                         font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                         font-size = "11.4583"
+                                                                                                                                         lengthAdjust = "spacing"
+                                                                                                                                         textLength = "81.25" x = "954.6875"
+                                                                                                                                         y = "713.8774">(constructors)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "1039.0625" x2 = "1131.7708" y1 = "710.0677" y2 = "710.0677"/><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "858.8542" x2 = "1131.7708" y1 = "763.5966" y2 = "763.5966"/><ellipse cx = "869.2708" cy = "775.0549"
+                                                                                                                                             fill = "#84BE84" rx = "3.125"
+                                                                                                                                             ry = "3.125"
+                                                                                                                                             style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "186.4583" x = "880.7292"
+        y = "781.9661">java.lang.reflect.Method method()</text><ellipse cx = "869.2708" cy = "794.7998" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                        style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                         font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                         font-size = "11.4583"
+                                                                                                                                         lengthAdjust = "spacing"
+                                                                                                                                         textLength = "204.1667" x = "880.7292"
+                                                                                                                                         y = "801.711">Method of(StackTraceElement frame)</text><ellipse
+        cx = "869.2708" cy = "814.5447" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                    font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                    font-size = "11.4583"
+                                                                                                                                                    lengthAdjust = "spacing"
+                                                                                                                                                    textLength = "86.4583"
+                                                                                                                                                    x = "880.7292" y = "821.4559">Type&lt;?&gt; type()</text><ellipse
+        cx = "869.2708" cy = "834.2896" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                    font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                    font-size = "11.4583"
+                                                                                                                                                    lengthAdjust = "spacing"
+                                                                                                                                                    textLength = "119.7917"
+                                                                                                                                                    x = "880.7292" y = "841.2008">Class&lt;?&gt; typeClass()</text><ellipse
+        cx = "869.2708" cy = "877.946" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                   font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                   font-size = "11.4583"
+                                                                                                                                                   lengthAdjust = "spacing"
+                                                                                                                                                   textLength = "234.375"
+                                                                                                                                                   x = "880.7292" y = "884.8572">List&lt;Type&lt;T&gt;&gt; genericTypeParameters()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "858.8542" x2 = "960.9375" y1 = "860.7819" y2 = "860.7819"/><text fill = "#D8BC00"
+                                                                                                                                         font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                         font-size = "11.4583"
+                                                                                                                                         lengthAdjust = "spacing"
+                                                                                                                                         textLength = "62.5" x = "964.0625"
+                                                                                                                                         y = "864.5915">(collection)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "1029.6875" x2 = "1131.7708" y1 = "860.7819" y2 = "860.7819"/><ellipse cx = "869.2708" cy = "921.6024"
+                                                                                                                                              fill = "#84BE84" rx = "3.125"
+                                                                                                                                              ry = "3.125"
+                                                                                                                                              style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "75" x = "880.7292"
+        y = "928.5136">String name()</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "858.8542" x2 = "967.1875" y1 = "904.4383" y2 = "904.4383"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "50" x = "970.3125"
+        y = "908.2479">(naming)</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "1023.4375" x2 = "1131.7708" y1 = "904.4383" y2 = "904.4383"/><!--MD5=[4296a1ab0576a383a1a509d52c22ebf0]
+class Type--><rect codeLine = "54" fill = "#282828" height = "977.1525" id = "Type" rx = "8.3333" ry = "8.3333" style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                   width = "473.9583" x = "7.2917" y = "310.9945"/><rect fill = "#1B1B1A" height = "31.3883" rx = "8.3333" ry = "8.3333"
+                                                                         style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "473.9583" x = "7.2917" y = "310.9945"/><rect
+        fill = "#1B1B1A" height = "8.3333" style = "stroke:#1B1B1A;stroke-width:1.0416666666666667;" width = "473.9583" x = "7.2917" y = "334.0495"/><rect codeLine = "54"
+                                                                                                                                                           fill = "none"
+                                                                                                                                                           height = "977.1525"
+                                                                                                                                                           id = "Type" rx = "8.3333"
+                                                                                                                                                           ry = "8.3333"
+                                                                                                                                                           style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                                                           width = "473.9583"
+                                                                                                                                                           x = "7.2917"
+                                                                                                                                                           y = "310.9945"/><ellipse
+        cx = "211.9792" cy = "326.6886" fill = "#0066CF" rx = "10.4167" ry = "10.4167" style = "stroke:#0086EF;stroke-width:1.0416666666666667;"/><path
+        d = "M213.8896,331.1137 Q213.4623,331.3334 212.9924,331.4433 Q212.5224,331.5531 212.0036,331.5531 Q210.1603,331.5531 209.1899,330.3385 Q208.2194,329.1239 208.2194,326.829 Q208.2194,324.528 209.1899,323.3134 Q210.1603,322.0988 212.0036,322.0988 Q212.5224,322.0988 212.9985,322.2087 Q213.4745,322.3185 213.8896,322.5382 L213.8896,324.5402 Q213.4257,324.113 212.9893,323.9146 Q212.5529,323.7162 212.089,323.7162 Q211.1003,323.7162 210.5967,324.5005 Q210.0932,325.2848 210.0932,326.829 Q210.0932,328.3671 210.5967,329.1514 Q211.1003,329.9357 212.089,329.9357 Q212.5529,329.9357 212.9893,329.7373 Q213.4257,329.539 213.8896,329.1117 Z "
+        fill = "#000000"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "12.5" font-weight = "bold" lengthAdjust = "spacing"
+                                textLength = "31.25" x = "234.8958" y = "331.4128">Type</text><rect fill = "#333333" height = "23.055"
+                                                                                                    style = "stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;"
+                                                                                                    width = "16.6667" x = "467.7083" y = "307.8695"/><text fill = "#A0A0A0"
+                                                                                                                                                           font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                           font-size = "12.5"
+                                                                                                                                                           font-weight = "bold"
+                                                                                                                                                           lengthAdjust = "spacing"
+                                                                                                                                                           textLength = "8.3333"
+                                                                                                                                                           x = "471.875"
+                                                                                                                                                           y = "324.1211">T</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.5625;" x1 = "8.3333" x2 = "480.2083" y1 = "342.3828" y2 = "342.3828"/><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                           x1 = "8.3333" x2 = "480.2083" y1 = "350.7161"
+                                                                                                                           y2 = "350.7161"/><ellipse cx = "18.75" cy = "362.1745"
+                                                                                                                                                     fill = "#84BE84" rx = "3.125"
+                                                                                                                                                     ry = "3.125"
+                                                                                                                                                     style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "228.125" x = "30.2083"
+        y = "369.0857">A annotation(Class&lt;A&gt; annotationType)</text><ellipse cx = "18.75" cy = "381.9194" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                  style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                   font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                   font-size = "11.4583"
+                                                                                                                                                   lengthAdjust = "spacing"
+                                                                                                                                                   textLength = "242.7083"
+                                                                                                                                                   x = "30.2083" y = "388.8306">A[] annotations(Class&lt;A&gt; annotationType)</text><ellipse
+        cx = "18.75" cy = "401.6642" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "269.7917"
+                                                                                                                                                 x = "30.2083" y = "408.5754">Constructor&lt;T&gt; constructor(Class&lt;?&gt;... types)</text><ellipse
+        cx = "18.75" cy = "421.4091" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "151.0417"
+                                                                                                                                                 x = "30.2083" y = "428.3203">boolean declaresToString()</text><ellipse
+        cx = "18.75" cy = "441.154" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                font-size = "11.4583"
+                                                                                                                                                lengthAdjust = "spacing"
+                                                                                                                                                textLength = "150" x = "30.2083"
+                                                                                                                                                y = "448.0652">Property field(String name)</text><ellipse
+        cx = "18.75" cy = "460.8988" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "194.7917"
+                                                                                                                                                 x = "30.2083" y = "467.8101">Type&lt;T&gt; forClass(Class&lt;T&gt; type)</text><ellipse
+        cx = "18.75" cy = "480.6437" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "146.875"
+                                                                                                                                                 x = "30.2083" y = "487.5549">boolean is(Class&lt;?&gt; type)</text><ellipse
+        cx = "18.75" cy = "500.3886" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "206.25" x = "30.2083"
+                                                                                                                                                 y = "507.2998">Method method(String methodName)</text><ellipse
+        cx = "18.75" cy = "520.1335" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "112.5" x = "30.2083"
+                                                                                                                                                 y = "527.0447">Type&lt;T&gt; of(Object)</text><ellipse
+        cx = "18.75" cy = "539.8783" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "175" x = "30.2083"
+                                                                                                                                                 y = "546.7896">Property property(String name)</text><ellipse
+        cx = "18.75" cy = "559.6232" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "125" x = "30.2083"
+                                                                                                                                                 y = "566.5344">Type&lt;?&gt; superClass()</text><ellipse
+        cx = "18.75" cy = "579.3681" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "221.875"
+                                                                                                                                                 x = "30.2083" y = "586.2793">ObjectSet&lt;Type&lt;?&gt;&gt; superInterfaces()</text><ellipse
+        cx = "18.75" cy = "599.113" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                font-size = "11.4583"
+                                                                                                                                                lengthAdjust = "spacing"
+                                                                                                                                                textLength = "91.6667" x = "30.2083"
+                                                                                                                                                y = "606.0242">Class&lt;T&gt; type()</text><ellipse
+        cx = "18.75" cy = "642.7694" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "286.4583"
+                                                                                                                                                 x = "30.2083" y = "649.6806">boolean hasAnnotation(Class&lt;A&gt; annotationType)</text><ellipse
+        cx = "18.75" cy = "662.5142" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "223.9583"
+                                                                                                                                                 x = "30.2083" y = "669.4255">boolean isDescendantOf(Class&lt;?&gt; that)</text><ellipse
+        cx = "18.75" cy = "682.2591" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "96.875" x = "30.2083"
+                                                                                                                                                 y = "689.1703">boolean isEnum()</text><ellipse
+        cx = "18.75" cy = "702.004" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                font-size = "11.4583"
+                                                                                                                                                lengthAdjust = "spacing"
+                                                                                                                                                textLength = "167.7083"
+                                                                                                                                                x = "30.2083" y = "708.9152">boolean isInside(PackagePath)</text><ellipse
+        cx = "18.75" cy = "721.7489" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "113.5417"
+                                                                                                                                                 x = "30.2083" y = "728.6601">boolean isPrimitive()</text><ellipse
+        cx = "18.75" cy = "741.4937" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "105.2083"
+                                                                                                                                                 x = "30.2083" y = "748.4049">boolean isSystem()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "8.3333" x2 = "217.7083" y1 = "625.6053" y2 = "625.6053"/><text fill = "#D8BC00"
+                                                                                                                                       font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                       font-size = "11.4583"
+                                                                                                                                       lengthAdjust = "spacing"
+                                                                                                                                       textLength = "46.875" x = "220.8333"
+                                                                                                                                       y = "629.4149">(checks)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "270.8333" x2 = "480.2083" y1 = "625.6053" y2 = "625.6053"/><ellipse cx = "18.75" cy = "785.1501"
+                                                                                                                                            fill = "#84BE84" rx = "3.125"
+                                                                                                                                            ry = "3.125"
+                                                                                                                                            style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "211.4583" x = "30.2083"
+        y = "792.0614">List&lt;java.lang.reflect.Field&gt; allFields()</text><ellipse cx = "18.75" cy = "804.895" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                      style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                       font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                       font-size = "11.4583"
+                                                                                                                                                       lengthAdjust = "spacing"
+                                                                                                                                                       textLength = "162.5"
+                                                                                                                                                       x = "30.2083" y = "811.8062">Type&lt;?&gt; arrayElementType()</text><ellipse
+        cx = "18.75" cy = "824.6399" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "169.7917"
+                                                                                                                                                 x = "30.2083" y = "831.5511">Set&lt;Enum&lt;?&gt;&gt; enumValues()</text><ellipse
+        cx = "18.75" cy = "844.3848" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "360.4167"
+                                                                                                                                                 x = "30.2083" y = "851.296">List&lt;java.lang.reflect.Field&gt; fields(Filter&lt;java.lang.reflect.Field&gt;)</text><ellipse
+        cx = "18.75" cy = "864.1296" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "156.25" x = "30.2083"
+                                                                                                                                                 y = "871.0409">List&lt;Type&lt;?&gt;&gt; interfaces()</text><ellipse
+        cx = "18.75" cy = "883.8745" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "96.875" x = "30.2083"
+                                                                                                                                                 y = "890.7857">boolean isArray()</text><ellipse
+        cx = "18.75" cy = "903.6194" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "268.75" x = "30.2083"
+                                                                                                                                                 y = "910.5306">ObjectList&lt;Property&gt; properties(PropertyFilter)</text><ellipse
+        cx = "18.75" cy = "923.3643" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "395.8333"
+                                                                                                                                                 x = "30.2083" y = "930.2755">List&lt;Field&gt; reachableFields(Object root, Filter&lt;java.lang.reflect.Field&gt;)</text><ellipse
+        cx = "18.75" cy = "943.1091" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "416.6667"
+                                                                                                                                                 x = "30.2083" y = "950.0203">List&lt;Object&gt; reachableObjects(Object root, Filter&lt;java.lang.reflect.Field&gt;)</text><ellipse
+        cx = "18.75" cy = "962.854" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                font-size = "11.4583"
+                                                                                                                                                lengthAdjust = "spacing"
+                                                                                                                                                textLength = "246.875" x = "30.2083"
+                                                                                                                                                y = "969.7652">List&lt;Object&gt; reachableObjects(Object root)</text><ellipse
+        cx = "18.75" cy = "982.5989" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                 font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                 font-size = "11.4583"
+                                                                                                                                                 lengthAdjust = "spacing"
+                                                                                                                                                 textLength = "441.6667"
+                                                                                                                                                 x = "30.2083" y = "989.5101">List&lt;Object&gt; reachableObjectsImplementing(Object root, Class&lt;?&gt; _interface)</text><ellipse
+        cx = "18.75" cy = "1002.3438" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                  font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                  font-size = "11.4583"
+                                                                                                                                                  lengthAdjust = "spacing"
+                                                                                                                                                  textLength = "212.5" x = "30.2083"
+                                                                                                                                                  y = "1009.255">ObjectList&lt;Type&lt;?&gt;&gt; superClasses()</text><ellipse
+        cx = "18.75" cy = "1022.0886" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                  font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                  font-size = "11.4583"
+                                                                                                                                                  lengthAdjust = "spacing"
+                                                                                                                                                  textLength = "203.125"
+                                                                                                                                                  x = "30.2083" y = "1028.9998">ObjectList&lt;Type&lt;?&gt;&gt; superTypes()</text><ellipse
+        cx = "18.75" cy = "1041.8335" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                  font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                  font-size = "11.4583"
+                                                                                                                                                  lengthAdjust = "spacing"
+                                                                                                                                                  textLength = "303.125"
+                                                                                                                                                  x = "30.2083" y = "1048.7447">VariableMap&lt;Object&gt; variables(Object, PropertyFilter)</text><ellipse
+        cx = "18.75" cy = "1061.5784" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                  font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                  font-size = "11.4583"
+                                                                                                                                                  lengthAdjust = "spacing"
+                                                                                                                                                  textLength = "400" x = "30.2083"
+                                                                                                                                                  y = "1068.4896">VariableMap&lt;Object&gt; variables(Object, PropertyFilter, Object nullValue)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "8.3333" x2 = "209.8958" y1 = "767.986" y2 = "767.986"/><text fill = "#D8BC00"
+                                                                                                                                     font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                     font-size = "11.4583" lengthAdjust = "spacing"
+                                                                                                                                     textLength = "62.5" x = "213.0208"
+                                                                                                                                     y = "771.7957">(collection)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "278.6458" x2 = "480.2083" y1 = "767.986" y2 = "767.986"/><ellipse cx = "18.75" cy = "1105.2348"
+                                                                                                                                          fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                                                                                          style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "200" x = "30.2083"
+        y = "1112.146">T newInstance(Object... parameters)</text><ellipse cx = "18.75" cy = "1124.9797" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                          style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                           font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                           font-size = "11.4583"
+                                                                                                                                           lengthAdjust = "spacing"
+                                                                                                                                           textLength = "87.5" x = "30.2083"
+                                                                                                                                           y = "1131.8909">T newInstance()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "8.3333" x2 = "217.1875" y1 = "1088.0707" y2 = "1088.0707"/><text fill = "#D8BC00"
+                                                                                                                                         font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                         font-size = "11.4583"
+                                                                                                                                         lengthAdjust = "spacing"
+                                                                                                                                         textLength = "47.9167" x = "220.3125"
+                                                                                                                                         y = "1091.8803">(factory)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "271.3542" x2 = "480.2083" y1 = "1088.0707" y2 = "1088.0707"/><ellipse cx = "18.75" cy = "1168.6361"
+                                                                                                                                              fill = "#84BE84" rx = "3.125"
+                                                                                                                                              ry = "3.125"
+                                                                                                                                              style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "208.3333" x = "30.2083"
+        y = "1175.5473">Type&lt;T&gt; forName(String className)</text><ellipse cx = "18.75" cy = "1188.3809" fill = "#84BE84" rx = "3.125" ry = "3.125"
+                                                                               style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                font-size = "11.4583"
+                                                                                                                                                lengthAdjust = "spacing"
+                                                                                                                                                textLength = "150" x = "30.2083"
+                                                                                                                                                y = "1195.2922">String fullyQualifiedName()</text><ellipse
+        cx = "18.75" cy = "1208.1258" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                  font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                  font-size = "11.4583"
+                                                                                                                                                  lengthAdjust = "spacing"
+                                                                                                                                                  textLength = "112.5" x = "30.2083"
+                                                                                                                                                  y = "1215.037">String simpleName()</text><ellipse
+        cx = "18.75" cy = "1227.8707" fill = "#84BE84" rx = "3.125" ry = "3.125" style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text fill = "#D8BC00"
+                                                                                                                                                  font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                                  font-size = "11.4583"
+                                                                                                                                                  lengthAdjust = "spacing"
+                                                                                                                                                  textLength = "336.4583"
+                                                                                                                                                  x = "30.2083" y = "1234.7819">String simpleNameWithoutAnonymousNestedClassNumber()</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "8.3333" x2 = "216.1458" y1 = "1151.472" y2 = "1151.472"/><text fill = "#D8BC00"
+                                                                                                                                       font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                                                                       font-size = "11.4583"
+                                                                                                                                       lengthAdjust = "spacing" textLength = "50"
+                                                                                                                                       x = "219.2708"
+                                                                                                                                       y = "1155.2816">(naming)</text><line
+        style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "272.3958" x2 = "480.2083" y1 = "1151.472" y2 = "1151.472"/><ellipse cx = "18.75" cy = "1271.5271"
+                                                                                                                                            fill = "#84BE84" rx = "3.125"
+                                                                                                                                            ry = "3.125"
+                                                                                                                                            style = "stroke:#038048;stroke-width:1.0416666666666667;"/><text
+        fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size = "11.4583" lengthAdjust = "spacing" textLength = "150" x = "30.2083"
+        y = "1278.4383">PackagePath packagePath()</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1 = "8.3333" x2 = "224.4792" y1 = "1254.363"
+                                                              y2 = "1254.363"/><text fill = "#D8BC00" font-family = "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+                                                                                     font-size = "11.4583" lengthAdjust = "spacing" textLength = "33.3333" x = "227.6042"
+                                                                                     y = "1258.1726">(path)</text><line style = "stroke:#5E5E5E;stroke-width:1.0416666666666667;"
+                                                                                                                        x1 = "264.0625" x2 = "480.2083" y1 = "1254.363"
+                                                                                                                        y2 = "1254.363"/><!--MD5=[3b360e2afcfac097802208a176dffaa1]
+reverse link Member to Field--><path codeLine = "8" d = "M802.3958,268.984 C773.9375,382.1611 730.8958,553.359 701.5104,670.2549 " fill = "none" id = "Member-backto-Field"
+                                     style = "stroke:#545454;stroke-width:1.5625;"/><polygon fill = "none"
+                                                                                             points = "795.375,266.984,807.5313,248.557,809.5208,270.5361,795.375,266.984"
+                                                                                             style = "stroke:#545454;stroke-width:1.5625;"/><!--MD5=[7b40c2bc8cc29c5569eb0750ad9f8894]
+reverse link Member to Method--><path codeLine = "36" d = "M861.2813,268.7653 C889.1042,378.734 930.8229,543.6299 960.3125,660.182 " fill = "none" id = "Member-backto-Method"
+                                      style = "stroke:#545454;stroke-width:1.5625;"/><polygon fill = "none"
+                                                                                              points = "854.2083,270.5465,856.1667,248.557,868.3438,266.9632,854.2083,270.5465"
+                                                                                              style = "stroke:#545454;stroke-width:1.5625;"/><!--MD5=[40b737c24bdb085de906e6a5d624bcc7]
+reverse link Named to Type--><path codeLine = "53" d = "M244.2708,196.0257 C244.2708,224.3486 244.2708,264.4736 244.2708,310.7445 " fill = "none" id = "Named-backto-Type"
+                                   style = "stroke:#545454;stroke-width:1.5625;"/><polygon fill = "none"
+                                                                                           points = "236.9792,195.9736,244.2708,175.1403,251.5625,195.9736,236.9792,195.9736"
+                                                                                           style = "stroke:#545454;stroke-width:1.5625;"/><!--MD5=[f9bde8ef7e6b651c85f343461450c0c8]
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.reflection"
+    
+    interface Named
+    
+    Member <|- - Field
+    class Field
+    {
+        - -(constructors)- -
+        +Field(Object, java.lang.reflect.Field)
+        - -
+        +boolean accessible(java.lang.reflect.Field)
+        +T annotation(Class<T> annotationClass)
+        +Type<?> type()
+        - -(checks)- -
+        +boolean isPrimitive()
+        - -(collection)- -
+        +ObjectList<Type<T>> genericTypeParameters()
+        +Object value()
+    }
+    
+    abstract class Member
+    {
+        - -
+        +T annotation(Class<T> annotationClass)
+        +Type<?> type()
+        - -(collection)- -
+        +List<Type<T>> arrayElementType()
+        +List<Type<T>> genericTypeParameters()
+        - -(naming)- -
+        +String name()
+    }
+    
+    Member <|- - Method
+    class Method
+    {
+        - -(constructors)- -
+        +Method(Class<?>, String)
+        +Method(Class<?>, java.lang.reflect.Method)
+        - -
+        +java.lang.reflect.Method method()
+        +Method of(StackTraceElement frame)
+        +Type<?> type()
+        +Class<?> typeClass()
+        - -(collection)- -
+        +List<Type<T>> genericTypeParameters()
+        - -(naming)- -
+        +String name()
+    }
+    
+    Named <|- - Type
+    class Type<T>
+    {
+        - -
+        +A annotation(Class<A> annotationType)
+        +A[] annotations(Class<A> annotationType)
+        +Constructor<T> constructor(Class<?>... types)
+        +boolean declaresToString()
+        +Property field(String name)
+        +Type<T> forClass(Class<T> type)
+        +boolean is(Class<?> type)
+        +Method method(String methodName)
+        +Type<T> of(Object)
+        +Property property(String name)
+        +Type<?> superClass()
+        +ObjectSet<Type<?>> superInterfaces()
+        +Class<T> type()
+        - -(checks)- -
+        +boolean hasAnnotation(Class<A> annotationType)
+        +boolean isDescendantOf(Class<?> that)
+        +boolean isEnum()
+        +boolean isInside(PackagePath)
+        +boolean isPrimitive()
+        +boolean isSystem()
+        - -(collection)- -
+        +List<java.lang.reflect.Field> allFields()
+        +Type<?> arrayElementType()
+        +Set<Enum<?>> enumValues()
+        +List<java.lang.reflect.Field> fields(Filter<java.lang.reflect.Field>)
+        +List<Type<?>> interfaces()
+        +boolean isArray()
+        +ObjectList<Property> properties(PropertyFilter)
+        +List<Field> reachableFields(Object root, Filter<java.lang.reflect.Field>)
+        +List<Object> reachableObjects(Object root, Filter<java.lang.reflect.Field>)
+        +List<Object> reachableObjects(Object root)
+        +List<Object> reachableObjectsImplementing(Object root, Class<?> _interface)
+        +ObjectList<Type<?>> superClasses()
+        +ObjectList<Type<?>> superTypes()
+        +VariableMap<Object> variables(Object, PropertyFilter)
+        +VariableMap<Object> variables(Object, PropertyFilter, Object nullValue)
+        - -(factory)- -
+        +T newInstance(Object... parameters)
+        +T newInstance()
+        - -(naming)- -
+        +Type<T> forName(String className)
+        +String fullyQualifiedName()
+        +String simpleName()
+        +String simpleNameWithoutAnonymousNestedClassNumber()
+        - -(path)- -
+        +PackagePath packagePath()
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "com.telenav.kivakit.corelanguage.reflection"
+    
+    interface Named
+    
+    Member <|- - Field
+    class Field
+    {
+        - -(constructors)- -
+        +Field(Object, java.lang.reflect.Field)
+        - -
+        +boolean accessible(java.lang.reflect.Field)
+        +T annotation(Class<T> annotationClass)
+        +Type<?> type()
+        - -(checks)- -
+        +boolean isPrimitive()
+        - -(collection)- -
+        +ObjectList<Type<T>> genericTypeParameters()
+        +Object value()
+    }
+    
+    abstract class Member
+    {
+        - -
+        +T annotation(Class<T> annotationClass)
+        +Type<?> type()
+        - -(collection)- -
+        +List<Type<T>> arrayElementType()
+        +List<Type<T>> genericTypeParameters()
+        - -(naming)- -
+        +String name()
+    }
+    
+    Member <|- - Method
+    class Method
+    {
+        - -(constructors)- -
+        +Method(Class<?>, String)
+        +Method(Class<?>, java.lang.reflect.Method)
+        - -
+        +java.lang.reflect.Method method()
+        +Method of(StackTraceElement frame)
+        +Type<?> type()
+        +Class<?> typeClass()
+        - -(collection)- -
+        +List<Type<T>> genericTypeParameters()
+        - -(naming)- -
+        +String name()
+    }
+    
+    Named <|- - Type
+    class Type<T>
+    {
+        - -
+        +A annotation(Class<A> annotationType)
+        +A[] annotations(Class<A> annotationType)
+        +Constructor<T> constructor(Class<?>... types)
+        +boolean declaresToString()
+        +Property field(String name)
+        +Type<T> forClass(Class<T> type)
+        +boolean is(Class<?> type)
+        +Method method(String methodName)
+        +Type<T> of(Object)
+        +Property property(String name)
+        +Type<?> superClass()
+        +ObjectSet<Type<?>> superInterfaces()
+        +Class<T> type()
+        - -(checks)- -
+        +boolean hasAnnotation(Class<A> annotationType)
+        +boolean isDescendantOf(Class<?> that)
+        +boolean isEnum()
+        +boolean isInside(PackagePath)
+        +boolean isPrimitive()
+        +boolean isSystem()
+        - -(collection)- -
+        +List<java.lang.reflect.Field> allFields()
+        +Type<?> arrayElementType()
+        +Set<Enum<?>> enumValues()
+        +List<java.lang.reflect.Field> fields(Filter<java.lang.reflect.Field>)
+        +List<Type<?>> interfaces()
+        +boolean isArray()
+        +ObjectList<Property> properties(PropertyFilter)
+        +List<Field> reachableFields(Object root, Filter<java.lang.reflect.Field>)
+        +List<Object> reachableObjects(Object root, Filter<java.lang.reflect.Field>)
+        +List<Object> reachableObjects(Object root)
+        +List<Object> reachableObjectsImplementing(Object root, Class<?> _interface)
+        +ObjectList<Type<?>> superClasses()
+        +ObjectList<Type<?>> superTypes()
+        +VariableMap<Object> variables(Object, PropertyFilter)
+        +VariableMap<Object> variables(Object, PropertyFilter, Object nullValue)
+        - -(factory)- -
+        +T newInstance(Object... parameters)
+        +T newInstance()
+        - -(naming)- -
+        +Type<T> forName(String className)
+        +String fullyQualifiedName()
+        +String simpleName()
+        +String simpleNameWithoutAnonymousNestedClassNumber()
+        - -(path)- -
+        +PackagePath packagePath()
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

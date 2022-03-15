@@ -1,0 +1,27 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.values.name"
+    
+    interface Named
+    interface StringSource
+    
+    Named <|-- Name
+    StringSource <|-- Name
+    class Name
+    {
+        --(constructors)--
+        #Name()
+        +Name(String)
+        --
+        +String of(Object)
+        +String synthetic(Object)
+        --(checks)--
+        +boolean isSynthetic(String name)
+        --(naming)--
+        +Name lowerCase()
+    }
+    
+@enduml
+

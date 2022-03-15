@@ -7,6 +7,6 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rm -rf $CACTUS_ASSETS_HOME/docs/$CACTUS_VERSION/javadoc/
+rm -rf "$CACTUS_ASSETS_HOME"/docs/"$CACTUS_VERSION"/javadoc/
 
 bash cactus-build.sh javadoc

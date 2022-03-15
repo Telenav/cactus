@@ -1,0 +1,34 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Interfaces - String"
+    
+    AsString --> StringFormat : "formats with"
+    interface AsString
+    {
+        --(conversion)--
+        +String asString(StringFormat)
+        +String asString()
+    }
+    
+    class StringFormat
+    {
+        --(constructors)--
+        +StringFormat(String)
+        --(checks)--
+        +boolean isHtml()
+        +boolean isText()
+        --(parsing)--
+        +StringFormat parse(Listener, String identifier)
+    }
+    
+    interface StringSource
+    {
+        --
+        +StringSource of(String)
+        +String string()
+    }
+    
+@enduml
+

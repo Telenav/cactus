@@ -14,6 +14,7 @@ property_value() {
     file=$1
     key=$2
 
+    # shellcheck disable=SC2002
     cat "$file" | grep "$key" | cut -d'=' -f2 | xargs echo
 }
 
@@ -23,6 +24,7 @@ project_version() {
     project_properties=$project_home/project.properties
 
     # shellcheck disable=SC2046
+    # shellcheck disable=SC2005
     echo $(property_value "$project_properties" project-version)
 }
 
@@ -31,6 +33,7 @@ project_name() {
     project_home=$1
 
     # shellcheck disable=SC2046
+    # shellcheck disable=SC2005
     echo $(basename -- "$project_home")
 }
 
@@ -46,7 +49,9 @@ project_build() {
         build_number=$(property_value "$build_properties" build-number)
         build_date=$(property_value "$build_properties" build-date)
 
-        echo "build #$build_number on $build_date '$build_name'"
+        branch_name=$(git_branch_name "$project_home")
+
+        echo "$branch_name build #$build_number [$build_name] on $build_date"
 
     fi
 }
@@ -111,6 +116,7 @@ clean_temporary_files() {
 
     if yes_no "┋ Remove temporary files (.DS_Store, .metadata, .classpath, .project, *.hprof, *~) from $project_home tree"; then
 
+        # shellcheck disable=SC2038
         find "$project_home" \( -name \.DS_Store -o -name \.metadata -o -name \.classpath -o -name \.project -o -name \*\.hprof -o -name \*~ \) | xargs rm
 
     fi
@@ -121,6 +127,7 @@ clean_temporary_files() {
 script() {
 
     # shellcheck disable=SC2046
+    # shellcheck disable=SC2005
     echo $(basename -- "$0")
 }
 
@@ -157,6 +164,40 @@ require_folder() {
 
 ################ GIT ################################################################################################
 
+
+git_flow_check_changes() {
+
+    project_home=$1
+
+    cd $project_home
+
+    if [[  `git status --porcelain` ]]; then
+        echo " "
+        echo "Project contains changes that must be committed first: $project_home"
+        echo " "
+        exit 1
+    fi
+}
+
+git_flow_init() {
+
+    project_home=$1
+
+    cd $project_home
+
+    git_flow_check_changes $project_home
+
+    git flow init -d /dev/null 2>&1
+
+    if [ "$(git flow config >/dev/null 2>&1)" ]; then
+        echo " "
+        echo "Please install git flow and try again."
+        echo "See https://kivakit.org for details."
+        echo " "
+        exit 1
+    fi
+}
+
 git_flow_release_start() {
 
     project_home=$1
@@ -171,7 +212,7 @@ git_flow_release_start() {
     echo " "
 
     # Check out the develop branch
-    cd "$project_home"
+    cd "$project_home" || exit
     git checkout develop
 
     # then start a new release branch
@@ -182,16 +223,6 @@ git_flow_release_start() {
 
     # and update its version
     bash cactus-release-update-version.sh "$version"
-
-    echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Branch Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
-    echo "┋"
-    echo "┋  1. Created git flow branch release/$version"
-    echo "┋  2. POM files and other version-related information in this branch has been updated to $version."
-    echo "┋  3. When the release branch is FULLY READY, run the release finish script to merge the branch into master."
-    echo "┋"
-    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
-    echo " "
 }
 
 git_flow_release_finish() {
@@ -199,8 +230,9 @@ git_flow_release_finish() {
     project_home=$1
     version=$2
 
-    cd "$project_home"
+    cd "$project_home" || exit
 
+    git tag -a "$version" -m "$version"
     git checkout release/"$version"
     git flow release finish "$version"
     git push origin --tags
@@ -221,7 +253,7 @@ git_flow_feature_start() {
 
     if yes_no "Start '$feature_name' branch of $project_home"; then
 
-        cd "$project_home"
+        cd "$project_home" || exit
         git-flow feature start "$feature_name"
 
     fi
@@ -233,6 +265,7 @@ git_flow_feature_finish() {
     feature_name=$2
 
     if yes_no "Finish '$feature_name' branch of $project_home"; then
+        # shellcheck disable=SC2164
         cd "$project_home"
         git-flow feature finish "$feature_name"
     fi
@@ -271,7 +304,7 @@ system_variable() {
 
     variable=$1
     value=$2
-    temporary="$TMPDIR/export.txt"
+    temporary="${TMPDIR%/}/export.txt"
 
     echo "export $variable=\"$value\"" >"$temporary"
     source "$temporary"
@@ -291,8 +324,8 @@ is_mac() {
 
 lexakai() {
 
-    lexakai_download_version="1.0.1"
-    lexakai_download_name="lexakai-1.0.1.jar"
+    lexakai_download_version="1.0.5"
+    lexakai_download_name="lexakai-1.0.5.jar"
 
     lexakai_downloads="$HOME/.lexakai/downloads"
 
@@ -322,6 +355,7 @@ lexakai() {
     # -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044
     echo "java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $*"
 
+    # shellcheck disable=SC2068
     java -jar "$lexakai_jar" -overwrite-resources=true -update-readme=true $@
 }
 

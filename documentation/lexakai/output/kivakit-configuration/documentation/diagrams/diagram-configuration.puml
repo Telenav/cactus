@@ -1,0 +1,86 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Configuration and Deployment"
+    
+    abstract BaseResourceSettingsStore
+    abstract BaseRepeater
+    
+    interface SettingsTrait
+    
+    MemorySettingsStore <|-- Deployment
+    class Deployment
+    {
+        --(constructors)--
+        +Deployment(String, String)
+        --
+        +String description()
+        --(command line parsing)--
+        +SwitchParser.Builder<Deployment> deploymentSwitchParser(Listener, DeploymentSet, String switchName)
+    }
+    
+    BaseRepeater <|-- DeploymentSet
+    DeploymentSet "1" o-- "*" Deployment
+    class DeploymentSet
+    {
+        --(constructors)--
+        #DeploymentSet()
+        --(collection)--
+        +boolean isEmpty()
+        +int size()
+        --(command line parsing)--
+        +SwitchParser.Builder<Deployment> switchParser(String name)
+        --(configuration)--
+        +void add(Deployment)
+        +void addAll(Collection<Deployment> deployments)
+        +DeploymentSet addDeploymentsIn(Package package_)
+        +DeploymentSet addDeploymentsIn(Class<?> relativeTo, String path)
+        +DeploymentSet addDeploymentsIn(PackagePath)
+        +DeploymentSet addDeploymentsIn(Folder parent)
+        +Deployment deployment(String name)
+        +Set<Deployment> deployments()
+        +DeploymentSet load(Listener, Class<?> relativeTo)
+        +DeploymentSet of(Listener, Deployment, Deployment... more)
+    }
+    
+    BaseResourceSettingsStore <|-- FolderSettingsStore
+    class FolderSettingsStore
+    {
+        --(constructors)--
+        #FolderSettingsStore(Folder)
+        --(filesystem)--
+        +FolderSettingsStore of(Listener, Folder)
+    }
+    
+    class InstanceIdentifier
+    {
+        --(constructors)--
+        #InstanceIdentifier(String)
+        --(identity)--
+        +InstanceIdentifier of(Class<?> value)
+        +InstanceIdentifier of(String value)
+        +InstanceIdentifier of(Enum<?> value)
+    }
+    
+    BaseResourceSettingsStore <|-- PackageSettingsStore
+    class PackageSettingsStore
+    {
+        --(constructors)--
+        #PackageSettingsStore(PackagePath)
+        --
+        +PackageSettingsStore of(Listener, Package _package)
+        +PackageSettingsStore of(Listener, PackagePath)
+    }
+    
+    MemorySettingsStore <|-- Settings
+    SettingsTrait <|-- Settings
+    class Settings
+    {
+        --
+        +Settings global()
+        +Settings of(Object ignored)
+    }
+    
+@enduml
+

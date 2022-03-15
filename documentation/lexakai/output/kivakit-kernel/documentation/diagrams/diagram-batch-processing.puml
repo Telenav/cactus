@@ -1,0 +1,33 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "Multithreaded Batch Processing"
+    
+    abstract BaseRepeater
+    
+    BaseRepeater <|-- Batcher
+    class Batcher<Element>
+    {
+        --(constructors)--
+        #Batcher()
+        #Batcher(Batcher<Element>)
+        --
+        +BatchAdder adder()
+        +Batcher<Element> create()
+        #void onBatch(Batch)
+        --(filesystem)--
+        #Batcher<Element> copy()
+        --(functional)--
+        +Batcher<Element> withBatchFullPredicate(Predicate<Batch>)
+        +Batcher<Element> withBatchSize(Count size)
+        +Batcher<Element> withConsumer(Consumer<Batch>)
+        +Batcher<Element> withName(String name)
+        +Batcher<Element> withQueueSize(Count size)
+        --(lifecycle)--
+        +void start(Count workers)
+        +void stop()
+    }
+    
+@enduml
+

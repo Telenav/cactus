@@ -1,0 +1,46 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.resource.spi"
+    
+    interface RepeaterMixin
+    RepeaterMixin <|-- ResourceFolderResolver
+    ResourceFolderResolver --> ResourceIdentifier : "parses"
+    ResourceFolderResolver --> ResourceFolder : "creates"
+    interface ResourceFolderResolver
+    {
+        --(filesystem)--
+        +ResourceFolder resolve(ResourceFolderIdentifier)
+        --(filtering)--
+        +boolean accepts(ResourceFolderIdentifier)
+    }
+    
+    ResourceFolderResolverServiceLoader "1" o-- "*" ResourceFolderResolver
+    class ResourceFolderResolverServiceLoader
+    {
+        --(filesystem)--
+        +ResourceFolder resolve(Listener, ResourceFolderIdentifier)
+    }
+    
+    interface RepeaterMixin
+    RepeaterMixin <|-- ResourceResolver
+    ResourceResolver --> ResourceFolderIdentifier : "parses"
+    ResourceResolver --> Resource : "creates"
+    interface ResourceResolver
+    {
+        --
+        +Resource resolve(Listener, ResourceIdentifier)
+        --(filtering)--
+        +boolean accepts(ResourceIdentifier)
+    }
+    
+    ResourceResolverServiceLoader "1" o-- "*" ResourceResolver
+    class ResourceResolverServiceLoader
+    {
+        --
+        +Resource resolve(Listener, ResourceIdentifier)
+    }
+    
+@enduml
+

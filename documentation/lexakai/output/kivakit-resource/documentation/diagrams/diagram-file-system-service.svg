@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1593.75px" preserveAspectRatio="none" style="width:1433px;height:1593px;background:#333333;" version="1.1" viewBox="0 0 1433 1593" width="1433.3333px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="359.375" x="529.9479" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="336.4583" x="541.4063" y="30.5583">File System - File System Services</text><!--MD5=[762aa3d0df6a9d47bd8e105afbd066b5]
+class BaseRepeater--><rect codeLine="6" fill="#282828" height="48.055" id="BaseRepeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="123.9583" x="7.2917" y="849.0153"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="123.9583" x="7.2917" y="849.0153"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="123.9583" x="7.2917" y="872.0703"/><rect codeLine="6" fill="none" height="48.055" id="BaseRepeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="123.9583" x="7.2917" y="849.0153"/><ellipse cx="21.875" cy="864.7095" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M21.4681,861.4115 L20.6197,865.1408 L22.3226,865.1408 Z M20.3695,859.7636 L22.5728,859.7636 L25.0326,868.8761 L23.232,868.8761 L22.6705,866.6239 L20.2596,866.6239 L19.7103,868.8761 L17.9097,868.8761 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="86.4583" x="38.5417" y="869.4336">BaseRepeater</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="130.2083" y1="880.4036" y2="880.4036"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="8.3333" x2="130.2083" y1="888.737" y2="888.737"/><!--MD5=[8b5151cbe93a9a6942e91a66bba84fb0]
+class BaseWritableResource--><rect codeLine="7" fill="#282828" height="48.055" id="BaseWritableResource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="179.1667" x="1247.3958" y="849.0153"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="179.1667" x="1247.3958" y="849.0153"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="179.1667" x="1247.3958" y="872.0703"/><rect codeLine="7" fill="none" height="48.055" id="BaseWritableResource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="179.1667" x="1247.3958" y="849.0153"/><ellipse cx="1261.9792" cy="864.7095" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M1261.5723,861.4115 L1260.7239,865.1408 L1262.4268,865.1408 Z M1260.4736,859.7636 L1262.677,859.7636 L1265.1367,868.8761 L1263.3362,868.8761 L1262.7747,866.6239 L1260.3638,866.6239 L1259.8145,868.8761 L1258.0139,868.8761 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="141.6667" x="1278.6458" y="869.4336">BaseWritableResource</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1248.4375" x2="1425.5208" y1="880.4036" y2="880.4036"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1248.4375" x2="1425.5208" y1="888.737" y2="888.737"/><!--MD5=[9bc23c05e4b2fc73e019bd17cec96ec4]
+class FileSystemService--><rect codeLine="70" fill="#282828" height="166.5243" id="FileSystemService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="234.375" x="512.5" y="310.9945"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="234.375" x="512.5" y="310.9945"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="234.375" x="512.5" y="334.0495"/><rect codeLine="70" fill="none" height="166.5243" id="FileSystemService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="234.375" x="512.5" y="310.9945"/><ellipse cx="565.1042" cy="326.6886" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M562.5081,323.8505 L562.5081,322.2636 L567.9342,322.2636 L567.9342,323.8505 L566.1214,323.8505 L566.1214,329.7892 L567.9342,329.7892 L567.9342,331.3761 L562.5081,331.3761 L562.5081,329.7892 L564.3209,329.7892 L564.3209,323.8505 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="114.5833" x="588.0208" y="331.4128">FileSystemService</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="513.5417" x2="745.8333" y1="342.3828" y2="342.3828"/><ellipse cx="523.9583" cy="377.7527" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="180.2083" x="535.4167" y="384.6639">DiskService diskService(FilePath)</text><ellipse cx="523.9583" cy="397.4976" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="168.75" x="535.4167" y="404.4088">FileService fileService(FilePath)</text><ellipse cx="523.9583" cy="417.2424" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="202.0833" x="535.4167" y="424.1536">FolderService folderService(FilePath)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="513.5417" x2="594.2708" y1="360.5886" y2="360.5886"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="597.3958" y="364.3982">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="665.1042" x2="745.8333" y1="360.5886" y2="360.5886"/><ellipse cx="523.9583" cy="460.8988" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="141.6667" x="535.4167" y="467.8101">boolean accepts(FilePath)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="513.5417" x2="600.5208" y1="443.7347" y2="443.7347"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="52.0833" x="603.6458" y="447.5444">(filtering)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="658.8542" x2="745.8333" y1="443.7347" y2="443.7347"/><!--MD5=[3f7923c5962403cc19ad9d36647dd0a5]
+class FileService--><rect codeLine="31" fill="#282828" height="103.123" id="FileService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="228.125" x="982.2917" y="821.4111"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="228.125" x="982.2917" y="821.4111"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="228.125" x="982.2917" y="844.4661"/><rect codeLine="31" fill="none" height="103.123" id="FileService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="228.125" x="982.2917" y="821.4111"/><ellipse cx="1055.2083" cy="837.1053" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1052.6123,834.2672 L1052.6123,832.6803 L1058.0383,832.6803 L1058.0383,834.2672 L1056.2256,834.2672 L1056.2256,840.2059 L1058.0383,840.2059 L1058.0383,841.7928 L1052.6123,841.7928 L1052.6123,840.2059 L1054.425,840.2059 L1054.425,834.2672 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="67.7083" x="1078.125" y="841.8294">FileService</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="983.3333" x2="1209.375" y1="852.7995" y2="852.7995"/><ellipse cx="993.75" cy="888.1694" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="121.875" x="1005.2083" y="895.0806">java.io.File asJavaFile()</text><ellipse cx="993.75" cy="907.9142" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="195.8333" x="1005.2083" y="914.8254">boolean renameTo(FileService that)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="983.3333" x2="1060.9375" y1="871.0052" y2="871.0052"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="1064.0625" y="874.8149">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1131.7708" x2="1209.375" y1="871.0052" y2="871.0052"/><!--MD5=[d4f3064b0f7162b674b27be479c4238e]
+class DiskService--><rect codeLine="14" fill="#282828" height="229.9255" id="DiskService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="165.625" x="546.875" y="757.8695"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="165.625" x="546.875" y="757.8695"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="165.625" x="546.875" y="780.9245"/><rect codeLine="14" fill="none" height="229.9255" id="DiskService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="165.625" x="546.875" y="757.8695"/><ellipse cx="585.3646" cy="773.5636" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M582.7686,770.7255 L582.7686,769.1386 L588.1946,769.1386 L588.1946,770.7255 L586.3818,770.7255 L586.3818,776.6642 L588.1946,776.6642 L588.1946,778.2511 L582.7686,778.2511 L582.7686,776.6642 L584.5813,776.6642 L584.5813,770.7255 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="75" x="607.3438" y="778.2878">DiskService</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="547.9167" x2="711.4583" y1="789.2578" y2="789.2578"/><ellipse cx="558.3333" cy="824.6277" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="110.4167" x="569.7917" y="831.5389">FolderService root()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="547.9167" x2="594.2708" y1="807.4636" y2="807.4636"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="597.3958" y="811.2732">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="665.1042" x2="711.4583" y1="807.4636" y2="807.4636"/><ellipse cx="558.3333" cy="868.2841" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="119.7917" x="569.7917" y="875.1953">Percent percentFree()</text><ellipse cx="558.3333" cy="888.029" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="133.3333" x="569.7917" y="894.9402">Percent percentUsable()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="547.9167" x2="608.3333" y1="851.12" y2="851.12"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="36.4583" x="611.4583" y="854.9296">(math)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="651.0417" x2="711.4583" y1="851.12" y2="851.12"/><ellipse cx="558.3333" cy="931.6854" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="62.5" x="569.7917" y="938.5966">Bytes free()</text><ellipse cx="558.3333" cy="951.4303" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="62.5" x="569.7917" y="958.3415">Bytes size()</text><ellipse cx="558.3333" cy="971.1751" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="77.0833" x="569.7917" y="978.0863">Bytes usable()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="547.9167" x2="597.9167" y1="914.5213" y2="914.5213"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="57.2917" x="601.0417" y="918.3309">(primitive)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="661.4583" x2="711.4583" y1="914.5213" y2="914.5213"/><!--MD5=[d3568316a19508714d03e72c4319f868]
+class FolderService--><rect codeLine="89" fill="#282828" height="442.9525" id="FolderService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="342.7083" x="167.7083" y="651.6195"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="342.7083" x="167.7083" y="651.6195"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="342.7083" x="167.7083" y="674.6745"/><rect codeLine="89" fill="none" height="442.9525" id="FolderService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="342.7083" x="167.7083" y="651.6195"/><ellipse cx="289.0625" cy="667.3136" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M286.4665,664.4755 L286.4665,662.8886 L291.8925,662.8886 L291.8925,664.4755 L290.0798,664.4755 L290.0798,670.4142 L291.8925,670.4142 L291.8925,672.0011 L286.4665,672.0011 L286.4665,670.4142 L288.2792,670.4142 L288.2792,664.4755 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="85.4167" x="311.9792" y="672.0378">FolderService</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="168.75" x2="509.375" y1="683.0078" y2="683.0078"/><ellipse cx="179.1667" cy="718.3777" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="100" x="190.625" y="725.2889">boolean isEmpty()</text><ellipse cx="179.1667" cy="738.1226" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="109.375" x="190.625" y="745.0338">Boolean isWritable()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="168.75" x2="312.5" y1="701.2136" y2="701.2136"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="315.625" y="705.0232">(checks)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="365.625" x2="509.375" y1="701.2136" y2="701.2136"/><ellipse cx="179.1667" cy="781.779" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="113.5417" x="190.625" y="788.6902">FolderService clear()</text><ellipse cx="179.1667" cy="801.5238" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="136.4583" x="190.625" y="808.4351">FileService file(FileName)</text><ellipse cx="179.1667" cy="821.2687" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="237.5" x="190.625" y="828.1799">List&lt;FileService&gt; files(Matcher&lt;FilePath&gt;)</text><ellipse cx="179.1667" cy="841.0136" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="131.25" x="190.625" y="847.9248">List&lt;FileService&gt; files()</text><ellipse cx="179.1667" cy="860.7585" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="155.2083" x="190.625" y="867.6697">FolderService folder(Folder)</text><ellipse cx="179.1667" cy="880.5033" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="206.25" x="190.625" y="887.4146">FolderService folder(FileName folder)</text><ellipse cx="179.1667" cy="900.2482" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="164.5833" x="190.625" y="907.1594">List&lt;FolderService&gt; folders()</text><ellipse cx="179.1667" cy="919.9931" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="270.8333" x="190.625" y="926.9043">List&lt;FolderService&gt; folders(Matcher&lt;FilePath&gt;)</text><ellipse cx="179.1667" cy="939.738" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="101.0417" x="190.625" y="946.6492">boolean hasFiles()</text><ellipse cx="179.1667" cy="959.4828" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="138.5417" x="190.625" y="966.394">boolean hasSubFolders()</text><ellipse cx="179.1667" cy="979.2277" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="125" x="190.625" y="986.1389">FolderService mkdirs()</text><ellipse cx="179.1667" cy="998.9726" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="277.0833" x="190.625" y="1005.8838">List&lt;FileService&gt; nestedFiles(Matcher&lt;FilePath&gt;)</text><ellipse cx="179.1667" cy="1018.7174" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="310.4167" x="190.625" y="1025.6287">List&lt;FolderService&gt; nestedFolders(Matcher&lt;FilePath&gt;)</text><ellipse cx="179.1667" cy="1038.4623" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="212.5" x="190.625" y="1045.3735">boolean renameTo(FolderService that)</text><ellipse cx="179.1667" cy="1058.2072" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="257.2917" x="190.625" y="1065.1184">FileService temporaryFile(FileName baseName)</text><ellipse cx="179.1667" cy="1077.9521" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="290.625" x="190.625" y="1084.8633">FolderService temporaryFolder(FileName baseName)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="168.75" x2="303.6458" y1="764.6149" y2="764.6149"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="306.7708" y="768.4245">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="374.4792" x2="509.375" y1="764.6149" y2="764.6149"/><!--MD5=[186cc809c4fefc21e9383dda7a09b230]
+class FileSystemObjectService--><rect codeLine="87" fill="#282828" height="344.2281" id="FileSystemObjectService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="361.4583" x="798.9583" y="222.4528"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="361.4583" x="798.9583" y="222.4528"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="361.4583" x="798.9583" y="245.5078"/><rect codeLine="87" fill="none" height="344.2281" id="FileSystemObjectService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="361.4583" x="798.9583" y="222.4528"/><ellipse cx="894.2708" cy="238.147" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M891.6748,235.3088 L891.6748,233.7219 L897.1008,233.7219 L897.1008,235.3088 L895.2881,235.3088 L895.2881,241.2476 L897.1008,241.2476 L897.1008,242.8345 L891.6748,242.8345 L891.6748,241.2476 L893.4875,241.2476 L893.4875,235.3088 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="156.25" x="917.1875" y="242.8711">FileSystemObjectService</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="800" x2="1159.375" y1="253.8411" y2="253.8411"/><ellipse cx="810.4167" cy="289.211" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="107.2917" x="821.875" y="296.1222">boolean isRemote()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="800" x2="953.125" y1="272.0469" y2="272.0469"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="46.875" x="956.25" y="275.8565">(checks)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1006.25" x2="1159.375" y1="272.0469" y2="272.0469"/><ellipse cx="810.4167" cy="332.8674" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="286.4583" x="821.875" y="339.7786">boolean chmod(PosixFilePermission... permissions)</text><ellipse cx="810.4167" cy="352.6123" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="89.5833" x="821.875" y="359.5235">boolean delete()</text><ellipse cx="810.4167" cy="372.3572" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="137.5" x="821.875" y="379.2684">DiskService diskService()</text><ellipse cx="810.4167" cy="392.1021" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="89.5833" x="821.875" y="399.0133">boolean exists()</text><ellipse cx="810.4167" cy="411.8469" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="159.375" x="821.875" y="418.7581">FolderService folderService()</text><ellipse cx="810.4167" cy="431.5918" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="84.375" x="821.875" y="438.503">boolean isFile()</text><ellipse cx="810.4167" cy="451.3367" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="101.0417" x="821.875" y="458.2479">boolean isFolder()</text><ellipse cx="810.4167" cy="471.0815" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="329.1667" x="821.875" y="477.9928">boolean isOnSameFileSystem(FileSystemObjectService that)</text><ellipse cx="810.4167" cy="490.8264" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="122.9167" x="821.875" y="497.7376">FolderService parent()</text><ellipse cx="810.4167" cy="510.5713" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="193.75" x="821.875" y="517.4825">FilePath relativePath(FolderService)</text><ellipse cx="810.4167" cy="530.3162" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="226.0417" x="821.875" y="537.2274">FileSystemObjectService resolveService()</text><ellipse cx="810.4167" cy="550.061" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="110.4167" x="821.875" y="556.9722">FolderService root()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="800" x2="944.2708" y1="315.7033" y2="315.7033"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="947.3958" y="319.5129">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1015.1042" x2="1159.375" y1="315.7033" y2="315.7033"/><!--MD5=[b4df5e08191186fb921ecfb3be7dc483]
+class WritableResource--><rect codeLine="28" fill="#282828" height="48.055" id="WritableResource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="148.9583" x="1196.875" y="370.3695"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="148.9583" x="1196.875" y="370.3695"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="148.9583" x="1196.875" y="393.4245"/><rect codeLine="28" fill="none" height="48.055" id="WritableResource" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="148.9583" x="1196.875" y="370.3695"/><ellipse cx="1211.4583" cy="386.0636" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1208.8623,383.2255 L1208.8623,381.6386 L1214.2883,381.6386 L1214.2883,383.2255 L1212.4756,383.2255 L1212.4756,389.1642 L1214.2883,389.1642 L1214.2883,390.7511 L1208.8623,390.7511 L1208.8623,389.1642 L1210.675,389.1642 L1210.675,383.2255 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="111.4583" x="1228.125" y="390.7878">WritableResource</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1197.9167" x2="1344.7917" y1="401.7578" y2="401.7578"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1197.9167" x2="1344.7917" y1="410.0911" y2="410.0911"/><!--MD5=[104b6cdf893074ce3a702d355ed6cb5c]
+class ByteSized--><rect codeLine="38" fill="#282828" height="48.055" id="ByteSized" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="100" x="994.2708" y="71.4111"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="100" x="994.2708" y="71.4111"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="100" x="994.2708" y="94.4661"/><rect codeLine="38" fill="none" height="48.055" id="ByteSized" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="100" x="994.2708" y="71.4111"/><ellipse cx="1008.8542" cy="87.1053" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1006.2581,84.2672 L1006.2581,82.6803 L1011.6842,82.6803 L1011.6842,84.2672 L1009.8714,84.2672 L1009.8714,90.2059 L1011.6842,90.2059 L1011.6842,91.7928 L1006.2581,91.7928 L1006.2581,90.2059 L1008.0709,90.2059 L1008.0709,84.2672 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="62.5" x="1025.5208" y="91.8294">ByteSized</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="995.3125" x2="1093.2292" y1="102.7995" y2="102.7995"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="995.3125" x2="1093.2292" y1="111.1328" y2="111.1328"/><!--MD5=[4ba8871a70db68fa1037a5ff801c7e02]
+class ChangedAt--><rect codeLine="39" fill="#282828" height="48.055" id="ChangedAt" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="109.375" x="1131.25" y="71.4111"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="109.375" x="1131.25" y="71.4111"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="109.375" x="1131.25" y="94.4661"/><rect codeLine="39" fill="none" height="48.055" id="ChangedAt" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="109.375" x="1131.25" y="71.4111"/><ellipse cx="1145.8333" cy="87.1053" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1143.2373,84.2672 L1143.2373,82.6803 L1148.6633,82.6803 L1148.6633,84.2672 L1146.8506,84.2672 L1146.8506,90.2059 L1148.6633,90.2059 L1148.6633,91.7928 L1143.2373,91.7928 L1143.2373,90.2059 L1145.05,90.2059 L1145.05,84.2672 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="71.875" x="1162.5" y="91.8294">ChangedAt</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1132.2917" x2="1239.5833" y1="102.7995" y2="102.7995"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1132.2917" x2="1239.5833" y1="111.1328" y2="111.1328"/><!--MD5=[dde4359a43de047b4d984bc31705a409]
+class CreatedAt--><rect codeLine="40" fill="#282828" height="48.055" id="CreatedAt" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="102.0833" x="1277.6042" y="71.4111"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="102.0833" x="1277.6042" y="71.4111"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="102.0833" x="1277.6042" y="94.4661"/><rect codeLine="40" fill="none" height="48.055" id="CreatedAt" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="102.0833" x="1277.6042" y="71.4111"/><ellipse cx="1292.1875" cy="87.1053" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M1289.5915,84.2672 L1289.5915,82.6803 L1295.0175,82.6803 L1295.0175,84.2672 L1293.2048,84.2672 L1293.2048,90.2059 L1295.0175,90.2059 L1295.0175,91.7928 L1289.5915,91.7928 L1289.5915,90.2059 L1291.4042,90.2059 L1291.4042,84.2672 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="64.5833" x="1308.8542" y="91.8294">CreatedAt</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1278.6458" x2="1378.6458" y1="102.7995" y2="102.7995"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1278.6458" x2="1378.6458" y1="111.1328" y2="111.1328"/><!--MD5=[744747ec7e51775f9e559c3c8d441a64]
+class Modifiable--><rect codeLine="41" fill="#282828" height="48.055" id="Modifiable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="106.25" x="721.3542" y="71.4111"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="106.25" x="721.3542" y="71.4111"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="106.25" x="721.3542" y="94.4661"/><rect codeLine="41" fill="none" height="48.055" id="Modifiable" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="106.25" x="721.3542" y="71.4111"/><ellipse cx="735.9375" cy="87.1053" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M733.3415,84.2672 L733.3415,82.6803 L738.7675,82.6803 L738.7675,84.2672 L736.9548,84.2672 L736.9548,90.2059 L738.7675,90.2059 L738.7675,91.7928 L733.3415,91.7928 L733.3415,90.2059 L735.1542,90.2059 L735.1542,84.2672 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="68.75" x="752.6042" y="91.8294">Modifiable</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="722.3958" x2="826.5625" y1="102.7995" y2="102.7995"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="722.3958" x2="826.5625" y1="111.1328" y2="111.1328"/><!--MD5=[5ec8c00c13391aeaac8c08bdf7a77295]
+class Repeater--><rect codeLine="42" fill="#282828" height="48.055" id="Repeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="93.75" x="864.0625" y="71.4111"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="93.75" x="864.0625" y="71.4111"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="93.75" x="864.0625" y="94.4661"/><rect codeLine="42" fill="none" height="48.055" id="Repeater" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="93.75" x="864.0625" y="71.4111"/><ellipse cx="878.6458" cy="87.1053" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M876.0498,84.2672 L876.0498,82.6803 L881.4758,82.6803 L881.4758,84.2672 L879.6631,84.2672 L879.6631,90.2059 L881.4758,90.2059 L881.4758,91.7928 L876.0498,91.7928 L876.0498,90.2059 L877.8625,90.2059 L877.8625,84.2672 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="895.3125" y="91.8294">Repeater</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="865.1042" x2="956.7708" y1="102.7995" y2="102.7995"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="865.1042" x2="956.7708" y1="111.1328" y2="111.1328"/><!--MD5=[907fe6700526aed104bb3a59d3aadf0b]
+class FileSystemServiceLoader--><rect codeLine="81" fill="#282828" height="83.3781" id="FileSystemServiceLoader" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="240.625" x="443.75" y="53.7028"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="240.625" x="443.75" y="53.7028"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="240.625" x="443.75" y="76.7578"/><rect codeLine="81" fill="none" height="83.3781" id="FileSystemServiceLoader" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="240.625" x="443.75" y="53.7028"/><ellipse cx="473.3333" cy="69.397" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M475.2437,73.822 Q474.8165,74.0417 474.3465,74.1516 Q473.8765,74.2615 473.3577,74.2615 Q471.5145,74.2615 470.544,73.0469 Q469.5736,71.8323 469.5736,69.5374 Q469.5736,67.2363 470.544,66.0217 Q471.5145,64.8071 473.3577,64.8071 Q473.8765,64.8071 474.3526,64.917 Q474.8287,65.0269 475.2437,65.2466 L475.2437,67.2485 Q474.7799,66.8213 474.3435,66.6229 Q473.9071,66.4246 473.4432,66.4246 Q472.4544,66.4246 471.9509,67.2089 Q471.4473,67.9932 471.4473,69.5374 Q471.4473,71.0754 471.9509,71.8597 Q472.4544,72.644 473.4432,72.644 Q473.9071,72.644 474.3435,72.4457 Q474.7799,72.2473 475.2437,71.8201 Z " fill="#000000"/><rect fill="#F24D5C" height="6.25" style="stroke:#C82930;stroke-width:1.0416666666666667;" width="6.25" x="492.2917" y="65.7511"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="158.3333" x="504.7917" y="74.1211">FileSystemServiceLoader</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="444.7917" x2="683.3333" y1="85.0911" y2="85.0911"/><ellipse cx="455.2083" cy="120.461" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="208.3333" x="466.6667" y="127.3722">FileSystemService fileSystem(FilePath)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="444.7917" x2="528.6458" y1="103.2969" y2="103.2969"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="531.7708" y="107.1065">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="599.4792" x2="683.3333" y1="103.2969" y2="103.2969"/><!--MD5=[a51147b31e502f2faca5198b28f57975]
+class LocalDisk--><rect codeLine="114" fill="#282828" height="83.3781" id="LocalDisk" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="158.3333" x="644.2708" y="1341.7236"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="158.3333" x="644.2708" y="1341.7236"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="158.3333" x="644.2708" y="1364.7786"/><rect codeLine="114" fill="none" height="83.3781" id="LocalDisk" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="158.3333" x="644.2708" y="1341.7236"/><ellipse cx="679.4792" cy="1357.4178" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M681.3896,1361.8429 Q680.9623,1362.0626 680.4924,1362.1724 Q680.0224,1362.2823 679.5036,1362.2823 Q677.6603,1362.2823 676.6899,1361.0677 Q675.7194,1359.8531 675.7194,1357.5582 Q675.7194,1355.2572 676.6899,1354.0426 Q677.6603,1352.828 679.5036,1352.828 Q680.0224,1352.828 680.4985,1352.9378 Q680.9745,1353.0477 681.3896,1353.2674 L681.3896,1355.2694 Q680.9257,1354.8421 680.4893,1354.6438 Q680.0529,1354.4454 679.589,1354.4454 Q678.6003,1354.4454 678.0967,1355.2297 Q677.5932,1356.014 677.5932,1357.5582 Q677.5932,1359.0963 678.0967,1359.8806 Q678.6003,1360.6649 679.589,1360.6649 Q680.0529,1360.6649 680.4893,1360.4665 Q680.9257,1360.2681 681.3896,1359.8409 Z " fill="#000000"/><rect fill="#F24D5C" height="6.25" style="stroke:#C82930;stroke-width:1.0416666666666667;" width="6.25" x="699.6875" y="1353.772"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="63.5417" x="712.1875" y="1362.1419">LocalDisk</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="645.3125" x2="801.5625" y1="1373.112" y2="1373.112"/><ellipse cx="655.7292" cy="1408.4819" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="126.0417" x="667.1875" y="1415.3931">LocalDisk(LocalFolder)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="645.3125" x2="679.6875" y1="1391.3177" y2="1391.3177"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="682.8125" y="1395.1274">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="767.1875" x2="801.5625" y1="1391.3177" y2="1391.3177"/><!--MD5=[3e2d4ca6e3acaf3880dd6c59a730a4b9]
+class LocalFile--><rect codeLine="122" fill="#282828" height="206.014" id="LocalFile" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="192.7083" x="1000" y="1280.2653"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="192.7083" x="1000" y="1280.2653"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="192.7083" x="1000" y="1303.3203"/><rect codeLine="122" fill="none" height="206.014" id="LocalFile" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="192.7083" x="1000" y="1280.2653"/><ellipse cx="1055.2083" cy="1295.9595" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M1057.1187,1300.3845 Q1056.6915,1300.6042 1056.2215,1300.7141 Q1055.7515,1300.824 1055.2327,1300.824 Q1053.3895,1300.824 1052.419,1299.6094 Q1051.4486,1298.3948 1051.4486,1296.0999 Q1051.4486,1293.7988 1052.419,1292.5842 Q1053.3895,1291.3696 1055.2327,1291.3696 Q1055.7515,1291.3696 1056.2276,1291.4795 Q1056.7037,1291.5894 1057.1187,1291.8091 L1057.1187,1293.811 Q1056.6549,1293.3838 1056.2185,1293.1854 Q1055.7821,1292.9871 1055.3182,1292.9871 Q1054.3294,1292.9871 1053.8259,1293.7714 Q1053.3223,1294.5557 1053.3223,1296.0999 Q1053.3223,1297.6379 1053.8259,1298.4222 Q1054.3294,1299.2065 1055.3182,1299.2065 Q1055.7821,1299.2065 1056.2185,1299.0082 Q1056.6549,1298.8098 1057.1187,1298.3826 Z " fill="#000000"/><rect fill="#F24D5C" height="6.25" style="stroke:#C82930;stroke-width:1.0416666666666667;" width="6.25" x="1077.0833" y="1292.3136"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="1089.5833" y="1300.6836">LocalFile</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="1001.0417" x2="1191.6667" y1="1311.6536" y2="1311.6536"/><ellipse cx="1011.4583" cy="1347.0235" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="98.9583" x="1022.9167" y="1353.9347">LocalFile(FilePath)</text><ellipse cx="1011.4583" cy="1366.7684" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="104.1667" x="1022.9167" y="1373.6796">LocalFile(LocalFile)</text><ellipse cx="1011.4583" cy="1386.5133" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="160.4167" x="1022.9167" y="1393.4245">LocalFile(LocalFolder, String)</text><ellipse cx="1011.4583" cy="1406.2581" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="89.5833" x="1022.9167" y="1413.1694">LocalFile(String)</text><ellipse cx="1011.4583" cy="1426.003" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="113.5417" x="1022.9167" y="1432.9142">LocalFile(java.io.File)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1001.0417" x2="1052.6042" y1="1329.8594" y2="1329.8594"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="1055.7292" y="1333.669">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1140.1042" x2="1191.6667" y1="1329.8594" y2="1329.8594"/><ellipse cx="1011.4583" cy="1469.6594" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="127.0833" x="1022.9167" y="1476.5706">boolean isFile(FilePath)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1001.0417" x2="1060.9375" y1="1452.4953" y2="1452.4953"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="1064.0625" y="1456.3049">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="1131.7708" x2="1191.6667" y1="1452.4953" y2="1452.4953"/><!--MD5=[5197583d2ee0d0b4adfc55454fd7455e]
+class LocalFileSystemService--><rect codeLine="138" fill="#282828" height="48.055" id="LocalFileSystemService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="196.875" x="748.9583" y="849.0153"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="196.875" x="748.9583" y="849.0153"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="196.875" x="748.9583" y="872.0703"/><rect codeLine="138" fill="none" height="48.055" id="LocalFileSystemService" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="196.875" x="748.9583" y="849.0153"/><ellipse cx="763.5417" cy="864.7095" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M765.4521,869.1345 Q765.0248,869.3542 764.5549,869.4641 Q764.0849,869.574 763.5661,869.574 Q761.7228,869.574 760.7524,868.3594 Q759.7819,867.1448 759.7819,864.8499 Q759.7819,862.5488 760.7524,861.3342 Q761.7228,860.1196 763.5661,860.1196 Q764.0849,860.1196 764.561,860.2295 Q765.037,860.3394 765.4521,860.5591 L765.4521,862.561 Q764.9882,862.1338 764.5518,861.9354 Q764.1154,861.7371 763.6515,861.7371 Q762.6628,861.7371 762.1592,862.5214 Q761.6557,863.3057 761.6557,864.8499 Q761.6557,866.3879 762.1592,867.1722 Q762.6628,867.9565 763.6515,867.9565 Q764.1154,867.9565 764.5518,867.7582 Q764.9882,867.5598 765.4521,867.1326 Z " fill="#000000"/><rect fill="#F24D5C" height="6.25" style="stroke:#C82930;stroke-width:1.0416666666666667;" width="6.25" x="779.1667" y="861.0636"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="147.9167" x="791.6667" y="869.4336">LocalFileSystemService</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="750" x2="944.7917" y1="880.4036" y2="880.4036"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="750" x2="944.7917" y1="888.737" y2="888.737"/><!--MD5=[7e6559d19f440eee190a0d7114e0f2f9]
+class LocalFolder--><rect codeLine="144" fill="#282828" height="407.6294" id="LocalFolder" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="236.4583" x="220.8333" y="1179.7445"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="236.4583" x="220.8333" y="1179.7445"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="236.4583" x="220.8333" y="1202.7995"/><rect codeLine="144" fill="none" height="407.6294" id="LocalFolder" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="236.4583" x="220.8333" y="1179.7445"/><ellipse cx="289.0625" cy="1195.4386" fill="#0066CF" rx="10.4167" ry="10.4167" style="stroke:#0086EF;stroke-width:1.0416666666666667;"/><path d="M290.9729,1199.8637 Q290.5457,1200.0834 290.0757,1200.1933 Q289.6057,1200.3031 289.0869,1200.3031 Q287.2437,1200.3031 286.2732,1199.0885 Q285.3027,1197.8739 285.3027,1195.579 Q285.3027,1193.278 286.2732,1192.0634 Q287.2437,1190.8488 289.0869,1190.8488 Q289.6057,1190.8488 290.0818,1190.9587 Q290.5579,1191.0685 290.9729,1191.2882 L290.9729,1193.2902 Q290.509,1192.863 290.0726,1192.6646 Q289.6362,1192.4662 289.1724,1192.4662 Q288.1836,1192.4662 287.6801,1193.2505 Q287.1765,1194.0348 287.1765,1195.579 Q287.1765,1197.1171 287.6801,1197.9014 Q288.1836,1198.6857 289.1724,1198.6857 Q289.6362,1198.6857 290.0726,1198.4873 Q290.509,1198.289 290.9729,1197.8617 Z " fill="#000000"/><rect fill="#F24D5C" height="6.25" style="stroke:#C82930;stroke-width:1.0416666666666667;" width="6.25" x="310.9375" y="1191.7928"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="73.9583" x="323.4375" y="1200.1628">LocalFolder</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="221.875" x2="456.25" y1="1211.1328" y2="1211.1328"/><ellipse cx="232.2917" cy="1246.5027" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="115.625" x="243.75" y="1253.4139">LocalFolder(FilePath)</text><ellipse cx="232.2917" cy="1266.2476" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="137.5" x="243.75" y="1273.1588">LocalFolder(LocalFolder)</text><ellipse cx="232.2917" cy="1285.9924" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="106.25" x="243.75" y="1292.9036">LocalFolder(String)</text><ellipse cx="232.2917" cy="1305.7373" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="91.6667" x="243.75" y="1312.6485">LocalFolder(URI)</text><ellipse cx="232.2917" cy="1325.4822" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="94.7917" x="243.75" y="1332.3934">LocalFolder(URL)</text><ellipse cx="232.2917" cy="1345.2271" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="130.2083" x="243.75" y="1352.1383">LocalFolder(java.io.File)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="221.875" x2="295.3125" y1="1229.3386" y2="1229.3386"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="81.25" x="298.4375" y="1233.1482">(constructors)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="382.8125" x2="456.25" y1="1229.3386" y2="1229.3386"/><ellipse cx="232.2917" cy="1388.8835" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="138.5417" x="243.75" y="1395.7947">LocalFolder asAbsolute()</text><ellipse cx="232.2917" cy="1408.6283" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="147.9167" x="243.75" y="1415.5396">LocalFolder ensureExists()</text><ellipse cx="232.2917" cy="1428.3732" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="118.75" x="243.75" y="1435.2844">LocalFile file(FilePath)</text><ellipse cx="232.2917" cy="1448.1181" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="142.7083" x="243.75" y="1455.0293">LocalFile file(String name)</text><ellipse cx="232.2917" cy="1467.863" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="172.9167" x="243.75" y="1474.7742">LocalFolder folder(String child)</text><ellipse cx="232.2917" cy="1487.6078" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="204.1667" x="243.75" y="1494.519">LocalFolder folder(LocalFolder child)</text><ellipse cx="232.2917" cy="1507.3527" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="107.2917" x="243.75" y="1514.2639">LocalFolder home()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="221.875" x2="303.6458" y1="1371.7194" y2="1371.7194"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="64.5833" x="306.7708" y="1375.529">(filesystem)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="374.4792" x2="456.25" y1="1371.7194" y2="1371.7194"/><ellipse cx="232.2917" cy="1551.0091" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="59.375" x="243.75" y="1557.9203">URI asUri()</text><ellipse cx="232.2917" cy="1570.754" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="62.5" x="243.75" y="1577.6652">URL asUrl()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="221.875" x2="309.375" y1="1533.845" y2="1533.845"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="53.125" x="312.5" y="1537.6546">(network)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="368.75" x2="456.25" y1="1533.845" y2="1533.845"/><!--MD5=[9c9373f4e3e8266234f7de62a8c61c6f]
+reverse link FileSystemObjectService to FileService--><path codeLine="29" d="M1026.5313,586.7132 C1047.375,671.8799 1070.2708,765.3695 1083.9688,821.3174 " fill="none" id="FileSystemObjectService-backto-FileService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1019.4271,588.3799,1021.5625,566.4111,1033.5938,584.9111,1019.4271,588.3799" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[77d39ac6a3cf923f4f8707dfe92d87fe]
+reverse link WritableResource to FileService--><path codeLine="30" d="M1255.6458,438.1611 C1223.3333,526.1403 1149.5833,726.9736 1114.9583,821.2653 " fill="none" id="WritableResource-backto-FileService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1248.8854,435.4007,1262.9167,418.359,1262.5729,440.4215,1248.8854,435.4007" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[0bd74490202e29f4c42c01395a43d1fc]
+reverse link Repeater to FileSystemObjectService--><path codeLine="43" d="M921.0938,140.2549 C926.3125,162.8174 933.0625,191.932 940.0938,222.3382 " fill="none" id="Repeater-backto-FileSystemObjectService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="913.9271,141.6507,916.3333,119.7028,928.1354,138.359,913.9271,141.6507" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[c9b2e4d2c4afd421bfea2757a1d564d2]
+reverse link ByteSized to FileSystemObjectService--><path codeLine="44" d="M1034.7292,140.2549 C1029.8229,162.8174 1023.4896,191.932 1016.875,222.3382 " fill="none" id="ByteSized-backto-FileSystemObjectService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1027.6458,138.5153,1039.1979,119.7028,1041.8958,141.609,1027.6458,138.5153" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[6f6b1120112e9335f38520e3f23ee04d]
+reverse link ChangedAt to FileSystemObjectService--><path codeLine="45" d="M1157.6667,137.109 C1141.7083,160.0778 1120.5729,190.4945 1098.4583,222.3382 " fill="none" id="ChangedAt-backto-FileSystemObjectService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1151.875,132.6507,1169.75,119.7028,1163.8542,140.9736,1151.875,132.6507" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[663655175b858687f3898f32f037c7c1]
+reverse link CreatedAt to FileSystemObjectService--><path codeLine="46" d="M1284.625,133.1924 C1254.6771,158.2653 1214.1875,192.2653 1178.6458,222.4528 C1172.6563,227.5361 1166.5729,232.7132 1160.4375,237.9424 " fill="none" id="CreatedAt-backto-FileSystemObjectService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1280.2708,127.3278,1300.9271,119.557,1289.625,138.5153,1280.2708,127.3278" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[05eb6770af3e8a0e6c1e2504de0ddb66]
+reverse link Modifiable to FileSystemObjectService--><path codeLine="47" d="M802.6146,137.109 C818.4896,160.0778 839.5104,190.4945 861.5208,222.3382 " fill="none" id="Modifiable-backto-FileSystemObjectService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="796.4271,140.9945,790.5833,119.7028,808.4271,132.7028,796.4271,140.9945" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[a1c0c136a9bf077842eb7e821aa58099]
+link FileSystemService to DiskService--><path codeLine="67" d="M629.6875,477.8382 C629.6875,553.432 629.6875,666.2861 629.6875,751.8799 " fill="none" id="FileSystemService-to-DiskService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="629.6875,757.484,633.8542,748.109,629.6875,752.2757,625.5208,748.109,629.6875,757.484" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="633.8542" y="613.7044">provides</text><!--MD5=[67b7e0fc4a28b21a708d5417e4cafaa1]
+link FileSystemService to FileService--><path codeLine="68" d="M690.9479,478.0361 C716.3229,508.4424 747.5833,541.4528 780.7292,566.2028 C852.75,619.984 897.2604,591.4736 964.0625,651.6195 C1014.8646,697.3695 1052.25,767.2861 1074.0729,816.0465 " fill="none" id="FileSystemService-to-FileService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="1076.2708,820.9945,1076.2768,810.7352,1074.1583,816.2338,1068.6597,814.1153,1076.2708,820.9945" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="920.3125" y="613.7044">provides</text><!--MD5=[2eb88039e2a8a0d263c248f4f74a39a1]
+link FileSystemService to FolderService--><path codeLine="69" d="M579.3958,477.8382 C550.7396,524.8278 513.3021,586.2236 476.5313,646.5153 " fill="none" id="FileSystemService-to-FolderService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="473.6563,651.2236,482.1041,645.4025,476.3751,646.7813,474.9964,641.0523,473.6563,651.2236" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="56.25" x="506.7708" y="613.7044">provides</text><!--MD5=[ab14c5ecf0e44f3c4c5c3fc134fc89bc]
+reverse link FileSystemServiceLoader to FileSystemService--><path codeLine="80" d="M575.9792,150.2965 C585.875,195.0882 600.125,259.557 611.4583,310.8278 " fill="none" id="FileSystemServiceLoader-backto-FileSystemService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#333333" points="573.0521,137.0674,570.3363,144.0708,575.7564,149.2713,578.4722,142.2679,573.0521,137.0674" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="35.4167" x="588.0208" y="184.5378">loads</text><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="8.3333" x="561.8644" y="160.5906">1</text><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="6.25" x="599.9032" y="296.8525">*</text><!--MD5=[872c88c7c3dca35ac0a36321c83ebb76]
+reverse link FileSystemObjectService to FolderService--><path codeLine="88" d="M968.9479,585.9424 C962.4271,598.7549 954,610.484 943.2292,620.3695 C875.1667,682.8486 611.1146,609.9632 528.6458,651.6195 C522.4479,654.7445 516.375,658.1715 510.4271,661.859 " fill="none" id="FileSystemObjectService-backto-FolderService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="962.3646,582.7861,977.2083,566.4528,975.7917,588.484,962.3646,582.7861" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[89ecd48aa0fed690b59fc91ca3c73e46]
+reverse link DiskService to LocalDisk--><path codeLine="113" d="M641.0313,1008.8799 C645.8542,1053.5361 652.3854,1103.3382 660.9375,1148.4945 C673.9271,1217.0361 696.3438,1295.0153 710.5104,1341.3799 " fill="none" id="DiskService-backto-LocalDisk" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="633.7708,1009.5674,638.8646,988.0986,648.2813,1008.057,633.7708,1009.5674" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[34a7b5679bee3aaf27b7cf49197d03b2]
+reverse link BaseWritableResource to LocalFile--><path codeLine="120" d="M1317.0833,916.0361 C1279.6042,995.2236 1197.5417,1168.5882 1144.7188,1280.1715 " fill="none" id="BaseWritableResource-backto-LocalFile" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1310.5104,912.8903,1326.0104,897.182,1323.6875,919.1299,1310.5104,912.8903" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[fb0a1d99d84f6b29677d0dbdffd23048]
+reverse link FileService to LocalFile--><path codeLine="121" d="M1096.3542,945.6715 C1096.3542,1032.8695 1096.3542,1180.6924 1096.3542,1279.9007 " fill="none" id="FileService-backto-LocalFile" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="1089.0625,945.4528,1096.3542,924.6195,1103.6458,945.4528,1089.0625,945.4528" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[685ea9717957f592494a9a6ec25b29f8]
+reverse link FileSystemService to LocalFileSystemService--><path codeLine="134" d="M676.0417,496.8486 C727.8125,610.1715 808.1146,785.9424 836.7813,848.6924 " fill="none" id="FileSystemService-backto-LocalFileSystemService" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="669.3854,499.8174,667.3646,477.8382,682.6458,493.7549,669.3854,499.8174" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[5e777521e7cfb8deb8a040eaaa931733]
+link LocalFileSystemService to LocalDisk--><path codeLine="135" d="M841.75,897.182 C822.6771,975.3903 760.4167,1230.7132 734.6979,1336.1507 " fill="none" id="LocalFileSystemService-to-LocalDisk" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="733.4271,1341.359,739.6982,1333.2396,734.6623,1336.2993,731.6026,1331.2634,733.4271,1341.359" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="45.8333" x="790.1042" y="1141.8294">creates</text><!--MD5=[32904f456543c7be6862a4e1a3a00010]
+link LocalFileSystemService to LocalFile--><path codeLine="136" d="M858.7396,897.182 C890.8958,962.8382 984.1875,1153.307 1043.8542,1275.1507 " fill="none" id="LocalFileSystemService-to-LocalFile" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="1046.3125,1280.1715,1045.9253,1269.9196,1044.0191,1275.4953,1038.4434,1273.5891,1046.3125,1280.1715" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="45.8333" x="983.8542" y="1141.8294">creates</text><!--MD5=[8203d58345e6eb9eb1160bb9f8532e05]
+link LocalFileSystemService to LocalFolder--><path codeLine="137" d="M839.2188,896.9736 C823.2917,939.4215 784.875,1031.5778 730.7292,1094.3278 C709.25,1119.2236 568.7813,1220.5465 462.1458,1296.0153 " fill="none" id="LocalFileSystemService-to-LocalFolder" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="#545454" points="457.7292,1299.1403,467.7905,1297.1352,461.9834,1296.1356,462.983,1290.3284,457.7292,1299.1403" style="stroke:#545454;stroke-width:1.5625;"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="45.8333" x="696.3542" y="1141.8294">creates</text><!--MD5=[58f920ea47f744458b5adf878c4f5c2a]
+reverse link BaseRepeater to LocalFolder--><path codeLine="142" d="M81.6771,917.0778 C95.4688,962.4007 119.7813,1035.234 149.4792,1094.3278 C170.1042,1135.3799 195.4063,1177.7028 220.7292,1216.8486 " fill="none" id="BaseRepeater-backto-LocalFolder" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="74.6354,918.984,75.6875,896.9424,88.6146,914.8278,74.6354,918.984" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[0a1dda82236f47c71d11492e184479f5]
+reverse link FolderService to LocalFolder--><path codeLine="143" d="M339.0625,1115.359 C339.0625,1136.8278 339.0625,1158.4215 339.0625,1179.5257 " fill="none" id="FolderService-backto-LocalFolder" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="331.7708,1115.2236,339.0625,1094.3903,346.3542,1115.2236,331.7708,1115.2236" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[a92f86ecd26efab0cb8b361890c0a5ae]
+@startuml
+
+    !include lexakai.theme
+    
+    title "File System - File System Services"
+    
+    abstract BaseRepeater
+    abstract BaseWritableResource
+    
+    interface FileSystemService
+    interface FileService
+    interface DiskService
+    interface FolderService
+    
+    interface DiskService
+    {
+        - -(filesystem)- -
+        +FolderService root()
+        - -(math)- -
+        +Percent percentFree()
+        +Percent percentUsable()
+        - -(primitive)- -
+        +Bytes free()
+        +Bytes size()
+        +Bytes usable()
+    }
+    
+    interface FileSystemObjectService
+    interface WritableResource
+    FileSystemObjectService <|- - FileService
+    WritableResource <|- - FileService
+    interface FileService
+    {
+        - -(filesystem)- -
+        +java.io.File asJavaFile()
+        +boolean renameTo(FileService that)
+    }
+    
+    interface ByteSized
+    interface ChangedAt
+    interface CreatedAt
+    interface Modifiable
+    interface Repeater
+    Repeater <|- - FileSystemObjectService
+    ByteSized <|- - FileSystemObjectService
+    ChangedAt <|- - FileSystemObjectService
+    CreatedAt <|- - FileSystemObjectService
+    Modifiable <|- - FileSystemObjectService
+    interface FileSystemObjectService
+    {
+        - -(checks)- -
+        +boolean isRemote()
+        - -(filesystem)- -
+        +boolean chmod(PosixFilePermission... permissions)
+        +boolean delete()
+        +DiskService diskService()
+        +boolean exists()
+        +FolderService folderService()
+        +boolean isFile()
+        +boolean isFolder()
+        +boolean isOnSameFileSystem(FileSystemObjectService that)
+        +FolderService parent()
+        +FilePath relativePath(FolderService)
+        +FileSystemObjectService resolveService()
+        +FolderService root()
+    }
+    
+    FileSystemService - -> DiskService : "provides"
+    FileSystemService - -> FileService : "provides"
+    FileSystemService - -> FolderService : "provides"
+    interface FileSystemService
+    {
+        - -(filesystem)- -
+        +DiskService diskService(FilePath)
+        +FileService fileService(FilePath)
+        +FolderService folderService(FilePath)
+        - -(filtering)- -
+        +boolean accepts(FilePath)
+    }
+    
+    FileSystemServiceLoader "1" o- - "*" FileSystemService : "loads"
+    -class FileSystemServiceLoader
+    {
+        - -(filesystem)- -
+        +FileSystemService fileSystem(FilePath)
+    }
+    
+    interface FileSystemObjectService
+    FileSystemObjectService <|- - FolderService
+    interface FolderService
+    {
+        - -(checks)- -
+        +boolean isEmpty()
+        +Boolean isWritable()
+        - -(filesystem)- -
+        +FolderService clear()
+        +FileService file(FileName)
+        +List<FileService> files(Matcher<FilePath>)
+        +List<FileService> files()
+        +FolderService folder(Folder)
+        +FolderService folder(FileName folder)
+        +List<FolderService> folders()
+        +List<FolderService> folders(Matcher<FilePath>)
+        +boolean hasFiles()
+        +boolean hasSubFolders()
+        +FolderService mkdirs()
+        +List<FileService> nestedFiles(Matcher<FilePath>)
+        +List<FolderService> nestedFolders(Matcher<FilePath>)
+        +boolean renameTo(FolderService that)
+        +FileService temporaryFile(FileName baseName)
+        +FolderService temporaryFolder(FileName baseName)
+    }
+    
+    DiskService <|- - LocalDisk
+    -class LocalDisk
+    {
+        - -(constructors)- -
+        +LocalDisk(LocalFolder)
+    }
+    
+    BaseWritableResource <|- - LocalFile
+    FileService <|- - LocalFile
+    -class LocalFile
+    {
+        - -(constructors)- -
+        +LocalFile(FilePath)
+        +LocalFile(LocalFile)
+        +LocalFile(LocalFolder, String)
+        +LocalFile(String)
+        +LocalFile(java.io.File)
+        - -(filesystem)- -
+        +boolean isFile(FilePath)
+    }
+    
+    FileSystemService <|- - LocalFileSystemService
+    LocalFileSystemService - -> LocalDisk : "creates"
+    LocalFileSystemService - -> LocalFile : "creates"
+    LocalFileSystemService - -> LocalFolder : "creates"
+    -class LocalFileSystemService
+    {
+    }
+    
+    BaseRepeater <|- - LocalFolder
+    FolderService <|- - LocalFolder
+    -class LocalFolder
+    {
+        - -(constructors)- -
+        +LocalFolder(FilePath)
+        +LocalFolder(LocalFolder)
+        +LocalFolder(String)
+        +LocalFolder(URI)
+        +LocalFolder(URL)
+        +LocalFolder(java.io.File)
+        - -(filesystem)- -
+        +LocalFolder asAbsolute()
+        +LocalFolder ensureExists()
+        +LocalFile file(FilePath)
+        +LocalFile file(String name)
+        +LocalFolder folder(String child)
+        +LocalFolder folder(LocalFolder child)
+        +LocalFolder home()
+        - -(network)- -
+        +URI asUri()
+        +URL asUrl()
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "File System - File System Services"
+    
+    abstract BaseRepeater
+    abstract BaseWritableResource
+    
+    interface FileSystemService
+    interface FileService
+    interface DiskService
+    interface FolderService
+    
+    interface DiskService
+    {
+        - -(filesystem)- -
+        +FolderService root()
+        - -(math)- -
+        +Percent percentFree()
+        +Percent percentUsable()
+        - -(primitive)- -
+        +Bytes free()
+        +Bytes size()
+        +Bytes usable()
+    }
+    
+    interface FileSystemObjectService
+    interface WritableResource
+    FileSystemObjectService <|- - FileService
+    WritableResource <|- - FileService
+    interface FileService
+    {
+        - -(filesystem)- -
+        +java.io.File asJavaFile()
+        +boolean renameTo(FileService that)
+    }
+    
+    interface ByteSized
+    interface ChangedAt
+    interface CreatedAt
+    interface Modifiable
+    interface Repeater
+    Repeater <|- - FileSystemObjectService
+    ByteSized <|- - FileSystemObjectService
+    ChangedAt <|- - FileSystemObjectService
+    CreatedAt <|- - FileSystemObjectService
+    Modifiable <|- - FileSystemObjectService
+    interface FileSystemObjectService
+    {
+        - -(checks)- -
+        +boolean isRemote()
+        - -(filesystem)- -
+        +boolean chmod(PosixFilePermission... permissions)
+        +boolean delete()
+        +DiskService diskService()
+        +boolean exists()
+        +FolderService folderService()
+        +boolean isFile()
+        +boolean isFolder()
+        +boolean isOnSameFileSystem(FileSystemObjectService that)
+        +FolderService parent()
+        +FilePath relativePath(FolderService)
+        +FileSystemObjectService resolveService()
+        +FolderService root()
+    }
+    
+    FileSystemService - -> DiskService : "provides"
+    FileSystemService - -> FileService : "provides"
+    FileSystemService - -> FolderService : "provides"
+    interface FileSystemService
+    {
+        - -(filesystem)- -
+        +DiskService diskService(FilePath)
+        +FileService fileService(FilePath)
+        +FolderService folderService(FilePath)
+        - -(filtering)- -
+        +boolean accepts(FilePath)
+    }
+    
+    FileSystemServiceLoader "1" o- - "*" FileSystemService : "loads"
+    -class FileSystemServiceLoader
+    {
+        - -(filesystem)- -
+        +FileSystemService fileSystem(FilePath)
+    }
+    
+    interface FileSystemObjectService
+    FileSystemObjectService <|- - FolderService
+    interface FolderService
+    {
+        - -(checks)- -
+        +boolean isEmpty()
+        +Boolean isWritable()
+        - -(filesystem)- -
+        +FolderService clear()
+        +FileService file(FileName)
+        +List<FileService> files(Matcher<FilePath>)
+        +List<FileService> files()
+        +FolderService folder(Folder)
+        +FolderService folder(FileName folder)
+        +List<FolderService> folders()
+        +List<FolderService> folders(Matcher<FilePath>)
+        +boolean hasFiles()
+        +boolean hasSubFolders()
+        +FolderService mkdirs()
+        +List<FileService> nestedFiles(Matcher<FilePath>)
+        +List<FolderService> nestedFolders(Matcher<FilePath>)
+        +boolean renameTo(FolderService that)
+        +FileService temporaryFile(FileName baseName)
+        +FolderService temporaryFolder(FileName baseName)
+    }
+    
+    DiskService <|- - LocalDisk
+    -class LocalDisk
+    {
+        - -(constructors)- -
+        +LocalDisk(LocalFolder)
+    }
+    
+    BaseWritableResource <|- - LocalFile
+    FileService <|- - LocalFile
+    -class LocalFile
+    {
+        - -(constructors)- -
+        +LocalFile(FilePath)
+        +LocalFile(LocalFile)
+        +LocalFile(LocalFolder, String)
+        +LocalFile(String)
+        +LocalFile(java.io.File)
+        - -(filesystem)- -
+        +boolean isFile(FilePath)
+    }
+    
+    FileSystemService <|- - LocalFileSystemService
+    LocalFileSystemService - -> LocalDisk : "creates"
+    LocalFileSystemService - -> LocalFile : "creates"
+    LocalFileSystemService - -> LocalFolder : "creates"
+    -class LocalFileSystemService
+    {
+    }
+    
+    BaseRepeater <|- - LocalFolder
+    FolderService <|- - LocalFolder
+    -class LocalFolder
+    {
+        - -(constructors)- -
+        +LocalFolder(FilePath)
+        +LocalFolder(LocalFolder)
+        +LocalFolder(String)
+        +LocalFolder(URI)
+        +LocalFolder(URL)
+        +LocalFolder(java.io.File)
+        - -(filesystem)- -
+        +LocalFolder asAbsolute()
+        +LocalFolder ensureExists()
+        +LocalFile file(FilePath)
+        +LocalFile file(String name)
+        +LocalFolder folder(String child)
+        +LocalFolder folder(LocalFolder child)
+        +LocalFolder home()
+        - -(network)- -
+        +URI asUri()
+        +URL asUrl()
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

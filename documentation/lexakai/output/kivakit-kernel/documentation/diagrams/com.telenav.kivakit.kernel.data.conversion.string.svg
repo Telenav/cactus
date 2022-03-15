@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="506.25px" preserveAspectRatio="none" style="width:523px;height:506px;background:#333333;" version="1.1" viewBox="0 0 523 506" width="523.9583px" zoomAndPan="magnify"><defs/><g><rect fill="#48494B" height="41.2028" rx="8.3333" ry="8.3333" style="stroke:#545454;stroke-width:1.0416666666666667;" width="511.4583" x="2.0833" y="2.0833"/><text fill="#C0C0C0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="20.8333" lengthAdjust="spacing" textLength="488.5417" x="13.5417" y="30.5583">com.telenav.kivakit.coredata.conversion.string</text><!--MD5=[49cb82784bdaaeaf775aba6c21cf90c7]
+class BaseConverter--><rect codeLine="6" fill="#282828" height="48.055" id="BaseConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="131.25" x="47.6563" y="194.8486"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="131.25" x="47.6563" y="194.8486"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="131.25" x="47.6563" y="217.9036"/><rect codeLine="6" fill="none" height="48.055" id="BaseConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="131.25" x="47.6563" y="194.8486"/><ellipse cx="62.2396" cy="210.5428" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M61.8327,207.2449 L60.9843,210.9741 L62.6872,210.9741 Z M60.734,205.5969 L62.9374,205.5969 L65.3971,214.7095 L63.5966,214.7095 L63.0351,212.4573 L60.6242,212.4573 L60.0749,214.7095 L58.2743,214.7095 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="93.75" x="78.9063" y="215.2669">BaseConverter</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="48.6979" x2="177.8646" y1="226.237" y2="226.237"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="48.6979" x2="177.8646" y1="234.5703" y2="234.5703"/><!--MD5=[ba073b66973f43d8829c343bee2ec4ff]
+class StringConverter--><rect codeLine="24" fill="#282828" height="103.123" id="StringConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="270.8333" x="215.3646" y="167.2445"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="270.8333" x="215.3646" y="167.2445"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="270.8333" x="215.3646" y="190.2995"/><rect codeLine="24" fill="none" height="103.123" id="StringConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="270.8333" x="215.3646" y="167.2445"/><ellipse cx="269.5313" cy="182.9386" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M266.9352,180.1005 L266.9352,178.5136 L272.3612,178.5136 L272.3612,180.1005 L270.5485,180.1005 L270.5485,186.0392 L272.3612,186.0392 L272.3612,187.6261 L266.9352,187.6261 L266.9352,186.0392 L268.748,186.0392 L268.748,180.1005 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="102.0833" x="292.4479" y="187.6628">StringConverter</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="43.75" x="445.5729" y="164.1195"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="35.4167" x="449.7396" y="180.3711">Value</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="216.4063" x2="485.1563" y1="198.6328" y2="198.6328"/><ellipse cx="226.8229" cy="234.0027" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="238.5417" x="238.2813" y="240.9139">ObjectList&lt;Value&gt; asObjectList(StringList)</text><ellipse cx="226.8229" cy="253.7476" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="235.4167" x="238.2813" y="260.6588">StringList asStringList(ObjectList&lt;Value&gt;)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="216.4063" x2="316.4063" y1="216.8386" y2="216.8386"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="62.5" x="319.5313" y="220.6482">(collection)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="385.1563" x2="485.1563" y1="216.8386" y2="216.8386"/><!--MD5=[9aa687ed59f428548907e723dba1087a]
+class BaseStringConverter--><rect codeLine="12" fill="#282828" height="166.5243" id="BaseStringConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="380.2083" x="41.9271" y="332.8695"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="380.2083" x="41.9271" y="332.8695"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="380.2083" x="41.9271" y="355.9245"/><rect codeLine="12" fill="none" height="166.5243" id="BaseStringConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="380.2083" x="41.9271" y="332.8695"/><ellipse cx="135.6771" cy="348.5636" fill="#C8AC00" rx="10.4167" ry="10.4167" style="stroke:#D8BC00;stroke-width:1.0416666666666667;"/><path d="M135.2702,345.2657 L134.4218,348.995 L136.1247,348.995 Z M134.1715,343.6178 L136.3749,343.6178 L138.8346,352.7303 L137.0341,352.7303 L136.4726,350.4781 L134.0617,350.4781 L133.5124,352.7303 L131.7118,352.7303 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="132.2917" x="158.5938" y="353.2878">BaseStringConverter</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="43.75" x="381.5104" y="329.7445"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="35.4167" x="385.6771" y="345.9961">Value</text><line style="stroke:#5E5E5E;stroke-width:1.5625;" x1="42.9688" x2="421.0938" y1="364.2578" y2="364.2578"/><ellipse cx="53.3854" cy="399.6277" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="347.9167" x="64.8438" y="406.5389">BaseStringConverter&lt;Value&gt; allowEmpty(boolean allowEmpty)</text><ellipse cx="53.3854" cy="419.3726" fill="#84BE84" rx="3.125" ry="3.125" style="stroke:#038048;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="125" x="64.8438" y="426.2838">boolean allowsEmpty()</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="42.9688" x2="197.6563" y1="382.4636" y2="382.4636"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="62.5" x="200.7813" y="386.2732">(collection)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="266.4063" x2="421.0938" y1="382.4636" y2="382.4636"/><polygon fill="#FFFF44" points="53.3854,457.8206,57.5521,461.9873,53.3854,466.154,49.2188,461.9873" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="137.5" x="64.8438" y="469.9402">String onToString(Value)</text><polygon fill="#FFFF44" points="53.3854,477.5655,57.5521,481.7322,53.3854,485.8988,49.2188,481.7322" style="stroke:#B38D22;stroke-width:1.0416666666666667;"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="166.6667" x="64.8438" y="489.6851">Value onToValue(String value)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="42.9688" x2="177.8646" y1="445.8649" y2="445.8649"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="11.4583" lengthAdjust="spacing" textLength="102.0833" x="180.9896" y="449.6745">(extension points)</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="286.1979" x2="421.0938" y1="445.8649" y2="445.8649"/><!--MD5=[c6c48941b38f5729495fdb10bd648937]
+class TwoWayConverter--><rect codeLine="22" fill="#282828" height="48.055" id="TwoWayConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="241.6667" x="229.9479" y="56.8278"/><rect fill="#1B1B1A" height="31.3883" rx="8.3333" ry="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="241.6667" x="229.9479" y="56.8278"/><rect fill="#1B1B1A" height="8.3333" style="stroke:#1B1B1A;stroke-width:1.0416666666666667;" width="241.6667" x="229.9479" y="79.8828"/><rect codeLine="22" fill="none" height="48.055" id="TwoWayConverter" rx="8.3333" ry="8.3333" style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" width="241.6667" x="229.9479" y="56.8278"/><ellipse cx="244.5313" cy="72.522" fill="#008400" rx="10.4167" ry="10.4167" style="stroke:#239C23;stroke-width:1.0416666666666667;"/><path d="M241.9352,69.6838 L241.9352,68.0969 L247.3612,68.0969 L247.3612,69.6838 L245.5485,69.6838 L245.5485,75.6226 L247.3612,75.6226 L247.3612,77.2095 L241.9352,77.2095 L241.9352,75.6226 L243.748,75.6226 L243.748,69.6838 Z " fill="#000000"/><text fill="#D8BC00" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="116.6667" x="261.1979" y="77.2461">TwoWayConverter</text><rect fill="#333333" height="23.055" style="stroke:#A0A0A0;stroke-width:1.0416666666666667;stroke-dasharray:2.0,2.0;" width="85.4167" x="389.3229" y="53.7028"/><text fill="#A0A0A0" font-family="Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif" font-size="12.5" font-weight="bold" lengthAdjust="spacing" textLength="77.0833" x="393.4896" y="69.9544">String,Value</text><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="230.9896" x2="470.5729" y1="88.2161" y2="88.2161"/><line style="stroke:#5E5E5E;stroke-width:1.0416666666666667;" x1="230.9896" x2="470.5729" y1="96.5495" y2="96.5495"/><!--MD5=[b8084383fa843c0871ade68c234f19cf]
+reverse link BaseConverter to BaseStringConverter--><path codeLine="10" d="M138.2188,260.8695 C150.9167,281.7549 166.8333,307.9215 181.9271,332.7445 " fill="none" id="BaseConverter-backto-BaseStringConverter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="131.9583,264.609,127.3646,243.0257,144.4271,257.0361,131.9583,264.609" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[1769f4ff90f49a9af3ae8aff1a29fc45]
+reverse link StringConverter to BaseStringConverter--><path codeLine="11" d="M308.8854,288.7549 C300.2188,303.0153 291.0104,318.1611 282.0833,332.8382 " fill="none" id="StringConverter-backto-BaseStringConverter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="302.8333,284.6715,319.8958,270.6507,315.3021,292.2445,302.8333,284.6715" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[888ff736d7524304e7bf0dfd8cd2e8f1]
+reverse link TwoWayConverter to StringConverter--><path codeLine="23" d="M350.7813,125.9632 C350.7813,139.1195 350.7813,153.6507 350.7813,167.1924 " fill="none" id="TwoWayConverter-backto-StringConverter" style="stroke:#545454;stroke-width:1.5625;"/><polygon fill="none" points="343.4896,125.7236,350.7813,104.8903,358.0729,125.7236,343.4896,125.7236" style="stroke:#545454;stroke-width:1.5625;"/><!--MD5=[de7a69dfe7e525d5485d940657d82e68]
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.coredata.conversion.string"
+    
+    abstract BaseConverter
+    
+    interface StringConverter
+    
+    BaseConverter <|- - BaseStringConverter
+    StringConverter <|- - BaseStringConverter
+    abstract class BaseStringConverter<Value>
+    {
+        - -(collection)- -
+        +BaseStringConverter<Value> allowEmpty(boolean allowEmpty)
+        +boolean allowsEmpty()
+        - -(extension points)- -
+        #String onToString(Value)
+        #Value onToValue(String value)
+    }
+    
+    interface TwoWayConverter<String,Value>
+    TwoWayConverter <|- - StringConverter
+    interface StringConverter<Value>
+    {
+        - -(collection)- -
+        +ObjectList<Value> asObjectList(StringList)
+        +StringList asStringList(ObjectList<Value>)
+    }
+    
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+
+
+skinparam backgroundColor #333333
+
+
+
+
+
+
+skinparam  {
+    defaultFontName   "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+    defaultFontSize   12
+    defaultTextAlignment left
+    shadowing false
+    RoundCorner 10
+    TitleFontSize 18
+}
+
+skinparam defaultFontName       "Open Sans,Avenir,Nunito,Arial,Helvetica,SansSerif"
+skinparam defaultFontSize       12
+skinparam dpi                   100
+skinparam shadowing             false
+skinparam roundcorner           16
+skinparam ParticipantPadding    40
+skinparam BoxPadding            40
+skinparam Padding               3
+skinparam ArrowColor            #545454
+skinparam stereotype {
+    CBackgroundColor #0066cf
+    CBorderColor #0086ef
+    ABackgroundColor #C8Ac00
+    ABorderColor #D8Bc00
+    IBackgroundColor #008400
+    IBorderColor #239c23
+    EBackgroundColor #cf6300
+    EBorderColor #ef8300
+    NBackgroundColor #3380b9
+    NBorderColor #004d86
+}
+skinparam title {
+	FontColor	                 #c0c0c0
+ 	BorderColor                  #545454
+	FontSize	    	         20
+	BorderRoundCorner            16
+	BorderThickness 	         1
+	BackgroundColor              #48494b
+}
+
+
+skinparam legend {
+	BackgroundColor #303030
+	BorderColor #404040
+	FontColor #a0a0a0
+}
+
+	skinparam swimlane {
+	BorderColor #5e5e5e
+	BorderThickness 2
+	TitleBackgroundColor  #6d6d6d-#484848
+	TitleFontColor #303030
+}
+
+skinparam activity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BarColor #00FF00
+	StartColor #0060a8
+	EndColor #0060a8
+	DiamondBackgroundColor #6d6d6d-#3a3a3a
+  	DiamondBorderColor #3a3a3a
+  	DiamondFontColor #fefefe
+}
+
+
+skinparam participant {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	ParticipantBorderThickness 2
+}
+
+
+skinparam actor {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam arrow {
+	Thickness 1.5
+	Color #545454
+	FontColor #a0a0a0
+    FontStyle bold
+    MessageAlignment center
+}
+
+
+
+skinparam sequence {
+	BorderColor #303030
+	TitleFontColor #303030
+	BackgroundColor #333333
+	StartColor #303030
+	EndColor #303030
+	BoxBackgroundColor #333333
+	BoxBorderColor #484848
+	BoxFontColor #484848
+	LifeLineBorderColor #484848
+	LifeLineBorderThickness 2
+	LifeLineBackgroundColor #3a3a3a
+	GroupBorderColor #484848
+	GroupFontColor #484848
+	GroupHeaderFontColor #0060a8
+	GroupBackgroundColor #484848
+	GroupHeaderBackgroundColor #333333
+	DividerBackgroundColor #484848
+    DividerBorderColor #484848
+    DividerBorderThickness 2
+    DividerFontColor #D8Bc00
+	ReferenceBackgroundColor #333333
+	ReferenceBorderColor #484848
+	ReferenceFontColor #fefefe
+	ReferenceHeaderBackgroundColor #484848
+}
+
+
+skinparam partition {
+	BorderColor #303030
+	FontColor #333333
+	BackgroundColor #333333
+}
+
+
+skinparam collections {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam control {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam entity {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam boundary {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam agent {
+	BackgroundColor #ff8000
+	BorderColor #ff9933
+	FontColor #484848
+}
+
+
+skinparam note {
+	BorderThickness 1
+	BackgroundColor #1b1b1a
+	BorderColor #5e5e5e
+	FontSize 11
+	FontColor #a0a0a0
+}
+
+
+skinparam artifact {
+	BorderThickness 10
+	BorderColor #5e5e5e
+	BackgroundColor #1b1b1a
+	FontColor #D8Bc00
+}
+
+
+skinparam component {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam interface {
+	BackgroundColor  #008400
+	BorderColor  #007F00
+	FontColor #484848
+}
+
+
+skinparam storage {
+	BackgroundColor #ff8000
+  	BorderColor #cc6600
+	FontColor #222222
+}
+
+
+skinparam node {
+	BackgroundColor #333333
+	BorderColor #333333
+	FontColor #C8Ac00
+}
+
+
+skinparam cloud {
+	BackgroundColor #484848-black
+	BorderColor #484848
+	FontColor #D8Bc00
+}
+
+
+skinparam database {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor  #333333
+}
+
+
+skinparam class {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	HeaderBackgroundColor #1b1b1a
+    BackgroundColor #282828
+    BorderColor #5e5e5e
+ 	StereotypeFontColor #a0a0a0
+    StereotypeFontStyle bold
+	BorderThickness 1
+	AttributeFontColor #D8Bc00
+	AttributeFontSize 11
+    FontColor #D8Bc00
+    FontStyle bold
+}
+
+
+skinparam object {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StereotypeFontColor #484848
+	BorderThickness 1
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam usecase {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam rectangle {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+	StereotypeFontColor #303030
+}
+
+
+skinparam package {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	BackgroundColor #333333
+	BorderThickness 2
+}
+
+
+skinparam folder {
+	BackgroundColor #6d6d6d
+  	BorderColor #ff8000
+	FontColor #ff8000
+	BorderThickness 2
+}
+
+
+skinparam frame {
+	BackgroundColor #6d6d6d
+  	BorderColor #0060a8
+	FontColor #0060a8
+	BorderThickness 2
+}
+
+
+skinparam state {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+	StartColor #0060a8
+	EndColor #0060a8
+	AttributeFontColor #fefefe
+	AttributeFontSize 11
+}
+
+
+skinparam queue {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+
+skinparam card {
+	BackgroundColor #0060a8
+	BorderColor #004d86
+	FontColor $INFO_TEXT
+}
+
+
+skinparam file {
+	BackgroundColor #6d6d6d-#484848
+	BorderColor #0060a8
+	FontColor #fefefe
+}
+
+
+skinparam stack {
+		FontColor #C8Ac00
+	BorderColor #333333
+	BackgroundColor #333333-#333333
+}
+
+    
+    title "com.telenav.kivakit.coredata.conversion.string"
+    
+    abstract BaseConverter
+    
+    interface StringConverter
+    
+    BaseConverter <|- - BaseStringConverter
+    StringConverter <|- - BaseStringConverter
+    abstract class BaseStringConverter<Value>
+    {
+        - -(collection)- -
+        +BaseStringConverter<Value> allowEmpty(boolean allowEmpty)
+        +boolean allowsEmpty()
+        - -(extension points)- -
+        #String onToString(Value)
+        #Value onToValue(String value)
+    }
+    
+    interface TwoWayConverter<String,Value>
+    TwoWayConverter <|- - StringConverter
+    interface StringConverter<Value>
+    {
+        - -(collection)- -
+        +ObjectList<Value> asObjectList(StringList)
+        +StringList asStringList(ObjectList<Value>)
+    }
+    
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 00:55:08 MST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

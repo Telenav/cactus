@@ -1,0 +1,109 @@
+@startuml
+
+    !include lexakai.theme
+    
+    title "com.telenav.kivakit.corelanguage.collections.map.string"
+    
+    abstract BaseStringMap
+    abstract BaseMap
+    abstract BaseIndexedMap
+    
+    interface PropertyValueSource
+    
+    BaseMap <|-- BaseStringMap
+    PropertyValueSource <|-- BaseStringMap
+    abstract class BaseStringMap<Value>
+    {
+        --(constructors)--
+        #BaseStringMap(Maximum)
+        #BaseStringMap(Maximum, Map<String, Value>)
+        --(conversion)--
+        +Count asCount(String key)
+        +double asDouble(String key)
+        +int asInt(String key)
+        +long asLong(String key)
+        +T asObject(String key, StringConverter<T>, T defaultValue)
+        +Object asObject(Listener, Class<?> type)
+        +T asObject(String key, StringConverter<T>)
+        +String asPath(String key)
+        +String asString(String key)
+        +StringList asStringList()
+        +URI asUri(String key)
+        --(lifecycle)--
+        +String join(String separator)
+    }
+    
+    BaseIndexedMap <|-- IndexedNameMap
+    class IndexedNameMap<T>
+    {
+        --(constructors)--
+        +IndexedNameMap()
+        +IndexedNameMap(Maximum)
+        --(collection)--
+        +void put(T value)
+        --(naming)--
+        +T forName(String name)
+    }
+    
+    BaseStringMap <|-- NameMap
+    class NameMap<NamedObject>
+    {
+        --(constructors)--
+        +NameMap()
+        +NameMap(Maximum)
+        +NameMap(Maximum, Map<String, NamedObject>)
+        --
+        +void caseSensitive(boolean caseSensitive)
+        --(collection)--
+        +void add(NamedObject value)
+        --(naming)--
+        +NamedObject get(String name)
+        +NamedObject get(Name)
+    }
+    
+    BaseStringMap <|-- StringMap
+    class StringMap<T>
+    {
+        --(constructors)--
+        +StringMap()
+        +StringMap(Maximum)
+    }
+    
+    BaseStringMap <|-- StringToStringMap
+    class StringToStringMap
+    {
+        --(constructors)--
+        +StringToStringMap()
+        +StringToStringMap(Maximum)
+        --
+        +String get(String key)
+        --(collection)--
+        +Count count(String key)
+        --(primitive)--
+        +int asInt(String key)
+    }
+    
+    BaseStringMap <|-- VariableMap
+    class VariableMap<Value>
+    {
+        --(constructors)--
+        +VariableMap()
+        +VariableMap(Maximum)
+        --
+        +String expand(String text, String defaultValue)
+        +String expand(String text)
+        --(collection)--
+        +VariableMap<Value> add(String name, Value object)
+        +VariableMap<Value> addAll(Object, PropertyFilter)
+        +VariableMap<Value> addAll(VariableMap<Value> variables)
+        +VariableMap<Value> addAll(Object, PropertyFilter, Value nullValue)
+        +VariableMap<Value> copy()
+        +VariableMap<String> doubleQuoted()
+        +VariableMap<String> expanded()
+        +VariableMap<String> variableMap(Map<String,String> that)
+        +VariableMap<String> withQuotedValues()
+        #VariableMap<String> newStringMap()
+    }
+    
+@enduml
+
