@@ -26,9 +26,8 @@ if [ "$CACTUS_VERSION" = "$version" ]; then
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
 
-    bash cactus-build.sh
-    bash cactus-build-documentation.sh
     bash cactus-build.sh deploy-local
+    bash cactus-build-documentation.sh
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Built  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
