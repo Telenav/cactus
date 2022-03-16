@@ -320,7 +320,7 @@ update_version() {
     echo "Updating $(project_name "$project_home") version from $old_version to $new_version"
 
     # Update POM versions and .md files
-    update-version.pl "$project_home" "$old_version" "$new_version"
+    cactus-update-version.pl "$project_home" "$old_version" "$new_version"
 
     echo "Updated"
     echo " "
