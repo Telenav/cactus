@@ -1,0 +1,38 @@
+<!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+<!--                                                                                                                 -->
+<!--  © 2011-2021 Telenav, Inc.                                                                                      -->
+<!--  Licensed under Apache License, Version 2.0                                                                     -->
+<!--                                                                                                                 -->
+<!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+
+<!--suppress MavenModelInspection -->
+<project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.telenav.cactus</groupId>
+        <artifactId>cactus-build</artifactId>
+        <version>1.4.0</version>
+    </parent>
+
+    <name>cactus-build-maven-plugin</name>
+    <artifactId>cactus-build-maven-plugin</artifactId>
+
+    <packaging>jar</packaging>
+
+    <!-- Project Metadata -->
+
+    <description>The cactus-build-maven-plugin project codifies Telenav Open Source processes.</description>
+
+    <build>
+
+        <plugins>
+
+
+
+        </plugins>
+
+    </build>
+
+</project>
