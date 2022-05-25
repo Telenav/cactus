@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -59,6 +60,15 @@ public class Inconsistency<T>
             }
         }
         return result;
+    }
+
+    public Optional<String> commonalityPartition()
+    {
+        Set<String> all = new HashSet<>(partitions.keySet());
+        all.removeAll(outlierPartitions());
+        return all.size() == 1
+                ? Optional.of(all.iterator().next())
+                : Optional.empty();
     }
 
     /**

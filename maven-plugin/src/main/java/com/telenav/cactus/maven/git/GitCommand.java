@@ -46,7 +46,9 @@ public final class GitCommand<T> extends CliCommand<T>
     {
         if (workingDir == null)
         {
-            throw new IllegalStateException("Command is a template. Use " + "withWorkingDir() to get an instance that has " + "somewhere to run.");
+            throw new IllegalStateException("Command is a template. Use "
+                    + "withWorkingDir() to get an instance that has "
+                    + "somewhere to run.");
         }
     }
 

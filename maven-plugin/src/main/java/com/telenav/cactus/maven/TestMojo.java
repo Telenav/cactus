@@ -29,7 +29,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
- * A Maven mojo.
+ * A place holder for testing stuff.
  *
  * @author Tim Boudreau
  */
