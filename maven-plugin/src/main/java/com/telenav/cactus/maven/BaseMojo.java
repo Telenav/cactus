@@ -19,6 +19,17 @@ abstract class BaseMojo extends AbstractMojo
     @Component
     private MavenProject project;
 
+    protected BuildLog log;
+
+    protected BuildLog log()
+    {
+        if (log == null)
+        {
+            log = new BuildLog(getClass());
+        }
+        return log;
+    }
+
     protected MavenProject project()
     {
         if (project == null)
@@ -40,7 +51,10 @@ abstract class BaseMojo extends AbstractMojo
     {
         try
         {
-            BuildLog.run(log -> run.accept(log, project()));
+            log().run(() ->
+            {
+                run.accept(log(), project());
+            });
         } catch (MojoFailureException | MojoExecutionException e)
         {
             throw e;

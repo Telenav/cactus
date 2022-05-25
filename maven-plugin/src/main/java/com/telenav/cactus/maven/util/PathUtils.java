@@ -2,14 +2,20 @@ package com.telenav.cactus.maven.util;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  *
@@ -120,6 +126,77 @@ public class PathUtils
             of = of.getParent();
         }
         return Optional.empty();
+    }
+
+    public static Path userCacheRoot()
+    {
+        Path home = Paths.get(System.getProperty("user.home", System.getenv("HOME")));
+        String os = System.getProperty("os.name");
+        if ("Mac OS X".equals(os))
+        {
+            return home.resolve("Library").resolve("Caches");
+        } else
+        {
+            // Linux default; Windows would be ? Do we care?
+            return home.resolve(".cache");
+        }
+    }
+
+    public static Path temp()
+    {
+        return Paths.get(System.getProperty("java.io.tmpdir"));
+    }
+
+    /**
+     * Delete a folder and its subtree; handles the condition that this method
+     * may race and files may already have been deleted (for example, shutting
+     * down a database process which deletes its pidfile) after the set of files
+     * being iterated was computed, silently.
+     *
+     * @param dir A directory
+     * @throws IOException If a file cannot be deleted, the passed file is not a
+     * directory, or the process owner does not have the needed permissions
+     */
+    public static void deleteWithSubtree(Path dir) throws IOException
+    {
+        // borrowed from com.mastfrog.util.streams.Streams
+        if (!Files.exists(dir))
+        {
+            return;
+        }
+        if (!Files.isDirectory(dir))
+        {
+            throw new IOException("Not a directory: " + dir);
+        }
+        Set<Path> paths = new HashSet<>();
+        for (;;)
+        {
+            try ( Stream<Path> all = Files.walk(dir))
+            {
+                all.forEach(paths::add);
+                break;
+            } catch (NoSuchFileException ex)
+            {
+                // ok, pid file deleted by postgres during
+                // shutdown or similar racing with our file deletion
+            }
+        }
+        List<Path> l = new ArrayList<>(paths);
+        l.sort((pa, pb) ->
+        {
+            return -Integer.compare(pa.getNameCount(), pb.getNameCount());
+        });
+        for (Path p : l)
+        {
+            try
+            {
+                Files.delete(p);
+            } catch (NoSuchFileException ex)
+            {
+                // do nothing - this can race, since a process may still be
+                // shutting down and deleting things
+            }
+        }
     }
 
     private PathUtils()

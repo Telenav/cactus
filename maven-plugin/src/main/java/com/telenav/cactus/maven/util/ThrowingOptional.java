@@ -29,8 +29,9 @@ public final class ThrowingOptional<T> implements Supplier<T>
     {
         this.delegate = delegate;
     }
-    
-    public static <T> ThrowingOptional<T> from(Optional<T> delegate) {
+
+    public static <T> ThrowingOptional<T> from(Optional<T> delegate)
+    {
         return new ThrowingOptional<>(notNull("delegate", delegate));
     }
 
@@ -41,6 +42,11 @@ public final class ThrowingOptional<T> implements Supplier<T>
     }
 
     public static <T> ThrowingOptional<T> of(T obj)
+    {
+        return new ThrowingOptional<>(Optional.of(obj));
+    }
+
+    public static <T> ThrowingOptional<T> ofNullable(T obj)
     {
         return new ThrowingOptional<>(Optional.ofNullable(obj));
     }
@@ -99,14 +105,14 @@ public final class ThrowingOptional<T> implements Supplier<T>
     {
         return new ThrowingOptional<>(delegate.flatMap(mapper.toNonThrowing()));
     }
-    
+
     public <U> ThrowingOptional<U> flatMapThrowing(ThrowingFunction<? super T, ? extends ThrowingOptional<? extends U>> mapper)
     {
-        return new ThrowingOptional<>(delegate.flatMap(obj -> {
+        return new ThrowingOptional<>(delegate.flatMap(obj ->
+        {
             return mapper.toNonThrowing().apply(obj).toOptional();
         }));
     }
-    
 
     public ThrowingOptional<T> or(ThrowingSupplier<? extends Optional<? extends T>> supplier)
     {

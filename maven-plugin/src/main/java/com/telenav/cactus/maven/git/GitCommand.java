@@ -1,4 +1,4 @@
-package com.telenav.cactus.maven.cli;
+package com.telenav.cactus.maven.git;
 
 import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.util.CliCommand;

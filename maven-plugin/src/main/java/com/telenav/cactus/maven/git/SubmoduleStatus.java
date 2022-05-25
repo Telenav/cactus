@@ -1,4 +1,4 @@
-package com.telenav.cactus.maven.cli;
+package com.telenav.cactus.maven.git;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +38,10 @@ public final class SubmoduleStatus
         this.path = path;
         this.exists = exists;
     }
+    
+    public boolean is(GitCheckout git) {
+        return exists && git.checkoutRoot().equals(path);
+    }
 
     public static Optional<SubmoduleStatus> from(Path root, String line)
     {
@@ -69,9 +73,9 @@ public final class SubmoduleStatus
         return result;
     }
 
-    public Optional<Git> repository()
+    public Optional<GitCheckout> repository()
     {
-        return exists ? Optional.of(new Git(path)) : Optional.empty();
+        return exists ? Optional.of(new GitCheckout(path)) : Optional.empty();
     }
 
     @Override

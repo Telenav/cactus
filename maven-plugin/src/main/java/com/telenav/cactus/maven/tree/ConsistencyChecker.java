@@ -1,0 +1,270 @@
+package com.telenav.cactus.maven.tree;
+
+import com.telenav.cactus.maven.BuildLog;
+import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.util.ThrowingOptional;
+import com.telenav.cactus.maven.xml.PomInfo;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import org.apache.maven.project.MavenProject;
+
+/**
+ * Checks a number of dimensions of consistency in the project, and can detect
+ * if there are only a few outliers (in which case - if, say, all projects but
+ * one are on the same branch and that branch exists)
+ *
+ * @author Tim Boudreau
+ */
+public class ConsistencyChecker
+{
+
+    private final Set<String> ignoreInBranchConsistencyCheck;
+    private final Set<String> ignoreInVersionConsistencyCheck;
+    private final String targetGroupId;
+    private final boolean forbidDirty;
+
+    public ConsistencyChecker(
+            String ignoreInBranchConsistencyCheckCommaOrSpaceDelimitedList,
+            String ignoreInVersionConsistencyCheckCommaOrSpaceDelimitedList,
+            String targetGroupId,
+            boolean forbidDirty)
+    {
+        this.ignoreInBranchConsistencyCheck = splitToSet(ignoreInBranchConsistencyCheckCommaOrSpaceDelimitedList);
+        this.ignoreInVersionConsistencyCheck = splitToSet(ignoreInVersionConsistencyCheckCommaOrSpaceDelimitedList);
+        this.targetGroupId = targetGroupId;
+        this.forbidDirty = forbidDirty;
+    }
+
+    public ConsistencyChecker()
+    {
+        this(null, null, null, false);
+    }
+
+    public ConsistencyChecker withIgnoreBranchConsistencySuffixes(String commaOrSpaceDelimitedList)
+    {
+        if (!ignoreInBranchConsistencyCheck.isEmpty())
+        {
+            throw new IllegalStateException("Ignore in branches check is already set to " + ignoreInVersionConsistencyCheck + " - cannot set to " + commaOrSpaceDelimitedList);
+        }
+        return new ConsistencyChecker(commaOrSpaceDelimitedList, toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
+    }
+
+    public ConsistencyChecker withIgnoreVersionConsistencySuffixes(String commaOrSpaceDelimitedList)
+    {
+        if (!ignoreInVersionConsistencyCheck.isEmpty())
+        {
+            throw new IllegalStateException("Ignore in versions check is already set to " + ignoreInVersionConsistencyCheck + " - cannot set to " + commaOrSpaceDelimitedList);
+        }
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), commaOrSpaceDelimitedList, targetGroupId, forbidDirty);
+    }
+
+    public ConsistencyChecker onlyCheckingGroupId(String targetGroupId)
+    {
+        if (this.targetGroupId != null)
+        {
+            throw new IllegalStateException("Target group id already set to " + this.targetGroupId + " - cannot set to " + targetGroupId);
+        }
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
+    }
+
+    public ConsistencyChecker forbiddingDirty()
+    {
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, true);
+    }
+
+    public Set<Inconsistency<?>> checkConsistency(MavenProject project, BuildLog log) throws Exception
+    {
+        log = log.child("consistency");
+        ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project.getBasedir().toPath());
+        if (!treeOpt.isPresent())
+        {
+            log.child("checkConsistency").error("Could not find a project tree for " + project.getBasedir());
+            return Collections.emptySet();
+        }
+        Set<Inconsistency<?>> result = new LinkedHashSet<>();
+        checkBranchConsistency(treeOpt.get(), project, log.child("branch"), result);
+        checkVersionConsistency(treeOpt.get(), project, log.child("versions"), result);
+        checkDirtyAndDetached(treeOpt.get(), project, log.child("dirty"), result);
+
+        return result;
+    }
+
+    private void checkBranchConsistency(ProjectTree tree, MavenProject project,
+            BuildLog log, Set<? super Inconsistency<?>> into)
+    {
+        log.info("Checking consistency of branches" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        Map<String, Map<String, Set<PomInfo>>> found
+                = tree.projectsByBranchByGroupId(
+                        this::isVersionRequiredToBeConsistent);
+
+        found.forEach((groupId, pomInfosForBranch) ->
+        {
+            if (pomInfosForBranch.size() > 1)
+            {
+                Inconsistency<PomInfo> issue = new Inconsistency<>(
+                        pomInfosForBranch, Inconsistency.Kind.BRANCH,
+                        PomInfo::projectFolder);
+                into.add(issue);
+            }
+        });
+    }
+
+    private void checkVersionConsistency(ProjectTree tree, MavenProject project,
+            BuildLog log, Set<? super Inconsistency<?>> into)
+    {
+        log.info("Checking consistency of versions" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        Map<String, Set<PomInfo>> projectsByVersion = tree.projectsByVersion(this::isVersionRequiredToBeConsistent);
+        if (projectsByVersion.size() > 1)
+        {
+            into.add(new Inconsistency<PomInfo>(projectsByVersion, Inconsistency.Kind.VERSION, PomInfo::projectFolder));
+        }
+    }
+
+    private void checkDirtyAndDetached(ProjectTree tree, MavenProject project,
+            BuildLog log, Set<? super Inconsistency<?>> into)
+    {
+        log.info("Checking for detached-head checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        log.info("Checking for dirty checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        Map<String, Set<GitCheckout>> dirtyNotDirty = new HashMap<>();
+        Map<String, Set<GitCheckout>> detachedNotDetached = new HashMap<>();
+        for (GitCheckout checkout : tree.allCheckouts())
+        {
+            if (isRelevantCheckout(tree, checkout))
+            {
+                if (forbidDirty)
+                {
+                    String cleanDirtyKey = tree.isDirty(checkout) ? "dirty" : "clean";
+                    Set<GitCheckout> checkouts = dirtyNotDirty.computeIfAbsent(
+                            cleanDirtyKey, k -> new TreeSet<>());
+                    checkouts.add(checkout);
+                }
+
+                String detachedKey = checkout.isDetachedHead() ? "detached" : "on-branch";
+                Set<GitCheckout> detachedCheckouts = detachedNotDetached.computeIfAbsent(
+                        detachedKey, k -> new TreeSet<>());
+                detachedCheckouts.add(checkout);
+            }
+        }
+        if (dirtyNotDirty.containsKey("dirty"))
+        {
+            into.add(new Inconsistency<GitCheckout>(dirtyNotDirty,
+                    Inconsistency.Kind.CONTAINS_MODIFIED_SOURCES, GitCheckout::checkoutRoot));
+        }
+        if (detachedNotDetached.containsKey("detached"))
+        {
+            into.add(new Inconsistency<GitCheckout>(detachedNotDetached,
+                    Inconsistency.Kind.NOT_ON_A_BRANCH, GitCheckout::checkoutRoot));
+        }
+    }
+
+    private boolean isRelevantCheckout(ProjectTree tree, GitCheckout checkout)
+    {
+        boolean result = isRelevantCheckout(checkout);
+        if (result)
+        {
+            if (targetGroupId != null)
+            {
+                boolean found = false;
+                for (PomInfo pom : tree.allProjects())
+                {
+                    GitCheckout co = pom.checkout().get();
+                    if (co.equals(checkout))
+                    {
+                        if (targetGroupId.equals(pom.coords.groupId))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found)
+                {
+                    result = false;
+                }
+            }
+
+        }
+        return result;
+    }
+
+    private boolean isVersionRequiredToBeConsistent(PomInfo info)
+    {
+        if (targetGroupId != null && !targetGroupId.equals(info.coords.groupId))
+        {
+            return false;
+        }
+        return ignoreInVersionConsistencyCheck.contains(info.coords.artifactId);
+    }
+
+    private boolean isRelevantCheckout(GitCheckout checkout)
+    {
+        if (!Files.exists(checkout.checkoutRoot().resolve("pom.xml")))
+        {
+            return false;
+        }
+        if (targetGroupId != null)
+        {
+            PomInfo info = PomInfo.from(checkout.checkoutRoot().resolve("pom.xml")).get();
+            if (!targetGroupId.equals(info.coords.groupId))
+            {
+                return false;
+            }
+        }
+        Set<String> names = new HashSet<>();
+        names.add(checkout.checkoutRoot().getFileName().toString());
+        names.addAll(checkout.remoteProjectNames());
+        for (String name : names)
+        {
+            for (String suffix : ignoreInBranchConsistencyCheck)
+            {
+                if (name.endsWith(suffix) || name.equals(suffix))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static String toString(Set<String> what)
+    {
+        if (what.isEmpty())
+        {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String s : what)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(',');
+            }
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    private static Set<String> splitToSet(String what)
+    {
+        if (what == null || what.isBlank())
+        {
+            return Collections.emptySet();
+        }
+        Set<String> result = new HashSet<>();
+        for (String item : what.split("[,\\s]+"))
+        {
+            if (item.isEmpty())
+            {
+                continue;
+            }
+            result.add(item.trim());
+        }
+        return result;
+    }
+}

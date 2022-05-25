@@ -31,10 +31,15 @@ public class BuildLog
 
     BuildLog()
     {
-        this(null);
+        this((String) null);
     }
 
-    public static void withLog(BuildLog log, ThrowingRunnable run) throws Exception
+    BuildLog(Class<?> context)
+    {
+        this(null, LoggerFactory.getLogger(context));
+    }
+
+    private static void withLog(BuildLog log, ThrowingRunnable run) throws Exception
     {
         BuildLog old = LOG.get();
         try
@@ -47,7 +52,7 @@ public class BuildLog
         }
     }
 
-    private static BuildLog get()
+    public static BuildLog get()
     {
         BuildLog log = LOG.get();
         if (log == null)
@@ -57,12 +62,18 @@ public class BuildLog
         return log;
     }
 
-    public static void run(ThrowingConsumer<BuildLog> consumer) throws Exception
+    public void run(ThrowingRunnable consumer) throws Exception
     {
-        BuildLog log = get();
-        withLog(log, () ->
+        withLog(this, () ->
         {
-            consumer.accept(log);
+            try
+            {
+                consumer.run();
+            } catch (Exception | Error e)
+            {
+                logger.error(prefix == null ? "root" : prefix, e);
+                throw e;
+            }
         });
     }
 
@@ -77,48 +88,57 @@ public class BuildLog
         return prefix == null ? what : prefix + ": " + what;
     }
 
-    public void info(String what)
+    public BuildLog info(String what)
     {
         logger.info(prefixed(what));
+        return this;
     }
 
-    public void info(String what, Throwable thrown)
+    public BuildLog info(String what, Throwable thrown)
     {
         logger.info(prefixed(what), thrown);
+        return this;
     }
 
-    public void info(String what, Object... args)
+    public BuildLog info(String what, Object... args)
     {
         logger.info(prefixed(what), args);
+        return this;
     }
 
-    public void error(String what)
+    public BuildLog error(String what)
     {
         logger.error(prefixed(what));
+        return this;
     }
 
-    public void error(String what, Throwable thrown)
+    public BuildLog error(String what, Throwable thrown)
     {
         logger.error(prefixed(what), thrown);
+        return this;
     }
 
-    public void error(String what, Object... args)
+    public BuildLog error(String what, Object... args)
     {
         logger.error(prefixed(what), args);
+        return this;
     }
 
-    public void warn(String what)
+    public BuildLog warn(String what)
     {
         logger.warn(prefixed(what));
+        return this;
     }
 
-    public void warn(String what, Throwable thrown)
+    public BuildLog warn(String what, Throwable thrown)
     {
         logger.warn(prefixed(what), thrown);
+        return this;
     }
 
-    public void warn(String what, Object... args)
+    public BuildLog warn(String what, Object... args)
     {
         logger.warn(prefixed(what), args);
+        return this;
     }
 }

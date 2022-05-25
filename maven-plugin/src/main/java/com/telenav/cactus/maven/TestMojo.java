@@ -17,10 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.cli.Git;
+import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.xml.PomInfo;
+import java.nio.file.Path;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -44,40 +45,58 @@ public class TestMojo extends BaseMojo
     @Override
     public void performTasks(BuildLog buildLog, MavenProject project) throws Exception
     {
+        Thread.dumpStack();
         buildLog.child("blee").child("blah").child("blorg").info("This is the build log:");
 
-        System.out.println("\n--------------------- Cactus Maven Plugin Says ---------------------");
-        System.out.println("You are building " + project.getGroupId() + ":"
+        buildLog.info("\n--------------------- Cactus Maven Plugin Says ---------------------");
+        buildLog.info("You are building " + project.getGroupId() + ":"
                 + project.getArtifactId() + ":" + project.getVersion());
-        System.out.println("The thing is '" + thing + "'");
+        buildLog.info("The thing is '" + thing + "'");
 
-        Optional<Git> repoOpt = Git.repository(project.getBasedir());
+        Optional<GitCheckout> repoOpt = GitCheckout.repository(project.getBasedir());
         if (!repoOpt.isPresent())
         {
             throw new MojoFailureException("Uh oh, no git in " + project.getBasedir());
         }
-        Git repo = repoOpt.get();
+        GitCheckout repo = repoOpt.get();
 
-        System.out.println("You are on branch: " + repo.branch());
-        System.out.println("Submodule root: " + repo.submoduleRoot());
+        buildLog.error("Remotes: " + repo.defaultRemote().get());
 
-        System.out.println("Submodules:");
+        buildLog.error("Branches:\n" + repo.branches());
+        buildLog.error("Remote Names:\n" + repo.remoteProjectNames());
+
+        buildLog.info("You are on branch: " + repo.branch());
+        buildLog.info("Submodule root: " + repo.submoduleRoot());
+
+        buildLog.info("Submodules:");
         repo.submodules().ifPresent(subs ->
         {
             subs.forEach(sub ->
             {
-                System.out.println(" * " + sub);
-                try
+                buildLog.info(" * " + sub);
+                buildLog.info("   * " + sub.repository().get().branch()
+                        + " dirty? " + sub.repository().get().hasUncommitedChanges());
+                sub.repository().ifPresent(re ->
                 {
-                    System.out.println("   * " + sub.repository().get().branch()
-                            + " dirty? " + sub.repository().get().hasUncommitedChanges());
-                } catch (InterruptedException ex)
-                {
-                    Logger.getLogger(TestMojo.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                    System.out.println("  * " + re.remoteProjectNames());
+                    re.scanForPomFiles(pom ->
+                    {
+                        Path relPath = re.checkoutRoot().relativize(pom.getParent());
+                        buildLog.info("    * " + (relPath.toString().length() == 0 ? "(root)" : relPath.toString()));
+                        PomInfo.from(pom).ifPresent(info ->
+                        {
+                            buildLog.info("      * " + info);
+                        });
+                    });
+                });
             });
         });
 
-        System.out.println("---------------------------------------------------------------------\n");
+        ProjectTree.from(project.getBasedir().toPath()).ifPresent(tree ->
+        {
+            buildLog.warn("Root: " + tree.root());
+        });
+
+        buildLog.info("---------------------------------------------------------------------\n");
     }
 }
