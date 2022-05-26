@@ -38,6 +38,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
                     "rev-parse", "HEAD");
 
+    public static final GitCommand<Boolean> UPDATE_REMOTE_HEADS
+            = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
+                    "remote", "update");
+
     public static final GitCommand<Boolean> NO_MODIFICATIONS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().trueIfEmpty(),
                     "status", "--porcelain");
@@ -65,6 +69,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public static final GitCommand<Boolean> PULL
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
                     "pull");
+
+    public static final GitCommand<Boolean> PUSH
+            = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
+                    "push");
 
     public static final GitCommand<Boolean> IS_DETACHED_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().testedWith(
@@ -149,6 +157,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return LIST_REMOTES.withWorkingDir(root).run().awaitQuietly().values();
     }
 
+    public GitCheckout updateRemoteHeads()
+    {
+        UPDATE_REMOTE_HEADS.withWorkingDir(root).run().awaitQuietly();
+        return this;
+    }
+
     public Optional<String> branch()
     {
         String branch = GET_BRANCH.withWorkingDir(root).run().awaitQuietly();
@@ -161,6 +175,24 @@ public final class GitCheckout implements Comparable<GitCheckout>
         }
     }
 
+    public Optional<String> mergeBase()
+    {
+        Branches branches = branches();
+        return branches.currentBranch().flatMap(currentBranch ->
+        {
+            return branches.opposite(currentBranch).map(remoteBranch ->
+            {
+                return new GitCommand<>(ProcessResultConverter.strings().trimmed(),
+                        root, "merge-base", "@", remoteBranch.trackingName()).run().awaitQuietly();
+            });
+        });
+    }
+
+    public boolean push()
+    {
+        return PUSH.withWorkingDir(root).run().awaitQuietly();
+    }
+
     public Heads remoteHeads()
     {
         return REMOTE_HEADS.withWorkingDir(root).run().awaitQuietly();
@@ -170,6 +202,49 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         return submoduleRoot().map(sroot -> sroot.equals(this) ? "" : sroot.checkoutRoot().relativize(root).toString())
                 .orElse(root.getFileName().toString());
+    }
+
+    public boolean pushCreatingBranch()
+    {
+        Optional<String> branch = branch();
+        if (!branch.isPresent())
+        {
+            return false;
+        }
+        Optional<GitRemotes> remote = this.defaultRemote();
+        if (!remote.isPresent())
+        {
+            return false;
+        }
+        String output = new GitCommand<>(ProcessResultConverter.strings(), root,
+                "push", "-u", remote.get().name, branch.get()).run().awaitQuietly();
+        log.info(output);
+        return true;
+    }
+
+    /**
+     * Determines if a push is needed, and whether or not the remote branch
+     * exists.
+     *
+     * @return A result
+     */
+    public NeedPushResult needsPush()
+    {
+        String remote = defaultRemote().map(rem -> rem.name()).orElse("origin");
+        Branches branches = branches();
+        if (!branches.currentBranch().isPresent())
+        {
+            return NeedPushResult.NOT_ON_A_BRANCH;
+        }
+        Branch br = branches.currentBranch().get();
+        Optional<Branch> remBranch = branches.opposite(br);
+        if (!remBranch.isPresent())
+        {
+            return NeedPushResult.REMOTE_BRANCH_DOES_NOT_EXIST;
+        }
+        boolean logWasEmpty = new GitCommand<>(ProcessResultConverter.strings().testedWith(String::isBlank),
+                root, "log", remote + "/" + remBranch.get().name() + ".." + br.name()).run().awaitQuietly();
+        return NeedPushResult.of(!logWasEmpty);
     }
 
     /**
@@ -184,6 +259,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 root, "checkout", localBranch).run().awaitQuietly();
     }
 
+    /**
+     * Updates .gitmodules so someone grabbing this branch and running git pull
+     * in a submodule pulls from the correct remote branch.
+     *
+     * @param submodule The submodule - a path relative to the root
+     * @param branch The branch name
+     */
     public void setSubmoduleBranch(String submodule, String branch)
     {
         new GitCommand<>(ProcessResultConverter.strings(),

@@ -22,6 +22,10 @@ public class GitRemotes
         this.pushUrl = pushUrl;
         this.fetchUrl = fetchUrl;
     }
+    
+    public String name() {
+        return name;
+    }
 
     public void collectRemoteNames(Set<? super String> into)
     {
