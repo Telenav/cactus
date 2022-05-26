@@ -34,6 +34,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
                     "rev-parse", "--abbrev-ref", "HEAD");
 
+    public static final GitCommand<String> GET_HEAD
+            = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
+                    "rev-parse", "HEAD");
+
     public static final GitCommand<Boolean> NO_MODIFICATIONS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().trueIfEmpty(),
                     "status", "--porcelain");
@@ -259,6 +263,39 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         ADD_CHANGED.withWorkingDir(root).run().awaitQuietly();
         return true;
+    }
+
+    public String head()
+    {
+        return GET_HEAD.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    public boolean isInSyncWithRemoteHead()
+    {
+        Branches branches = branches();
+        return branches.currentBranch().map(branch ->
+        {
+            return branches.find(branch.name(), false).map(remoteBranch ->
+            {
+                String remoteHead = new GitCommand<>(ProcessResultConverter.strings().trimmed(), root, "rev-parse", remoteBranch.trackingName())
+                        .run().awaitQuietly();
+                return remoteHead.equals(head());
+            }).orElse(false);
+        }).orElse(false);
+    }
+
+    public Optional<String> remoteHead()
+    {
+        Branches branches = branches();
+        return branches.currentBranch().flatMap(branch ->
+        {
+            return branches.find(branch.name(), false).map(remoteBranch ->
+            {
+                return new GitCommand<>(ProcessResultConverter.strings().trimmed(),
+                        root, "rev-parse", remoteBranch.trackingName())
+                        .run().awaitQuietly();
+            });
+        });
     }
 
     public boolean add(Collection<? extends Path> paths)

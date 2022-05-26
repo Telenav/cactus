@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
+ * Represents the set of branches returned by listing branches.
  *
  * @author Tim Boudreau
  */
