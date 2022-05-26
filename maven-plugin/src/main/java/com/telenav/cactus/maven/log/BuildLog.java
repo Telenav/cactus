@@ -1,7 +1,7 @@
-package com.telenav.cactus.maven;
+package com.telenav.cactus.maven.log;
 
-import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class BuildLog
         this((String) null);
     }
 
-    BuildLog(Class<?> context)
+    public BuildLog(Class<?> context)
     {
         this(null, LoggerFactory.getLogger(context));
     }
@@ -139,6 +139,33 @@ public class BuildLog
     public BuildLog warn(String what, Object... args)
     {
         logger.warn(prefixed(what), args);
+        return this;
+    }
+
+    public BuildLog debug(String what)
+    {
+        logger.debug(prefixed(what));
+        return this;
+    }
+
+    public BuildLog debug(String what, Throwable thrown)
+    {
+        logger.debug(prefixed(what), thrown);
+        return this;
+    }
+
+    public BuildLog debug(String what, Object... args)
+    {
+        logger.debug(prefixed(what), args);
+        return this;
+    }
+
+    public BuildLog debug(Supplier<String> what)
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug(prefixed(what.get()));
+        }
         return this;
     }
 }

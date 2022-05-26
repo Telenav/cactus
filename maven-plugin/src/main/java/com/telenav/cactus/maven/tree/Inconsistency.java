@@ -14,7 +14,10 @@ import java.util.function.Function;
 
 /**
  * A problem with branch or version consistency within a set of checked out
- * projects.
+ * projects. An inconsistency is typed on some object type (PomInfo or
+ * GitCheckout depending on the type of test), and consists of a set of
+ * partitions, each of which has a different key name (a branch name, a version,
+ * or a fixed string like "dirty" or "clean".
  */
 public class Inconsistency<T>
 {
@@ -28,6 +31,28 @@ public class Inconsistency<T>
         this.partitions = partitions;
         this.kind = kind;
         this.pathConverter = pathConverter;
+    }
+
+    public Kind kind()
+    {
+        return kind;
+    }
+
+    public Set<T> partition(String name)
+    {
+        return partitions.getOrDefault(name, Collections.emptySet());
+    }
+
+    public <R> Set<R> checkedPartition(String name, Class<R> type)
+    {
+        Set<T> contents = partition(name);
+        Set<R> result = new HashSet<>();
+        for (T obj : contents)
+        {
+            // We want this to throw a CCE if the wrong type is passed
+            result.add(type.cast(obj));
+        }
+        return result;
     }
 
     @Override
@@ -79,7 +104,7 @@ public class Inconsistency<T>
      * @return A set of those partition keys which have less than the set
      * belonging to the partition key associated with the largest set
      */
-    private Set<String> outlierPartitions()
+    public Set<String> outlierPartitions()
     {
         // Find the partitions which have less than the greatest number of entries
         // These are the ones (usually 1-2) that it would be the most minimal change
@@ -111,7 +136,7 @@ public class Inconsistency<T>
             }
         }
     }
-
+    
     /**
      * The kind of consistency failure encountered.
      */

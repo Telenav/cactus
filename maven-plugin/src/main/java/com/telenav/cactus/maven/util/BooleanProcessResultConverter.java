@@ -1,6 +1,7 @@
 package com.telenav.cactus.maven.util;
 
 import java.util.function.IntPredicate;
+import java.util.function.Supplier;
 
 /**
  * Simple process result conversion when the only thing you care about is the
@@ -24,7 +25,7 @@ final class BooleanProcessResultConverter implements ProcessResultConverter<Bool
     }
 
     @Override
-    public AwaitableCompletionStage<Boolean> onProcessStarted(Process process)
+    public AwaitableCompletionStage<Boolean> onProcessStarted(Supplier<String> supp, Process process)
     {
         return AwaitableCompletionStage.of(process).thenApplyAsync(proc ->
         {

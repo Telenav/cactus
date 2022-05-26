@@ -2,6 +2,7 @@ package com.telenav.cactus.maven.util;
 
 import java.util.function.Function;
 import java.util.function.IntPredicate;
+import java.util.function.Supplier;
 
 /**
  * Parses output and exit code from a command into a result object.
@@ -11,7 +12,7 @@ import java.util.function.IntPredicate;
 public interface ProcessResultConverter<T>
 {
 
-    AwaitableCompletionStage<T> onProcessStarted(Process process);
+    AwaitableCompletionStage<T> onProcessStarted(Supplier<String> description, Process process);
 
     public static StringProcessResultConverter strings()
     {
@@ -35,10 +36,11 @@ public interface ProcessResultConverter<T>
 
     default <R> ProcessResultConverter<R> map(Function<T, R> converter)
     {
-        return proc ->
+        return (description, proc) ->
         {
-            return AwaitableCompletionStage.of(ProcessResultConverter.this.onProcessStarted(proc)
-                    .thenApply(converter));
+            return AwaitableCompletionStage.of(
+                    onProcessStarted(description, proc)
+                            .thenApply(converter));
         };
     }
 }

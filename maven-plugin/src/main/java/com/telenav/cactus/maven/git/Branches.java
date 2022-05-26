@@ -54,6 +54,18 @@ public class Branches
         return sb.toString();
     }
 
+    public boolean contains(String name)
+    {
+        for (Branch branch : branches)
+        {
+            if (name.equals(branch.name()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Optional<Branch> find(String name, boolean local)
     {
         for (Branch branch : branches)
@@ -132,14 +144,31 @@ public class Branches
         private final String branchName;
         private final String remote;
 
-        public Branch(String branchName, String remote)
+        Branch(String branchName, String remote)
         {
             this.branchName = branchName;
             this.remote = remote;
         }
 
+        /**
+         * The name of the branch as used in git checkout -t, e.g.
+         * origin/someBranch to indicate it the remote branch to track.
+         *
+         * @return A name
+         */
+        public String trackingName()
+        {
+            if (remote != null)
+            {
+                return remote + "/" + branchName;
+            }
+            return branchName;
+        }
+
+        @Override
         public String toString()
         {
+            // Return the same form Git would emit
             if (remote != null)
             {
                 return "remotes/" + remote + "/" + branchName;

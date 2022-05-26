@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * A utility program we need to run, which takes care of the general ugliness of
@@ -14,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Tim Boudreau
  */
-public abstract class CliCommand<T>
+public abstract class CliCommand<T> implements Supplier<String>
 {
 
     protected final String name;
@@ -55,6 +56,11 @@ public abstract class CliCommand<T>
         {
             list.addAll(Arrays.asList(fixedArgs));
         }
+    }
+
+    public String get()
+    {
+        return toString();
     }
 
     @Override
@@ -123,7 +129,7 @@ public abstract class CliCommand<T>
                 return CompletableFuture.failedStage(
                         new IOException("Could not find executable for " + this));
             }
-            return resultCreator.onProcessStarted(p.get());
+            return resultCreator.onProcessStarted(this, p.get());
         });
     }
 

@@ -1,6 +1,6 @@
 package com.telenav.cactus.maven.tree;
 
-import com.telenav.cactus.maven.BuildLog;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.util.ThrowingOptional;
 import com.telenav.cactus.maven.xml.PomInfo;
@@ -23,6 +23,27 @@ import org.apache.maven.project.MavenProject;
  */
 public class ConsistencyChecker
 {
+
+    /**
+     * Partition key for on-a-branch state of a repository. Git submodules, on
+     * checkout, put you in detached head state, which may not be where you want
+     * to stay.
+     */
+    public static final String ON_BRANCH = "on-branch";
+    /**
+     * Partition key for detached-head state of a repository. Git submodules, on
+     * checkout, put you in detached head state, which may not be where you want
+     * to stay.
+     */
+    public static final String DETACHED = "detached";
+    /**
+     * Partition key for clean state of a repository - no local modifications.
+     */
+    public static final String CLEAN = "clean";
+    /**
+     * Partition key for dirty state of a repository - has local modifications.
+     */
+    public static final String DIRTY = "dirty";
 
     private final Set<String> ignoreInBranchConsistencyCheck;
     private final Set<String> ignoreInVersionConsistencyCheck;
@@ -90,13 +111,20 @@ public class ConsistencyChecker
         Set<Inconsistency<?>> result = new LinkedHashSet<>();
         checkBranchConsistency(treeOpt.get(), project, log.child("branch"), result);
         checkVersionConsistency(treeOpt.get(), project, log.child("versions"), result);
-        checkDirtyAndDetached(treeOpt.get(), project, log.child("dirty"), result);
+        checkDirtyAndDetached(treeOpt.get(), project, log.child(DIRTY), result, forbidDirty);
 
         return result;
     }
 
+    public Set<Inconsistency<?>> checkBranchConsistency(ProjectTree tree, MavenProject project, BuildLog log)
+    {
+        Set<Inconsistency<?>> branchInconsistencies = new HashSet<>();
+        checkBranchConsistency(tree, project, log, branchInconsistencies);
+        return branchInconsistencies;
+    }
+
     private void checkBranchConsistency(ProjectTree tree, MavenProject project,
-            BuildLog log, Set<? super Inconsistency<?>> into)
+            BuildLog log, Set<Inconsistency<?>> into)
     {
         log.info("Checking consistency of branches" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
         Map<String, Map<String, Set<PomInfo>>> found
@@ -122,12 +150,20 @@ public class ConsistencyChecker
         Map<String, Set<PomInfo>> projectsByVersion = tree.projectsByVersion(this::isVersionRequiredToBeConsistent);
         if (projectsByVersion.size() > 1)
         {
-            into.add(new Inconsistency<PomInfo>(projectsByVersion, Inconsistency.Kind.VERSION, PomInfo::projectFolder));
+            into.add(new Inconsistency<>(projectsByVersion, Inconsistency.Kind.VERSION, PomInfo::projectFolder));
         }
     }
 
+    public Set<Inconsistency<?>> checkDetached(ProjectTree tree, MavenProject project,
+            BuildLog log)
+    {
+        Set<Inconsistency<?>> result = new HashSet<>();
+        checkDirtyAndDetached(tree, project, log, result, false);
+        return result;
+    }
+
     private void checkDirtyAndDetached(ProjectTree tree, MavenProject project,
-            BuildLog log, Set<? super Inconsistency<?>> into)
+            BuildLog log, Set<? super Inconsistency<?>> into, boolean forbidDirty)
     {
         log.info("Checking for detached-head checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
         log.info("Checking for dirty checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
@@ -139,19 +175,19 @@ public class ConsistencyChecker
             {
                 if (forbidDirty)
                 {
-                    String cleanDirtyKey = tree.isDirty(checkout) ? "dirty" : "clean";
+                    String cleanDirtyKey = tree.isDirty(checkout) ? DIRTY : CLEAN;
                     Set<GitCheckout> checkouts = dirtyNotDirty.computeIfAbsent(
                             cleanDirtyKey, k -> new TreeSet<>());
                     checkouts.add(checkout);
                 }
 
-                String detachedKey = checkout.isDetachedHead() ? "detached" : "on-branch";
+                String detachedKey = checkout.isDetachedHead() ? DETACHED : ON_BRANCH;
                 Set<GitCheckout> detachedCheckouts = detachedNotDetached.computeIfAbsent(
                         detachedKey, k -> new TreeSet<>());
                 detachedCheckouts.add(checkout);
             }
         }
-        if (dirtyNotDirty.containsKey("dirty"))
+        if (dirtyNotDirty.containsKey(DIRTY))
         {
             into.add(new Inconsistency<GitCheckout>(dirtyNotDirty,
                     Inconsistency.Kind.CONTAINS_MODIFIED_SOURCES, GitCheckout::checkoutRoot));

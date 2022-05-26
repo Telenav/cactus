@@ -1,6 +1,6 @@
 package com.telenav.cactus.maven.git;
 
-import com.telenav.cactus.maven.BuildLog;
+import com.telenav.cactus.maven.log.BuildLog;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

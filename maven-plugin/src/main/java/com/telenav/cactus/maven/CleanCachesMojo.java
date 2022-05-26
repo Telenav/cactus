@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.util.PathUtils;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +19,8 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
-@org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.CLEAN,
+@org.apache.maven.plugins.annotations.Mojo(
+        defaultPhase = LifecyclePhase.CLEAN,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "clean-caches", threadSafe = true)

@@ -1,10 +1,12 @@
 package com.telenav.cactus.maven.tree;
 
+import com.telenav.cactus.maven.git.Branches;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.util.ThrowingOptional;
 import com.telenav.cactus.maven.xml.PomInfo;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +18,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import org.apache.maven.project.MavenProject;
 
 /**
  *
@@ -36,6 +40,11 @@ public class ProjectTree
     public GitCheckout root()
     {
         return root;
+    }
+
+    public static ThrowingOptional<ProjectTree> from(MavenProject project)
+    {
+        return from(project.getBasedir().toPath());
     }
 
     public static ThrowingOptional<ProjectTree> from(Path fileOrFolder)
@@ -81,12 +90,15 @@ public class ProjectTree
 
     public Set<String> allBranches(Predicate<GitCheckout> pred)
     {
-        Set<String> branches = new HashSet<>();
-        this.allCheckouts().forEach(checkout ->
-        {
-            branches.add(checkout.branch());
-        });
-        return branches;
+
+        return allCheckouts().stream()
+                // filter to the checkouts we want
+                .filter(pred)
+                // map to the branch, which may not be present
+                .map(co -> co.branch().orElse(""))
+                // prune those that are not on a branch
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     public Set<String> allBranches()
@@ -94,7 +106,7 @@ public class ProjectTree
         Set<String> branches = new HashSet<>();
         this.allCheckouts().forEach(checkout ->
         {
-            branches.add(checkout.branch());
+            checkout.branch().ifPresent(branches::add);
         });
         return branches;
     }
@@ -142,16 +154,19 @@ public class ProjectTree
 
     public Map<String, Set<String>> branchesByGroupId()
     {
-        Map<String, Set<String>> result = new TreeMap<>();
-        allProjects().forEach(pom ->
+        return withCache(c ->
         {
-            pom.checkout().ifPresent(checkout ->
+            Map<String, Set<String>> result = new TreeMap<>();
+            c.allPoms().forEach(pom ->
             {
-                Set<String> branches = result.computeIfAbsent(pom.coords.groupId, g -> new TreeSet<>());
-                branches.add(checkout.branch());
+                pom.checkout().ifPresent(checkout ->
+                {
+                    Set<String> branches = result.computeIfAbsent(pom.coords.groupId, g -> new TreeSet<>());
+
+                });
             });
+            return result;
         });
-        return result;
     }
 
     public Map<String, Map<String, Set<PomInfo>>> projectsByBranchByGroupId(Predicate<PomInfo> filter)
@@ -169,10 +184,12 @@ public class ProjectTree
                         pom.coords.groupId, id -> new TreeMap<>());
                 pom.checkout().ifPresent(checkout ->
                 {
-                    String branch = c.branchFor(checkout);
-                    Set<PomInfo> set = infosByBranch.computeIfAbsent(branch,
-                            b -> new TreeSet<>());
-                    set.add(pom);
+                    c.branchFor(checkout).ifPresent(branch ->
+                    {
+                        Set<PomInfo> set = infosByBranch.computeIfAbsent(branch,
+                                b -> new TreeSet<>());
+                        set.add(pom);
+                    });
                 });
             }
             return result;
@@ -192,6 +209,15 @@ public class ProjectTree
             }
         });
         return result;
+    }
+
+    public Set<String> groupIdsIn(GitCheckout checkout)
+    {
+        return withCache(c ->
+        {
+            return c.projectsWithin(checkout).stream().map(info -> info.coords.groupId)
+                    .collect(Collectors.toCollection(HashSet::new));
+        });
     }
 
     public Map<String, Set<PomInfo>> projectsByGroupId()
@@ -270,13 +296,49 @@ public class ProjectTree
         return withCache(Cache::allCheckouts);
     }
 
-    public String branchFor(GitCheckout checkout)
+    public Optional<String> branchFor(GitCheckout checkout)
     {
         return withCache(c -> c.branchFor(checkout));
     }
-    
-    public boolean isDirty(GitCheckout checkout) {
+
+    public boolean isDirty(GitCheckout checkout)
+    {
         return withCache(c -> c.isDirty(checkout));
+    }
+
+    public Set<GitCheckout> checkoutsFor(Collection<? extends PomInfo> infos)
+    {
+        return withCache(c ->
+        {
+            Set<GitCheckout> result = new TreeSet<>();
+            infos.forEach(pom -> c.checkoutFor(pom).ifPresent(result::add));
+            return result;
+        });
+    }
+
+    public Branches branches(GitCheckout checkout)
+    {
+        return withCache(c -> c.branches(checkout));
+    }
+
+    public Optional<String> mostCommonBranchForGroupId(String groupId)
+    {
+        return withCache(c -> c.mostCommonBranchForGroupId(groupId));
+    }
+
+    public boolean isDetachedHead(GitCheckout checkout)
+    {
+        return withCache(c -> c.isDetachedHead(checkout));
+    }
+
+    public Set<PomInfo> projectsWithin(GitCheckout checkout)
+    {
+        return withCache(c -> c.projectsWithin(checkout));
+    }
+
+    public Set<GitCheckout> nonMavenCheckouts()
+    {
+        return withCache(c -> c.nonMavenCheckouts());
     }
 
     final class Cache
@@ -287,10 +349,91 @@ public class ProjectTree
         private final Map<GitCheckout, Set<PomInfo>> projectsByRepository
                 = new HashMap<>();
         private final Map<PomInfo, GitCheckout> checkoutForPom = new HashMap<>();
-        private final Map<GitCheckout, String> branches = new HashMap<>();
+        private final Map<GitCheckout, Optional<String>> branches = new HashMap<>();
         private final Map<GitCheckout, Boolean> dirty = new HashMap<>();
-        
-        public boolean isDirty(GitCheckout checkout) {
+        private final Map<GitCheckout, Branches> allBranches = new HashMap<>();
+        private final Map<String, Optional<String>> branchByGroupId = new HashMap<>();
+        private final Map<GitCheckout, Boolean> detachedHeads = new HashMap<>();
+        private final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
+
+        public Set<GitCheckout> nonMavenCheckouts()
+        {
+            return Collections.unmodifiableSet(nonMavenCheckouts);
+        }
+
+        public boolean isDetachedHead(GitCheckout checkout)
+        {
+            return detachedHeads.computeIfAbsent(checkout, GitCheckout::isDetachedHead);
+        }
+
+        public Optional<String> mostCommonBranchForGroupId(String groupId)
+        {
+            // Cache these since they are expensive to compute
+            return branchByGroupId.computeIfAbsent(groupId, this::_mostCommonBranchForGroupId);
+        }
+
+        private Optional<String> _mostCommonBranchForGroupId(String groupId)
+        {
+            // Collect the number of times a branch name is used in a checkout
+            // we have
+            Map<String, Integer> branchNameCounts = new HashMap<>();
+            Set<GitCheckout> seen = new HashSet<>();
+            // Count each checkout exactly once, if it is on a branch
+            checkoutForPom.forEach((pom, checkout) ->
+            {
+                // Filter out any irrelevant or already examined checkouts
+                if (seen.contains(checkout) || !groupId.equals(pom.coords.groupId))
+                {
+                    return;
+                }
+                // If we are on a branch, collect its name and add to the number
+                // of times it has been seen
+                branchFor(checkout).ifPresent(branch ->
+                {
+                    seen.add(checkout);
+                    branchNameCounts.compute(branch, (b, old) ->
+                    {
+                        if (old == null)
+                        {
+                            return 1;
+                        }
+                        return old + 1;
+                    });
+                });
+            });
+            // If we found nothing, we're done
+            if (branchNameCounts.isEmpty())
+            {
+                return Optional.empty();
+            }
+            // Reverse sort the map entries by the count
+            List<Map.Entry<String, Integer>> entries = new ArrayList<>(branchNameCounts.entrySet());
+            Collections.sort(entries, (a, b) ->
+            {
+                return b.getValue().compareTo(a.getValue());
+            });
+            // And take the greatest
+            return Optional.of(entries.get(0).getKey());
+        }
+
+        public Set<PomInfo> projectsWithin(GitCheckout checkout)
+        {
+            Set<PomInfo> infos = projectsByRepository.get(checkout);
+            return infos == null ? Collections.emptySet() : infos;
+        }
+
+        public Branches branches(GitCheckout checkout)
+        {
+            return allBranches.computeIfAbsent(checkout, co -> co.branches());
+        }
+
+        public Optional<GitCheckout> checkoutFor(PomInfo info)
+        {
+            return Optional.ofNullable(checkoutForPom.get(info));
+        }
+
+        public boolean isDirty(GitCheckout checkout)
+        {
             return dirty.computeIfAbsent(checkout, GitCheckout::isDirty);
         }
 
@@ -299,7 +442,7 @@ public class ProjectTree
             return Collections.unmodifiableSet(projectsByRepository.keySet());
         }
 
-        public String branchFor(GitCheckout checkout)
+        public Optional<String> branchFor(GitCheckout checkout)
         {
             return branches.computeIfAbsent(checkout, GitCheckout::branch);
         }
@@ -335,10 +478,28 @@ public class ProjectTree
             checkoutForPom.clear();
             branches.clear();
             dirty.clear();
+            allBranches.clear();
+            branchByGroupId.clear();
+            nonMavenCheckouts.clear();
+            detachedHeads.clear();
         }
 
         void populate()
         {
+            root.submodules().ifPresent(statii ->
+            {
+                statii.forEach(status ->
+                {
+                    status.repository().ifPresent(repo ->
+                    {
+                        if (!repo.hasPomInRoot())
+                        {
+                            nonMavenCheckouts.add(repo);
+                        }
+                    });
+                });
+            });
+
             root.pomFiles(true).forEach(path ->
             {
                 PomInfo.from(path).ifPresent(info ->
@@ -350,11 +511,11 @@ public class ProjectTree
                     GitCheckout.repository(info.pom).ifPresent(co ->
                     {
                         Set<PomInfo> poms = projectsByRepository.computeIfAbsent(co, c -> new HashSet<>());
+//                        System.out.println("CACHE: " + info + " is in " + co.checkoutRoot().getFileName());
                         poms.add(info);
                     });
                 });
             });
         }
     }
-
 }

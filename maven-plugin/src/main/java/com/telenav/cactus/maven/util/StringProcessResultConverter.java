@@ -24,18 +24,18 @@ public interface StringProcessResultConverter extends ProcessResultConverter<Str
 
     default StringProcessResultConverter trimmed()
     {
-        return proc ->
+        return (description, proc) ->
         {
-            return AwaitableCompletionStage.of(onProcessStarted(proc).thenApply(String::trim));
+            return AwaitableCompletionStage.of(onProcessStarted(description, proc).thenApply(String::trim));
         };
     }
 
     default StringProcessResultConverter filter(Pattern pattern)
     {
-        return proc ->
+        return (description, proc) ->
         {
             CompletableFuture<String> result = new CompletableFuture<>();
-            onProcessStarted(proc).whenComplete((str, thrown) ->
+            onProcessStarted(description, proc).whenComplete((str, thrown) ->
             {
                 if (thrown != null)
                 {

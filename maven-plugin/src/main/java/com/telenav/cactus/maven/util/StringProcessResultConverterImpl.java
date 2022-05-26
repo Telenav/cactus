@@ -1,12 +1,14 @@
 package com.telenav.cactus.maven.util;
 
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.maven.log.BuildLog;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
+import java.util.function.Supplier;
 
 /**
  *
@@ -18,6 +20,7 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
     final IntPredicate exitCodeTest;
     private volatile OutputReader stderr;
     private volatile OutputReader stdout;
+    private final BuildLog log = BuildLog.get();
 
     public StringProcessResultConverterImpl(IntPredicate exitCodeTest)
     {
@@ -30,7 +33,7 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
     }
 
     @Override
-    public AwaitableCompletionStage<String> onProcessStarted(Process process)
+    public AwaitableCompletionStage<String> onProcessStarted(Supplier<String> description, Process process)
     {
         stderr = new OutputReader(process.getErrorStream()).start();
         stdout = new OutputReader(process.getInputStream()).start();
@@ -38,11 +41,16 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
         // immediately called back before the process has *started*.
         return AwaitableCompletionStage.of(process).thenApplyAsync(proc ->
         {
+            log.debug(() ->
+            {
+                return "exit " + proc.exitValue() + ":\n" + stdout.toString() + "\n"
+                        + (proc.exitValue() != 0 ? stderr.toString() : "");
+            });
             if (exitCodeTest.test(proc.exitValue()))
             {
                 return stdout.done();
             }
-            throw new ProcessFailedException(process, stdout.done(), stderr.done());
+            throw new ProcessFailedException(description, process, stdout.done(), stderr.done());
         });
     }
 
@@ -74,7 +82,8 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
         {
             thread.interrupt();
             Throwable t = thrown;
-            if (t != null) {
+            if (t != null)
+            {
                 // unlikely but cover all the bases
                 return Exceptions.chuck(t);
             }

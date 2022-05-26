@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.xml.PomInfo;
@@ -39,19 +40,22 @@ import org.apache.maven.project.MavenProject;
 public class TestMojo extends BaseMojo
 {
 
-    @Parameter(property = "thing", defaultValue = "not really a thing")
+    @Parameter(property = "telenav.thing", defaultValue = "not really a thing")
     private String thing;
 
     @Override
     public void performTasks(BuildLog buildLog, MavenProject project) throws Exception
     {
-        Thread.dumpStack();
         buildLog.child("blee").child("blah").child("blorg").info("This is the build log:");
 
         buildLog.info("\n--------------------- Cactus Maven Plugin Says ---------------------");
         buildLog.info("You are building " + project.getGroupId() + ":"
                 + project.getArtifactId() + ":" + project.getVersion());
         buildLog.info("The thing is '" + thing + "'");
+        
+        if (true) {
+            return;
+        }
 
         Optional<GitCheckout> repoOpt = GitCheckout.repository(project.getBasedir());
         if (!repoOpt.isPresent())
@@ -92,6 +96,9 @@ public class TestMojo extends BaseMojo
             });
         });
 
+        // ProjectTree is pretty well the thing that can tell us *everything* about
+        // the entire checkout environment we're in - and caches results of running
+        // git so it's fast (you can invalidate it if you need to).
         ProjectTree.from(project.getBasedir().toPath()).ifPresent(tree ->
         {
             buildLog.warn("Root: " + tree.root());
