@@ -1,9 +1,13 @@
 package com.telenav.cactus.maven.git;
 
+import com.telenav.cactus.maven.git.Heads.Head;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Represents the set of branches returned by listing branches.
@@ -22,6 +26,25 @@ public class Branches
         this.branches = branches;
     }
 
+    public Optional<Branch> localBranchFor(Head remoteHead)
+    {
+        Optional<Branch> remote = find(remoteHead.name(), false);
+        return remote.flatMap(branch -> opposite(branch));
+    }
+
+    public Map<Branch, Head> remoteHeadsForLocalBranches(Heads heads)
+    {
+        Map<Branch, Head> result = new HashMap<>();
+        localBranches().forEach(branch ->
+        {
+            opposite(branch).ifPresent(remoteBranch ->
+            {
+                heads.findBranch(branch.branchName).ifPresent(head -> result.put(branch, head));
+            });
+        });
+        return result;
+    }
+
     public Optional<Branch> currentBranch()
     {
         return Optional.ofNullable(currentBranch);
@@ -29,7 +52,18 @@ public class Branches
 
     public boolean hasRemoteForLocalOrLocalForRemote(Branch branch)
     {
-        return find(branch.branchName, !branch.isLocal()).isPresent();
+        return opposite(branch).isPresent();
+    }
+
+    /**
+     * Get the corresponding local branch of a remote and vice versa.
+     *
+     * @param branch A branch
+     * @return an optional branch
+     */
+    public Optional<Branch> opposite(Branch branch)
+    {
+        return find(branch.branchName, !branch.isLocal());
     }
 
     @Override
@@ -81,15 +115,12 @@ public class Branches
 
     public Set<Branch> localBranches()
     {
-        Set<Branch> result = new TreeSet<>();
-        for (Branch branch : branches)
-        {
-            if (branch.isLocal())
-            {
-                result.add(branch);
-            }
-        }
-        return result;
+        return branches.stream().filter(Branch::isLocal).collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    public Set<Branch> remoteBranches()
+    {
+        return branches.stream().filter(Branch::isRemote).collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static Branches from(String output)
@@ -182,6 +213,11 @@ public class Branches
         public boolean isLocal()
         {
             return remote == null;
+        }
+
+        public boolean isRemote()
+        {
+            return !isLocal();
         }
 
         public Optional<String> remote()

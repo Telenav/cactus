@@ -2,6 +2,7 @@ package com.telenav.cactus.maven.tree;
 
 import com.telenav.cactus.maven.git.Branches;
 import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.git.Heads;
 import com.telenav.cactus.maven.util.ThrowingOptional;
 import com.telenav.cactus.maven.xml.PomInfo;
 import java.nio.file.Path;
@@ -341,6 +342,16 @@ public class ProjectTree
         return withCache(c -> c.nonMavenCheckouts());
     }
 
+    public Set<GitCheckout> checkoutsContainingGroupId(String groupId)
+    {
+        return withCache(c -> c.checkoutsContainingGroupId(groupId));
+    }
+
+    public Heads remoteHeads(GitCheckout checkout)
+    {
+        return withCache(c -> c.remoteHeads(checkout));
+    }
+
     final class Cache
     {
 
@@ -355,6 +366,29 @@ public class ProjectTree
         private final Map<String, Optional<String>> branchByGroupId = new HashMap<>();
         private final Map<GitCheckout, Boolean> detachedHeads = new HashMap<>();
         private final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
+        private final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
+
+        public Heads remoteHeads(GitCheckout checkout)
+        {
+            return remoteHeads.computeIfAbsent(checkout, ck -> ck.remoteHeads());
+        }
+
+        public Set<GitCheckout> checkoutsContainingGroupId(String groupId)
+        {
+            Set<GitCheckout> all = new HashSet<>();
+            projectsByRepository.forEach((repo, projectSet) ->
+            {
+                for (PomInfo project : projectSet)
+                {
+                    if (groupId.equals(project.coords.groupId))
+                    {
+                        all.add(repo);
+                        break;
+                    }
+                }
+            });
+            return all;
+        }
 
         public Set<GitCheckout> nonMavenCheckouts()
         {

@@ -50,6 +50,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(Branches::from),
                     "branch", "--no-color", "-a");
 
+    public static final GitCommand<Heads> REMOTE_HEADS
+            = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(Heads::from),
+                    "ls-remote");
+
     public static final GitCommand<Boolean> IS_DIRTY
             = new GitCommand<>(ProcessResultConverter.exitCode(code -> code != 0),
                     "diff", "--quiet");
@@ -155,6 +159,17 @@ public final class GitCheckout implements Comparable<GitCheckout>
             default:
                 return Optional.of(branch);
         }
+    }
+
+    public Heads remoteHeads()
+    {
+        return REMOTE_HEADS.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    public String name()
+    {
+        return submoduleRoot().map(sroot -> sroot.equals(this) ? "" : sroot.checkoutRoot().relativize(root).toString())
+                .orElse(root.getFileName().toString());
     }
 
     /**
@@ -275,11 +290,14 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Branches branches = branches();
         return branches.currentBranch().map(branch ->
         {
+            System.out.println("  sync-check " + root.getFileName() + " branch " + branch);
             return branches.find(branch.name(), false).map(remoteBranch ->
             {
                 String remoteHead = new GitCommand<>(ProcessResultConverter.strings().trimmed(), root, "rev-parse", remoteBranch.trackingName())
                         .run().awaitQuietly();
-                return remoteHead.equals(head());
+                String head = head();
+                System.out.println("    remote-head " + remoteHead + " loc head " + head);
+                return remoteHead.equals(head);
             }).orElse(false);
         }).orElse(false);
     }
