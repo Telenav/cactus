@@ -27,7 +27,7 @@ public enum Scope
      * submodule below the root of the project tree the project maven was
      * invoked against lives in.
      */
-    ALL_CHECKOUTS;
+    EVERYTHING;
 
     public static Scope find(String prop) throws MojoExecutionException
     {
