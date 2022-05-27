@@ -16,9 +16,8 @@
         <version>1.4.0</version>
     </parent>
 
-    <name>cactus-build-metadata</name>
     <artifactId>cactus-build-metadata</artifactId>
-
+    <version>1.5.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <!-- Project Metadata -->
