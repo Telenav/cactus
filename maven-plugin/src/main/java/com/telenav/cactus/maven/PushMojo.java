@@ -5,7 +5,7 @@ import com.telenav.cactus.maven.git.NeedPushResult;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +41,9 @@ public class PushMojo extends BaseMojo
 
     @Parameter(property = "telenav.family", defaultValue = "")
     private String family;
+
+    @Parameter(property = "telenav.pretend", defaultValue = "false")
+    private boolean pretend;
 
     private Scope scope;
     private GitCheckout myCheckout;
@@ -78,13 +81,13 @@ public class PushMojo extends BaseMojo
             Set<GitCheckout> checkouts;
             switch (scope)
             {
-                case PROJECT_FAMILY:
+                case PROJECT_FAMILY_CHECKOUTS:
                     checkouts = tree.checkoutsContainingGroupId(family());
                     break;
-                case PROJECT:
+                case PROJECTS_CHECKOUT:
                     checkouts = Collections.singleton(myCheckout);
                     break;
-                case EVERYTHING:
+                case ALL_CHECKOUTS:
                     checkouts = new HashSet<>(tree.allCheckouts());
                     checkouts.addAll(tree.nonMavenCheckouts());
                     break;
@@ -102,34 +105,9 @@ public class PushMojo extends BaseMojo
                     myCheckout.submoduleRoot().ifPresent(checkouts::add);
                 }
             }
-//            List<GitCheckout> needingPush = checkouts.stream().filter(checkout -> !checkout.isInSyncWithRemoteHead())
-//                    .collect(Collectors.toCollection(ArrayList::new));
-//            List<GitCheckout> needingPush = checkouts.stream().filter(checkout -> !checkout.needsPush().canBePushed())
-//                    .collect(Collectors.toCollection(ArrayList::new));
-            Map<GitCheckout, NeedPushResult> pushTypeForCheckout = new HashMap<>();
-            for (GitCheckout co : checkouts)
-            {
-                NeedPushResult res = co.needsPush();
-                System.out.println(" :::" + co.checkoutRoot().getFileName() + " " + res);
-                if (res.canBePushed())
-                {
-                    pushTypeForCheckout.put(co, res);
-                }
-            }
+            Map<GitCheckout, NeedPushResult> pushTypeForCheckout = collectPushKinds(checkouts);
 
-            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush = new ArrayList<>(pushTypeForCheckout.entrySet());
-            // In case we have nested submodules, sort so we push deepest first
-            Collections.sort(needingPush, (a, b) ->
-            {
-                int adepth = a.getKey().checkoutRoot().getNameCount();
-                int bdepth = b.getKey().checkoutRoot().getNameCount();
-                int result = Integer.compare(bdepth, adepth);
-                if (result == 0)
-                {
-                    result = a.getKey().checkoutRoot().getFileName().compareTo(b.getKey().checkoutRoot().getFileName());
-                }
-                return result;
-            });
+            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush = sortByDepth(pushTypeForCheckout);
             if (needingPush.isEmpty())
             {
                 log.info("No projects needing push in " + needingPush);
@@ -138,6 +116,38 @@ public class PushMojo extends BaseMojo
                 pullIfNeededAndPush(log, project, tree, needingPush);
             }
         });
+    }
+
+    private List<Map.Entry<GitCheckout, NeedPushResult>> sortByDepth(Map<GitCheckout, NeedPushResult> pushTypeForCheckout)
+    {
+        List<Map.Entry<GitCheckout, NeedPushResult>> needingPush = new ArrayList<>(pushTypeForCheckout.entrySet());
+        // In case we have nested submodules, sort so we push deepest first
+        Collections.sort(needingPush, (a, b) ->
+        {
+            int adepth = a.getKey().checkoutRoot().getNameCount();
+            int bdepth = b.getKey().checkoutRoot().getNameCount();
+            int result = Integer.compare(bdepth, adepth);
+            if (result == 0)
+            {
+                result = a.getKey().checkoutRoot().getFileName().compareTo(b.getKey().checkoutRoot().getFileName());
+            }
+            return result;
+        });
+        return needingPush;
+    }
+
+    private Map<GitCheckout, NeedPushResult> collectPushKinds(Collection<? extends GitCheckout> checkouts)
+    {
+        Map<GitCheckout, NeedPushResult> result = new HashMap<>();
+        for (GitCheckout co : checkouts)
+        {
+            NeedPushResult res = co.needsPush();
+            if (res.canBePushed())
+            {
+                result.put(co, res);
+            }
+        }
+        return result;
     }
 
     private void pullIfNeededAndPush(BuildLog log, MavenProject project, ProjectTree tree, List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
@@ -174,7 +184,10 @@ public class PushMojo extends BaseMojo
             for (GitCheckout checkout : needingPull)
             {
                 log.info("Pull " + checkout);
-                checkout.pull();
+                if (!pretend)
+                {
+                    checkout.pull();
+                }
             }
         }
 
@@ -190,37 +203,18 @@ public class PushMojo extends BaseMojo
             if (co.getValue().needCreateBranch())
             {
                 log.info("Push creating branch: " + checkout);
-                checkout.pushCreatingBranch();
+                if (!pretend)
+                {
+                    checkout.pushCreatingBranch();
+                }
             } else
             {
                 log.info("Push: " + checkout);
-                checkout.push();
-            }
-        }
-    }
-
-    public enum Scope
-    {
-        PROJECT,
-        PROJECT_FAMILY,
-        EVERYTHING;
-
-        public static Scope find(String prop) throws MojoExecutionException
-        {
-            if (prop == null)
-            {
-                return PROJECT_FAMILY;
-            }
-            for (Scope scope : values())
-            {
-                if (scope.name().equalsIgnoreCase(prop))
+                if (!pretend)
                 {
-                    return scope;
+                    checkout.push();
                 }
             }
-            String msg = "Unknown scope " + prop
-                    + " is not one of " + Arrays.toString(values());
-            throw new MojoExecutionException(Scope.class, msg, msg);
         }
     }
 }
