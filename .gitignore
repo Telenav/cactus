@@ -17,3 +17,6 @@
 **/Err.log
 **/Err.log.*
 **/build.properties
+build.properties
+project.properties
+
