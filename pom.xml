@@ -14,12 +14,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.telenav</groupId>
-        <artifactId>telenav-superpom</artifactId>
-        <version>1.5.1-SNAPSHOT</version>
-    </parent>
-
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
     <version>1.4.0</version>
@@ -85,12 +79,14 @@
     </scm>
 
     <!-- Issue Tracking -->
+
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/Telenav/cactus-build/issues</url>
     </issueManagement>
 
     <!-- Publishing -->
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -141,6 +137,7 @@
         <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+
     </properties>
 
     <!-- Profiles -->
