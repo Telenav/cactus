@@ -1,35 +1,30 @@
-<!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
-<!--                                                                                                                 -->
-<!--  © 2011-2021 Telenav, Inc.                                                                                      -->
-<!--  Licensed under Apache License, Version 2.0                                                                     -->
-<!--                                                                                                                 -->
-<!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
-
-<!--suppress MavenModelInspection -->
-<project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!--  -->
+<!-- © 2011-2021 Telenav, Inc. -->
+<!-- Licensed under Apache License, Version 2.0 -->
+<!--  -->
+<!-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- suppress MavenModelInspection -->
+<project
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build</artifactId>
         <version>1.4.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>cactus-build-metadata</artifactId>
-    <version>1.5.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <!-- Project Metadata -->
-
     <description>The cactus-build-metadata project generates build metadata consumed by KivaKit and other projects.</description>
 
     <build>
-
         <plugins>
-
-            <!-- Create Executable JAR -->
-
+                        <!-- Create Executable JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -44,7 +39,8 @@
                             <finalName>cactus-build-metadata-${project.version}</finalName>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
-                                <transformer implementation = "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.telenav.cactus.build.metadata.BuildMetadataUpdater</mainClass>
                                 </transformer>
                             </transformers>
@@ -65,9 +61,7 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Create Build Metadata -->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -77,26 +71,40 @@
                         <id>project-metadata</id>
                         <phase>validate</phase>
                         <configuration>
-                            <target name = "build-metadata">
-                                <property name = "project.groupId" value = "${project.groupId}"/>
-                                <property name = "project.artifactId" value = "${project.artifactId}"/>
-                                <property name = "project.version" value = "${project.version}"/>
-                                <property name = "project.name" value = "${project.name}"/>
-                                <condition property = "source.exists">
-                                    <available file = "src" type = "dir"/>
+                            <target
+                                     name="build-metadata">
+                                <property
+                                         name="project.groupId"
+                                         value="${project.groupId}"/>
+                                <property
+                                         name="project.artifactId"
+                                         value="${project.artifactId}"/>
+                                <property
+                                         name="project.version"
+                                         value="${project.version}"/>
+                                <property
+                                         name="project.name"
+                                         value="${project.name}"/>
+                                <condition
+                                         property="source.exists">
+                                    <available
+                                             file="src"
+                                             type="dir"/>
                                 </condition>
-                                <taskdef resource = "net/sf/antcontrib/antcontrib.properties" classpathref = "maven.plugin.classpath"/>
+                                <taskdef
+                                         classpathref="maven.plugin.classpath"
+                                         resource="net/sf/antcontrib/antcontrib.properties"/>
                                 <if>
-                                    <equals arg1 = "${source.exists}" arg2 = "true"/>
+                                    <equals
+                                             arg1="${source.exists}"
+                                             arg2="true"/>
                                     <then>
-                                        <echo file = "src/main/java/project.properties">
-                                            project-name = ${project.name}${line.separator}project-version = ${project.version}${line.separator}project-group-id = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
-                                        </echo>
+                                        <echo
+                                                 file="src/main/java/project.properties">project-name = ${project.name}${line.separator}project-version = ${project.version}${line.separator}project-group-id = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}</echo>
                                     </then>
                                     <else>
-                                        <echo file = "${project.basedir}/project.properties">
-                                            project-name = ${project.name}${line.separator}project-version = ${project.version}${line.separator}project-group-id = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}
-                                        </echo>
+                                        <echo
+                                                 file="${project.basedir}/project.properties">project-name = ${project.name}${line.separator}project-version = ${project.version}${line.separator}project-group-id = ${project.groupId}${line.separator}project-artifact-id = ${project.artifactId}</echo>
                                     </else>
                                 </if>
                             </target>
@@ -114,9 +122,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
         </plugins>
-
     </build>
-
 </project>

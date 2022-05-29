@@ -1,52 +1,52 @@
-<!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
-<!--                                                                                                                 -->
-<!--  © 2011-2021 Telenav, Inc.                                                                                      -->
-<!--  Licensed under Apache License, Version 2.0                                                                     -->
-<!--                                                                                                                 -->
-<!--/////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!--  -->
+<!-- © 2011-2021 Telenav, Inc. -->
+<!-- Licensed under Apache License, Version 2.0 -->
+<!--  -->
+<!-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<project
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-<project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+    <parent>
+        <groupId>com.telenav</groupId>
+        <artifactId>telenav-superpom</artifactId>
+        <version>1.5.1-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <name>cactus-build</name>
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
     <version>1.4.0</version>
-
     <packaging>pom</packaging>
-
     <!-- Project -->
-
     <description>The cactus-build project generates build metadata consumed by KivaKit and other projects.</description>
     <url>https://www.kivakit.org</url>
     <inceptionYear>2021</inceptionYear>
+
     <organization>
         <name>Telenav</name>
         <url>https://www.telenav.com</url>
     </organization>
-
     <!-- Licensing -->
 
     <licenses>
-
         <license>
             <name>Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
-
     </licenses>
-
     <!-- Contributors -->
 
     <developers>
-
         <developer>
             <id>jonathan</id>
             <name>Jonathan Locke (Luo Shibo)</name>
             <email>jonathanl@telenav.com</email>
+
             <organization>Telenav</organization>
             <organizationUrl>https://www.telenav.com/</organizationUrl>
             <roles>
@@ -54,11 +54,11 @@
                 <role>administrator</role>
             </roles>
         </developer>
-
         <developer>
             <id>haifeng</id>
             <name>Haifeng Zhu</name>
             <email>hfzhu@telenav.com</email>
+
             <organization>Telenav</organization>
             <organizationUrl>https://www.telenav.com/</organizationUrl>
             <roles>
@@ -66,48 +66,33 @@
                 <role>administrator</role>
             </roles>
         </developer>
-
     </developers>
-
     <!-- Source Code -->
 
     <scm>
-
         <connection>scm:git:https://Telenav/cactus-build.git</connection>
         <developerConnection>scm:git:https://Telenav/cactus-build.git</developerConnection>
         <url>https://Telenav/cactus-build.git</url>
-
     </scm>
-
     <!-- Issue Tracking -->
-
     <issueManagement>
-
         <system>GitHub</system>
         <url>https://github.com/Telenav/cactus-build/issues</url>
-
     </issueManagement>
-
     <!-- Publishing -->
-
     <distributionManagement>
-
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
-
         <repository>
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-
     </distributionManagement>
-
     <!-- Snapshots -->
 
     <repositories>
-
         <repository>
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
@@ -118,30 +103,18 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-
     </repositories>
-
     <!-- Modules -->
-
     <modules>
-
         <module>metadata</module>
         <module>maven-plugin</module>
-
-
     </modules>
-
     <!-- Properties -->
 
     <properties>
-
-        <!-- Java -->
-
+                <!-- Java -->
         <java.version>11</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <!-- Maven -->
-
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
@@ -149,17 +122,14 @@
         <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-
     </properties>
-
     <!-- Profiles -->
 
     <profiles>
-
-        <!-- Attaching -->
-
+                <!-- Attaching -->
         <profile>
             <id>attach-jars</id>
+
             <build>
                 <plugins>
                     <plugin>
@@ -201,12 +171,10 @@
                 </plugins>
             </build>
         </profile>
-
         <!-- Signing -->
-
         <profile>
-
             <id>sign-artifacts</id>
+
             <build>
                 <plugins>
                     <plugin>
@@ -231,15 +199,11 @@
                     </plugin>
                 </plugins>
             </build>
-
         </profile>
-
     </profiles>
 
     <build>
-
-        <!-- Resource Copying -->
-
+                <!-- Resource Copying -->
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -257,7 +221,6 @@
                 </includes>
             </resource>
         </resources>
-
         <testResources>
             <testResource>
                 <directory>src/test/java</directory>
@@ -275,15 +238,10 @@
                 </includes>
             </testResource>
         </testResources>
-
         <!-- Plugins -->
-
         <pluginManagement>
-
             <plugins>
-
-                <!-- Compiling -->
-
+                                <!-- Compiling -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -297,17 +255,13 @@
                         </compilerArgs>
                     </configuration>
                 </plugin>
-
                 <!-- Building -->
-
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>3.2.0</version>
                 </plugin>
-
                 <!-- Testing -->
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -316,9 +270,7 @@
                         <argLine>-Xmx2g</argLine>
                     </configuration>
                 </plugin>
-
                 <!-- Documentation -->
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -343,9 +295,7 @@
                         </execution>
                     </executions>
                 </plugin>
-
                 <!-- Publishing -->
-
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -357,11 +307,7 @@
                         <autoReleaseAfterClose>false</autoReleaseAfterClose>
                     </configuration>
                 </plugin>
-
             </plugins>
-
         </pluginManagement>
-
     </build>
-
 </project>
