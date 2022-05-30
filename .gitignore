@@ -19,4 +19,7 @@
 **/build.properties
 build.properties
 project.properties
+nb-configuration.xml
+nbactions.xml
+*.orig
 

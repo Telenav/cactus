@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// © 2011-2022 Telenav, Inc.
-// Licensed under Apache License, Version 2.0
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
--->
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //
+ // © 2011-2022 Telenav, Inc.
+ // Licensed under Apache License, Version 2.0
+ //
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ -->
 <project
-     xmlns="http://maven.apache.org/POM/4.0.0"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build</artifactId>
         <version>1.4.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build-maven-plugin</artifactId>
-
+    
     <packaging>maven-plugin</packaging>
     <description>
         The cactus-build-maven-plugin project codifies Telenav Open Source processes.
     </description>
-
+    
     <properties>
         <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
         <maven.api.version>3.8.5</maven.api.version>
         <mastfrog.version>2.8.1</mastfrog.version>
         <enforcer.skip>true</enforcer.skip>
     </properties>
-
+    
     <dependencies>
-
+        
         <!-- Mastfrog -->
-
+        
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>function</artifactId>
@@ -50,9 +50,9 @@
             <artifactId>util-strings</artifactId>
             <version>${mastfrog.version}</version>
         </dependency>
-
+        
         <!-- Maven -->
-
+        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -72,12 +72,12 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
+    
     <build>
         <plugins>
-
+            
             <plugin>
-
+                
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
                     <goalPrefix>cactus</goalPrefix>
@@ -91,11 +91,11 @@
                         </goals>
                     </execution>
                 </executions>
-
+                
             </plugin>
-
+            
         </plugins>
-
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -104,8 +104,8 @@
                     <version>${maven.plugin.plugin.version}</version>
                 </plugin>
             </plugins>
-
+            
         </pluginManagement>
     </build>
-
+    
 </project>
