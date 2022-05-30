@@ -7,12 +7,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 -->
-
-<project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
-         xmlns = "http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+     xmlns="http://maven.apache.org/POM/4.0.0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.telenav</groupId>
+        <artifactId>telenav-superpom</artifactId>
+        <version>1.5.1-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build</artifactId>
@@ -22,14 +29,10 @@
 
     <!-- Project -->
 
-    <description>The cactus-build project generates build metadata consumed by KivaKit and other projects.</description>
-    <url>https://www.kivakit.org</url>
-    <inceptionYear>2021</inceptionYear>
-
-    <organization>
-        <name>Telenav</name>
-        <url>https://www.telenav.com</url>
-    </organization>
+    <description>
+        The cactus-build project generates build metadata consumed by KivaKit and
+        other projects.
+    </description>
 
     <!-- Licensing -->
 
@@ -40,78 +43,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <!-- Contributors -->
-
-    <developers>
-        <developer>
-            <id>jonathan</id>
-            <name>Jonathan Locke (Luo Shibo)</name>
-            <email>jonathanl@telenav.com</email>
-
-            <organization>Telenav</organization>
-            <organizationUrl>https://www.telenav.com/</organizationUrl>
-            <roles>
-                <role>lead</role>
-                <role>administrator</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>haifeng</id>
-            <name>Haifeng Zhu</name>
-            <email>hfzhu@telenav.com</email>
-
-            <organization>Telenav</organization>
-            <organizationUrl>https://www.telenav.com/</organizationUrl>
-            <roles>
-                <role>developer</role>
-                <role>administrator</role>
-            </roles>
-        </developer>
-    </developers>
-
-    <!-- Source Code -->
-
-    <scm>
-        <connection>scm:git:https://Telenav/cactus-build.git</connection>
-        <developerConnection>scm:git:https://Telenav/cactus-build.git</developerConnection>
-        <url>https://Telenav/cactus-build.git</url>
-    </scm>
-
-    <!-- Issue Tracking -->
-
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/Telenav/cactus-build/issues</url>
-    </issueManagement>
-
-    <!-- Publishing -->
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
-    <!-- Snapshots -->
-
-    <repositories>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <!-- Modules -->
 
@@ -140,89 +71,6 @@
 
     </properties>
 
-    <!-- Profiles -->
-
-    <profiles>
-
-        <!-- Attaching -->
-
-        <profile>
-            <id>attach-jars</id>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-source-jar</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
-                        <configuration>
-                            <show>public</show>
-                            <source>11</source>
-                            <sourcepath>src/main/java</sourcepath>
-                            <detectJavaApiLink>false</detectJavaApiLink>
-                            <doclint>none</doclint>
-                            <nohelp>true</nohelp>
-                            <additionalOptions>-notimestamp --show-module-contents all --show-packages all --show-types private</additionalOptions>
-                            <destDir>target/attached-javadocs</destDir>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadoc-jar</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Signing -->
-
-        <profile>
-            <id>sign-artifacts</id>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                </configuration>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
     <build>
 
         <!-- Resource Copying -->
@@ -244,6 +92,7 @@
                 </includes>
             </resource>
         </resources>
+
         <testResources>
             <testResource>
                 <directory>src/test/java</directory>
@@ -270,6 +119,7 @@
                 <!-- Compiling -->
 
                 <plugin>
+
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
@@ -281,6 +131,7 @@
                             <compilerArgument>-Xlint:deprecation</compilerArgument>
                         </compilerArgs>
                     </configuration>
+
                 </plugin>
 
                 <!-- Building -->
@@ -305,10 +156,12 @@
                 <!-- Documentation -->
 
                 <plugin>
+
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
+
                         <show>public</show>
                         <source>11</source>
                         <detectJavaApiLink>false</detectJavaApiLink>
@@ -316,7 +169,11 @@
                         <nohelp>true</nohelp>
                         <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/${env.CACTUS_VERSION}/javadoc</reportOutputDirectory>
                         <destDir>cactus-build</destDir>
-                        <additionalOptions>-notimestamp --show-module-contents all --show-packages all --show-types private</additionalOptions>
+                        <additionalOptions>
+                            -notimestamp --show-module-contents all --show-packages
+                            all --show-types private
+                        </additionalOptions>
+
                     </configuration>
                     <executions>
                         <execution>
@@ -327,6 +184,7 @@
                             </goals>
                         </execution>
                     </executions>
+
                 </plugin>
 
                 <!-- Publishing -->
@@ -343,6 +201,200 @@
                     </configuration>
                 </plugin>
             </plugins>
+
         </pluginManagement>
+
     </build>
+
+    <!-- Profiles -->
+
+    <profiles>
+
+        <!-- Attaching -->
+
+        <profile>
+            <id>attach-jars</id>
+            <build>
+                <plugins>
+
+                    <plugin>
+
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-source-jar</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+                    </plugin>
+
+                    <plugin>
+
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <configuration>
+
+                            <show>public</show>
+                            <source>11</source>
+                            <sourcepath>src/main/java</sourcepath>
+                            <detectJavaApiLink>false</detectJavaApiLink>
+                            <doclint>none</doclint>
+                            <nohelp>true</nohelp>
+                            <additionalOptions>
+                                -notimestamp --show-module-contents all --show-packages
+                                all --show-types private
+                            </additionalOptions>
+                            <destDir>target/attached-javadocs</destDir>
+
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadoc-jar</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+                    </plugin>
+
+                </plugins>
+
+            </build>
+        </profile>
+
+        <!-- Signing -->
+
+        <profile>
+            <id>sign-artifacts</id>
+            <build>
+                <plugins>
+
+                    <plugin>
+
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+
+                            <execution>
+
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+
+                            </execution>
+
+                        </executions>
+
+                    </plugin>
+
+                </plugins>
+
+            </build>
+        </profile>
+
+    </profiles>
+
+    <!-- Snapshots -->
+
+    <repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- Publishing -->
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <!-- Source Code -->
+
+    <scm>
+        <connection>scm:git:https://Telenav/cactus-build.git</connection>
+        <developerConnection>scm:git:https://Telenav/cactus-build.git</developerConnection>
+        <url>https://Telenav/cactus-build.git</url>
+    </scm>
+
+    <url>https://www.kivakit.org</url>
+
+    <!-- Issue Tracking -->
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/Telenav/cactus-build/issues</url>
+    </issueManagement>
+
+    <inceptionYear>2021</inceptionYear>
+
+    <organization>
+        <name>Telenav</name>
+        <url>https://www.telenav.com</url>
+    </organization>
+
+    <!-- Contributors -->
+
+    <developers>
+
+        <developer>
+
+            <id>jonathan</id>
+            <name>Jonathan Locke (Luo Shibo)</name>
+            <email>jonathanl@telenav.com</email>
+            <organization>Telenav</organization>
+            <organizationUrl>https://www.telenav.com/</organizationUrl>
+            <roles>
+                <role>lead</role>
+                <role>administrator</role>
+            </roles>
+
+        </developer>
+
+        <developer>
+
+            <id>haifeng</id>
+            <name>Haifeng Zhu</name>
+            <email>hfzhu@telenav.com</email>
+            <organization>Telenav</organization>
+            <organizationUrl>https://www.telenav.com/</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>administrator</role>
+            </roles>
+
+        </developer>
+
+    </developers>
+
 </project>
