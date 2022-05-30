@@ -15,14 +15,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.telenav</groupId>
-        <artifactId>telenav-superpom</artifactId>
+        <groupId>com.telenav.cactus</groupId>
+        <artifactId>cactus-build</artifactId>
         <version>1.5.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.telenav</groupId>
     <artifactId>cactus-build-maven-plugin</artifactId>
     <version>1.5.1-SNAPSHOT</version>
+
     <description>The cactus-build-maven-plugin project codifies Telenav Open Source processes.</description>
 
     <packaging>maven-plugin</packaging>
