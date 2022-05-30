@@ -18,10 +18,9 @@
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build</artifactId>
         <version>1.4.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath/>
     </parent>
     
-    <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-build-maven-plugin</artifactId>
     
     <packaging>maven-plugin</packaging>

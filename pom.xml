@@ -13,16 +13,9 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>com.telenav</groupId>
-        <artifactId>telenav-superpom</artifactId>
-        <version>1.5.1-SNAPSHOT</version>
-        <relativePath/>
-    </parent>
-    
-    <groupId>com.telenav.cactus</groupId>
-    <artifactId>cactus-build</artifactId>
+
+    <groupId>com.telenav.cactus</groupId>    
+    <artifactId>cactus-bom</artifactId>
     <version>1.4.0</version>
     
     <packaging>pom</packaging>
