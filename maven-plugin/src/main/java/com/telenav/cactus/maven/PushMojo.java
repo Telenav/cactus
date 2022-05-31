@@ -35,10 +35,10 @@ import org.apache.maven.project.MavenProject;
 public class PushMojo extends BaseMojo
 {
 
-    @Parameter(property = "telenav.scope", defaultValue = "PROJECT_FAMILY")
+    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
     private String scopeProperty;
 
-    @Parameter(property = "telenav.updateRoot", defaultValue = "true")
+    @Parameter(property = "telenav.update-root", defaultValue = "true")
     private boolean updateAndPushRoot;
 
     @Parameter(property = "telenav.family", defaultValue = "")
@@ -47,7 +47,7 @@ public class PushMojo extends BaseMojo
     @Parameter(property = "telenav.pretend", defaultValue = "false")
     private boolean pretend;
 
-    @Parameter(property = "telenav.permitLocalModifications", defaultValue = "true")
+    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true")
     private boolean permitLocalModifications;
 
     private Scope scope;
@@ -108,13 +108,13 @@ public class PushMojo extends BaseMojo
         Set<GitCheckout> checkouts;
         switch (scope)
         {
-            case PROJECT_FAMILY_CHECKOUTS:
+            case FAMILY:
                 checkouts = tree.checkoutsContainingGroupId(groupId);
                 break;
-            case PROJECTS_CHECKOUT:
+            case JUST_THIS:
                 checkouts = Collections.singleton(myCheckout);
                 break;
-            case EVERYTHING:
+            case ALL:
                 checkouts = new HashSet<>(tree.allCheckouts());
                 checkouts.addAll(tree.nonMavenCheckouts());
                 break;

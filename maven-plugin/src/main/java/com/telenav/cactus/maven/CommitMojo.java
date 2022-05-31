@@ -27,10 +27,10 @@ import org.apache.maven.project.MavenProject;
 public class CommitMojo extends BaseMojo
 {
 
-    @Parameter(property = "telenav.scope", defaultValue = "PROJECT_FAMILY")
+    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
     private String scopeProperty;
 
-    @Parameter(property = "telenav.updateRoot", defaultValue = "true")
+    @Parameter(property = "telenav.update-root", defaultValue = "true")
     private boolean updateRoot;
 
     @Parameter(property = "telenav.family", defaultValue = "")
@@ -39,7 +39,7 @@ public class CommitMojo extends BaseMojo
     @Parameter(property = "telenav.pretend", defaultValue = "false")
     private boolean pretend;
 
-    @Parameter(property = "telenav.commitMessage", required = true)
+    @Parameter(property = "telenav.commit-message", required = true)
     private String message;
 
     private Scope scope;

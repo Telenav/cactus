@@ -15,25 +15,25 @@ public enum Scope
      * Operate only on the git submodule the project maven was invoked against
      * belongs to.
      */
-    PROJECTS_CHECKOUT,
+    JUST_THIS,
     /**
      * Operate on all git submodules within the tree of the project maven was
      * invoked against that contains the same group id as the project maven was
      * invoked against.
      */
-    PROJECT_FAMILY_CHECKOUTS,
+    FAMILY,
     /**
      * Operate on all git submodules containing a root pom.xml within any
      * submodule below the root of the project tree the project maven was
      * invoked against lives in.
      */
-    EVERYTHING;
+    ALL;
 
     public static Scope find(String prop) throws MojoExecutionException
     {
         if (prop == null)
         {
-            return PROJECT_FAMILY_CHECKOUTS;
+            return FAMILY;
         }
         for (Scope scope : Scope.values())
         {

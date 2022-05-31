@@ -30,10 +30,10 @@ import org.apache.maven.project.MavenProject;
 public class PullMojo extends BaseMojo
 {
 
-    @Parameter(property = "telenav.scope", defaultValue = "PROJECT_FAMILY")
+    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
     private String scopeProperty;
 
-    @Parameter(property = "telenav.updateRoot", defaultValue = "true")
+    @Parameter(property = "telenav.update-root", defaultValue = "true")
     private boolean updateRoot;
 
     @Parameter(property = "telenav.family", defaultValue = "")
@@ -42,7 +42,7 @@ public class PullMojo extends BaseMojo
     @Parameter(property = "telenav.pretend", defaultValue = "false")
     private boolean pretend;
 
-    @Parameter(property = "telenav.permitLocalModifications", defaultValue = "true")
+    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true")
     private boolean permitLocalModifications;
 
     private Scope scope;
