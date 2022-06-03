@@ -24,9 +24,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.util.Collections.emptyMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,6 +45,12 @@ public class BuildMetadata
 {
     /** Start of KivaKit epoch is December 5, 2020 (blue monkey) */
     public static final int KIVAKIT_EPOCH_DAY = 18_601;
+    public static final String KEY_BUILD_NAME = "build-name";
+    public static final String KEY_BUILD_DATE = "build-date";
+    public static final String KEY_BUILD_NUMBER = "build-number";
+    public static final String KEY_GIT_COMMIT_TIMESTAMP = "commit-timestamp";
+    public static final String KEY_GIT_COMMIT_HASH = "commit-long-hash";
+    public static final String KEY_GIT_REPO_CLEAN = "no-local-modifications";
 
     /** Metadata for projects */
     private static final Map<Class<?>, BuildMetadata> projectToMetadata = new ConcurrentHashMap<>();
@@ -48,9 +58,13 @@ public class BuildMetadata
     /**
      * @return The build number for the given date in days since {@link #KIVAKIT_EPOCH_DAY}
      */
-    public static int currentBuildNumber()
+    public int currentBuildNumber()
     {
-        return (int) (currentBuildDate().toEpochDay() - KIVAKIT_EPOCH_DAY);
+        return toBuildNumber(currentBuildDate());
+    }
+    
+    static int toBuildNumber(LocalDate date) {
+        return (int) (date.toEpochDay() - KIVAKIT_EPOCH_DAY);
     }
 
     /**
@@ -59,7 +73,7 @@ public class BuildMetadata
      */
     public static BuildMetadata of(Class<?> projectType)
     {
-        return projectToMetadata.computeIfAbsent(projectType, ignored -> new BuildMetadata(projectType, Type.PROJECT));
+        return projectToMetadata.computeIfAbsent(projectType, ignored -> new BuildMetadata(projectType, Type.PROJECT, emptyMap()));
     }
 
     /**
@@ -81,15 +95,17 @@ public class BuildMetadata
     private final Type type;
 
     /** Build property map */
-    private Map<String, String> buildProperties;
+    Map<String, String> buildProperties;
 
     /** Project property map */
     private Map<String, String> projectProperties;
+    private final Map<String,String> additional;
 
-    BuildMetadata(Class<?> projectType, Type type)
+    BuildMetadata(Class<?> projectType, Type type, Map<String, String> additional)
     {
         this.projectType = projectType;
         this.type = type;
+        this.additional = additional;
     }
 
     /**
@@ -111,16 +127,18 @@ public class BuildMetadata
             if (type == Type.CURRENT)
             {
                 // then use current build metadata based on the time
-                var properties = new HashMap<String, String>();
-                properties.put("build-number", Integer.toString(currentBuildNumber()));
-                properties.put("build-date", DateTimeFormatter.ofPattern("yyyy.MM.dd").format(currentBuildDate()));
-                properties.put("build-name", BuildName.name(currentBuildNumber()));
+                var properties = new TreeMap<String, String>();
+                properties.put(KEY_BUILD_NUMBER, Integer.toString(currentBuildNumber()));
+                properties.put(KEY_BUILD_DATE, DateTimeFormatter.ofPattern("yyyy.MM.dd").format(currentBuildDate()));
+                properties.put(KEY_BUILD_NAME, BuildName.name(currentBuildNumber()));
+                properties.putAll(additional);
                 buildProperties = properties;
             }
             else
             {
                 // otherwise, use the project's metadata.
                 buildProperties = properties(metadata(projectType, "/build.properties"));
+                buildProperties.putAll(additional);
             }
         }
 
@@ -151,7 +169,14 @@ public class BuildMetadata
         return projectProperties;
     }
 
-    private static LocalDate currentBuildDate()
+    LocalDate currentBuildDate()
+    {
+        return gitCommitTimestamp().map(
+                zdt -> isCleanRepo() ? zdt.toLocalDate() : todaysLocalDate())
+                .orElse(todaysLocalDate());
+    }
+    
+    static LocalDate todaysLocalDate() 
     {
         return LocalDateTime.now().atZone(ZoneId.of(ZoneOffset.UTC.getId())).toLocalDate();
     }
@@ -178,9 +203,9 @@ public class BuildMetadata
     /**
      * @return A properties map from the given text
      */
-    private static Map<String, String> properties(String text)
+    static Map<String, String> properties(String text)
     {
-        var properties = new HashMap<String, String>();
+        var properties = new TreeMap<String, String>();
         try
         {
             var pattern = Pattern.compile("(?x) (?<key> [\\w-]+?) \\s* = \\s* (?<value> .*)");
@@ -194,5 +219,58 @@ public class BuildMetadata
         {
         }
         return properties;
+    }
+
+    /**
+     * Get the git commit hash at the time the code was built, if present.
+     * 
+     * @return A hash if one is available in the metadata
+     */
+    public Optional<String> gitCommitHash()
+    {
+        return Optional.ofNullable(buildProperties().get(KEY_GIT_COMMIT_HASH));
+    }
+
+    /**
+     * Get the short 7-character version of the git commit hash, which git itself
+     * emits in some cases.
+     * 
+     * @return A short commit hash if present
+     */
+    public Optional<String> shortGitCommitHash() 
+    {
+        return gitCommitHash().map(hash -> hash.substring(0, 7));
+    }
+    
+    /**
+     * Determine whether or not the library was build against locally modified
+     * sources, or if you can trust that building the git commit hash indicated
+     * by this metadata will get you the same bits (assuming other libraries
+     * are also the same bits).
+     * 
+     * @return True if the repo was definitely clean at build time.
+     */
+    public boolean isCleanRepo()
+    {
+        Map<String, String> map = buildProperties == null
+                ? additional
+                : buildProperties;
+        return "true".equals(map.get(KEY_GIT_REPO_CLEAN));
+    }
+
+    /**
+     * Get the timestamp of the git commit that originated the library this
+     * metadata is for, if recorded.
+     * 
+     * @return A git timestamp, if present.
+     */
+    public Optional<ZonedDateTime> gitCommitTimestamp()
+    {
+        // We can be called while computing the properties, before buildProperties
+        // is set, in which case we need to look in additional instead.
+        Map<String, String> map = buildProperties == null ? additional: buildProperties;
+        return Optional.ofNullable(map.get(KEY_GIT_COMMIT_TIMESTAMP))
+                .map(dateString -> ZonedDateTime.parse(dateString, 
+                        ISO_DATE_TIME));
     }
 }

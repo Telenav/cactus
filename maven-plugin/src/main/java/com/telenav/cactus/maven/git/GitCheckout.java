@@ -10,11 +10,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -29,6 +34,26 @@ import java.util.stream.Stream;
  */
 public final class GitCheckout implements Comparable<GitCheckout>
 {
+
+    private static final DateTimeFormatter GIT_LOG_FORMAT = new DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR, 4).appendLiteral("-")
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2).appendLiteral("-")
+            .appendValue(ChronoField.DAY_OF_MONTH, 2)
+            .appendLiteral(' ')
+            .appendValue(ChronoField.HOUR_OF_DAY, 2)
+            .appendLiteral(':')
+            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+            .appendLiteral(' ')
+            .appendOffset("+HHMM", "+0000")
+            .parseLenient()
+            .toFormatter();
+
+    public static final DateTimeFormatter ISO_INSTANT = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .appendInstant()
+            .toFormatter(Locale.US);
 
     public static final GitCommand<String> GET_BRANCH
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
@@ -79,6 +104,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
                     text -> text.contains("(detached)")),
                     "status", "--porcelain=2", "--branch");
 
+    public static final GitCommand<ZonedDateTime> COMMIT_DATE
+            = new GitCommand<>(ProcessResultConverter.strings().trimmed()
+                    .map(GitCheckout::fromGitLogFormat),
+                    "--no-pager", "log", "-1", "--format=format:%cd",
+                    "--date=iso", "--no-color", "--encoding=utf8");
+
     private final GitCommand<List<SubmoduleStatus>> listSubmodules
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
                     .map(this::parseSubmoduleInfo), "submodule", "status");
@@ -90,6 +121,11 @@ public final class GitCheckout implements Comparable<GitCheckout>
     GitCheckout(Path root)
     {
         this.root = root;
+    }
+
+    private static ZonedDateTime fromGitLogFormat(String txt)
+    {
+        return ZonedDateTime.parse(txt, GIT_LOG_FORMAT);
     }
 
     public Branches branches()
@@ -150,6 +186,11 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Set<String> result = new HashSet<>();
         allRemotes().forEach(remote -> remote.collectRemoteNames(result));
         return result;
+    }
+
+    public ZonedDateTime commitDate()
+    {
+        return COMMIT_DATE.withWorkingDir(root).run().awaitQuietly();
     }
 
     public Collection<? extends GitRemotes> allRemotes()

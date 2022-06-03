@@ -44,15 +44,10 @@ public class BuildName
                     "tungsten", "yellow", "happy", "transparent", "pink", "aqua", "lavender", "alabaster", "laughing",
                     "lemon", "tangerine", "golden", "silver", "bronze", "amber", "ruby", "goldenrod", "khaki", "violet",
                     "lime", "steel", "red", "ceramic", "platinum", "carbon", "navy", "stretchy", "nickel", "copper",
-                    "funky", "aluminum", "tungsten", "chrome", "lead", "radium", "zinc", "iron", "charcoal", "titanium",
+                    "funky", "aluminum", "zinc", "chrome", "lead", "radium", "zinc", "iron", "charcoal", "titanium",
                     "angry", "chocolate", "turquoise", "cerulean", "apricot", "green", "maroon", "blasé",
                     "grumpy", "cornflower", "chartreuse", "neon", "mustard", "rubber", "paper", "plastic"
             };
-
-    public static String current()
-    {
-        return name(BuildMetadata.currentBuildNumber());
-    }
 
     /**
      * @return The name for the given build number, like "sparkling piglet"
