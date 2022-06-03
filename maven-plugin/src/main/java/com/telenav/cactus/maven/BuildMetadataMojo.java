@@ -36,6 +36,10 @@ public class BuildMetadataMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if ("pom".equals(project.getPackaging())) {
+            log.info("Not writing project metadata for a non-java project.");
+            return;
+        }
         Path propsFile = project.getBasedir().toPath().resolve(projectPropertiesDest);
         if (!Files.exists(propsFile.getParent()))
         {
