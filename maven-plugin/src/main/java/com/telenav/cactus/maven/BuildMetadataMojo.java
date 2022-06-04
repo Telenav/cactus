@@ -3,6 +3,7 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.build.metadata.BuildMetadata;
 import com.telenav.cactus.build.metadata.BuildMetadataUpdater;
 import com.telenav.cactus.maven.git.GitCheckout;
+import static com.telenav.cactus.maven.git.GitCheckout.repository;
 import com.telenav.cactus.maven.log.BuildLog;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -30,9 +32,12 @@ import org.apache.maven.project.MavenProject;
 public class BuildMetadataMojo extends BaseMojo
 {
 
-    @Parameter(property = "project-properties-dest", defaultValue = "src/main/java/project.properties")
+    @Parameter(property = "project-properties-dest", defaultValue = "target/classes/project.properties")
     private String projectPropertiesDest;
-
+    
+    @Parameter(property = "verbose", defaultValue = "false")
+    private boolean verbose;
+    
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
@@ -45,21 +50,41 @@ public class BuildMetadataMojo extends BaseMojo
         {
             Files.createDirectories(propsFile.getParent());
         }
-        Files.writeString(propsFile, projectProperties(project),
+        String propertiesFileContent = projectProperties(project);
+        Files.writeString(propsFile, propertiesFileContent,
                 UTF_8, WRITE, TRUNCATE_EXISTING, CREATE);
         List<String> args = new ArrayList<>(8);
         args.add(propsFile.getParent().toString());
-        GitCheckout.repository(propsFile).ifPresent(repo -> {
+        Optional<GitCheckout> checkout = repository(project.getBasedir());
+        if (!checkout.isPresent()) {
+            log.warn("Did not find a git checkout for " + project.getBasedir());
+        }
+        checkout.ifPresent(repo -> {
             args.add(BuildMetadata.KEY_GIT_COMMIT_HASH);
             args.add(repo.head());
             
             args.add(BuildMetadata.KEY_GIT_REPO_CLEAN); 
             args.add(Boolean.toString(!repo.isDirty()));
             
-            args.add(BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP);
-            args.add(repo.commitDate().format(DateTimeFormatter.ISO_DATE_TIME));
+            repo.commitDate().ifPresent(when -> {
+                args.add(BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP);
+                args.add(when.format(DateTimeFormatter.ISO_DATE_TIME));
+            });
         });
         BuildMetadataUpdater.main(args.toArray(String[]::new));
+        if (verbose) {
+            log.info("Wrote project.properties");
+            log.info("------------------------");
+            log.info(propertiesFileContent + "\n");
+            Path buildProps = propsFile.getParent().resolve("build.properties");
+            if (Files.exists(buildProps)) {
+                log.info("Wrote build.properties");
+                log.info("----------------------");
+                log.info(Files.readString(buildProps));
+            } else {
+                log.warn("No build file was generated in " + buildProps);
+            }
+        }
     }
 
     private String projectProperties(MavenProject project)

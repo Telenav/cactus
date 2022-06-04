@@ -10,9 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,18 +106,17 @@ public final class GitCheckout implements Comparable<GitCheckout>
                     text -> text.contains("(detached)")),
                     "status", "--porcelain=2", "--branch");
 
-    public static final GitCommand<ZonedDateTime> COMMIT_DATE
+    private final GitCommand<Optional<ZonedDateTime>> commitDate
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
-                    .map(GitCheckout::fromGitLogFormat),
+                    .map(this::fromGitLogFormat),
                     "--no-pager", "log", "-1", "--format=format:%cd",
                     "--date=iso", "--no-color", "--encoding=utf8");
 
     private final GitCommand<List<SubmoduleStatus>> listSubmodules
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
                     .map(this::parseSubmoduleInfo), "submodule", "status");
-
+    private static final ZoneId GMT = ZoneId.of("GMT");
     private final BuildLog log = BuildLog.get();
-
     private final Path root;
 
     GitCheckout(Path root)
@@ -123,9 +124,21 @@ public final class GitCheckout implements Comparable<GitCheckout>
         this.root = root;
     }
 
-    private static ZonedDateTime fromGitLogFormat(String txt)
+    private Optional<ZonedDateTime> fromGitLogFormat(String txt)
     {
-        return ZonedDateTime.parse(txt, GIT_LOG_FORMAT);
+        if (txt.isEmpty()) {
+            log.error("Got an empty timestamp from git log for " + root
+                + " branch " + branch() + " head " + head());
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(
+                    ZonedDateTime.parse(txt, GIT_LOG_FORMAT)
+                            .withZoneSameInstant(GMT));
+        } catch (DateTimeParseException ex) {
+            log.error("Failed to parse git log date string '" + txt + "'", ex);
+            return Optional.empty();
+        }
     }
 
     public Branches branches()
@@ -188,9 +201,9 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return result;
     }
 
-    public ZonedDateTime commitDate()
+    public Optional<ZonedDateTime> commitDate()
     {
-        return COMMIT_DATE.withWorkingDir(root).run().awaitQuietly();
+        return commitDate.withWorkingDir(root).run().awaitQuietly();
     }
 
     public Collection<? extends GitRemotes> allRemotes()

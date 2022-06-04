@@ -1,6 +1,8 @@
 package com.telenav.cactus.maven.log;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.util.strings.Strings;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,10 +89,23 @@ public class BuildLog
     {
         return prefix == null ? what : prefix + ": " + what;
     }
+    
+    private void logSplit(String what, Consumer<String> linesConsumer) {
+        if (what.indexOf('\n') >= 0) {
+            Strings.split('\n', what, seq -> {
+                linesConsumer.accept(prefixed(seq.toString()));
+                return true;
+            });
+        } else {
+            linesConsumer.accept(prefixed(what));
+        }
+    }
 
     public BuildLog info(String what)
     {
-        logger.info(prefixed(what));
+        if (logger.isInfoEnabled()) {
+            logSplit(what, logger::info);
+        }
         return this;
     }
 
@@ -108,7 +123,7 @@ public class BuildLog
 
     public BuildLog error(String what)
     {
-        logger.error(prefixed(what));
+        logSplit(what, logger::error);
         return this;
     }
 
@@ -126,7 +141,7 @@ public class BuildLog
 
     public BuildLog warn(String what)
     {
-        logger.warn(prefixed(what));
+        logSplit(what, logger::warn);
         return this;
     }
 
@@ -144,7 +159,10 @@ public class BuildLog
 
     public BuildLog debug(String what)
     {
-        logger.debug(prefixed(what));
+        if (logger.isDebugEnabled()) 
+        {
+            logSplit(what, logger::debug);
+        }
         return this;
     }
 
