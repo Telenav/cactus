@@ -1,9 +1,11 @@
 package com.telenav.cactus.maven.tree;
 
-import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.util.ThrowingOptional;
-import com.telenav.cactus.maven.xml.PomInfo;
+import org.apache.maven.project.MavenProject;
+
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,42 +14,43 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.maven.project.MavenProject;
 
 /**
- * Checks a number of dimensions of consistency in the project, and can detect
- * if there are only a few outliers (in which case - if, say, all projects but
- * one are on the same branch and that branch exists)
+ * Checks a number of dimensions of consistency in the project, and can detect if there are only a few outliers (in
+ * which case - if, say, all projects but one are on the same branch and that branch exists)
  *
  * @author Tim Boudreau
  */
 public class ConsistencyChecker
 {
-
     /**
-     * Partition key for on-a-branch state of a repository. Git submodules, on
-     * checkout, put you in detached head state, which may not be where you want
-     * to stay.
+     * Partition key for on-a-branch state of a repository. Git submodules, on checkout, put you in detached head state,
+     * which may not be where you want to stay.
      */
     public static final String ON_BRANCH = "on-branch";
+
     /**
-     * Partition key for detached-head state of a repository. Git submodules, on
-     * checkout, put you in detached head state, which may not be where you want
-     * to stay.
+     * Partition key for detached-head state of a repository. Git submodules, on checkout, put you in detached head
+     * state, which may not be where you want to stay.
      */
     public static final String DETACHED = "detached";
+
     /**
      * Partition key for clean state of a repository - no local modifications.
      */
     public static final String CLEAN = "clean";
+
     /**
      * Partition key for dirty state of a repository - has local modifications.
      */
     public static final String DIRTY = "dirty";
 
     private final Set<String> ignoreInBranchConsistencyCheck;
+
     private final Set<String> ignoreInVersionConsistencyCheck;
+
     private final String targetGroupId;
+
     private final boolean forbidDirty;
 
     public ConsistencyChecker(
@@ -65,6 +68,52 @@ public class ConsistencyChecker
     public ConsistencyChecker()
     {
         this(null, null, null, false);
+    }
+
+    public Set<Inconsistency<?>> checkBranchConsistency(ProjectTree tree, MavenProject project, BuildLog log)
+    {
+        Set<Inconsistency<?>> branchInconsistencies = new HashSet<>();
+        checkBranchConsistency(tree, project, log, branchInconsistencies);
+        return branchInconsistencies;
+    }
+
+    public Set<Inconsistency<?>> checkConsistency(MavenProject project, BuildLog log) throws Exception
+    {
+        log = log.child("consistency");
+        ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project.getBasedir().toPath());
+        if (!treeOpt.isPresent())
+        {
+            log.child("checkConsistency").error("Could not find a project tree for " + project.getBasedir());
+            return Collections.emptySet();
+        }
+        Set<Inconsistency<?>> result = new LinkedHashSet<>();
+        checkBranchConsistency(treeOpt.get(), project, log.child("branch"), result);
+        checkVersionConsistency(treeOpt.get(), project, log.child("versions"), result);
+        checkDirtyAndDetached(treeOpt.get(), project, log.child(DIRTY), result, forbidDirty);
+
+        return result;
+    }
+
+    public Set<Inconsistency<?>> checkDetached(ProjectTree tree, MavenProject project,
+                                               BuildLog log)
+    {
+        Set<Inconsistency<?>> result = new HashSet<>();
+        checkDirtyAndDetached(tree, project, log, result, false);
+        return result;
+    }
+
+    public ConsistencyChecker forbiddingDirty()
+    {
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, true);
+    }
+
+    public ConsistencyChecker onlyCheckingGroupId(String targetGroupId)
+    {
+        if (this.targetGroupId != null)
+        {
+            throw new IllegalStateException("Target group id already set to " + this.targetGroupId + " - cannot set to " + targetGroupId);
+        }
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
     }
 
     public ConsistencyChecker withIgnoreBranchConsistencySuffixes(String commaOrSpaceDelimitedList)
@@ -85,85 +134,64 @@ public class ConsistencyChecker
         return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), commaOrSpaceDelimitedList, targetGroupId, forbidDirty);
     }
 
-    public ConsistencyChecker onlyCheckingGroupId(String targetGroupId)
+    private static Set<String> splitToSet(String what)
     {
-        if (this.targetGroupId != null)
+        if (what == null || what.isBlank())
         {
-            throw new IllegalStateException("Target group id already set to " + this.targetGroupId + " - cannot set to " + targetGroupId);
-        }
-        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
-    }
-
-    public ConsistencyChecker forbiddingDirty()
-    {
-        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, true);
-    }
-
-    public Set<Inconsistency<?>> checkConsistency(MavenProject project, BuildLog log) throws Exception
-    {
-        log = log.child("consistency");
-        ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project.getBasedir().toPath());
-        if (!treeOpt.isPresent())
-        {
-            log.child("checkConsistency").error("Could not find a project tree for " + project.getBasedir());
             return Collections.emptySet();
         }
-        Set<Inconsistency<?>> result = new LinkedHashSet<>();
-        checkBranchConsistency(treeOpt.get(), project, log.child("branch"), result);
-        checkVersionConsistency(treeOpt.get(), project, log.child("versions"), result);
-        checkDirtyAndDetached(treeOpt.get(), project, log.child(DIRTY), result, forbidDirty);
-
+        Set<String> result = new HashSet<>();
+        for (String item : what.split("[,\\s]+"))
+        {
+            if (item.isEmpty())
+            {
+                continue;
+            }
+            result.add(item.trim());
+        }
         return result;
     }
 
-    public Set<Inconsistency<?>> checkBranchConsistency(ProjectTree tree, MavenProject project, BuildLog log)
+    private static String toString(Set<String> what)
     {
-        Set<Inconsistency<?>> branchInconsistencies = new HashSet<>();
-        checkBranchConsistency(tree, project, log, branchInconsistencies);
-        return branchInconsistencies;
+        if (what.isEmpty())
+        {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String s : what)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(',');
+            }
+            sb.append(s);
+        }
+        return sb.toString();
     }
 
     private void checkBranchConsistency(ProjectTree tree, MavenProject project,
-            BuildLog log, Set<Inconsistency<?>> into)
+                                        BuildLog log, Set<Inconsistency<?>> into)
     {
         log.info("Checking consistency of branches" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
-        Map<String, Map<String, Set<PomInfo>>> found
+        Map<String, Map<String, Set<Pom>>> found
                 = tree.projectsByBranchByGroupId(
-                        this::isVersionRequiredToBeConsistent);
+                this::isVersionRequiredToBeConsistent);
 
         found.forEach((groupId, pomInfosForBranch) ->
         {
             if (pomInfosForBranch.size() > 1)
             {
-                Inconsistency<PomInfo> issue = new Inconsistency<>(
+                Inconsistency<Pom> issue = new Inconsistency<>(
                         pomInfosForBranch, Inconsistency.Kind.BRANCH,
-                        PomInfo::projectFolder);
+                        Pom::projectFolder);
                 into.add(issue);
             }
         });
     }
 
-    private void checkVersionConsistency(ProjectTree tree, MavenProject project,
-            BuildLog log, Set<? super Inconsistency<?>> into)
-    {
-        log.info("Checking consistency of versions" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
-        Map<String, Set<PomInfo>> projectsByVersion = tree.projectsByVersion(this::isVersionRequiredToBeConsistent);
-        if (projectsByVersion.size() > 1)
-        {
-            into.add(new Inconsistency<>(projectsByVersion, Inconsistency.Kind.VERSION, PomInfo::projectFolder));
-        }
-    }
-
-    public Set<Inconsistency<?>> checkDetached(ProjectTree tree, MavenProject project,
-            BuildLog log)
-    {
-        Set<Inconsistency<?>> result = new HashSet<>();
-        checkDirtyAndDetached(tree, project, log, result, false);
-        return result;
-    }
-
     private void checkDirtyAndDetached(ProjectTree tree, MavenProject project,
-            BuildLog log, Set<? super Inconsistency<?>> into, boolean forbidDirty)
+                                       BuildLog log, Set<? super Inconsistency<?>> into, boolean forbidDirty)
     {
         log.info("Checking for detached-head checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
         log.info("Checking for dirty checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
@@ -199,6 +227,17 @@ public class ConsistencyChecker
         }
     }
 
+    private void checkVersionConsistency(ProjectTree tree, MavenProject project,
+                                         BuildLog log, Set<? super Inconsistency<?>> into)
+    {
+        log.info("Checking consistency of versions" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        Map<String, Set<Pom>> projectsByVersion = tree.projectsByVersion(this::isVersionRequiredToBeConsistent);
+        if (projectsByVersion.size() > 1)
+        {
+            into.add(new Inconsistency<>(projectsByVersion, Inconsistency.Kind.VERSION, Pom::projectFolder));
+        }
+    }
+
     private boolean isRelevantCheckout(ProjectTree tree, GitCheckout checkout)
     {
         boolean result = isRelevantCheckout(checkout);
@@ -207,9 +246,9 @@ public class ConsistencyChecker
             if (targetGroupId != null)
             {
                 boolean found = false;
-                for (PomInfo pom : tree.allProjects())
+                for (Pom pom : tree.allProjects())
                 {
-                    GitCheckout co = pom.checkout().get();
+                    GitCheckout co = GitCheckout.repository(pom.pom).get();
                     if (co.equals(checkout))
                     {
                         if (targetGroupId.equals(pom.coords.groupId))
@@ -224,18 +263,8 @@ public class ConsistencyChecker
                     result = false;
                 }
             }
-
         }
         return result;
-    }
-
-    private boolean isVersionRequiredToBeConsistent(PomInfo info)
-    {
-        if (targetGroupId != null && !targetGroupId.equals(info.coords.groupId))
-        {
-            return false;
-        }
-        return ignoreInVersionConsistencyCheck.contains(info.coords.artifactId);
     }
 
     private boolean isRelevantCheckout(GitCheckout checkout)
@@ -246,7 +275,7 @@ public class ConsistencyChecker
         }
         if (targetGroupId != null)
         {
-            PomInfo info = PomInfo.from(checkout.checkoutRoot().resolve("pom.xml")).get();
+            Pom info = Pom.from(checkout.checkoutRoot().resolve("pom.xml")).get();
             if (!targetGroupId.equals(info.coords.groupId))
             {
                 return false;
@@ -268,39 +297,12 @@ public class ConsistencyChecker
         return false;
     }
 
-    private static String toString(Set<String> what)
+    private boolean isVersionRequiredToBeConsistent(Pom info)
     {
-        if (what.isEmpty())
+        if (targetGroupId != null && !targetGroupId.equals(info.coords.groupId))
         {
-            return null;
+            return false;
         }
-        StringBuilder sb = new StringBuilder();
-        for (String s : what)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(',');
-            }
-            sb.append(s);
-        }
-        return sb.toString();
-    }
-
-    private static Set<String> splitToSet(String what)
-    {
-        if (what == null || what.isBlank())
-        {
-            return Collections.emptySet();
-        }
-        Set<String> result = new HashSet<>();
-        for (String item : what.split("[,\\s]+"))
-        {
-            if (item.isEmpty())
-            {
-                continue;
-            }
-            result.add(item.trim());
-        }
-        return result;
+        return ignoreInVersionConsistencyCheck.contains(info.coords.artifactId);
     }
 }

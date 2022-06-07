@@ -1,28 +1,37 @@
-package com.telenav.cactus.maven.xml;
+package com.telenav.cactus.maven.model;
+
+import org.w3c.dom.Node;
 
 import java.nio.file.Path;
 import java.util.Optional;
-import org.w3c.dom.Node;
 
 /**
- *
  * @author Tim Boudreau
  */
 public final class MavenCoordinates implements Comparable<MavenCoordinates>
 {
+    public static Optional<MavenCoordinates> from(Path pomFile)
+    {
+        // Pending - wipeable cache?
+        try
+        {
+            return Optional.of(new PomFile(pomFile).coordinates());
+        }
+        catch (Exception ex)
+        {
+            return Optional.empty();
+        }
+    }
 
     public final String groupId;
+
     public final String artifactId;
+
     public final String version;
 
     public MavenCoordinates(Node groupId, Node artifactId, Node version)
     {
         this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId), textOrPlaceholder(version));
-    }
-
-    private static String textOrPlaceholder(Node node)
-    {
-        return node == null ? "---" : node.getTextContent().trim();
     }
 
     public MavenCoordinates(String groupId, String artifactId, String version)
@@ -32,27 +41,19 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
         this.version = version;
     }
 
-    public static Optional<MavenCoordinates> from(Path pomFile)
-    {
-        // Pending - wipeable cache?
-        try
-        {
-            return Optional.of(new PomFile(pomFile).coordinates());
-        } catch (Exception ex)
-        {
-            return Optional.empty();
-        }
-    }
-
-    public boolean is(MavenCoordinates other)
-    {
-        return other.groupId.equals(groupId) && other.artifactId.equals(artifactId);
-    }
-
     @Override
-    public String toString()
+    public int compareTo(MavenCoordinates o)
     {
-        return groupId + ":" + artifactId + ":" + version;
+        int result = groupId.compareTo(o.groupId);
+        if (result == 0)
+        {
+            result = artifactId.compareTo(o.artifactId);
+        }
+        if (result == 0)
+        {
+            result = version.compareTo(o.version);
+        }
+        return result;
     }
 
     @Override
@@ -61,7 +62,8 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
         if (o == this)
         {
             return true;
-        } else if (o == null || o.getClass() != MavenCoordinates.class)
+        }
+        else if (o == null || o.getClass() != MavenCoordinates.class)
         {
             return false;
         }
@@ -78,18 +80,19 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
                 + (11 * version.hashCode());
     }
 
-    @Override
-    public int compareTo(MavenCoordinates o)
+    public boolean is(MavenCoordinates other)
     {
-        int result = groupId.compareTo(o.groupId);
-        if (result == 0)
-        {
-            result = artifactId.compareTo(o.artifactId);
-        }
-        if (result == 0)
-        {
-            result = version.compareTo(o.version);
-        }
-        return result;
+        return other.groupId.equals(groupId) && other.artifactId.equals(artifactId);
+    }
+
+    @Override
+    public String toString()
+    {
+        return groupId + ":" + artifactId + ":" + version;
+    }
+
+    private static String textOrPlaceholder(Node node)
+    {
+        return node == null ? "---" : node.getTextContent().trim();
     }
 }

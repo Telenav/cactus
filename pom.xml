@@ -16,7 +16,8 @@
 
     <groupId>com.telenav.cactus</groupId>    
     <artifactId>cactus-bom</artifactId>
-    <version>1.4.1</version>
+    <name>cactus-bom</name>
+    <version>1.4.3</version>
     
     <packaging>pom</packaging>
     
@@ -41,6 +42,7 @@
     
     <modules>
         <module>metadata</module>
+        <module>maven-model</module>
         <module>maven-plugin</module>
     </modules>
     

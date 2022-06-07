@@ -17,11 +17,12 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.3</version>
         <relativePath/>
     </parent>
 
     <artifactId>cactus-build-maven-plugin</artifactId>
+    <version>1.4.3</version>
 
     <packaging>maven-plugin</packaging>
     <description>
@@ -37,6 +38,14 @@
     </properties>
 
     <dependencies>
+
+        <!-- Cactus Build -->
+
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-build-maven-model</artifactId>
+            <version>1.4.3</version>
+        </dependency>
 
         <!-- Mastfrog -->
 
