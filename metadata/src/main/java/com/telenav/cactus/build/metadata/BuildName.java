@@ -31,7 +31,7 @@ public class BuildName
 {
     /** Start of KivaKit epoch is December 5, 2020 (blue monkey) */
     public static final int KIVAKIT_EPOCH_DAY = 18_601;
-    
+
     private static final String[] nouns = new String[]
             {
                     "monkey", "gorilla", "tornado", "rhino", "rabbit", "dog", "turtle", "goat", "dinosaur",
@@ -55,19 +55,19 @@ public class BuildName
                     "grumpy", "cornflower", "chartreuse", "neon", "mustard", "rubber", "paper", "plastic"
             };
 
-    
+
     public static int toBuildNumber(LocalDate date) {
         return (int) (date.toEpochDay() - KIVAKIT_EPOCH_DAY);
     }
-    
+
     public static String name(ZonedDateTime when) {
         return name(when.toLocalDate());
     }
-    
+
     public static String name(LocalDate when) {
         return name(toBuildNumber(when));
     }
-    
+
     /**
      * @return The name for the given build number, like "sparkling piglet"
      */

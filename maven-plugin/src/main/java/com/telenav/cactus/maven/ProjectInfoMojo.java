@@ -3,11 +3,14 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.build.metadata.BuildName;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.util.PathUtils;
 import static java.lang.Math.max;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -19,10 +22,9 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingRequest;
 
 /**
- * A mojo that simply prints what a build is going to build.
+ * A mojo that simply pretty-prints what a build is going to build.
  *
  * @author Tim Boudreau
  */
@@ -43,8 +45,19 @@ public class ProjectInfoMojo extends BaseMojo
     private static final char BOTTOM_LEFT_CORNER = '┗';
     private static final char BOTTOM_RIGHT_CORNER = '┛';
 
+    /**
+     * The verb participle that appears in the box heading, "Building" by
+     * default.
+     */
     @Parameter(property = "participle", defaultValue = "Building")
     private String participle;
+
+    /**
+     * Optionally, the "build type" in the information; if unset, we attempt to
+     * guess what the build type is by examining the goals we were asked to run.
+     */
+    @Parameter(property = "build-type")
+    private String buildType;
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -62,8 +75,8 @@ public class ProjectInfoMojo extends BaseMojo
             name = project.getArtifactId();
         }
         Map<String, Object> data = new LinkedHashMap<>();
-        data.put("Build-Folder", project.getBasedir());
-        data.put("Build-Type", buildType()); // what is this?
+        data.put("Build-Folder", buildFolderTruncated(project));
+        data.put("Build-Type", buildType());
         data.put("Build-Modifiers", "Mwah-ha-ha"); // what is this?
 
         int ml = max(DEFAULT_HEADING_LINE_LENGTH, minLength(data));
@@ -74,6 +87,17 @@ public class ProjectInfoMojo extends BaseMojo
         output.append(blankBoxLine(boxWidth));
         output.append(closeBox(boxWidth));
         return output;
+    }
+
+    private static String buildFolderTruncated(MavenProject prj)
+    {
+        Path home = PathUtils.home();
+        Path projectDir = prj.getBasedir().toPath();
+        if (projectDir.startsWith(home))
+        {
+            return "~/" + home.relativize(projectDir);
+        }
+        return projectDir.toString();
     }
 
     private static String closeBox(int boxWidth)
@@ -100,12 +124,40 @@ public class ProjectInfoMojo extends BaseMojo
 
     private String buildType() throws MojoFailureException
     {
+        if (buildType != null)
+        {
+            return buildType;
+        }
+        String result = System.getenv("BUILD_TYPE");
+        if (result == null)
+        {
+            result = deriveBuildType();
+        }
+        return result;
+    }
+
+    private String deriveBuildType() throws MojoFailureException
+    {
         MavenSession sess = session();
         MavenExecutionRequest exeRequest = sess.getRequest();
-        ProjectBuildingRequest buildRequest = sess.getProjectBuildingRequest();
-        return join(", ", exeRequest.getGoals().stream().map(
+        List<String> goals = exeRequest.getGoals().stream().map(
                 ProjectInfoMojo::trimGoal)
-                .collect(Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.toCollection(ArrayList::new));
+        // Pending: Do a better job deriving build type from the contents of the set of
+        // goals.
+        if (goals.contains("deploy"))
+        {
+            return "deploy-ossrh";
+        }
+        if (goals.contains("install"))
+        {
+            return "deploy-local";
+        }
+        if (goals.equals(Arrays.asList("javadoc")))
+        {
+            return "javadoc";
+        }
+        return join(", ", goals);
     }
 
     private static String trimGoal(String goal)
@@ -136,7 +188,7 @@ public class ProjectInfoMojo extends BaseMojo
             amt += Objects.toString(e.getValue()).length();
             result = max(result, amt);
         }
-        return result;
+        return result + 8;
     }
 
     private static int heading(int targetHeadingLineLength, StringBuilder into, String... items)
@@ -171,7 +223,7 @@ public class ProjectInfoMojo extends BaseMojo
         into.append(line);
         into.append(TOP_RIGHT_CORNER);
         into.append('\n');
-        return (into.length() - 2) - start;
+        return max(targetHeadingLineLength, (into.length() - 2) - start);
     }
 
     private static void centerAligned(Map<String, Object> contents, StringBuilder into, int boxWidth)
@@ -193,7 +245,8 @@ public class ProjectInfoMojo extends BaseMojo
             newlineIfNeeded(into);
             char[] ws = filled(' ', maxLen - name.length());
             int lineStart = into.length();
-            into.append(VLINE).append(' ').append(ws).append(name).append(": ").append(val);
+            into.append(VLINE).append(' ').append(ws).append(name).append(": ").append(val)
+                    .append(' ');
             int len = into.length() - lineStart;
             int spaces = (boxWidth - (len - 1));
             if (spaces > 1)

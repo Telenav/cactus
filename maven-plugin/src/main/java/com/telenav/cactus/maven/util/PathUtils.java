@@ -12,9 +12,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -24,7 +27,49 @@ import java.util.stream.Stream;
 public class PathUtils
 {
 
+    private static final Map<String, Optional<Path>> BINARY_PATH_CACHE = new ConcurrentHashMap<>();
+
+    public static Path home()
+    {
+        return fromSystemProperty("user.home", () -> fromSystemProperty("java.io.tmpdir", () -> Paths.get("/")));
+    }
+
+    private static Path fromSystemProperty(String what, Supplier<Path> fallback)
+    {
+        String prop = System.getProperty(what);
+        return prop == null ? fallback.get() : Paths.get(prop);
+    }
+
+    /**
+     * Returns a shorter string prefixed with ~/ if the passed path is below the
+     * user's home dir.
+     *
+     * @param what A path
+     * @return A string representation of the path that shortens it if it can.
+     */
+    public static String homeRelativePath(Path what)
+    {
+        Path home = home();
+        if (what.startsWith(home))
+        {
+            return "~/" + home.relativize(what).toString();
+        }
+        return what.toString();
+    }
+
     public static Optional<Path> findExecutable(String name, Path... additionalSearchLocations)
+    {
+        if (additionalSearchLocations.length == 0)
+        {
+            return BINARY_PATH_CACHE.computeIfAbsent(name, n ->
+            {
+                return _findExecutable(n);
+            });
+        }
+        return _findExecutable(name, additionalSearchLocations);
+    }
+
+    private static Optional<Path> _findExecutable(String name, Path... additionalSearchLocations)
     {
         if (name.indexOf(File.separatorChar) >= 0)
         {
@@ -44,12 +89,16 @@ public class PathUtils
                 all.add(Paths.get(s));
             }
         }
+        Path home = home();
         // Ensure we look in some common places:
-        all.addAll(Arrays.asList(Paths.get("/bin"), Paths.get("/usr/bin"),
-                Paths.get("/usr/local/bin"), Paths.get("/opt/bin"), Paths.get("/opt/local/bin"),
+        all.addAll(Arrays.asList(Paths.get("/bin"),
+                Paths.get("/usr/bin"),
+                Paths.get("/usr/local/bin"),
+                Paths.get("/opt/bin"),
+                Paths.get("/opt/local/bin"),
                 Paths.get("/opt/homebrew/bin"),
-                Paths.get(System.getProperty("user.home")).resolve(".local").resolve("bin"),
-                Paths.get(System.getProperty("user.home")).resolve("bin")
+                home.resolve(".local").resolve("bin"),
+                home.resolve("bin")
         ));
         return findExecutable(all, name);
     }
