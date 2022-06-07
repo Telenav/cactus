@@ -9,7 +9,7 @@
 #
 lexakai-documentation-location = https://telenav.github.io/cactus-build-assets/${project-version}/lexakai
 lexakai-javadoc-location       = https://telenav.github.io/cactus-build-assets/${project-version}/javadoc
-lexakai-images-location        = https://www.kivakit.org/images
+lexakai-images-location        = https://telenav.github.io/telenav-assets
 
 #
 # Default project settings

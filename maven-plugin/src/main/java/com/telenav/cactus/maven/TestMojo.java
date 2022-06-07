@@ -19,8 +19,9 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.xml.PomInfo;
+
 import java.nio.file.Path;
 import java.util.Optional;
 import org.apache.maven.plugin.MojoFailureException;
@@ -87,7 +88,7 @@ public class TestMojo extends BaseMojo
                     {
                         Path relPath = re.checkoutRoot().relativize(pom.getParent());
                         buildLog.info("    * " + (relPath.toString().length() == 0 ? "(root)" : relPath.toString()));
-                        PomInfo.from(pom).ifPresent(info ->
+                        Pom.from(pom).ifPresent(info ->
                         {
                             buildLog.info("      * " + info);
                         });

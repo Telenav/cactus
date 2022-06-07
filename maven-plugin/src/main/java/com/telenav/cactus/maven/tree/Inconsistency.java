@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 /**
  * A problem with branch or version consistency within a set of checked out
- * projects. An inconsistency is typed on some object type (PomInfo or
+ * projects. An inconsistency is typed on some object type (Pom or
  * GitCheckout depending on the type of test), and consists of a set of
  * partitions, each of which has a different key name (a branch name, a version,
  * or a fixed string like "dirty" or "clean".
