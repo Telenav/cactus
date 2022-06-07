@@ -33,6 +33,7 @@
         <maven.api.version>3.8.5</maven.api.version>
         <mastfrog.version>2.8.1</mastfrog.version>
         <enforcer.skip>true</enforcer.skip>
+        <lexakai.prev.version>1.0.5</lexakai.prev.version>
     </properties>
 
     <dependencies>
@@ -52,6 +53,11 @@
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-build-metadata</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.lexakai</groupId>
+            <artifactId>lexakai</artifactId>
+            <version>${lexakai.prev.version}</version>
         </dependency>
 
         <!-- Maven -->
