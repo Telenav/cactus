@@ -20,8 +20,8 @@ package com.telenav.cactus.build.metadata;
 import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
 import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
 import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
-import static com.telenav.cactus.build.metadata.BuildMetadata.toBuildNumber;
 import static com.telenav.cactus.build.metadata.BuildMetadata.todaysLocalDate;
+import static com.telenav.cactus.build.metadata.BuildName.toBuildNumber;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,7 +90,7 @@ public class BuildMetadataTest
         assertEquals(SOME_HASH_SHORT, md.shortGitCommitHash().get());
 
         assertEquals(expectedDate, md.currentBuildDate());
-        assertEquals(BuildMetadata.toBuildNumber(expectedDate), md.currentBuildNumber());
+        assertEquals(toBuildNumber(expectedDate), md.currentBuildNumber());
     }
 
     @Test

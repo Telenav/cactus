@@ -19,7 +19,8 @@ import org.apache.maven.project.MavenProject;
         requiresDependencyResolution = ResolutionScope.COMPILE,
         instantiationStrategy = SINGLETON,
         name = "lexakai", threadSafe = true)
-public class LexakaiMojo extends BaseMojo {
+public class LexakaiMojo extends BaseMojo
+{
 
     @Parameter(property = "overwrite-resources", defaultValue = "true")
     private boolean overwriteResources;
@@ -37,15 +38,18 @@ public class LexakaiMojo extends BaseMojo {
     private String outputFolder;
 
     @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception {
+    protected void performTasks(BuildLog log, MavenProject project) throws Exception
+    {
         String envVar = environmentVariableName(project);
         String envValue = System.getenv(envVar);
         log.info("Env var is " + envVar + " for " + project.getArtifactId() + " -> " + envValue);
         String out = outputFolder;
-        if (out == null) {
+        if (out == null)
+        {
             out = envValue;
         }
-        if (out == null) {
+        if (out == null)
+        {
             out = project.getBasedir().toPath().resolve("target").resolve("lexakai").toString();
         }
 
@@ -56,21 +60,25 @@ public class LexakaiMojo extends BaseMojo {
                 "-output-folder=" + out,
                 project.getBasedir().toString()
         );
-        if (verbose) {
+        if (verbose)
+        {
             log.info("Lexakai args:");
             log.info("lexakai " + args);
         }
-        if (!pretend) {
+        if (!pretend)
+        {
             Lexakai.main(args.toArray(String[]::new));
         }
     }
 
-    private String environmentVariableName(MavenProject project) {
+    private String environmentVariableName(MavenProject project)
+    {
         String gid = project.getGroupId();
         int ix = gid.lastIndexOf('.');
         String tail = gid.substring(ix + 1).toUpperCase();
         int hyphen = tail.indexOf('-');
-        if (hyphen > 0) {
+        if (hyphen > 0)
+        {
             tail = tail.substring(0, hyphen);
         }
         return tail + "_ASSETS_HOME";

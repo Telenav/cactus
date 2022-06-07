@@ -126,16 +126,19 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     private Optional<ZonedDateTime> fromGitLogFormat(String txt)
     {
-        if (txt.isEmpty()) {
+        if (txt.isEmpty())
+        {
             log.error("Got an empty timestamp from git log for " + root
-                + " branch " + branch() + " head " + head());
+                    + " branch " + branch() + " head " + head());
             return Optional.empty();
         }
-        try {
+        try
+        {
             return Optional.of(
                     ZonedDateTime.parse(txt, GIT_LOG_FORMAT)
                             .withZoneSameInstant(GMT));
-        } catch (DateTimeParseException ex) {
+        } catch (DateTimeParseException ex)
+        {
             log.error("Failed to parse git log date string '" + txt + "'", ex);
             return Optional.empty();
         }
@@ -578,9 +581,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
         if (o == this)
         {
             return true;
-        } else if (o == null || o.getClass() != GitCheckout.class)
+        } else
         {
-            return false;
+            if (o == null || o.getClass() != GitCheckout.class)
+            {
+                return false;
+            }
         }
         return ((GitCheckout) o).checkoutRoot().equals(checkoutRoot());
     }

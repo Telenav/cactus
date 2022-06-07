@@ -18,6 +18,7 @@
 
 package com.telenav.cactus.build.metadata;
 
+import static com.telenav.cactus.build.metadata.BuildName.toBuildNumber;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
@@ -43,8 +44,11 @@ import java.util.stream.Collectors;
  */
 public class BuildMetadata
 {
-    /** Start of KivaKit epoch is December 5, 2020 (blue monkey) */
-    public static final int KIVAKIT_EPOCH_DAY = 18_601;
+    /**
+     * @deprecated Use BuildName.KIVAKIT_EPOCH_DAY
+     */
+    @Deprecated
+    public static final int KIVAKIT_EPOCH_DAY = BuildName.KIVAKIT_EPOCH_DAY;
     public static final String KEY_BUILD_NAME = "build-name";
     public static final String KEY_BUILD_DATE = "build-date";
     public static final String KEY_BUILD_NUMBER = "build-number";
@@ -63,10 +67,6 @@ public class BuildMetadata
         return toBuildNumber(currentBuildDate());
     }
     
-    static int toBuildNumber(LocalDate date) {
-        return (int) (date.toEpochDay() - KIVAKIT_EPOCH_DAY);
-    }
-
     /**
      * @param projectType A class in the caller's project for loading resources
      * @return Metadata for the given project
