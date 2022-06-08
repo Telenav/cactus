@@ -14,6 +14,13 @@
     
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.telenav</groupId>
+        <artifactId>telenav-family-superpom</artifactId>
+        <version>1.0</version>
+        <relativePath/>
+    </parent>
+
     <groupId>com.telenav.cactus</groupId>    
     <artifactId>cactus</artifactId>
     <name>cactus</name>
