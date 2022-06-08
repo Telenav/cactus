@@ -88,8 +88,8 @@ public class LexakaiMojo extends BaseMojo
     /**
      * If true, don't really run lexakai.
      */
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
-    private boolean pretend;
+    @Parameter(property = "lexakai.skip", defaultValue = "false")
+    private boolean skip;
 
     /**
      * The destination folder for generated documentation - if unset, it is
@@ -126,7 +126,7 @@ public class LexakaiMojo extends BaseMojo
             log.info("Lexakai args:");
             log.info("lexakai " + args);
         }
-        if (!pretend)
+        if (!skip)
         {
             ThrowingRunnable runner = runLexakai(args);
             if (commitChanges)
