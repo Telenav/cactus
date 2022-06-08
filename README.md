@@ -39,11 +39,11 @@ This module contains tools for building modules and applications.
 
 ### Javadoc Coverage <a name = "javadoc-coverage"></a> &nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/bargraph-24.png" srcset="https://telenav.github.io/telenav-assets/images/icons/bargraph-24-2x.png 2x"/>
 
-&nbsp; <img src="https://telenav.github.io/telenav-assets/meter-40-96.png" srcset="https://telenav.github.io/telenav-assets/meter-40-96-2x.png 2x"/>
+&nbsp; <img src="https://telenav.github.io/telenav-assets/images/meter/meter-40-96.png" srcset="https://telenav.github.io/telenav-assets/images/meter/meter-40-96-2x.png 2x"/>
  &nbsp; &nbsp; [**maven-model**](maven-model/README.md)  
-&nbsp; <img src="https://telenav.github.io/telenav-assets/meter-40-96.png" srcset="https://telenav.github.io/telenav-assets/meter-40-96-2x.png 2x"/>
+&nbsp; <img src="https://telenav.github.io/telenav-assets/images/meter/meter-40-96.png" srcset="https://telenav.github.io/telenav-assets/images/meter/meter-40-96-2x.png 2x"/>
  &nbsp; &nbsp; [**maven-plugin**](maven-plugin/README.md)  
-&nbsp; <img src="https://telenav.github.io/telenav-assets/meter-100-96.png" srcset="https://telenav.github.io/telenav-assets/meter-100-96-2x.png 2x"/>
+&nbsp; <img src="https://telenav.github.io/telenav-assets/images/meter/meter-100-96.png" srcset="https://telenav.github.io/telenav-assets/images/meter/meter-100-96-2x.png 2x"/>
  &nbsp; &nbsp; [**metadata**](metadata/README.md)
 
 [//]: # (start-user-text)
