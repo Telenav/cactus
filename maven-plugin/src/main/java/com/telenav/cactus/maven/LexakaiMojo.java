@@ -1,16 +1,20 @@
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.maven.git.GitCheckout;
+import static com.telenav.cactus.maven.git.GitCheckout.reverseDepthSort;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.util.PathUtils;
 import com.telenav.lexakai.Lexakai;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -94,6 +98,13 @@ public class LexakaiMojo extends BaseMojo
     @Parameter(property = "output-folder", name = "output-folder")
     private String outputFolder;
 
+    /**
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
+     */
+    @Parameter(property = "commit-changes", name = "commit-changes", defaultValue = "false")
+    private boolean commitChanges;
+
     @Override
     protected boolean isOncePerSession()
     {
@@ -103,10 +114,11 @@ public class LexakaiMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        Path outputDir = output(project);
         List<String> args = Arrays.asList(
                 "-update-readme=" + updateReadme,
                 "-overwrite-resources=" + overwriteResources,
-                "-output-folder=" + output(project),
+                "-output-folder=" + outputDir,
                 project.getBasedir().toString()
         );
         if (verbose)
@@ -116,8 +128,128 @@ public class LexakaiMojo extends BaseMojo
         }
         if (!pretend)
         {
-            Lexakai.main(args.toArray(String[]::new));
+            ThrowingRunnable runner = runLexakai(args);
+            if (commitChanges)
+            {
+                // Returns the set of repositories which were _not_ modified
+                // *before* we ran lexakai, but are now
+                Set<GitCheckout> modified = collectedChangedRepos(project, runner);
+                if (!modified.isEmpty())
+                {
+                    // Commit each repo in deepest-child down order
+                    String msg = commitMessage(project, modified);
+                    for (GitCheckout ch : reverseDepthSort(modified))
+                    {
+                        if (!ch.addAll())
+                        {
+                            log.error("Add all failed in " + ch);
+                            continue;
+                        }
+                        if (!ch.commit(msg))
+                        {
+                            log.error("Commit failed in " + ch);
+                        }
+                    }
+                    // Committing child repos may have generated changes in the
+                    // set of commits the submodule root points to, so make sure
+                    // we generate a final commit here so it points to our updates
+                    GitCheckout.repository(project.getBasedir())
+                            .flatMap(prjCheckout -> prjCheckout.submoduleRoot().toOptional())
+                            .ifPresent(root ->
+                            {
+                                if (root.isDirty())
+                                {
+                                    if (!root.addAll())
+                                    {
+                                        log.error("Add all failed in " + root);
+                                    }
+                                    if (!root.commit(msg))
+                                    {
+                                        log.error("Commit failed in " + root);
+                                    }
+                                }
+                            });
+                }
+            } else
+            {
+                runner.run();
+            }
         }
+    }
+
+    private ThrowingRunnable runLexakai(List<String> args)
+    {
+        return () ->
+        {
+            Lexakai.main(args.toArray(String[]::new));
+        };
+    }
+
+    private Set<GitCheckout> collectedChangedRepos(MavenProject prj, ThrowingRunnable toRun)
+    {
+        return ProjectTree.from(prj).map(tree ->
+        {
+            Set<GitCheckout> needingCommitBefore = collectModifiedCheckouts(tree);
+            toRun.run();
+            Set<GitCheckout> needingCommitAfter = collectModifiedCheckouts(tree);
+            needingCommitAfter.removeAll(needingCommitBefore);
+            return needingCommitAfter;
+        }).orElseGet(() ->
+        {
+            toRun.run();
+            return Collections.emptySet();
+        });
+    }
+
+    private final Set<GitCheckout> collectModifiedCheckouts(ProjectTree tree)
+    {
+        tree.invalidateCache();
+        Set<GitCheckout> needingCommit = new HashSet<>();
+        if (tree.isDirty(tree.root()))
+        {
+            needingCommit.add(tree.root());
+        }
+        for (GitCheckout gc : tree.nonMavenCheckouts())
+        {
+            if (gc.isDirty())
+            {
+                needingCommit.add(gc);
+            }
+        }
+        for (GitCheckout gc : tree.allCheckouts())
+        {
+            if (gc.isDirty())
+            {
+                needingCommit.add(gc);
+            }
+        }
+        return needingCommit;
+    }
+
+    private String commitMessage(MavenProject prj, Set<GitCheckout> checkouts)
+    {
+        StringBuilder sb = new StringBuilder("Generated commit ")
+                .append(prj.getGroupId())
+                .append(":")
+                .append(prj.getArtifactId())
+                .append(":")
+                .append(prj.getVersion())
+                .append("\n\n");
+
+        String user = System.getProperty("user.name");
+        Path home = PathUtils.home();
+        String ver = System.getProperty("java.version");
+        String host = System.getenv("HOST");
+        sb.append("User:\t").append(user);
+        sb.append("\nHome:\t").append(home);
+        sb.append("\nHost:\t").append(host);
+        sb.append("\nWhen:\t").append(Instant.now());
+        sb.append("\n\n").append("Modified checkouts:\n");
+        for (GitCheckout ch : checkouts)
+        {
+            sb.append("\n  * ").append(ch.name()).append(" (").append(ch.checkoutRoot()).append(")");
+        }
+        return sb.append("\n").toString();
     }
 
     Path output(MavenProject project)

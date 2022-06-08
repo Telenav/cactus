@@ -19,6 +19,7 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -636,5 +637,20 @@ public final class GitCheckout implements Comparable<GitCheckout>
         }
         return submoduleRoot().map(
                 rootCheckout -> rootCheckout.checkoutRoot().relativize(root));
+    }
+    
+    public static List<GitCheckout> reverseDepthSort(Collection<? extends GitCheckout> all)
+    {
+        List<GitCheckout> chs = new ArrayList<>(all);
+        Collections.sort(chs, (a, b) ->
+        {
+            int result = Integer.compare(b.checkoutRoot().getNameCount(), a.checkoutRoot().getNameCount());
+            if (result == 0)
+            {
+                result = a.checkoutRoot().compareTo(b.checkoutRoot());
+            }
+            return result;
+        });
+        return chs;
     }
 }
