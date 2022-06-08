@@ -15,8 +15,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.telenav.cactus</groupId>    
-    <artifactId>cactus-bom</artifactId>
-    <name>cactus-bom</name>
+    <artifactId>cactus</artifactId>
+    <name>cactus</name>
     <version>1.4.3</version>
     
     <packaging>pom</packaging>
