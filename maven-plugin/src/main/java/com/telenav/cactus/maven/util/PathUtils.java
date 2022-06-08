@@ -40,6 +40,27 @@ public class PathUtils
         return prop == null ? fallback.get() : Paths.get(prop);
     }
 
+    public static Optional<Path> ifExists(Path path)
+    {
+        if (path == null)
+        {
+            return Optional.empty();
+        }
+        if (Files.exists(path))
+        {
+            return Optional.of(path);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Path> ifDirectory(Path path)
+    {
+        return ifExists(path).flatMap(maybeDir ->
+        {
+            return Files.isDirectory(maybeDir) ? Optional.of(maybeDir) : Optional.empty();
+        });
+    }
+
     /**
      * Returns a shorter string prefixed with ~/ if the passed path is below the
      * user's home dir.
