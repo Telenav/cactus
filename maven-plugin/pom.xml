@@ -63,11 +63,11 @@
             <artifactId>cactus-build-metadata</artifactId>
             <version>[${cactus.version},)</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>com.telenav.lexakai</groupId>
             <artifactId>lexakai</artifactId>
             <version>[${lexakai.prev.version},)</version>
-        </dependency>
+        </dependency>-->
 
         <!-- Maven -->
 

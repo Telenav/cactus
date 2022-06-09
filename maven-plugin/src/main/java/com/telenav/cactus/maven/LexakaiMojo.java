@@ -6,7 +6,9 @@ import static com.telenav.cactus.maven.git.GitCheckout.reverseDepthSort;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.util.PathUtils;
-import com.telenav.lexakai.Lexakai;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -179,10 +181,15 @@ public class LexakaiMojo extends BaseMojo
 
     private ThrowingRunnable runLexakai(List<String> args)
     {
-        return () ->
-        {
-            Lexakai.main(args.toArray(String[]::new));
-        };
+        return new LexakaiRunner(lexakaiJar(), args);
+//        return () ->
+//        {
+//            Lexakai.main(args.toArray(String[]::new));
+//        };
+    }
+    
+    private Path lexakaiJar() {
+        return PathUtils.home().resolve(".m2/repository/com/telenav/lexakai/lexakai/1.0.7");
     }
 
     private Set<GitCheckout> collectedChangedRepos(MavenProject prj, ThrowingRunnable toRun)
@@ -296,5 +303,43 @@ public class LexakaiMojo extends BaseMojo
             tail = tail.substring(0, hyphen);
         }
         return tail + "_ASSETS_HOME";
+    }
+
+    class LexakaiRunner implements ThrowingRunnable
+    {
+
+        private final Path jarFile;
+        private final List<String> args;
+
+        LexakaiRunner(Path jarFile, List<String> args)
+        {
+            this.jarFile = jarFile;
+            this.args = args;
+        }
+
+        @Override
+        public void run() throws Exception
+        {
+            ClassLoader ldr = Thread.currentThread().getContextClassLoader();
+
+            try
+            {
+                URL[] url = new URL[]
+                {
+                    jarFile.toUri().toURL()
+                };
+                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai", url, ldr))
+                {
+                    Thread.currentThread().setContextClassLoader(jarLoader);
+                    Class<?> what = jarLoader.loadClass("com.telenav.lexakai.Lexakai");
+                    Method mth = what.getMethod("main", String[].class);
+                    mth.invoke(args.toArray(String[]::new));
+                }
+            } finally
+            {
+                Thread.currentThread().setContextClassLoader(ldr);
+            }
+        }
+
     }
 }
