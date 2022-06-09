@@ -7,16 +7,15 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source telenav-library-functions.sh
-source kivakit-library-build.sh
+source "kivakit-library-functions.sh"
 
-# shellcheck disable=SC2034
-project_home=$1
+clean_cache "$KIVAKIT_CACHE_HOME"
+clean_cache "$MESAKIT_CACHE_HOME"
 
-shift
+if [[ ! "$1" == "sparkling" ]]; then
 
-require_variable project_home "[project-home] [arguments]*"
+    clean_maven_repository_telenav
 
-echo "building $project_home: $@"
+fi
 
-build "$project_home" "$@"
+clean_temporary_files "$KIVAKIT_WORKSPACE"

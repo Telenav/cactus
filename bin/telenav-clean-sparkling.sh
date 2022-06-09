@@ -11,4 +11,4 @@ source telenav-library-functions.sh
 
 remove_maven_repository
 
-bash kivakit-clean.sh
+bash telenav-clean.sh sparkling
