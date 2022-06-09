@@ -9,8 +9,6 @@
 
 source telenav-library-functions.sh
 
-cd "$KIVAKIT_WORKSPACE" || exit 1
-
-git pull --quiet
-
-repository_foreach_quiet 'git pull --quiet'
+cd_workspace
+scope=$(repository_scope "$1")
+mvn --quiet "$scope" com.telenav.cactus:cactus-build-maven-plugin:pull || exit 1

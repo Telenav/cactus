@@ -11,7 +11,7 @@ fi
 
 ################ BUILD ##################################################################################################
 
-build_scope()
+repository_scope()
 {
     scope=$1
 
@@ -26,13 +26,27 @@ build_scope()
         ;;
 
     *)
-        echo "-Dtelenav.scope=FAMILY -Dtelenav.family=${scope}"
+        if [[ "${scope}" == "" ]]; then
+            echo "-Dtelenav.scope=ALL"
+        else
+            echo "-Dtelenav.scope=FAMILY -Dtelenav.family=${scope}"
+        fi
         ;;
 
     esac
 }
 
 ################ PROJECT ################################################################################################
+
+cd_workspace()
+{
+    if [[ "$TELENAV_WORKSPACE" == "" ]]; then
+        echo "TELENAV_WORKSPACE must be defined"
+        exit 1
+    fi
+
+    cd "$TELENAV_WORKSPACE" || exit 1
+}
 
 property_value()
 {
@@ -577,8 +591,8 @@ yes_no()
 
         prompt=$1
 
-        read -p "$prompt (y/n)? " -n 1 -r
         echo " "
+        read -p "$prompt (y/n)? " -n 1 -r
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             true
