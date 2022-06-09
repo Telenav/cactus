@@ -4,7 +4,6 @@ import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,6 +18,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings({ "unused", "DuplicatedCode" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -26,14 +26,13 @@ import org.apache.maven.project.MavenProject;
         name = "commit", threadSafe = true)
 public class CommitMojo extends BaseMojo
 {
-
     @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
     private String scopeProperty;
 
     @Parameter(property = "telenav.update-root", defaultValue = "true")
     private boolean updateRoot;
 
-    @Parameter(property = "telenav.family", defaultValue = "")
+    @Parameter(property = "telenav.family")
     private String family;
 
     @Parameter(property = "telenav.pretend", defaultValue = "false")
@@ -51,7 +50,7 @@ public class CommitMojo extends BaseMojo
         super.validateParameters(log, project);
         scope = Scope.find(scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (!checkout.isPresent())
+        if (checkout.isEmpty())
         {
             throw new MojoExecutionException(project.getBasedir()
                     + " does not seem to be part of a git checkout.");
@@ -91,7 +90,7 @@ public class CommitMojo extends BaseMojo
             {
                 checkouts.add(root);
             }
-            Collections.sort(checkouts, (a, b) ->
+            checkouts.sort((a, b) ->
             {
                 int result = Integer.compare(b.checkoutRoot().getNameCount(), a.checkoutRoot().getNameCount());
                 if (result == 0)
@@ -101,13 +100,13 @@ public class CommitMojo extends BaseMojo
                 return result;
             });
             log.info("Begin commit with message '" + message + "'");
-            for (GitCheckout co : checkouts)
+            for (GitCheckout at : checkouts)
             {
-                log.info("add/commit " + co);
+                log.info("add/commit " + at);
                 if (!pretend)
                 {
-                    co.addAll();
-                    co.commit(message);
+                    at.addAll();
+                    at.commit(message);
                 }
             }
         });

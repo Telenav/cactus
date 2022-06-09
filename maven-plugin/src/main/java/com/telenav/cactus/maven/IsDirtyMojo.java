@@ -9,7 +9,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,7 +18,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author jonathanl (shibo)
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "DuplicatedCode" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -33,7 +32,7 @@ public class IsDirtyMojo extends BaseMojo
     @Parameter(property = "telenav.update-root", defaultValue = "true")
     private boolean updateRoot;
 
-    @Parameter(property = "telenav.family", defaultValue = "")
+    @Parameter(property = "telenav.family")
     private String family;
 
     @Parameter(property = "telenav.pretend", defaultValue = "false")
@@ -48,7 +47,7 @@ public class IsDirtyMojo extends BaseMojo
         super.validateParameters(log, project);
         scope = Scope.find(scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (!checkout.isPresent())
+        if (checkout.isEmpty())
         {
             throw new MojoExecutionException(project.getBasedir()
                     + " does not seem to be part of a git checkout.");
