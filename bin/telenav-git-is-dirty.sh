@@ -10,11 +10,9 @@
 source telenav-library-functions.sh
 
 #
-# telenav-git-status.sh
+# telenav-git-is-dirty.sh
 #
 
-if [[ ! $(git_flow_check_all_repositories) ]]; then
-    printf "\nclean\n\n"
-else
-    printf "\ndirty\n\n"
-fi
+cd_workspace
+scope=$(repository_scope "$1")
+mvn --quiet "$scope" com.telenav.cactus:cactus-build-maven-plugin:is-dirty || exit 1
