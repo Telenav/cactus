@@ -9,6 +9,11 @@
 
 source telenav-library-functions.sh
 
+#
+# telenav-git-checkout.sh [scope]? [branch]
+#
+# scope = { all, this, <family-name> }
+#
 
 #
 # checkout [branch]

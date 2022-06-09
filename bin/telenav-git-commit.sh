@@ -9,6 +9,14 @@
 
 source telenav-library-functions.sh
 
+#
+# telenav-git-commit.sh [message]?
+#
+
+#
+# Get message
+#
+
 message=$1
 
 if [[ "$message" == "" ]]; then
@@ -17,6 +25,10 @@ if [[ "$message" == "" ]]; then
     message=$REPLY
 
 fi
+
+#
+# Commit
+#
 
 cd_workspace
 scope=$(repository_scope)

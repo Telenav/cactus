@@ -18,4 +18,4 @@ if [[ ! "$1" == "sparkling" ]]; then
 
 fi
 
-clean_temporary_files "$KIVAKIT_WORKSPACE"
+clean_temporary_files "$TELENAV_WORKSPACE"
