@@ -14,7 +14,7 @@ source telenav-library-functions.sh
 #
 
 if [[ $(git_flow_check_all_repositories) ]]; then
-    printf "\nclean\n\n"
-else
     printf "\ndirty\n\n"
+else
+    printf "\nclean\n\n"
 fi

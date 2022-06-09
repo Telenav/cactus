@@ -288,13 +288,7 @@ require_folder()
 git_flow_check_all_repositories()
 {
     cd_workspace
-    names=$(git submodule --quiet foreach "git diff --name-only")
-    printf "[$names]\n"
-    if [[ "$names" =~ /^\s*$/ ]]; then
-        return 0;
-    else
-        return 1;
-    fi
+    git submodule --quiet foreach "git diff --name-only"
 }
 
 git_flow_check_changes()
