@@ -111,19 +111,19 @@ bracket()
 
 repository_foreach()
 {
-    cd "$KIVAKIT_WORKSPACE" || exit
+    cd "$TELENAV_WORKSPACE" || exit
     git submodule foreach --quiet "echo && echo ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ \$name && $* && echo ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ && echo "
 }
 
 repository_foreach_quiet()
 {
-    cd "$KIVAKIT_WORKSPACE" || exit
+    cd "$TELENAV_WORKSPACE" || exit
     git submodule foreach --quiet $*
 }
 
 project_foreach()
 {
-    cd "$KIVAKIT_WORKSPACE" || exit
+    cd "$TELENAV_WORKSPACE" || exit
     git submodule foreach ---recurse -quiet "echo && echo ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ \$name && $* && echo ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ && echo "
 }
 
@@ -512,7 +512,7 @@ source_project_profile()
 {
     project_name=$1
 
-    common_profile="$KIVAKIT_WORKSPACE/${project_name}/tools/library/${project_name}-common-profile.sh"
+    common_profile="$TELENAV_WORKSPACE/${project_name}/tools/library/${project_name}-common-profile.sh"
     project_profile="$HOME/.${project_name}-profile"
 
     if test -e "$common_profile"; then
