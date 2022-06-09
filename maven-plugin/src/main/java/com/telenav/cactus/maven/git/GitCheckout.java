@@ -1,11 +1,11 @@
 package com.telenav.cactus.maven.git;
 
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.util.preconditions.Exceptions;
-import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.Branches.Branch;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.util.PathUtils;
 import com.telenav.cactus.maven.util.ProcessResultConverter;
-import com.telenav.cactus.maven.util.ThrowingOptional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

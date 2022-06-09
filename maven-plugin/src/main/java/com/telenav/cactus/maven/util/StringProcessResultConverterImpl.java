@@ -1,7 +1,9 @@
 package com.telenav.cactus.maven.util;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
+import static com.telenav.cactus.maven.util.CliCommand.completionStageForProcess;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +41,7 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
         stdout = new OutputReader(process.getInputStream()).start();
         // Note:  This really needs to be thenApplyAsync(), or you sometimes get
         // immediately called back before the process has *started*.
-        return AwaitableCompletionStage.of(process).thenApplyAsync(proc ->
+        return completionStageForProcess(process).thenApplyAsync(proc ->
         {
             log.debug(() ->
             {

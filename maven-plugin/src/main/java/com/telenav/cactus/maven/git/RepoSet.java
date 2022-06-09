@@ -1,6 +1,6 @@
 package com.telenav.cactus.maven.git;
 
-import com.telenav.cactus.maven.util.ThrowingOptional;
+import com.mastfrog.function.optional.ThrowingOptional;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;

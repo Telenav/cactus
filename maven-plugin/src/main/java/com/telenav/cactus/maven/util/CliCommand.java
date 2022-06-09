@@ -1,5 +1,7 @@
 package com.telenav.cactus.maven.util;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import com.mastfrog.function.optional.ThrowingOptional;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -121,7 +123,7 @@ public abstract class CliCommand<T> implements Supplier<String>
 
     public AwaitableCompletionStage<T> run()
     {
-        return AwaitableCompletionStage.from(() ->
+        return AwaitableCompletionStage.<T>from(() ->
         {
             ThrowingOptional<Process> p = launch();
             if (!p.isPresent())
@@ -157,5 +159,9 @@ public abstract class CliCommand<T> implements Supplier<String>
             onLaunch(proc);
             return proc;
         });
+    }
+    
+    public static AwaitableCompletionStage<Process> completionStageForProcess(Process proc) {
+        return AwaitableCompletionStage.of(proc.onExit());
     }
 }

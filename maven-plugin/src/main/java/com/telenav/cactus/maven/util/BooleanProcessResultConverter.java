@@ -1,5 +1,7 @@
 package com.telenav.cactus.maven.util;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import static com.telenav.cactus.maven.util.CliCommand.completionStageForProcess;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
 
@@ -27,7 +29,7 @@ final class BooleanProcessResultConverter implements ProcessResultConverter<Bool
     @Override
     public AwaitableCompletionStage<Boolean> onProcessStarted(Supplier<String> supp, Process process)
     {
-        return AwaitableCompletionStage.of(process).thenApplyAsync(proc ->
+        return completionStageForProcess(process).thenApplyAsync(proc ->
         {
             return exitCodeTest.test(proc.exitValue());
         });

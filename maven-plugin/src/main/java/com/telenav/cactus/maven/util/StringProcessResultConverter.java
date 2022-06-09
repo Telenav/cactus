@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven.util;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;

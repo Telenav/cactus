@@ -1,10 +1,10 @@
 package com.telenav.cactus.maven.tree;
 
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.git.Branches;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.git.Heads;
 import com.telenav.cactus.maven.model.Pom;
-import com.telenav.cactus.maven.util.ThrowingOptional;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

@@ -1,6 +1,7 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.git.GitCheckout;
 import static com.telenav.cactus.maven.git.GitCheckout.reverseDepthSort;
 import com.telenav.cactus.maven.log.BuildLog;
@@ -29,7 +30,6 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.LocalArtifactRequest;
 import org.eclipse.aether.repository.LocalArtifactResult;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.repository.RepositoryPolicy;
 
 /**
  * Runs lexakai to generate documentation and diagrams for a project into some

@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven.util;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
