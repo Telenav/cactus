@@ -116,12 +116,6 @@ public class LexakaiMojo extends BaseMojo
     private boolean commitChanges;
 
     @Override
-    protected boolean isOncePerSession()
-    {
-        return false;
-    }
-
-    @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         Path outputDir = output(project);

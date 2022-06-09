@@ -62,11 +62,9 @@ public class CheckoutMojo extends BaseMojo
     private Scope scope;
 
     private GitCheckout myCheckout;
-
-    @Override
-    protected boolean isOncePerSession()
-    {
-        return true;
+    
+    public CheckoutMojo() {
+        super(true);
     }
 
     @Override
@@ -93,7 +91,6 @@ public class CheckoutMojo extends BaseMojo
     @Override
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
-        super.validateParameters(log, project);
         scope = Scope.find(scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
         if (checkout.isEmpty())

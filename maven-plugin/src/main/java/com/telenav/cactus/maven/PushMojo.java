@@ -52,11 +52,14 @@ public class PushMojo extends BaseMojo
 
     private Scope scope;
     private GitCheckout myCheckout;
+    
+    public PushMojo() {
+        super(true);
+    }
 
     @Override
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
-        super.validateParameters(log, project);
         scope = Scope.find(scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
         if (!checkout.isPresent())
@@ -65,12 +68,6 @@ public class PushMojo extends BaseMojo
                     + " does not seem to be part of a git checkout.");
         }
         myCheckout = checkout.get();
-    }
-
-    @Override
-    protected boolean isOncePerSession()
-    {
-        return true;
     }
 
     private String family()

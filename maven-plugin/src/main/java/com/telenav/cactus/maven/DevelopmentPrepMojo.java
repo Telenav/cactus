@@ -62,11 +62,9 @@ public class DevelopmentPrepMojo extends BaseMojo
     String baseBranch = "develop";
 
     GitCheckout myGitCheckout;
-
-    @Override
-    protected boolean isOncePerSession()
-    {
-        return true;
+    
+    public DevelopmentPrepMojo() {
+        super(true);
     }
 
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
@@ -77,7 +75,6 @@ public class DevelopmentPrepMojo extends BaseMojo
         System.out.println("thisGroupIdOnly = " + thisGroupIdOnly);
         System.out.println("branch = " + branchName);
         System.out.println("baseBranch = " + baseBranch);
-        super.validateParameters(log, project);
         // Branches starting with - can get misinterpreted as flags to git branch
         if (!checkBranchName(branchName))
         {

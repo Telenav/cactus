@@ -34,17 +34,15 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
 
     @Parameter(property = "telenav.assets.commit", defaultValue = "true")
     private boolean commit;
-
-    @Override
-    protected boolean isOncePerSession()
-    {
-        return true;
+    
+    public BringAssetsBranchesToHeadMojo() {
+        super(true);
     }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        ProjectTree.from(project).ifPresent(tree ->
+        withProjectTree(tree ->
         {
             Set<GitCheckout> nonMavenCheckouts = tree.nonMavenCheckouts();
 

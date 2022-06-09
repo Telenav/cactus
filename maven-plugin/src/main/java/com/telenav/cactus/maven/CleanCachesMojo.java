@@ -42,15 +42,15 @@ public class CleanCachesMojo extends BaseMojo
     public static enum CacheFindingStrategy
     {
         temporary,
-        byGroupId,
-        byGroupIdVersion,
-        byGroupIdArtifactIdVersion;
+        byFamily,
+        byFamilyAndVersion,
+        byFamiilyArtifactIdVersion;
 
         public static CacheFindingStrategy find(String injected) throws MojoExecutionException
         {
             if (injected == null)
             {
-                return byGroupIdVersion;
+                return byFamilyAndVersion;
             }
             for (CacheFindingStrategy strategy : values())
             {
@@ -70,18 +70,18 @@ public class CleanCachesMojo extends BaseMojo
             {
                 case temporary:
                     return PathUtils.temp()
-                            .resolve(project.getGroupId())
+                            .resolve(ProjectFamily.of(project).name())
                             .resolve(project.getVersion());
-                case byGroupIdVersion:
+                case byFamilyAndVersion:
                     return PathUtils.userCacheRoot()
-                            .resolve(project.getGroupId())
+                            .resolve(ProjectFamily.of(project).name())
                             .resolve(project.getVersion());
-                case byGroupIdArtifactIdVersion:
+                case byFamiilyArtifactIdVersion:
                     return PathUtils.userCacheRoot()
-                            .resolve(project.getGroupId())
+                            .resolve(ProjectFamily.of(project).name())
                             .resolve(project.getArtifactId())
                             .resolve(project.getVersion());
-                case byGroupId:
+                case byFamily:
                     return PathUtils.userCacheRoot().resolve(project.getGroupId());
                 default:
                     throw new AssertionError(this);

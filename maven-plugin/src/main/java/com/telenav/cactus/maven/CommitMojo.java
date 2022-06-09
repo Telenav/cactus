@@ -44,11 +44,14 @@ public class CommitMojo extends BaseMojo
 
     private Scope scope;
     private GitCheckout myCheckout;
+    
+    public CommitMojo() {
+        super(true);
+    }
 
     @Override
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
-        super.validateParameters(log, project);
         scope = Scope.find(scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
         if (!checkout.isPresent())
@@ -61,12 +64,6 @@ public class CommitMojo extends BaseMojo
         {
             throw new MojoExecutionException("Commit message not set");
         }
-    }
-
-    @Override
-    protected boolean isOncePerSession()
-    {
-        return true;
     }
 
     private String family()
