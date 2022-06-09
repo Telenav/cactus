@@ -13,8 +13,8 @@ source telenav-library-functions.sh
 # telenav-git-status.sh
 #
 
-if [[ $(git_flow_check_all_repositories) ]]; then
-    printf "\ndirty\n\n"
-else
+if [[ ! $(git_flow_check_all_repositories) ]]; then
     printf "\nclean\n\n"
+else
+    printf "\ndirty\n\n"
 fi
