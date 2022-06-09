@@ -287,11 +287,13 @@ require_folder()
 
 git_flow_check_all_repositories()
 {
-    export -f git_flow_check_changes
-    # shellcheck disable=SC2016
-    repository_foreach 'git_flow_check_changes $KIVAKIT_WORKSPACE $path && if [ $? -eq 0 ]; then
-        exit 1
-    fi'
+    cd_workspace
+    names=$(git submodule --quiet foreach "git diff --name-only")
+    if [[ "$names" =~ /^\s+$/ ]]; then
+        return 0;
+    else
+        return 1;
+    fi
 }
 
 git_flow_check_changes()
@@ -300,6 +302,7 @@ git_flow_check_changes()
 
     cd "$project_home" || exit
 
+    names=$(git diff --name-only)
     # shellcheck disable=SC2006
     if [[  `git status --porcelain` ]]; then
         echo "Uncommitted changes: $project_home"
