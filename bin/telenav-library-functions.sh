@@ -289,7 +289,8 @@ git_flow_check_all_repositories()
 {
     cd_workspace
     names=$(git submodule --quiet foreach "git diff --name-only")
-    if [[ "$names" =~ /^\s+$/ ]]; then
+    printf "[$names]\n"
+    if [[ "$names" =~ /^\s*$/ ]]; then
         return 0;
     else
         return 1;
