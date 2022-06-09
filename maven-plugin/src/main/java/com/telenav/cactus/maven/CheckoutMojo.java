@@ -22,7 +22,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 /**
  * @author jonathanl (shibo)
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "DuplicatedCode" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,

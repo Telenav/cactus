@@ -3,28 +3,28 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoExecutionException;
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import java.util.Optional;
+import java.util.Set;
+
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+
 /**
  *
- * @author Tim Boudreau
+ * @author jonathanl (shibo)
  */
 @SuppressWarnings({ "unused", "DuplicatedCode" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
-        name = "commit", threadSafe = true)
-public class CommitMojo extends BaseMojo
+        name = "is-dirty", threadSafe = true)
+public class IsDirtyMojo extends BaseMojo
 {
     @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
     private String scopeProperty;
@@ -38,19 +38,13 @@ public class CommitMojo extends BaseMojo
     @Parameter(property = "telenav.pretend", defaultValue = "false")
     private boolean pretend;
 
-    @Parameter(property = "telenav.commit-message", required = true)
-    private String message;
-
     private Scope scope;
     private GitCheckout myCheckout;
-    
-    public CommitMojo() {
-        super(true);
-    }
 
     @Override
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
+        super.validateParameters(log, project);
         scope = Scope.find(scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
         if (checkout.isEmpty())
@@ -59,10 +53,12 @@ public class CommitMojo extends BaseMojo
                     + " does not seem to be part of a git checkout.");
         }
         myCheckout = checkout.get();
-        if (message == null)
-        {
-            throw new MojoExecutionException("Commit message not set");
-        }
+    }
+
+    @Override
+    protected boolean isOncePerSession()
+    {
+        return true;
     }
 
     private String family()
@@ -77,34 +73,25 @@ public class CommitMojo extends BaseMojo
     {
         ProjectTree.from(project).ifPresent(tree ->
         {
-            List<GitCheckout> checkouts = PushMojo.checkoutsForScope(scope, tree,
-                    myCheckout, updateRoot, family())
-                    .stream()
-                    .filter(GitCheckout::hasUncommitedChanges)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            GitCheckout root = tree.root();
-            if (updateRoot && !checkouts.contains(root))
+            Set<GitCheckout> checkouts = PushMojo.checkoutsForScope(scope, tree,
+                    myCheckout, updateRoot, family());
+
+            var dirty = false;
+            for (var checkout : checkouts)
             {
-                checkouts.add(root);
-            }
-            checkouts.sort((a, b) ->
-            {
-                int result = Integer.compare(b.checkoutRoot().getNameCount(), a.checkoutRoot().getNameCount());
-                if (result == 0)
-                {
-                    result = a.checkoutRoot().compareTo(b.checkoutRoot());
-                }
-                return result;
-            });
-            log.info("Begin commit with message '" + message + "'");
-            for (GitCheckout at : checkouts)
-            {
-                log.info("add/commit " + at);
                 if (!pretend)
                 {
-                    at.addAll();
-                    at.commit(message);
+                    if (checkout.isDirty())
+                    {
+                        dirty = true;
+                        log.info("* " + checkout);
+                    }
                 }
+            }
+
+            if (!dirty)
+            {
+                log.info("\nClean\n\n");
             }
         });
     }

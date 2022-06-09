@@ -9,21 +9,12 @@
 
 source telenav-library-functions.sh
 
-title=$1
-body=$1
+#
+# telenav-build-lexakai-documentation.sh [scope]?
+#
+# scope = { all, this, <family-name> }
+#
 
-require_variable title "[title] [body]"
-require_variable body "[title] [body]"
-
-if git_flow_check_all_repositories; then
-
-    cd "$TELENAV_WORKSPACE" || exit
-
-    gh auth login --hostname github.com --with-token < ~/token.txt
-    gh pr create --title "$title" --body "$body"
-
-else
-
-    echo "Unable to create pull request"
-
-fi
+cd_workspace
+scope=$(repository_scope "$1")
+mvn --quiet "$scope" com.telenav.cactus:cactus-build-maven-plugin:lexakai || exit 1
