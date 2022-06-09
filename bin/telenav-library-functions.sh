@@ -27,7 +27,13 @@ repository_scope()
 
     *)
         if [[ "${scope}" == "" ]]; then
-            echo "-Dtelenav.scope=ALL"
+
+            if [[ "${TELENAV_SCOPE}" == "" ]]; then
+                echo "-Dtelenav.scope=ALL"
+            else
+                echo "$TELENAV_SCOPE"
+            fi
+
         else
             echo "-Dtelenav.scope=FAMILY -Dtelenav.family=${scope}"
         fi
