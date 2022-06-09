@@ -6,7 +6,9 @@ import static com.telenav.cactus.maven.git.GitCheckout.reverseDepthSort;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.util.PathUtils;
-import com.telenav.lexakai.Lexakai;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -15,11 +17,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.maven.plugin.MojoFailureException;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.LocalArtifactRequest;
+import org.eclipse.aether.repository.LocalArtifactResult;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
 
 /**
  * Runs lexakai to generate documentation and diagrams for a project into some
@@ -108,7 +118,7 @@ public class LexakaiMojo extends BaseMojo
     @Override
     protected boolean isOncePerSession()
     {
-        return true;
+        return false;
     }
 
     @Override
@@ -177,12 +187,9 @@ public class LexakaiMojo extends BaseMojo
         }
     }
 
-    private ThrowingRunnable runLexakai(List<String> args)
+    private ThrowingRunnable runLexakai(List<String> args) throws Exception
     {
-        return () ->
-        {
-            Lexakai.main(args.toArray(String[]::new));
-        };
+        return new LexakaiRunner(lexakaiJar(), args);
     }
 
     private Set<GitCheckout> collectedChangedRepos(MavenProject prj, ThrowingRunnable toRun)
@@ -296,5 +303,69 @@ public class LexakaiMojo extends BaseMojo
             tail = tail.substring(0, hyphen);
         }
         return tail + "_ASSETS_HOME";
+    }
+
+    private Path lexakaiJar() throws MojoFailureException
+    {
+        // PENDING: We should pass in a target version of lexakai, not hard-code it
+        Artifact af = new DefaultArtifact("com.telenav.lexakai", "Lexakai", "jar", "1.0.7");
+        LocalArtifactRequest locArtifact = new LocalArtifactRequest();
+        locArtifact.setArtifact(af);
+        RemoteRepository remoteRepo = new RemoteRepository.Builder("central",
+                "x", "https://repo1.maven.org/maven2")
+                .build();
+        locArtifact.setRepositories(Collections.singletonList(remoteRepo));
+        RepositorySystemSession sess = session().getRepositorySession();
+        LocalArtifactResult res = sess.getLocalRepositoryManager().find(sess, locArtifact);
+        log.warn("Download result for " + af + ": " + res);
+        if (res != null && res.getFile() != null)
+        {
+            log.warn("Have local lexakai jar " + res.getFile());
+            return res.getFile().toPath();
+        }
+        throw new MojoFailureException("Could not download " + af + " from " + remoteRepo.getUrl());
+    }
+
+    class LexakaiRunner implements ThrowingRunnable
+    {
+
+        private final Path jarFile;
+        private final List<String> args;
+        private final BuildLog runLog = BuildLog.get().child("LexakaiRunner");
+
+        LexakaiRunner(Path jarFile, List<String> args)
+        {
+            this.jarFile = jarFile;
+            this.args = args;
+        }
+
+        @Override
+        public void run() throws Exception
+        {
+            ClassLoader ldr = Thread.currentThread().getContextClassLoader();
+
+            try
+            {
+                URL[] url = new URL[]
+                {
+                    new URL("jar:" + jarFile.toUri().toURL() + "!/")
+                };
+                runLog.warn("Invoke lexakai reflectivly from " + url[0]);
+                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai", url, ldr))
+                {
+                    Thread.currentThread().setContextClassLoader(jarLoader);
+                    Class<?> what = jarLoader.loadClass("com.telenav.lexakai.Lexakai");
+                    runLog.warn("Have class " + what);
+                    Method mth = what.getMethod("main", String[].class);
+                    System.out.println("Have method " + mth);
+                    mth.invoke(null, (Object) args.toArray(String[]::new));
+                    System.out.println("Lexakai done.");
+                }
+            } finally
+            {
+                Thread.currentThread().setContextClassLoader(ldr);
+            }
+        }
+
     }
 }
