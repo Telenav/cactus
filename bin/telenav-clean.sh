@@ -7,9 +7,15 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source "$KIVAKIT_WORKSPACE"/kivakit/tools/library/kivakit-library-functions.sh
+source "telenav-library-functions.sh"
 
 clean_cache "$KIVAKIT_CACHE_HOME"
 clean_cache "$MESAKIT_CACHE_HOME"
 
-clean_temporary_files "$KIVAKIT_WORKSPACE"
+if [[ ! "$1" == "sparkling" ]]; then
+
+    clean_maven_repository_telenav
+
+fi
+
+clean_temporary_files "$TELENAV_WORKSPACE"

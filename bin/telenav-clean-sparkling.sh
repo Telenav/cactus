@@ -8,15 +8,7 @@
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 source telenav-library-functions.sh
-source kivakit-library-build.sh
 
-# shellcheck disable=SC2034
-project_home=$1
+remove_maven_repository
 
-shift
-
-require_variable project_home "[project-home] [arguments]*"
-
-echo "building $project_home: $@"
-
-build "$project_home" "$@"
+bash telenav-clean.sh sparkling

@@ -7,8 +7,7 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source telenav-library-functions.sh
-
-remove_maven_repository
-
-bash kivakit-clean.sh
+echo " "
+# shellcheck disable=SC2009
+ps aux | grep java | grep -e "kivakit|mesakit|cactus-build" | grep -v JetBrains | grep -v maven | grep -v surefire | grep -v Eclipse | grep -v "grep java"
+echo " "

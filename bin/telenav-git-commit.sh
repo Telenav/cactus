@@ -9,8 +9,27 @@
 
 source telenav-library-functions.sh
 
-cd "$KIVAKIT_WORKSPACE" || exit 1
+#
+# telenav-git-commit.sh [message]?
+#
 
-git pull --quiet
+#
+# Get message
+#
 
-repository_foreach_quiet 'git pull --quiet'
+message=$1
+
+if [[ "$message" == "" ]]; then
+
+    read -p "Commit message? " -r
+    message=$REPLY
+
+fi
+
+#
+# Commit
+#
+
+cd_workspace
+scope=$(repository_scope)
+echo mvn --quiet "$scope" -Dtelenav.commit-message=\""$message"\" -Dtelenav.update-root=true com.telenav.cactus:cactus-build-maven-plugin:commit || exit 1

@@ -7,6 +7,12 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+source telenav-library-functions.sh
+
+#
+# telenav-git-hard-reset.sh
+#
+
 if yes_no "WARNING: A git hard reset is NOT recoverable. Proceed? "; then
 
     git reset --hard HEAD && git clean -f -d

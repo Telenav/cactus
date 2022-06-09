@@ -9,21 +9,12 @@
 
 source telenav-library-functions.sh
 
-# shellcheck disable=SC2034
-branch_name=$1
+#
+# telenav-git-pull.sh [scope]?
+#
+# scope = { all, this, <family-name> }
+#
 
-require_variable branch_name "[branch-name]"
-
-if git_flow_check_all_repositories; then
-
-    # shellcheck disable=SC2016
-    repository_foreach 'git checkout --quiet $branch_name'
-    repository_foreach 'git checkout --quiet publish'
-
-else
-
-    echo "Unable to switch to $branch_name branch"
-
-fi
-
-kivakit-git-pull.sh
+cd_workspace
+scope=$(repository_scope "$1")
+mvn --quiet "$scope" com.telenav.cactus:cactus-build-maven-plugin:pull || exit 1
