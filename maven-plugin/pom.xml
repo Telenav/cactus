@@ -51,7 +51,12 @@
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>function</artifactId>
-            <version>${mastfrog.version}</version>
+            <version>${mastfrog.version}.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${mastfrog.version}.1</version>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
