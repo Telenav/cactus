@@ -7,7 +7,20 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source cactus-library-functions.sh
-source cactus-projects.sh
+source telenav-library-functions.sh
 
-showVersion "$CACTUS_HOME"
+# shellcheck disable=SC2034
+branch_name=$1
+
+require_variable branch_name "[branch-name]"
+
+if git_flow_check_all_repositories; then
+
+    # shellcheck disable=SC2016
+    repository_foreach 'git-flow feature finish $branch_name'
+
+else
+
+    echo "Unable to finish branch $branch_name"
+
+fi

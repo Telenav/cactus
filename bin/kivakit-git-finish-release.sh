@@ -7,12 +7,20 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source "$CACTUS_HOME"/tools/library/cactus-library-functions.sh
-source "$CACTUS_HOME"/tools/library/cactus-library-build.sh
-source "$CACTUS_HOME"/tools/library/cactus-projects.sh
+source telenav-library-functions.sh
 
-for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
+# shellcheck disable=SC2034
+branch_name=$1
 
-    build "$project_home" $@
+require_variable branch_name "[branch-name]"
 
-done
+if git_flow_check_all_repositories; then
+
+    # shellcheck disable=SC2016
+    repository_foreach 'git-flow release finish $branch_name'
+
+else
+
+    echo "Unable to finish branch $branch_name"
+
+fi

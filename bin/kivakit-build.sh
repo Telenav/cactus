@@ -7,6 +7,14 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source $CACTUS_HOME/tools/library/cactus-library-functions.sh
+source telenav-library-functions.sh
+source kivakit-library-build.sh
 
-lexakai $@
+# shellcheck disable=SC2068
+kivakit_build_all $@
+
+if [ -n "$BUILD_DOCUMENTATION" ]; then
+
+    bash telenav-build-documentation.sh
+
+fi

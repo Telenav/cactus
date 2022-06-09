@@ -7,8 +7,7 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source cactus-library-functions.sh
-source cactus-projects.sh
+source telenav-library-functions.sh
 
 help="[version]"
 
@@ -16,7 +15,37 @@ version=$1
 
 require_variable version "$help"
 
-if [ "$CACTUS_VERSION" = "$version" ]; then
+if [ "$KIVAKIT_VERSION" = "$version" ]; then
+
+    docs="$KIVAKIT_WORKSPACE/kivakit-assets/docs/$KIVAKIT_VERSION"
+
+    if [ ! -d "$docs/codeflowers" ]; then
+
+        echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Building Codeflowers  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+        echo "┋"
+        echo "┋  output: $docs/codeflowers"
+        echo "┋"
+        echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+
+        mkdir -p "$docs"
+        cp -r "$KIVAKIT_WORKSPACE/kivakit-assets/docs/1.4.0/codeflowers" "$docs"
+        cd "$docs/codeflowers" || exit
+        bash ./kivakit-build-codeflowers.sh
+
+        echo " "
+        echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Verify Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+        echo "┋"
+        echo "┋  Next Steps:"
+        echo "┋"
+        echo "┋  1. Check the release"
+        echo "┋  2. Update change-log.md"
+        echo "┋  3. Rerun this script: $(basename "$0") $1"
+        echo "┋"
+        echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
+        echo " "
+        exit 0
+
+    fi
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Building Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
@@ -26,8 +55,14 @@ if [ "$CACTUS_VERSION" = "$version" ]; then
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
 
-    bash cactus-build.sh deploy-local
-    bash cactus-build-documentation.sh
+    if yes_no "Maven repository and .kivakit/$version folders must be removed to build a release. Remove them?"; then
+
+        rm -rf ~/.m2/repository
+        rm -rf ~/.kivakit/"$version"
+
+    fi
+
+    bash kivakit-build.sh deploy-local # single-threaded
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Built  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
@@ -38,7 +73,7 @@ if [ "$CACTUS_VERSION" = "$version" ]; then
     echo "┋  Next Steps:"
     echo "┋"
     echo "┋  1. Check the release/$version branch carefully to make sure it's ready to go"
-    echo "┋  2. Run cactus-release-finish.sh $version"
+    echo "┋  2. Run kivakit-release-finish.sh $version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
@@ -48,22 +83,22 @@ else
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  Current Version: $CACTUS_VERSION"
+    echo "┋  Current Version: $KIVAKIT_VERSION"
     echo "┋  Release Version: $version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
 
-    if cactus-release-start.sh "$version"; then
+    if kivakit-release-start.sh "$version"; then
 
         echo " "
         echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Created  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
         echo "┋"
-        echo "┋  1. The branch release/$version has been created with git flow "
-        echo "┋  2. Build files have been updated from $CACTUS_VERSION to $version"
+        echo "┋  1. The branch release/$version has been created"
+        echo "┋  2. Build files have been updated from $KIVAKIT_VERSION to $version"
         echo "┋"
-        echo "┋  EXIT YOUR TERMINAL PROGRAM ENTIRELY and restart it, then re-execute the command:"
+        echo "┋  EXIT YOUR TERMINAL PROGRAM ENTIRELY, restart it, and then re-run this script:"
         echo "┋"
-        echo "┋  $(basename $0) $1"
+        echo "┋    $(basename "$0") $1"
         echo "┋"
         echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
         echo " "
@@ -71,4 +106,3 @@ else
     fi
 
 fi
-

@@ -9,6 +9,29 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
 fi
 
+################ BUILD ##################################################################################################
+
+build_scope()
+{
+    scope=$1
+
+    case "${scope}" in
+
+    "all")
+        echo "-Dtelenav.scope=ALL"
+        ;;
+
+    "this")
+        echo "-Dtelenav.scope=JUST_THIS"
+        ;;
+
+    *)
+        echo "-Dtelenav.scope=FAMILY -Dtelenav.family=${scope}"
+        ;;
+
+    esac
+}
+
 ################ PROJECT ################################################################################################
 
 property_value()
@@ -28,6 +51,7 @@ project_version()
     mvn -q -DforceStdout org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version || exit 1
     popd 1>/dev/null || exit 1
 }
+
 project_name()
 {
     project_home=$1
@@ -41,7 +65,7 @@ project_build()
 {
     project_home=$1
 
-    build_properties=$project_home/build.properties
+    build_properties="$KIVAKIT_HOME/kivakit-core/target/classes/build.properties"
 
     if [ -e "$build_properties" ]; then
 
@@ -56,7 +80,34 @@ project_build()
     fi
 }
 
-showVersion()
+bracket()
+{
+    name=$1
+    shift
+
+    echo " " && echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ \$name && $*" && echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" && echo " "
+
+}
+
+repository_foreach()
+{
+    cd "$KIVAKIT_WORKSPACE" || exit
+    git submodule foreach --quiet "echo && echo ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ \$name && $* && echo ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ && echo "
+}
+
+repository_foreach_quiet()
+{
+    cd "$KIVAKIT_WORKSPACE" || exit
+    git submodule foreach --quiet $*
+}
+
+project_foreach()
+{
+    cd "$KIVAKIT_WORKSPACE" || exit
+    git submodule foreach ---recurse -quiet "echo && echo ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ \$name && $* && echo ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ && echo "
+}
+
+show_version()
 {
     project_home=$1
     project_name=$(project_name "$project_home")
@@ -67,9 +118,28 @@ showVersion()
 
 ################ CLEAN ################################################################################################
 
-clean_cache() {
+allow_cleaning()
+{
+    if [ -z "$ALLOW_CLEANING" ]; then
 
-    if [[ "$ALLOW_CLEANING" == "true" ]]; then
+        ALLOW_CLEANING=true
+
+    fi
+
+    if [ "$ALLOW_CLEANING" == "true" ]; then
+
+        return 0
+
+    else
+
+        return 1
+
+    fi
+}
+
+clean_cache()
+{
+    if allow_cleaning; then
 
         cache=$1
 
@@ -85,74 +155,102 @@ clean_cache() {
     fi
 }
 
-clean_maven_repository() {
+clean_maven_repository()
+{
+    if allow_cleaning; then
 
-    project_home=$1
-    name=$(basename -- "$project_home")
+        project_home=$1
+        name=$(basename -- "$project_home")
 
-    if yes_no "┋ Remove all $name artifacts from $HOME/.m2/repository"; then
+        if yes_no "┋ Remove all $name artifacts from $HOME/.m2/repository"; then
 
-        rm -rf "$HOME/.m2/repository/com/telenav/$name"
-
-    fi
-}
-
-remove_maven_repository() {
-
-    if [ -d "$HOME/.m2/repository" ]; then
-
-        if yes_no "┋ Remove ALL artifacts in $HOME/.m2/repository"; then
-
-            rm -rf "$HOME/.m2/repository"
+            rm -rf "$HOME/.m2/repository/com/telenav/$name"
 
         fi
 
     fi
 }
 
-clean_temporary_files() {
+clean_maven_repository_telenav()
+{
+    if allow_cleaning; then
 
+        if yes_no "┋ Remove all Telenav artifacts from $HOME/.m2/repository"; then
+
+            rm -rf "$HOME/.m2/repository/com/telenav"
+
+        fi
+
+    fi
+}
+
+remove_maven_repository()
+{
+    if allow_cleaning; then
+
+        if [ -d "$HOME/.m2/repository" ]; then
+
+            if yes_no "┋ Remove ALL artifacts in $HOME/.m2/repository"; then
+
+                rm -rf "$HOME/.m2/repository"
+
+            fi
+        fi
+    fi
+}
+
+clean_temporary_files()
+{
     project_home=$1
 
-    if yes_no "┋ Remove temporary files (.DS_Store, .metadata, .classpath, .project, *.hprof, *~) from $project_home tree"; then
+    if allow_cleaning; then
+
+        if yes_no "┋ Remove transient files from $project_home tree"; then
 
         # shellcheck disable=SC2038
         find "$project_home" \( -name \.DS_Store -o -name \.metadata -o -name \.classpath -o -name \.project -o -name \*\.hprof -o -name \*~ \) | xargs rm
 
+        fi
     fi
 }
 
 ################ COMMAND LINE ################################################################################################
 
-script() {
-
+script()
+{
     # shellcheck disable=SC2046
     # shellcheck disable=SC2005
     echo $(basename -- "$0")
 }
 
-usage() {
-
+usage()
+{
     argument_help=$1
 
     echo "Usage: $(script) $argument_help"
     exit 1
 }
 
-require_variable() {
-
+require_variable()
+{
     variable=$1
     argument_help=$2
 
     if [[ -z "${!variable}" ]]; then
 
-        usage "$argument_help"
+        if [[ "$argument_help" == *"["* ]]; then
+            usage "$argument_help"
+        else
+            echo "$argument_help"
+        fi
+
+        exit 1
 
     fi
 }
 
-require_folder() {
-
+require_folder()
+{
     variable=$1
     argument_help=$2
 
@@ -167,61 +265,112 @@ require_folder() {
 ################ GIT ################################################################################################
 
 
-git_flow_check_changes() {
+git_flow_check_all_repositories()
+{
+    export -f git_flow_check_changes
+    # shellcheck disable=SC2016
+    repository_foreach 'git_flow_check_changes $KIVAKIT_WORKSPACE $path && if [ $? -eq 0 ]; then
+        exit 1
+    fi'
+}
 
+git_flow_check_changes()
+{
     project_home=$1
 
-    cd $project_home
+    cd "$project_home" || exit
 
+    # shellcheck disable=SC2006
     if [[  `git status --porcelain` ]]; then
-        echo " "
-        echo "Project contains changes that must be committed first: $project_home"
-        echo " "
+        echo "Uncommitted changes: $project_home"
         exit 1
     fi
 }
 
-git_flow_init() {
+git_flow_install()
+{
+    echo " "
+    echo "Please install latest git flow AVH Edition:"
+    echo " "
+    echo "MacOS: brew install git-flow-avh"
+    echo " "
 
+    exit 1
+}
+
+git_flow_init()
+{
     project_home=$1
 
-    cd $project_home
-
-    git_flow_check_changes $project_home
-
-    git flow init -d /dev/null 2>&1
+    cd "$project_home" || exit
 
     if [ "$(git flow config >/dev/null 2>&1)" ]; then
-        echo " "
-        echo "Please install git flow and try again."
-        echo "See https://kivakit.org for details."
-        echo " "
-        exit 1
+
+        git_flow_install
+
     fi
+
+    git_flow_version=$(git flow version);
+
+    if ! grep -q AVH <<<"$git_flow_version"; then
+
+        git_flow_install
+
+    fi
+
+    git_flow_check_changes "$project_home"
+
+    git flow init -f -d --feature feature/  --bugfix bugfix/ --release release/ --hotfix hotfix/ --support support/ -t ''
+
+
 }
 
-git_flow_release_start() {
-
+git_flow_release_start()
+{
     project_home=$1
     version=$2
 
     echo " "
-    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Creating Release Branch  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Preparing Release Branch  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  Creating $project_name git flow branch release/$version"
+    echo "┋  Preparing $(basename "$project_home") branch: release/$version"
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
 
-    # Check out the develop branch
     cd "$project_home" || exit
-    git checkout develop
 
-    # then start a new release branch
-    git flow release start "$version"
+    branch_name=$(git_branch_name "$project_home")
 
-    # switch to the release branch
-    git checkout release/"$version"
+    if [ "$branch_name" = "release/$version" ]; then
+
+        echo "Already on release branch: $branch_name"
+
+    else
+
+        git_flow_init "$project_home"
+
+        # Check out the develop branch
+        git checkout develop
+
+        # then start a new release branch
+        git flow release start "$version"
+
+        branch_name=$(git_branch_name "$project_home")
+
+        if [ "$branch_name" = "release/$version" ]; then
+
+            # switch to the release branch
+            git checkout release/"$version"
+
+        else
+
+            echo "Could not create release branch: release/$version"
+            exit 1
+
+        fi
+
+    fi
 
     # and update its version
     update_version "$project_home" "$version"
@@ -230,6 +379,7 @@ git_flow_release_start() {
 git_branch_name()
 {
     project_home=$1
+
     cd "$project_home" || exit
     branch_name=$(git rev-parse --abbrev-ref HEAD)
     echo "$branch_name"
@@ -243,21 +393,23 @@ git_flow_release_finish()
     cd "$project_home" || exit
 
     git checkout master
+    git pull
     git tag -a "$version" -m "$version"
     git checkout release/"$version"
-    git flow merge finish "$version"
+    git flow release finish "$version"
+    git push origin --tags
 
     echo " "
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫ Release Merged to Master  ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
     echo "┋"
-    echo "┋  The branch 'release/$version' has been merged into master using git flow."
+    echo "┋  The branch 'release/$version' has been merged into master."
     echo "┋"
     echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     echo " "
 }
 
-git_flow_feature_start() {
-
+git_flow_feature_start()
+{
     project_home=$1
     feature_name=$2
 
@@ -269,8 +421,8 @@ git_flow_feature_start() {
     fi
 }
 
-git_flow_feature_finish() {
-
+git_flow_feature_finish()
+{
     project_home=$1
     feature_name=$2
 
@@ -281,8 +433,8 @@ git_flow_feature_finish() {
     fi
 }
 
-git_flow_hotfix_start() {
-
+git_flow_hotfix_start()
+{
     project_home=$1
     feature_name=$2
 
@@ -294,21 +446,23 @@ git_flow_hotfix_start() {
     fi
 }
 
-git_flow_hotfix_finish() {
-
+git_flow_hotfix_finish()
+{
     project_home=$1
     feature_name=$2
 
     if yes_no "Finish '$feature_name' branch of $project_home"; then
+
         cd "$project_home" || exit
         git-flow hotfix finish "$feature_name"
+
     fi
 }
 
 ################ VERSIONING ################################################################################################
 
-update_version() {
-
+update_version()
+{
     project_home=$1
     new_version=$2
 
@@ -317,8 +471,8 @@ update_version() {
     echo " "
     echo "Updating $(project_name "$project_home") version from $old_version to $new_version"
 
-    # Update POM versions and .md files
-    cactus-update-version.pl "$project_home" "$old_version" "$new_version"
+    # Update POM versions project.properties files
+    kivakit-update-version.pl "$project_home" "$old_version" "$new_version"
 
     echo "Updated"
     echo " "
@@ -326,16 +480,18 @@ update_version() {
 
 ################ UTILITY ################################################################################################
 
-append_path() {
+append_path()
+{
     export PATH="$PATH:$1"
 }
 
-prepend_path() {
+prepend_path()
+{
     export PATH="$1:$PATH"
 }
 
-source_project_profile() {
-
+source_project_profile()
+{
     project_name=$1
 
     common_profile="$KIVAKIT_WORKSPACE/${project_name}/tools/library/${project_name}-common-profile.sh"
@@ -352,23 +508,25 @@ source_project_profile() {
     fi
 }
 
-system_variable() {
-
+system_variable()
+{
     variable=$1
     value=$2
-    temporary="${TMPDIR%/}/export.txt"
+    temporary="${TMPDIR}export.txt"
 
     echo "export $variable=\"$value\"" >"$temporary"
     # shellcheck disable=SC1090
     source "$temporary"
 
     if is_mac; then
+
         launchctl setenv "$variable" "$value"
+
     fi
 }
 
-is_mac() {
-
+is_mac()
+{
     if [[ "$OSTYPE" == "darwin"* ]]; then
         true
     else
@@ -376,8 +534,8 @@ is_mac() {
     fi
 }
 
-lexakai() {
-
+lexakai()
+{
     lexakai_download_version="1.0.7"
     lexakai_download_name="lexakai-1.0.7.jar"
 
@@ -407,14 +565,14 @@ lexakai() {
     fi
 
     # -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044
-    echo "java -jar $lexakai_jar -overwrite-resources=true -update-readme=true $*"
+    echo "java -jar $lexakai_jar $*"
 
     # shellcheck disable=SC2068
-    java -jar "$lexakai_jar" -overwrite-resources=true -update-readme=true $@
+    java -jar "$lexakai_jar" $@
 }
 
-yes_no() {
-
+yes_no()
+{
     if [ -z "${NO_PROMPT}" ]; then
 
         prompt=$1

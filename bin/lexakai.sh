@@ -7,17 +7,6 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source cactus-library-functions.sh
-source cactus-projects.sh
+source "$KIVAKIT_HOME"/tools/library/kivakit-library-functions.sh
 
-help="[feature-name]"
-
-feature_name=$1
-
-require_variable feature_name "$help"
-
-for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
-
-    git_flow_feature_start "$project_home" "$feature_name"
-
-done
+lexakai "$@"

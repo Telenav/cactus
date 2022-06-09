@@ -7,19 +7,8 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source cactus-library-functions.sh
-source cactus-projects.sh
+source telenav-library-functions.sh
 
-version="$1"
+remove_maven_repository
 
-help="[version]"
-
-require_variable version "[version]"
-
-snapshot_version="${1%-SNAPSHOT}-SNAPSHOT"
-
-for project_home in "${CACTUS_REPOSITORY_HOMES[@]}"; do
-
-    update_version "$project_home" "$version"
-
-done
+bash kivakit-clean.sh

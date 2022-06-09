@@ -7,17 +7,26 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source cactus-library-functions.sh
-source cactus-projects.sh
+source telenav-library-functions.sh
 
-help="[feature-name]"
+help="[version]"
 
-feature_name=$1
+version=$1
 
-require_variable feature_name "$help"
+require_variable version "$help"
 
-for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
+for project_home in "${KIVAKIT_REPOSITORY_HOMES[@]}"; do
 
-    git_flow_feature_finish "$project_home" "$feature_name"
+    if ! git_flow_init "$project_home"; then
+
+        exit 1
+
+    fi
+
+done
+
+for project_home in "${KIVAKIT_REPOSITORY_HOMES[@]}"; do
+
+    git_flow_release_start "$project_home" "$version"
 
 done

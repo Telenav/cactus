@@ -7,8 +7,7 @@
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-source cactus-library-functions.sh
-source cactus-projects.sh
+source telenav-library-functions.sh
 
 help="[version]"
 
@@ -24,7 +23,7 @@ echo "┋"
 echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
 echo " "
 
-for project_home in "${CACTUS_PROJECT_HOMES[@]}"; do
+for project_home in "${KIVAKIT_REPOSITORY_HOMES[@]}"; do
 
     update_version "$project_home" "$version"
 
