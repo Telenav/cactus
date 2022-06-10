@@ -2,6 +2,7 @@ package com.telenav.cactus.maven.util;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.optional.ThrowingOptional;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,21 +13,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
- * A utility program we need to run, which takes care of the general ugliness of
- * java process management, and converting output into a usable object.
+ * A utility program we need to run, which takes care of the general ugliness of java process management, and converting
+ * output into a usable object.
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 public abstract class CliCommand<T> implements Supplier<String>
 {
-
-    protected final String name;
-    protected final ProcessResultConverter<T> resultCreator;
-
-    public CliCommand(String name, ProcessResultConverter<T> resultCreator)
+    public static AwaitableCompletionStage<Process> completionStageForProcess(Process proc)
     {
-        this.name = name;
-        this.resultCreator = resultCreator;
+        return AwaitableCompletionStage.of(proc.onExit());
     }
 
     public static CliCommand<String> fixed(String command, Path workingDir, String... fixedArgs)
@@ -36,8 +33,8 @@ public abstract class CliCommand<T> implements Supplier<String>
 
     static class SimpleCommand extends CliCommand<String>
     {
-
         private final Path workingDir;
+
         private final String[] fixedArgs;
 
         public SimpleCommand(String name, Path workingDir, String... fixedArgs)
@@ -48,21 +45,45 @@ public abstract class CliCommand<T> implements Supplier<String>
         }
 
         @Override
-        protected Optional<Path> workingDirectory()
-        {
-            return Optional.ofNullable(workingDir);
-        }
-
-        @Override
         protected void configureArguments(List<String> list)
         {
             list.addAll(Arrays.asList(fixedArgs));
         }
+
+        @Override
+        protected Optional<Path> workingDirectory()
+        {
+            return Optional.ofNullable(workingDir);
+        }
+    }
+
+    protected final String name;
+
+    protected final ProcessResultConverter<T> resultCreator;
+
+    public CliCommand(String name, ProcessResultConverter<T> resultCreator)
+    {
+        this.name = name;
+        this.resultCreator = resultCreator;
     }
 
     public String get()
     {
         return toString();
+    }
+
+    public AwaitableCompletionStage<T> run()
+    {
+        return AwaitableCompletionStage.from(() ->
+        {
+            ThrowingOptional<Process> p = launch();
+            if (!p.isPresent())
+            {
+                return CompletableFuture.failedStage(
+                        new IOException("Could not find executable for " + this));
+            }
+            return resultCreator.onProcessStarted(this, p.get());
+        });
     }
 
     @Override
@@ -76,15 +97,8 @@ public abstract class CliCommand<T> implements Supplier<String>
             sb.append(' ').append(arg);
         }
         workingDirectory().ifPresent(dir ->
-        {
-            sb.append(" (in ").append(dir).append(')');
-        });
+                sb.append(" (in ").append(dir).append(')'));
         return sb.toString();
-    }
-
-    protected Optional<Path> workingDirectory()
-    {
-        return Optional.empty();
     }
 
     /**
@@ -104,47 +118,6 @@ public abstract class CliCommand<T> implements Supplier<String>
         // for subclasses
     }
 
-    /**
-     * Throw here if the command is misconfigured and cannot be run.
-     */
-    protected void validate()
-    {
-        // do nothing
-    }
-
-    private void internalConfigureProcessBuilder(ProcessBuilder bldr)
-    {
-        workingDirectory().ifPresent(dir ->
-        {
-            bldr.directory(dir.toFile());
-        });
-        configureProcessBulder(bldr);
-    }
-
-    public AwaitableCompletionStage<T> run()
-    {
-        return AwaitableCompletionStage.<T>from(() ->
-        {
-            ThrowingOptional<Process> p = launch();
-            if (!p.isPresent())
-            {
-                return CompletableFuture.failedStage(
-                        new IOException("Could not find executable for " + this));
-            }
-            return resultCreator.onProcessStarted(this, p.get());
-        });
-    }
-
-    /**
-     * Override to log process start or similar.
-     *
-     * @param proc A process
-     */
-    protected void onLaunch(Process proc)
-    {
-
-    }
-
     protected ThrowingOptional<Process> launch()
     {
         validate();
@@ -160,8 +133,35 @@ public abstract class CliCommand<T> implements Supplier<String>
             return proc;
         });
     }
-    
-    public static AwaitableCompletionStage<Process> completionStageForProcess(Process proc) {
-        return AwaitableCompletionStage.of(proc.onExit());
+
+    /**
+     * Override to log process start or similar.
+     *
+     * @param proc A process
+     */
+    protected void onLaunch(Process proc)
+    {
+    }
+
+    /**
+     * Throw here if the command is misconfigured and cannot be run.
+     */
+    protected void validate()
+    {
+        // do nothing
+    }
+
+    protected Optional<Path> workingDirectory()
+    {
+        return Optional.empty();
+    }
+
+    private void internalConfigureProcessBuilder(ProcessBuilder bldr)
+    {
+        workingDirectory().ifPresent(dir ->
+        {
+            bldr.directory(dir.toFile());
+        });
+        configureProcessBulder(bldr);
     }
 }

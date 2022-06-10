@@ -1,49 +1,16 @@
 package com.telenav.cactus.maven.git;
 
 import com.telenav.cactus.maven.log.BuildLog;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author Tim Boudreau
  */
 public class GitRemotes
 {
-
-    public final String name;
-    public final String pushUrl;
-    public final String fetchUrl;
-
-    public GitRemotes(String name, String pushUrl, String fetchUrl)
-    {
-        this.name = name;
-        this.pushUrl = pushUrl;
-        this.fetchUrl = fetchUrl;
-    }
-    
-    public String name() {
-        return name;
-    }
-
-    public void collectRemoteNames(Set<? super String> into)
-    {
-        collectRemoteNames(pushUrl, into);
-        collectRemoteNames(fetchUrl, into);
-    }
-
-    private static void collectRemoteNames(String remoteUrl, Set<? super String> into)
-    {
-        String[] urlParts = remoteUrl.split("[/:]");
-        String last = urlParts[urlParts.length - 1];
-        if (last.endsWith(".git"))
-        {
-            last = last.substring(0, last.length() - 4);
-        }
-        into.add(last);
-    }
-
     static Map<String, GitRemotes> from(String output)
     {
         Map<String, String> pushUrls = new HashMap<>();
@@ -82,10 +49,45 @@ public class GitRemotes
         return result;
     }
 
+    public final String name;
+
+    public final String pushUrl;
+
+    public final String fetchUrl;
+
+    public GitRemotes(String name, String pushUrl, String fetchUrl)
+    {
+        this.name = name;
+        this.pushUrl = pushUrl;
+        this.fetchUrl = fetchUrl;
+    }
+
+    public void collectRemoteNames(Set<? super String> into)
+    {
+        collectRemoteNames(pushUrl, into);
+        collectRemoteNames(fetchUrl, into);
+    }
+
+    public String name()
+    {
+        return name;
+    }
+
     @Override
     public String toString()
     {
         // Emit the same format we consume
         return name + " " + fetchUrl + " (fetch)\n" + name + " " + pushUrl + " (push)";
+    }
+
+    private static void collectRemoteNames(String remoteUrl, Set<? super String> into)
+    {
+        String[] urlParts = remoteUrl.split("[/:]");
+        String last = urlParts[urlParts.length - 1];
+        if (last.endsWith(".git"))
+        {
+            last = last.substring(0, last.length() - 4);
+        }
+        into.add(last);
     }
 }

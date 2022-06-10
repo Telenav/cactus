@@ -4,17 +4,19 @@ import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.git.NeedPushResult;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 /**
  * Perform a git push in any projects that need it, scoped by the
@@ -22,6 +24,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -29,34 +32,6 @@ import org.apache.maven.project.MavenProject;
         name = "push", threadSafe = true)
 public class PushMojo extends ScopedCheckoutsMojo
 {
-
-    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true",
-            name = "permit-local-modifications")
-    private boolean permitLocalModifications;
-
-    @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
-    {
-        // Depth first sort, so we process the submodule root last, in
-        // case commits to child modules put it into the dirty state.
-        List<Map.Entry<GitCheckout, NeedPushResult>> needingPush
-                = GitCheckout.depthFirstSort(collectPushKinds(checkouts));
-        if (needingPush.isEmpty())
-        {
-            log.info("No projects needing push in " + needingPush);
-        } else
-        {
-            pullIfNeededAndPush(log, project, needingPush);
-        }
-    }
-
-    @Override
-    protected boolean forbidsLocalModifications()
-    {
-        return !permitLocalModifications;
-    }
-
     static Map<GitCheckout, NeedPushResult> collectPushKinds(Collection<? extends GitCheckout> checkouts)
     {
         Map<GitCheckout, NeedPushResult> result = new HashMap<>();
@@ -74,20 +49,36 @@ public class PushMojo extends ScopedCheckoutsMojo
     static boolean needPull(GitCheckout checkout)
     {
         return checkout.mergeBase().map((String mergeBase) ->
-        {
-            return checkout.remoteHead().map((String remoteHead) ->
-            {
-                return checkout.head().equals(mergeBase);
-            }).orElse(false);
-        }).orElse(false);
+                checkout.remoteHead().map((String remoteHead) ->
+                        checkout.head().equals(mergeBase)).orElse(false)).orElse(false);
     }
 
-    private void pullIfNeededAndPush(BuildLog log, MavenProject project,
-            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
+    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true",
+               name = "permit-local-modifications")
+    private boolean permitLocalModifications;
+
+    @Override
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child("checkNeedPull"));
-        pull(needingPull, log.child("pull"));
-        push(needingPush, log.child("push"));
+        // Depth first sort, so we process the submodule root last, in
+        // case commits to child modules put it into the dirty state.
+        List<Map.Entry<GitCheckout, NeedPushResult>> needingPush
+                = GitCheckout.depthFirstSort(collectPushKinds(checkouts));
+        if (needingPush.isEmpty())
+        {
+            log.info("No projects needing push in " + needingPush);
+        }
+        else
+        {
+            pullIfNeededAndPush(log, project, needingPush);
+        }
+    }
+
+    @Override
+    protected boolean forbidsLocalModifications()
+    {
+        return !permitLocalModifications;
     }
 
     private Set<GitCheckout> checkNeedPull(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush, BuildLog log)
@@ -126,6 +117,14 @@ public class PushMojo extends ScopedCheckoutsMojo
         }
     }
 
+    private void pullIfNeededAndPush(BuildLog log, MavenProject project,
+                                     List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
+    {
+        Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child("checkNeedPull"));
+        pull(needingPull, log.child("pull"));
+        push(needingPush, log.child("push"));
+    }
+
     private void push(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush, BuildLog log)
     {
         log.warn("Begin push.");
@@ -139,7 +138,8 @@ public class PushMojo extends ScopedCheckoutsMojo
                 {
                     checkout.pushCreatingBranch();
                 }
-            } else
+            }
+            else
             {
                 log.info("Push: " + checkout);
                 if (!isPretend())
@@ -149,5 +149,4 @@ public class PushMojo extends ScopedCheckoutsMojo
             }
         }
     }
-
 }

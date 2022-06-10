@@ -4,42 +4,46 @@ import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.util.CliCommand;
 import com.telenav.cactus.maven.util.ProcessResultConverter;
+
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 /**
- *
  * @author Tim Boudreau
+ * @author jonathanl (shibo)
  */
-public final class GitCommand<T> extends CliCommand<T>
+@SuppressWarnings("unused")
+public class GithubCommand<T> extends CliCommand<T>
 {
     private final Path workingDir;
+
     private final String[] args;
+
     private final BuildLog log = BuildLog.get().child(getClass().getSimpleName());
 
-    public GitCommand(ProcessResultConverter<T> resultCreator, String... args)
+    public GithubCommand(ProcessResultConverter<T> resultCreator, String... args)
     {
         this(resultCreator, null, args);
     }
 
-    public GitCommand(ProcessResultConverter<T> resultCreator, Path workingDir, String... args)
+    public GithubCommand(ProcessResultConverter<T> resultCreator, Path workingDir, String... args)
     {
-        super("git", resultCreator);
+        super("gh", resultCreator);
         this.workingDir = workingDir;
         this.args = Checks.notNull("args", args);
     }
 
-    public GitCommand<T> withWorkingDir(Path dir)
+    public GithubCommand<T> withWorkingDir(Path dir)
     {
-        return new GitCommand<>(resultCreator, dir, args);
+        return new GithubCommand<>(resultCreator, dir, args);
     }
 
     @Override
-    protected Optional<Path> workingDirectory()
+    protected void configureArguments(List<String> list)
     {
-        return Optional.ofNullable(workingDir);
+        list.addAll(Arrays.asList(args));
     }
 
     @Override
@@ -61,9 +65,8 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void configureArguments(List<String> list)
+    protected Optional<Path> workingDirectory()
     {
-        list.addAll(Arrays.asList(args));
+        return Optional.ofNullable(workingDir);
     }
-
 }

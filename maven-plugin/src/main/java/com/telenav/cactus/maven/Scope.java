@@ -2,63 +2,53 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import static com.telenav.cactus.maven.util.EnumMatcher.enumMatcher;
+import org.apache.maven.plugin.MojoExecutionException;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.maven.plugin.MojoExecutionException;
+
+import static com.telenav.cactus.maven.util.EnumMatcher.enumMatcher;
 
 /**
- * A number of cross repository git operations can operate on one of several
- * scopes.
+ * A number of cross repository git operations can operate on one of several scopes.
  *
  * @author Tim Boudreau
  */
 public enum Scope
 {
     /**
-     * Operate only on the git submodule the project maven was invoked against
-     * belongs to.
+     * Operate only on the git submodule the project maven was invoked against belongs to.
      */
     JUST_THIS,
     /**
-     * Operate on all git submodules within the tree of the project maven was
-     * invoked against that contain a maven project with the same project
-     * family.
+     * Operate on all git submodules within the tree of the project maven was invoked against that contain a maven
+     * project with the same project family.
      *
      * @see ProjectFamily
      */
     FAMILY,
     /**
-     * Operate on all git submodules within the tree of the project maven was
-     * invoked against that contain a maven project with the same project
-     * family, or where the project family is the parent family of that project
-     * (e.g. the groupId is com.foo.bar, the family is "bar" and the parent
-     * family is "foo").
+     * Operate on all git submodules within the tree of the project maven was invoked against that contain a maven
+     * project with the same project family, or where the project family is the parent family of that project (e.g. the
+     * groupId is com.foo.bar, the family is "bar" and the parent family is "foo").
      *
      * @see ProjectFamily
      */
     FAMILY_OR_CHILD_FAMILY,
     /**
-     * Operate on all git submodules within the tree of the project maven was
-     * invoked against that contains the same group id as the project maven was
-     * invoked against.
+     * Operate on all git submodules within the tree of the project maven was invoked against that contains the same
+     * group id as the project maven was invoked against.
      */
     SAME_GROUP_ID,
     /**
-     * Operate on all git submodules containing a root pom.xml within any
-     * submodule below the root of the project tree the project maven was
-     * invoked against lives in.
+     * Operate on all git submodules containing a root pom.xml within any submodule below the root of the project tree
+     * the project maven was invoked against lives in.
      */
     ALL;
-
-    public boolean appliesFamily()
-    {
-        return this == FAMILY || this == FAMILY_OR_CHILD_FAMILY;
-    }
 
     public static Scope find(String prop) throws MojoExecutionException
     {
@@ -68,7 +58,7 @@ public enum Scope
             return FAMILY;
         }
         Optional<Scope> result = enumMatcher(Scope.class).match(prop);
-        if (!result.isPresent())
+        if (result.isEmpty())
         {
             String msg = "Unknown scope " + prop + " is not one of " + Arrays.toString(Scope.values());
             throw new MojoExecutionException(Scope.class, msg, msg);
@@ -76,25 +66,24 @@ public enum Scope
         return result.get();
     }
 
+    public boolean appliesFamily()
+    {
+        return this == FAMILY || this == FAMILY_OR_CHILD_FAMILY;
+    }
+
     /**
-     * Get a depth-first list of checkouts matching this scope, given the passed
-     * contextual criteria.
+     * Get a depth-first list of checkouts matching this scope, given the passed contextual criteria.
      *
      * @param tree A project tree
-     * @param callingProjectsCheckout The checkout of the a mojo is currently
-     * being run against.
-     * @param includeRoot If true, include the root (submodule parent) checkout
-     * in the returned list regardless of whether it directly contains a maven
-     * project matching the other criteria (needed for operations that change
-     * the head commit of a submodule, which will generate modifications in the
-     * submodule parent project.
-     * @param callingProjectsGroupId The group id of the project whose mojo is
-     * being invoked
-     * @return
+     * @param callingProjectsCheckout The checkout of the a mojo is currently being run against.
+     * @param includeRoot If true, include the root (submodule parent) checkout in the returned list regardless of
+     * whether it directly contains a maven project matching the other criteria (needed for operations that change the
+     * head commit of a submodule, which will generate modifications in the submodule parent project.
+     * @param callingProjectsGroupId The group id of the project whose mojo is being invoked
      */
     public List<GitCheckout> matchCheckouts(ProjectTree tree,
-            GitCheckout callingProjectsCheckout, boolean includeRoot,
-            ProjectFamily family, String callingProjectsGroupId)
+                                            GitCheckout callingProjectsCheckout, boolean includeRoot,
+                                            ProjectFamily family, String callingProjectsGroupId)
     {
         Set<GitCheckout> checkouts;
         switch (this)
@@ -121,7 +110,8 @@ public enum Scope
         if (!includeRoot)
         {
             callingProjectsCheckout.submoduleRoot().ifPresent(checkouts::remove);
-        } else
+        }
+        else
         {
             if (!checkouts.isEmpty()) // don't generate a push of _just_ the root checkout
             {

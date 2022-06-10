@@ -1,12 +1,14 @@
 package com.telenav.cactus.maven.git;
 
 /**
- *
  * @author Tim Boudreau
  */
 public enum NeedPushResult
 {
-    NOT_ON_A_BRANCH, REMOTE_BRANCH_DOES_NOT_EXIST, YES, NO;
+    NOT_ON_A_BRANCH,
+    REMOTE_BRANCH_DOES_NOT_EXIST,
+    YES,
+    NO;
 
     static NeedPushResult of(boolean result)
     {
@@ -22,5 +24,4 @@ public enum NeedPushResult
     {
         return this == REMOTE_BRANCH_DOES_NOT_EXIST;
     }
-
 }

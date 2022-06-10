@@ -16,7 +16,6 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class ScopeMojo extends BaseMojo
 {
-
     // Common properties used by most or all
     /**
      * Defines the scope this mojo operates on - used by mojos which may operate

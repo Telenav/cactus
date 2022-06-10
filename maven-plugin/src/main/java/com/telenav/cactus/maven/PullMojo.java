@@ -36,7 +36,6 @@ import org.apache.maven.project.MavenProject;
         name = "pull", threadSafe = true)
 public class PullMojo extends ScopedCheckoutsMojo
 {
-
     @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true")
     private boolean permitLocalModifications;
 
