@@ -112,7 +112,7 @@ public class LexakaiMojo extends BaseMojo
      * The destination folder for generated documentation - if unset, it is
      * computed as described above.
      */
-    @Parameter(property = "output-folder", name = "lexakai-version", defaultValue = "1.0.7")
+    @Parameter(property = "lexakai-version", name = "lexakai-version", defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
     /**
      * The repository to download lexakai from (central by default).

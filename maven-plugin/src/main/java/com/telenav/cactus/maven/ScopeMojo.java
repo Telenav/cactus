@@ -16,6 +16,7 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class ScopeMojo extends BaseMojo
 {
+
     // Common properties used by most or all
     /**
      * Defines the scope this mojo operates on - used by mojos which may operate
@@ -44,7 +45,7 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @see Scope#FAMILY
      */
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY", name = "scope")
+    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
     private String scopeProperty;
 
     /**
@@ -83,6 +84,7 @@ public abstract class ScopeMojo extends BaseMojo
     protected final void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
         scope = Scope.find(scopeProperty);
+        System.out.println("FOUND SCOPE " + scope + " for " + scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
         if (checkout.isEmpty())
         {
@@ -131,5 +133,10 @@ public abstract class ScopeMojo extends BaseMojo
     protected boolean isIncludeRoot()
     {
         return includeRoot;
+    }
+
+    protected Scope scope()
+    {
+        return scope;
     }
 }

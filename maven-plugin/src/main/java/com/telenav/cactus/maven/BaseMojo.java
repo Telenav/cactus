@@ -260,7 +260,7 @@ abstract class BaseMojo extends AbstractMojo
             }
             fail("Branch name unset");
         }
-        if (branchName.isBlank() || !branchName.startsWith("-") && !branchName.contains(" ")
+        if (branchName.isBlank() || !branchName.startsWith("-") && branchName.contains(" ")
                 && !branchName.contains("\"") && !branchName.contains("'"))
         {
             fail("Illegal branch name format: '" + branchName + "'");
