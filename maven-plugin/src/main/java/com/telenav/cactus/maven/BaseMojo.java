@@ -5,14 +5,26 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
+import static com.mastfrog.util.preconditions.Checks.notNull;
+import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.LocalArtifactRequest;
+import org.eclipse.aether.repository.LocalArtifactResult;
+import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  * A base class for our mojos, which sets up a build logger and provides a way
@@ -23,6 +35,8 @@ import org.apache.maven.project.MavenProject;
 abstract class BaseMojo extends AbstractMojo
 {
 
+    protected static final String MAVEN_CENTRAL_REPO
+            = "https://repo1.maven.org/maven2";
     // These are magically injected by Maven:
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
@@ -257,4 +271,82 @@ abstract class BaseMojo extends AbstractMojo
     {
         throw new MojoExecutionException(this, msg, msg);
     }
+
+    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId, String version)
+    {
+        return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
+    }
+
+    protected static final class ArtifactFetcher
+    {
+
+        private String type = "jar";
+        private String repoUrl = MAVEN_CENTRAL_REPO;
+        private final String groupId;
+        private final String artifactId;
+        private final String version;
+        private final BuildLog log;
+        private final MavenSession session;
+
+        private ArtifactFetcher(String groupId, String artifactId, String version, MavenSession session)
+        {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+            this.version = version;
+            this.log = BuildLog.get().child("fetch").child(groupId).child(artifactId).child(version);
+            this.session = session;
+        }
+
+        public ArtifactFetcher withType(String type)
+        {
+            this.type = notNull("type", type);
+            return this;
+        }
+
+        @SuppressWarnings("ResultOfObjectAllocationIgnored")
+        public ArtifactFetcher withRepositoryURL(String repoUrl)
+        {
+            try
+            {
+                new URL(notNull("repoUrl", repoUrl));
+            } catch (MalformedURLException ex)
+            {
+                log.error("Invalid repository URL '" + repoUrl);
+                return Exceptions.chuck(new MojoExecutionException(
+                        "Invalid repository URL '" + repoUrl + '\''));
+            }
+            this.repoUrl = repoUrl;
+            return this;
+        }
+
+        public Path get() throws MojoFailureException
+        {
+            Artifact af = new DefaultArtifact(
+                    notNull("groupId", groupId),
+                    notNull("artifactId", artifactId),
+                    notNull("type", type),
+                    notNull("version", version));
+
+            LocalArtifactRequest locArtifact = new LocalArtifactRequest();
+            locArtifact.setArtifact(af);
+            RemoteRepository remoteRepo = new RemoteRepository.Builder("central",
+                    "x", repoUrl).build();
+
+            locArtifact.setRepositories(Collections.singletonList(remoteRepo));
+            RepositorySystemSession sess = session.getRepositorySession();
+            LocalArtifactResult res = sess.getLocalRepositoryManager()
+                    .find(sess, locArtifact);
+
+            log.info("Download result for " + af + ": " + res);
+            if (res != null && res.getFile() != null)
+            {
+                log.info("Have local " + artifactId + " " + type + " "
+                        + res.getFile());
+                return res.getFile().toPath();
+            }
+            throw new MojoFailureException("Could not download " + af + " from "
+                    + remoteRepo.getUrl());
+        }
+    }
+
 }
