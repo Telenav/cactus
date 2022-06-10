@@ -76,16 +76,6 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private static class TagReplacement extends Replacement
-    {
-
-        TagReplacement(String tagName, String value)
-        {
-            super("<" + tagName + ">.*?</" + tagName + ">",
-                    "<" + tagName + ">" + value + "</" + tagName);
-        }
-    }
-
     @Parameter(property = "telenav.version")
     private String version;
 
@@ -113,7 +103,7 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                 throw new RuntimeException("No replacement branch name was specified and there is no default branch for " + checkout);
             }
 
-            variables.put("version", new TagReplacement("version", version));
+            variables.put("version", new Replacement("\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", version));
             variables.put("branch-name", new Replacement("(master|develop|feature/.+|hotfix/.+)", branchName));
 
             if (!isPretend())
