@@ -16,6 +16,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Change the branch of all non-maven git submodules.
  *
  * @author Tim Boudreau
  */
@@ -26,12 +27,22 @@ import org.apache.maven.project.MavenProject;
 public class BringAssetsBranchesToHeadMojo extends BaseMojo
 {
 
+    /**
+     * The branch they should be on.
+     */
     @Parameter(property = "telenav.assets.branch", defaultValue = "publish")
     private String assetsBranch;
 
+    /**
+     * Do a pull first?
+     */
     @Parameter(property = "telenav.assets.pull", defaultValue = "false")
     private boolean pull;
 
+    /**
+     * Create a new commit in the submodule root that anchors the submodules
+     * on the head commit you have changed them to.
+     */
     @Parameter(property = "telenav.assets.commit", defaultValue = "true")
     private boolean commit;
     
@@ -62,6 +73,7 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
                     checkout.pull();
                 }
             }
+            tree.invalidateCache();
             if (!relativePaths.isEmpty() && commit && tree.root().hasUncommitedChanges())
             {
                 System.out.println("ADD " + relativePaths.keySet());
