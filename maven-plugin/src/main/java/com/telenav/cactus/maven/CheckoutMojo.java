@@ -187,12 +187,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             }
             updateRemoteHeads(toProcess, tree, buildLog.child("updateHeads"));
             Set<GitCheckout> createLocalBranch = needingBranch(tree, toProcess, buildLog.child("branchAbsent"));
-            fetchAll(toProcess);
+            fetchAll(toProcess, buildLog.child("fetchAll"));
             performCheckouts(toProcess, buildLog.child("checkout"), createLocalBranch);
             return true;
         }
 
-        void fetchAll(Collection<? extends GitCheckout> checkouts) throws MojoExecutionException
+        void fetchAll(Collection<? extends GitCheckout> checkouts, BuildLog log) throws MojoExecutionException
         {
             for (GitCheckout checkout : checkouts)
             {

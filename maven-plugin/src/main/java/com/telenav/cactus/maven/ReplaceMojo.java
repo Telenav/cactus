@@ -4,9 +4,7 @@ import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
@@ -14,10 +12,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -25,18 +24,23 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 /**
  * @author jonathanl (shibo)
  */
-@SuppressWarnings({ "unused", "DuplicatedCode" })
+@SuppressWarnings(
+        {
+            "unused", "DuplicatedCode"
+        })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "replace", threadSafe = true)
-public class ReplaceMojo extends BaseMojo
+public class ReplaceMojo extends ScopedCheckoutsMojo
 {
+
     private static final Pattern REPLACE_EXPRESSION = Pattern.compile("<!--\\s*\\[(?<variable>[A-Za-z\\d]+)\\]\\s*-->");
 
     private static class Replacement
     {
+
         Pattern pattern;
 
         String replacement;
@@ -74,6 +78,7 @@ public class ReplaceMojo extends BaseMojo
 
     private static class TagReplacement extends Replacement
     {
+
         TagReplacement(String tagName, String value)
         {
             super("<" + tagName + ">.*?</" + tagName + ">",
@@ -81,89 +86,39 @@ public class ReplaceMojo extends BaseMojo
         }
     }
 
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
-    private String scopeProperty;
-
-    @Parameter(property = "telenav.update-root", defaultValue = "true")
-    private boolean updateRoot;
-
-    @Parameter(property = "telenav.family")
-    private String family;
-
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
-    private boolean pretend;
-
-    private Scope scope;
-
-    private GitCheckout myCheckout;
-
     private final Map<String, Replacement> variables = new HashMap<>();
 
     @Override
-    protected boolean isOncePerSession()
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        return true;
-    }
-
-    @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        ProjectTree.from(project).ifPresent(tree ->
+        for (var checkout : checkouts)
         {
-            Set<GitCheckout> checkouts = PushMojo.checkoutsForScope(scope, tree,
-                    myCheckout, updateRoot, family());
-
-            var dirty = false;
-            for (var checkout : checkouts)
+            var pom = Pom.from(checkout.checkoutRoot());
+            if (pom.isPresent())
             {
-                var pom = Pom.from(checkout.checkoutRoot());
-                if (pom.isPresent())
+                variables.put("group-id", new TagReplacement("groupId", pom.get().coords.groupId));
+                variables.put("artifact-id", new TagReplacement("artifactId", pom.get().coords.artifactId));
+                variables.put("version", new TagReplacement("version", pom.get().coords.version));
+                if (checkout.branch().isPresent())
                 {
-                    variables.put("group-id", new TagReplacement("groupId", pom.get().coords.groupId));
-                    variables.put("artifact-id", new TagReplacement("artifactId", pom.get().coords.artifactId));
-                    variables.put("version", new TagReplacement("version", pom.get().coords.version));
-                    if (checkout.branch().isPresent())
-                    {
-                        variables.put("branch-name", new Replacement("(master|develop|feature/.+|hotfix/.+)", checkout.branch().get()));
-                    }
-                }
-
-                if (!pretend)
-                {
-                    try (var walk = Files.walk(checkout.checkoutRoot()))
-                    {
-                        walk.filter(path -> path.toFile().isFile()).forEach(file ->
-                        {
-                            if (file.endsWith(".md") || file.getFileName().equals(Paths.get("pom.xml")))
-                            {
-                                replaceIn(file);
-                            }
-                        });
-                    }
+                    variables.put("branch-name", new Replacement("(master|develop|feature/.+|hotfix/.+)", checkout.branch().get()));
                 }
             }
-        });
-    }
 
-    @Override
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
-    {
-        super.validateParameters(log, project);
-        scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (checkout.isEmpty())
-        {
-            throw new MojoExecutionException(project.getBasedir()
-                    + " does not seem to be part of a git checkout.");
+            if (!isPretend())
+            {
+                try ( var walk = Files.walk(checkout.checkoutRoot()))
+                {
+                    walk.filter(path -> path.toFile().isFile()).forEach(file ->
+                    {
+                        if (file.endsWith(".md") || file.getFileName().equals(Paths.get("pom.xml")))
+                        {
+                            replaceIn(file);
+                        }
+                    });
+                }
+            }
         }
-        myCheckout = checkout.get();
-    }
-
-    private String family()
-    {
-        return this.family == null || this.family.isEmpty()
-                ? project().getGroupId()
-                : this.family;
     }
 
     private String replace(String text)
@@ -195,11 +150,13 @@ public class ReplaceMojo extends BaseMojo
             var replaced = replace(contents);
             if (!contents.equals(replaced))
             {
-                System.out.println(file + " replaced: " + replaced);
-                // Files.writeString(file, replaced, StandardOpenOption.WRITE);
+                log().info(file + " replaced: " + replaced);
+                if (!isPretend())
+                {
+                    Files.writeString(file, replaced, WRITE, TRUNCATE_EXISTING);
+                }
             }
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             throw new RuntimeException(e);
         }
