@@ -9,6 +9,7 @@ import com.telenav.cactus.maven.util.ProcessResultConverter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
@@ -502,6 +503,39 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean pull()
     {
         return PULL.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    /**
+     * Creates a pull request on Github using the given authentication token, title and body
+     *
+     * @param authenticationToken The token to sign into github
+     * @param title The title of the pull request
+     * @param body The body of the pull request
+     * @return True if the pull request was created
+     */
+    public boolean pullRequest(String authenticationToken, String title, String body)
+    {
+        // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
+        var output = new GithubCommand<>(ProcessResultConverter.strings(), root,
+                "auth", "login", "--hostname", "github.com", "--with-token")
+        {
+            @Override
+            protected void onLaunch(Process process)
+            {
+                super.onLaunch(process);
+                try (var out = new PrintWriter(process.getOutputStream()))
+                {
+                    out.println(authenticationToken);
+                }
+            }
+        }.run().awaitQuietly();
+
+        // Create pull request (gh pr create --title "$title" --body "$body")
+        output += new GithubCommand<>(ProcessResultConverter.strings(), root,
+                "pr", "create", "--title", title, "--body", body).run().awaitQuietly();
+
+        log.info(output);
+        return true;
     }
 
     public boolean push()

@@ -33,7 +33,6 @@ public abstract class CliCommand<T> implements Supplier<String>
 
     static class SimpleCommand extends CliCommand<String>
     {
-
         private final Path workingDir;
 
         private final String[] fixedArgs;
@@ -142,7 +141,6 @@ public abstract class CliCommand<T> implements Supplier<String>
      */
     protected void onLaunch(Process proc)
     {
-
     }
 
     /**
