@@ -113,6 +113,19 @@ public class LexakaiMojo extends BaseMojo
     @Parameter(property = "commit-changes", name = "commit-changes", defaultValue = "false")
     private boolean commitChanges;
 
+    /**
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
+     */
+    @Parameter(property = "output-folder", name = "lexakai-version", defaultValue = "1.0.7")
+    private String lexakaiVersion = "1.0.7";
+    /**
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
+     */
+    @Parameter(property = "lexakai-repo", name = "lexakai-repo", defaultValue = "https://repo1.maven.org/maven2")
+    private String lexakaiRepo = "https://repo1.maven.org/maven2";
+
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
@@ -130,7 +143,7 @@ public class LexakaiMojo extends BaseMojo
         }
         if (!skip)
         {
-            ThrowingRunnable runner = runLexakai(args);
+            ThrowingRunnable runner = lexakaiRunner(args);
             if (commitChanges)
             {
                 // Returns the set of repositories which were _not_ modified
@@ -179,7 +192,7 @@ public class LexakaiMojo extends BaseMojo
         }
     }
 
-    private ThrowingRunnable runLexakai(List<String> args) throws Exception
+    private ThrowingRunnable lexakaiRunner(List<String> args) throws Exception
     {
         return new LexakaiRunner(lexakaiJar(), args);
     }
@@ -300,11 +313,11 @@ public class LexakaiMojo extends BaseMojo
     private Path lexakaiJar() throws MojoFailureException
     {
         // PENDING: We should pass in a target version of lexakai, not hard-code it
-        Artifact af = new DefaultArtifact("com.telenav.lexakai", "Lexakai", "jar", "1.0.7");
+        Artifact af = new DefaultArtifact("com.telenav.lexakai", "Lexakai", "jar", lexakaiVersion);
         LocalArtifactRequest locArtifact = new LocalArtifactRequest();
         locArtifact.setArtifact(af);
         RemoteRepository remoteRepo = new RemoteRepository.Builder("central",
-                "x", "https://repo1.maven.org/maven2")
+                "x", lexakaiRepo)
                 .build();
         locArtifact.setRepositories(Collections.singletonList(remoteRepo));
         RepositorySystemSession sess = session().getRepositorySession();
@@ -323,7 +336,7 @@ public class LexakaiMojo extends BaseMojo
 
         private final Path jarFile;
         private final List<String> args;
-        private final BuildLog runLog = BuildLog.get().child("LexakaiRunner");
+        private final BuildLog runLog = BuildLog.get().child("lexakai-runner");
 
         LexakaiRunner(Path jarFile, List<String> args)
         {
@@ -335,7 +348,6 @@ public class LexakaiMojo extends BaseMojo
         public void run() throws Exception
         {
             ClassLoader ldr = Thread.currentThread().getContextClassLoader();
-
             try
             {
                 URL[] url = new URL[]
@@ -347,11 +359,10 @@ public class LexakaiMojo extends BaseMojo
                 {
                     Thread.currentThread().setContextClassLoader(jarLoader);
                     Class<?> what = jarLoader.loadClass("com.telenav.lexakai.Lexakai");
-                    runLog.warn("Have class " + what);
                     Method mth = what.getMethod("main", String[].class);
-                    System.out.println("Have method " + mth);
+                    runLog.info("Invoking lexakai " + mth + " on " + what.getName());
                     mth.invoke(null, (Object) args.toArray(String[]::new));
-                    System.out.println("Lexakai done.");
+                    runLog.info("Lexakai done.");
                 }
             } finally
             {
