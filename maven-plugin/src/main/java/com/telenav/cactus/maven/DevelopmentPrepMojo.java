@@ -9,6 +9,7 @@ import com.telenav.cactus.maven.tree.ProjectTree;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,95 +41,48 @@ import org.apache.maven.project.MavenProject;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "dev-prep", threadSafe = true)
-public class DevelopmentPrepMojo extends BaseMojo
+public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
 {
 
     @Parameter(property = "telenav.autoFixBranches", defaultValue = "false")
     boolean autoFixBranches = false;
 
-    @Parameter(property = "telenav.createBranchesIfNeeded", defaultValue = "false")
-    boolean createBranchesIfNeeded = false;
+    @Parameter(property = "telenav.createBranchesIfNeeded", defaultValue = "true")
+    boolean createBranchesIfNeeded = true;
 
-    @Parameter(property = "telenav.thisCheckoutOnly", defaultValue = "false")
-    boolean thisCheckoutOnly = false;
-
-    @Parameter(property = "telenav.thisGroupIdOnly", defaultValue = "true")
-    boolean thisGroupIdOnly = true;
-
-    @Parameter(property = "telenav.branch")
+    @Parameter(property = "branch", name = "branch")
     String branchName;
 
-    @Parameter(property = "telenav.baseBranch", defaultValue = "develop")
+    @Parameter(property = "telenav.baseBranch", defaultValue = "develop", name = "base-branch")
     String baseBranch = "develop";
 
-    GitCheckout myGitCheckout;
-    
-    public DevelopmentPrepMojo() {
-        super(true);
-    }
-
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void onValidateParameters(BuildLog log, MavenProject project) throws Exception
     {
-        System.out.println("autoFixBranches = " + autoFixBranches);
-        System.out.println("createBranchesIfNeeded = " + createBranchesIfNeeded);
-        System.out.println("thisCheckoutOnly = " + thisCheckoutOnly);
-        System.out.println("thisGroupIdOnly = " + thisGroupIdOnly);
-        System.out.println("branch = " + branchName);
-        System.out.println("baseBranch = " + baseBranch);
-        // Branches starting with - can get misinterpreted as flags to git branch
-        if (!checkBranchName(branchName))
-        {
-            throw new MojoExecutionException("feature '" + branchName
-                    + "' is not a valid feature branch name");
-        }
-        if (!checkBranchName(baseBranch))
-        {
-            throw new MojoExecutionException("feature '" + baseBranch
-                    + "' is not a valid branch name");
-        }
-        Optional<GitCheckout> myRepo = GitCheckout.repository(project.getBasedir());
-        if (!myRepo.isPresent())
-        {
-            throw new MojoExecutionException("Could not find a git checkout above "
-                    + project.getBasedir());
-        } else
-        {
-            myGitCheckout = myRepo.get();
-        }
-    }
-
-    private boolean checkBranchName(String branchName)
-    {
-        if (branchName == null)
-        {
-            return true;
-        }
-        return branchName.isBlank() || !branchName.startsWith("-") && !branchName.contains(" ")
-                && !branchName.contains("\"") && !branchName.contains("'");
+        validateBranchName(branchName, true);
+        validateBranchName(baseBranch, false);
     }
 
     @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        ProjectTree.from(project).ifPresent(tree ->
-        {
-            if (branchName != null)
-            {
-                ensureOnBranch(tree, log.child("branch-to:" + branchName), project);
-            } else
-            {
-                ensureOnSomeConsistentBranch(tree, log.child("ensure-some-branch"), project);
-            }
-        });
+        
+//        if (branchName != null)
+//        {
+//            ensureOnBranch(tree, log.child("branch-to:" + branchName), project, checkouts);
+//        } else
+//        {
+//            ensureOnSomeConsistentBranch(tree, log.child("ensure-some-branch"), project);
+//        }
     }
-
-    private void ensureOnBranch(ProjectTree tree, BuildLog log, MavenProject project)
+/*
+    private void ensureOnBranch(ProjectTree tree, BuildLog log, MavenProject project, List<GitCheckout> checkouts)
             throws Exception
     {
         Map<GitCheckout, String> toMove;
         if (thisCheckoutOnly)
         {
-            toMove = Collections.singletonMap(myGitCheckout, baseBranch);
+            toMove = Collections.singletonMap(myCheckout, baseBranch);
         } else
         {
             toMove = new TreeMap<>();
@@ -170,14 +124,14 @@ public class DevelopmentPrepMojo extends BaseMojo
         Map<GitCheckout, String> changes = new HashMap<>();
         if (thisCheckoutOnly)
         {
-            if (!myGitCheckout.isDetachedHead())
+            if (!myCheckout.isDetachedHead())
             {
                 log.info("Single repo, already on a branch, nothing to do.");
                 return;
             }
             log.info("Single repo, not on a branch - will move to '"
                     + baseBranch + "'.");
-            changes.put(myGitCheckout, baseBranch);
+            changes.put(myCheckout, baseBranch);
         } else
         {
             Predicate<GitCheckout> filter;
@@ -208,12 +162,15 @@ public class DevelopmentPrepMojo extends BaseMojo
                             + "-Dtelenav.branch=someBranch";
                     // Quietly throw:
                     Exceptions.chuck(new MojoExecutionException(this, msg, msg));
-                } else if (gids.isEmpty())
+                } else
                 {
-                    // This should have already been filtered out, but throwing a
-                    // NoSuchElementException would be non-intuitive
-                    log.warn("No group ids at all for checkout " + checkout);
-                    return;
+                    if (gids.isEmpty())
+                    {
+                        // This should have already been filtered out, but throwing a
+                        // NoSuchElementException would be non-intuitive
+                        log.warn("No group ids at all for checkout " + checkout);
+                        return;
+                    }
                 }
                 Optional<String> targetBranch = tree.mostCommonBranchForGroupId(gids.iterator().next());
                 String target = targetBranch.orElse(baseBranch);
@@ -336,4 +293,5 @@ public class DevelopmentPrepMojo extends BaseMojo
             }
         }
     }
+*/
 }

@@ -116,6 +116,16 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         return fromGroupId(gid).equals(this);
     }
 
+    public boolean isParentFamilyOf(String gid)
+    {
+        int ix = gid.lastIndexOf('.');
+        if (ix > 0)
+        {
+            gid = gid.substring(0, ix);
+        }
+        return fromGroupId(gid).equals(this);
+    }
+
     /**
      * Get a project family with an explicit name.
      *

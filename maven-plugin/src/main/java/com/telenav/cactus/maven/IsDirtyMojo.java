@@ -3,14 +3,10 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoExecutionException;
+import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-
-import java.util.Optional;
-import java.util.Set;
 
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
@@ -18,81 +14,34 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author jonathanl (shibo)
  */
-@SuppressWarnings({ "unused", "DuplicatedCode" })
+@SuppressWarnings(
+        {
+            "unused", "DuplicatedCode"
+        })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "is-dirty", threadSafe = true)
-public class IsDirtyMojo extends BaseMojo
+public class IsDirtyMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
-    private String scopeProperty;
-
-    @Parameter(property = "telenav.update-root", defaultValue = "true")
-    private boolean updateRoot;
-
-    @Parameter(property = "telenav.family")
-    private String family;
-
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
-    private boolean pretend;
-
-    private Scope scope;
-    private GitCheckout myCheckout;
 
     @Override
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        super.validateParameters(log, project);
-        scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (checkout.isEmpty())
+        var dirty = false;
+        for (var checkout : checkouts)
         {
-            throw new MojoExecutionException(project.getBasedir()
-                    + " does not seem to be part of a git checkout.");
+            if (!isPretend() && checkout.isDirty())
+            {
+                dirty = true;
+                log.info("* " + checkout);
+            }
         }
-        myCheckout = checkout.get();
-    }
-
-    @Override
-    protected boolean isOncePerSession()
-    {
-        return true;
-    }
-
-    private String family()
-    {
-        return this.family == null || this.family.isEmpty()
-                ? project().getGroupId()
-                : this.family;
-    }
-
-    @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        ProjectTree.from(project).ifPresent(tree ->
+        if (!dirty)
         {
-            Set<GitCheckout> checkouts = PushMojo.checkoutsForScope(scope, tree,
-                    myCheckout, updateRoot, family());
-
-            var dirty = false;
-            for (var checkout : checkouts)
-            {
-                if (!pretend)
-                {
-                    if (checkout.isDirty())
-                    {
-                        dirty = true;
-                        log.info("* " + checkout);
-                    }
-                }
-            }
-
-            if (!dirty)
-            {
-                log.info("\nClean\n\n");
-            }
-        });
+            log.info("\nClean\n\n");
+        }
     }
 }

@@ -1,9 +1,7 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
-import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.git.GitCheckout;
-import static com.telenav.cactus.maven.git.GitCheckout.reverseDepthSort;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.util.PathUtils;
@@ -142,7 +140,7 @@ public class LexakaiMojo extends BaseMojo
                 {
                     // Commit each repo in deepest-child down order
                     String msg = commitMessage(project, modified);
-                    for (GitCheckout ch : reverseDepthSort(modified))
+                    for (GitCheckout ch : GitCheckout.depthFirstSort(modified))
                     {
                         if (!ch.addAll())
                         {

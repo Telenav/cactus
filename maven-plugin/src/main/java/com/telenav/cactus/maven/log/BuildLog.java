@@ -41,6 +41,14 @@ public class BuildLog
         this(null, LoggerFactory.getLogger(context));
     }
 
+    public void ifDebug(Runnable run)
+    {
+        if (logger.isDebugEnabled())
+        {
+            run.run();
+        }
+    }
+
     private static void withLog(BuildLog log, ThrowingRunnable run) throws Exception
     {
         BuildLog old = LOG.get();
@@ -89,21 +97,26 @@ public class BuildLog
     {
         return prefix == null ? what : prefix + ": " + what;
     }
-    
-    private void logSplit(String what, Consumer<String> linesConsumer) {
-        if (what.indexOf('\n') >= 0) {
-            Strings.split('\n', what, seq -> {
+
+    private void logSplit(String what, Consumer<String> linesConsumer)
+    {
+        if (what.indexOf('\n') >= 0)
+        {
+            Strings.split('\n', what, seq ->
+            {
                 linesConsumer.accept(prefixed(seq.toString()));
                 return true;
             });
-        } else {
+        } else
+        {
             linesConsumer.accept(prefixed(what));
         }
     }
 
     public BuildLog info(String what)
     {
-        if (logger.isInfoEnabled()) {
+        if (logger.isInfoEnabled())
+        {
             logSplit(what, logger::info);
         }
         return this;
@@ -159,7 +172,7 @@ public class BuildLog
 
     public BuildLog debug(String what)
     {
-        if (logger.isDebugEnabled()) 
+        if (logger.isDebugEnabled())
         {
             logSplit(what, logger::debug);
         }

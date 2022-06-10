@@ -6,6 +6,7 @@ import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.nio.file.Paths;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -189,7 +190,10 @@ abstract class BaseMojo extends AbstractMojo
             boolean isRoot = session().getExecutionRootDirectory().equalsIgnoreCase(project.getBasedir().toString());;
             if (!isRoot)
             {
-                new BuildLog(getClass()).info("Skipping once-per-session mojo until the end.");
+                new BuildLog(getClass()).info("Skipping once-per-session mojo "
+                        + "until the end ("
+                        + Paths.get(session().getExecutionRootDirectory()).getFileName()
+                        + ")");
                 return;
             }
         }
@@ -230,5 +234,27 @@ abstract class BaseMojo extends AbstractMojo
             }
             throw new MojoFailureException(t);
         }
+    }
+
+    protected void validateBranchName(String branchName, boolean nullOk) throws MojoExecutionException
+    {
+        if (branchName == null)
+        {
+            if (nullOk)
+            {
+                return;
+            }
+            fail("Branch name unset");
+        }
+        if (branchName.isBlank() || !branchName.startsWith("-") && !branchName.contains(" ")
+                && !branchName.contains("\"") && !branchName.contains("'"))
+        {
+            fail("Illegal branch name format: '" + branchName + "'");
+        }
+    }
+
+    protected void fail(String msg) throws MojoExecutionException
+    {
+        throw new MojoExecutionException(this, msg, msg);
     }
 }

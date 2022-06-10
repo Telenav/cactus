@@ -1,6 +1,5 @@
 package com.telenav.cactus.maven;
 
-import static com.telenav.cactus.maven.PushMojo.needPull;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -8,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.maven.plugin.MojoExecutionException;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -27,101 +23,47 @@ import org.apache.maven.project.MavenProject;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "pull", threadSafe = true)
-public class PullMojo extends BaseMojo
+public class PullMojo extends ScopedCheckoutsMojo
 {
-
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
-    private String scopeProperty;
-
-    @Parameter(property = "telenav.update-root", defaultValue = "true")
-    private boolean updateRoot;
-
-    @Parameter(property = "telenav.family", defaultValue = "")
-    private String family;
-
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
-    private boolean pretend;
 
     @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true")
     private boolean permitLocalModifications;
 
     private Scope scope;
     private GitCheckout myCheckout;
-    
-    public PullMojo() {
-        super(true);
+
+    @Override
+    protected boolean forbidsLocalModifications()
+    {
+        return !permitLocalModifications;
     }
 
     @Override
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (!checkout.isPresent())
+        List<GitCheckout> needingPull = needingPull(checkouts);
+        if (needingPull.isEmpty())
         {
-            throw new MojoExecutionException(project.getBasedir()
-                    + " does not seem to be part of a git checkout.");
-        }
-        myCheckout = checkout.get();
-    }
-
-    private String family()
-    {
-        return this.family == null || this.family.isEmpty()
-                ? project().getGroupId()
-                : this.family;
-    }
-
-    @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        withProjectTree(tree ->
+            log.info("Nothing to pull. All projects are up to date with remote.");
+        } else
         {
-            Set<GitCheckout> checkouts = PushMojo.checkoutsForScope(scope, tree,
-                    myCheckout, updateRoot, family());
-            List<GitCheckout> needingPull
-                    = sortByDepth(needingPull(checkouts));
-            if (needingPull.isEmpty())
+            for (GitCheckout checkout : needingPull)
             {
-                log.info("Nothing to pull.");
-            } else
-            {
-                for (GitCheckout checkout : needingPull)
+                log.info("Pull " + checkout);
+                if (!isPretend())
                 {
-                    log.info("Pull " + checkout);
-                    if (!pretend)
-                    {
-                        checkout.pull();
-                    }
+                    checkout.pull();
                 }
             }
-        });
+        }
+
     }
 
-    static List<GitCheckout> needingPull(Collection<? extends GitCheckout> cos)
+    private List<GitCheckout> needingPull(Collection<? extends GitCheckout> cos)
     {
         return cos.stream()
-                .filter(co ->
-                {
-                    co.updateRemoteHeads();
-                    return needPull(co);
-                })
+                .filter(co -> isPretend() ? co.needsPull() : co.updateRemoteHeads().needsPull())
                 .collect(Collectors.toCollection(() -> new ArrayList<>(cos.size())));
-    }
-
-    private static List<GitCheckout> sortByDepth(List<GitCheckout> result)
-    {
-        Collections.sort(result, (a, b) ->
-        {
-            int ia = a.checkoutRoot().getNameCount();
-            int ib = b.checkoutRoot().getNameCount();
-            int sort = Integer.compare(ib, ia);
-            if (sort == 0)
-            {
-                sort = a.checkoutRoot().compareTo(b.checkoutRoot());
-            }
-            return sort;
-        });
-        return result;
     }
 }

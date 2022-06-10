@@ -1,6 +1,7 @@
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.maven.ProjectFamily;
 import com.telenav.cactus.maven.git.Branches;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.git.Heads;
@@ -29,6 +30,7 @@ import org.apache.maven.project.MavenProject;
  */
 public class ProjectTree
 {
+
     private final GitCheckout root;
     private volatile boolean upToDate;
     private final Cache cache = new Cache();
@@ -347,6 +349,16 @@ public class ProjectTree
         return withCache(c -> c.checkoutsContainingGroupId(groupId));
     }
 
+    public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
+    {
+        return withCache(c -> c.checkoutsInProjectFamily(family));
+    }
+
+    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(ProjectFamily family)
+    {
+        return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(family));
+    }
+
     public Heads remoteHeads(GitCheckout checkout)
     {
         return withCache(c -> c.remoteHeads(checkout));
@@ -381,6 +393,41 @@ public class ProjectTree
                 for (Pom project : projectSet)
                 {
                     if (groupId.equals(project.coords.groupId))
+                    {
+                        all.add(repo);
+                        break;
+                    }
+                }
+            });
+            return all;
+        }
+
+        public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
+        {
+            Set<GitCheckout> all = new HashSet<>();
+            projectsByRepository.forEach((repo, projectSet) ->
+            {
+                for (Pom project : projectSet)
+                {
+                    if (family.equals(ProjectFamily.fromGroupId(project.coords.groupId)))
+                    {
+                        all.add(repo);
+                        break;
+                    }
+                }
+            });
+            return all;
+        }
+
+        public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(ProjectFamily family)
+        {
+            Set<GitCheckout> all = new HashSet<>();
+            projectsByRepository.forEach((repo, projectSet) ->
+            {
+                for (Pom project : projectSet)
+                {
+                    ProjectFamily pomFamily = ProjectFamily.fromGroupId(project.coords.groupId);
+                    if (family.equals(pomFamily) || family.isParentFamilyOf(project.coords.groupId))
                     {
                         all.add(repo);
                         break;

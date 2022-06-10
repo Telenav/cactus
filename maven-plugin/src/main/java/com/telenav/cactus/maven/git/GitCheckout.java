@@ -69,11 +69,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public static final GitCommand<Boolean> UPDATE_REMOTE_HEADS
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
                     "remote", "update");
+    
+    public static final GitCommand<Boolean> FETCH_ALL
+            = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
+                    "fetch", "--all");
 
     public static final GitCommand<Boolean> NO_MODIFICATIONS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().trueIfEmpty(),
                     "status", "--porcelain");
-
+    
     public static final GitCommand<Map<String, GitRemotes>> LIST_REMOTES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(GitRemotes::from),
                     "remote", "-v");
@@ -214,6 +218,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         return LIST_REMOTES.withWorkingDir(root).run().awaitQuietly().values();
     }
+    
+    public boolean fetchAll() {
+        return FETCH_ALL.withWorkingDir(root).run().awaitQuietly();
+    }
 
     public GitCheckout updateRemoteHeads()
     {
@@ -333,6 +341,14 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean pull()
     {
         return PULL.withWorkingDir(root).run().awaitQuietly();
+    }
+    
+    public boolean isBranch(String branch) {
+        Optional<String> br = branch();
+        if (!br.isPresent()) {
+            return false;
+        }
+        return branch.equals(br.get());
     }
 
     /**
@@ -638,19 +654,41 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return submoduleRoot().map(
                 rootCheckout -> rootCheckout.checkoutRoot().relativize(root));
     }
-    
-    public static List<GitCheckout> reverseDepthSort(Collection<? extends GitCheckout> all)
+
+    public static List<GitCheckout> depthFirstSort(Collection<? extends GitCheckout> all)
     {
         List<GitCheckout> chs = new ArrayList<>(all);
-        Collections.sort(chs, (a, b) ->
-        {
-            int result = Integer.compare(b.checkoutRoot().getNameCount(), a.checkoutRoot().getNameCount());
-            if (result == 0)
-            {
-                result = a.checkoutRoot().compareTo(b.checkoutRoot());
-            }
-            return result;
-        });
+        Collections.sort(chs, GitCheckout::compareByDepth);
         return chs;
+    }
+
+    public static int compareByDepth(GitCheckout a, GitCheckout b)
+    {
+        int result = Integer.compare(b.checkoutRoot().getNameCount(),
+                a.checkoutRoot().getNameCount());
+        if (result == 0)
+        {
+            result = a.checkoutRoot().getFileName().compareTo(b.checkoutRoot().getFileName());
+        }
+        return result;
+    }
+
+    public boolean needsPull()
+    {
+        return mergeBase().map((String mergeBase) ->
+        {
+            return remoteHead().map((String remoteHead) ->
+            {
+                return head().equals(mergeBase);
+            }).orElse(false);
+        }).orElse(false);
+    }
+
+    public static <R> List<Map.Entry<GitCheckout, R>> depthFirstSort(Map<GitCheckout, R> pushTypeForCheckout)
+    {
+        List<Map.Entry<GitCheckout, R>> needingPush = new ArrayList<>(pushTypeForCheckout.entrySet());
+        // In case we have nested submodules, sort so we push deepest first
+        Collections.sort(needingPush, (a, b) -> GitCheckout.compareByDepth(a.getKey(), b.getKey()));
+        return needingPush;
     }
 }

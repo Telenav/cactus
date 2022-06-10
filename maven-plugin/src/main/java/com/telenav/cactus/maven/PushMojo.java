@@ -1,22 +1,15 @@
 package com.telenav.cactus.maven;
 
-import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.git.NeedPushResult;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.maven.plugin.MojoExecutionException;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -32,122 +25,34 @@ import org.apache.maven.project.MavenProject;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "push", threadSafe = true)
-public class PushMojo extends BaseMojo
+public class PushMojo extends ScopedCheckoutsMojo
 {
 
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
-    private String scopeProperty;
-
-    @Parameter(property = "telenav.update-root", defaultValue = "true")
-    private boolean updateAndPushRoot;
-
-    @Parameter(property = "telenav.family", defaultValue = "")
-    private String family;
-
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
-    private boolean pretend;
-
-    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true")
+    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true",
+            name = "permit-local-modifications")
     private boolean permitLocalModifications;
 
-    private Scope scope;
-    private GitCheckout myCheckout;
-    
-    public PushMojo() {
-        super(true);
-    }
-
     @Override
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (!checkout.isPresent())
+        // Depth first sort, so we process the submodule root last, in
+        // case commits to child modules put it into the dirty state.
+        List<Map.Entry<GitCheckout, NeedPushResult>> needingPush
+                = GitCheckout.depthFirstSort(collectPushKinds(checkouts));
+        if (needingPush.isEmpty())
         {
-            throw new MojoExecutionException(project.getBasedir()
-                    + " does not seem to be part of a git checkout.");
-        }
-        myCheckout = checkout.get();
-    }
-
-    private String family()
-    {
-        return this.family == null || this.family.isEmpty() ? project().getGroupId() : this.family;
-    }
-
-    @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        ProjectTree.from(project).ifPresent(tree ->
-        {
-            Set<GitCheckout> checkouts = checkoutsForScope(scope, tree,
-                    myCheckout, updateAndPushRoot, family());
-            if (!permitLocalModifications)
-            {
-                checkLocallyModified(checkouts);
-            }
-            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush
-                    = sortByDepth(collectPushKinds(checkouts));
-            if (needingPush.isEmpty())
-            {
-                log.info("No projects needing push in " + needingPush);
-            } else
-            {
-                pullIfNeededAndPush(log, project, tree, needingPush);
-            }
-        });
-    }
-
-    static Set<GitCheckout> checkoutsForScope(Scope scope, ProjectTree tree,
-            GitCheckout myCheckout, boolean includeRoot,
-            String groupId)
-    {
-        Set<GitCheckout> checkouts;
-        switch (scope)
-        {
-            case FAMILY:
-                checkouts = tree.checkoutsContainingGroupId(groupId);
-                break;
-            case JUST_THIS:
-                checkouts = Collections.singleton(myCheckout);
-                break;
-            case ALL:
-                checkouts = new HashSet<>(tree.allCheckouts());
-                checkouts.addAll(tree.nonMavenCheckouts());
-                break;
-            default:
-                throw new AssertionError(scope);
-        }
-        if (!includeRoot)
-        {
-            myCheckout.submoduleRoot().ifPresent(checkouts::remove);
+            log.info("No projects needing push in " + needingPush);
         } else
         {
-            // don't generate a push of _just_ the root checkout
-            if (!checkouts.isEmpty())
-            {
-                myCheckout.submoduleRoot().ifPresent(checkouts::add);
-            }
+            pullIfNeededAndPush(log, project, needingPush);
         }
-        return checkouts;
     }
 
-    static List<Map.Entry<GitCheckout, NeedPushResult>> sortByDepth(Map<GitCheckout, NeedPushResult> pushTypeForCheckout)
+    @Override
+    protected boolean forbidsLocalModifications()
     {
-        List<Map.Entry<GitCheckout, NeedPushResult>> needingPush = new ArrayList<>(pushTypeForCheckout.entrySet());
-        // In case we have nested submodules, sort so we push deepest first
-        Collections.sort(needingPush, (a, b) ->
-        {
-            int adepth = a.getKey().checkoutRoot().getNameCount();
-            int bdepth = b.getKey().checkoutRoot().getNameCount();
-            int result = Integer.compare(bdepth, adepth);
-            if (result == 0)
-            {
-                result = a.getKey().checkoutRoot().getFileName().compareTo(b.getKey().checkoutRoot().getFileName());
-            }
-            return result;
-        });
-        return needingPush;
+        return !permitLocalModifications;
     }
 
     static Map<GitCheckout, NeedPushResult> collectPushKinds(Collection<? extends GitCheckout> checkouts)
@@ -164,20 +69,6 @@ public class PushMojo extends BaseMojo
         return result;
     }
 
-    private void checkLocallyModified(Collection<? extends GitCheckout> coll) throws Exception
-    {
-        List<GitCheckout> modified = coll
-                .stream()
-                .filter(GitCheckout::isDirty)
-                .collect(Collectors.toCollection(() -> new ArrayList<>(coll.size())));
-        if (!modified.isEmpty())
-        {
-            String message = "Some checkouts are locally modified:\n"
-                    + Strings.join("\n  * ", modified);
-            throw new MojoExecutionException(this, message, message);
-        }
-    }
-
     static boolean needPull(GitCheckout checkout)
     {
         return checkout.mergeBase().map((String mergeBase) ->
@@ -188,59 +79,73 @@ public class PushMojo extends BaseMojo
             }).orElse(false);
         }).orElse(false);
     }
-
-    private void pullIfNeededAndPush(BuildLog log, MavenProject project, ProjectTree tree, List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
+    
+    private void pullIfNeededAndPush(BuildLog log, MavenProject project,
+            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
     {
-        log.warn("Updating remote heads");
+        Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child("checkNeedPull"));
+        pull(needingPull, log.child("pull"));
+        push(needingPush, log.child("push"));
+    }
+
+    private Set<GitCheckout> checkNeedPull(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush, BuildLog log)
+    {
         Set<GitCheckout> needingPull = new LinkedHashSet<>();
-        Set<GitCheckout> nowUpToDate = new HashSet<>();
         for (Map.Entry<GitCheckout, NeedPushResult> co : needingPush)
         {
             GitCheckout checkout = co.getKey();
-            checkout.updateRemoteHeads();
-            if (!co.getValue().needCreateBranch() && needPull(checkout))
+            log.debug("Update remote heads: " + checkout.name());
+            if (!isPretend())
             {
+                checkout.updateRemoteHeads();
+            }
+            if (!co.getValue().needCreateBranch() && checkout.needsPull())
+            {
+                log.debug("Needs pull: " + checkout.name());
                 needingPull.add(checkout);
             }
         }
+        return needingPull;
+    }
 
+    private void pull(Set<GitCheckout> needingPull, BuildLog log)
+    {
         if (!needingPull.isEmpty())
         {
             log.warn("Needing pull:");
             for (GitCheckout checkout : needingPull)
             {
                 log.info("Pull " + checkout);
-                if (!pretend)
+                if (!isPretend())
                 {
                     checkout.pull();
                 }
             }
         }
+    }
 
-        log.warn("Pushing: ");
+    private void push(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush, BuildLog log)
+    {
+        log.warn("Begin push.");
         for (Map.Entry<GitCheckout, NeedPushResult> co : needingPush)
         {
             GitCheckout checkout = co.getKey();
-            if (nowUpToDate.contains(checkout))
-            {
-                continue;
-            }
-            System.out.println("  * " + co.getKey().checkoutRoot());
             if (co.getValue().needCreateBranch())
             {
                 log.info("Push creating branch: " + checkout);
-                if (!pretend)
+                if (!isPretend())
                 {
                     checkout.pushCreatingBranch();
                 }
             } else
             {
                 log.info("Push: " + checkout);
-                if (!pretend)
+                if (!isPretend())
                 {
                     checkout.push();
                 }
             }
         }
     }
+
 }

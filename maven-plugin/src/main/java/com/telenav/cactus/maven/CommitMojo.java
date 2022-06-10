@@ -5,9 +5,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.maven.plugin.MojoExecutionException;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -18,94 +16,42 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings({ "unused", "DuplicatedCode" })
+@SuppressWarnings(
+        {
+            "unused", "DuplicatedCode"
+        })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "commit", threadSafe = true)
-public class CommitMojo extends BaseMojo
+public class CommitMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
-    private String scopeProperty;
-
-    @Parameter(property = "telenav.update-root", defaultValue = "true")
-    private boolean updateRoot;
-
-    @Parameter(property = "telenav.family")
-    private String family;
-
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
-    private boolean pretend;
 
     @Parameter(property = "telenav.commit-message", required = true)
     private String message;
 
-    private Scope scope;
-    private GitCheckout myCheckout;
-    
-    public CommitMojo() {
-        super(true);
-    }
-
     @Override
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> matched) throws Exception
     {
-        scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
-        if (checkout.isEmpty())
-        {
-            throw new MojoExecutionException(project.getBasedir()
-                    + " does not seem to be part of a git checkout.");
-        }
-        myCheckout = checkout.get();
-        if (message == null)
-        {
-            throw new MojoExecutionException("Commit message not set");
-        }
-    }
+        List<GitCheckout> checkouts = matched.stream().filter(GitCheckout::hasUncommitedChanges)
+                .collect(Collectors.toCollection(ArrayList::new));
 
-    private String family()
-    {
-        return this.family == null || this.family.isEmpty()
-                ? project().getGroupId()
-                : this.family;
-    }
-
-    @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        ProjectTree.from(project).ifPresent(tree ->
+        GitCheckout root = tree.root();
+        if (isIncludeRoot() && !checkouts.contains(root))
         {
-            List<GitCheckout> checkouts = PushMojo.checkoutsForScope(scope, tree,
-                    myCheckout, updateRoot, family())
-                    .stream()
-                    .filter(GitCheckout::hasUncommitedChanges)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            GitCheckout root = tree.root();
-            if (updateRoot && !checkouts.contains(root))
+            checkouts.add(root);
+        }
+        log.info("Begin commit with message '" + message + "'");
+        for (GitCheckout at : checkouts)
+        {
+            log.info("add/commit " + at);
+            if (!isPretend())
             {
-                checkouts.add(root);
+                at.addAll();
+                at.commit(message);
             }
-            checkouts.sort((a, b) ->
-            {
-                int result = Integer.compare(b.checkoutRoot().getNameCount(), a.checkoutRoot().getNameCount());
-                if (result == 0)
-                {
-                    result = a.checkoutRoot().compareTo(b.checkoutRoot());
-                }
-                return result;
-            });
-            log.info("Begin commit with message '" + message + "'");
-            for (GitCheckout at : checkouts)
-            {
-                log.info("add/commit " + at);
-                if (!pretend)
-                {
-                    at.addAll();
-                    at.commit(message);
-                }
-            }
-        });
+        }
     }
 }
