@@ -17,6 +17,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Perform a git push in any projects that need it, scoped by the
+ * <code>scope</code> property to family, all, just-this, etc.
  *
  * @author Tim Boudreau
  */
@@ -79,7 +81,7 @@ public class PushMojo extends ScopedCheckoutsMojo
             }).orElse(false);
         }).orElse(false);
     }
-    
+
     private void pullIfNeededAndPush(BuildLog log, MavenProject project,
             List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
     {

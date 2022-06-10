@@ -172,7 +172,8 @@ public class ProjectInfoMojo extends BaseMojo
 
     private String getBuildName(MavenProject project)
     {
-        ZonedDateTime when = GitCheckout.repository(project.getBasedir()).flatMap(checkout ->
+        ZonedDateTime when = GitCheckout.repository(
+                project.getBasedir()).flatMap(checkout ->
         {
             return checkout.commitDate();
         }).orElseGet(ZonedDateTime::now);

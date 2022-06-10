@@ -15,6 +15,17 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Performs a (careful) git pull on any checkouts in the tree that need it,
+ * scoped to project family, all, just this checkout or all checkouts with a
+ * project of the same group id, using the <code>scope</code> property.
+ * <p>
+ * If <code>permit-local-modifications</code> is set to true, pulls will be
+ * attempted even with modified sources.
+ * </p>
+ * <p>
+ * Checkouts which are in detached-head state (no branch to pull from) are
+ * skipped.
+ * </p>
  *
  * @author Tim Boudreau
  */

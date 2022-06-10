@@ -16,6 +16,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Cleans any cache dirs for the project or projects.
  *
  * @author Tim Boudreau
  */

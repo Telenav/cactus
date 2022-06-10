@@ -22,6 +22,8 @@ import static java.nio.file.StandardOpenOption.WRITE;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
+ * Replaces things.
+ * 
  * @author jonathanl (shibo)
  */
 @SuppressWarnings(
