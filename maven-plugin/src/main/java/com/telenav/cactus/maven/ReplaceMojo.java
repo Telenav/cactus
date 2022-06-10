@@ -2,9 +2,9 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -26,7 +26,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
+                "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -35,12 +35,10 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "replace", threadSafe = true)
 public class ReplaceMojo extends ScopedCheckoutsMojo
 {
-
     private static final Pattern REPLACE_EXPRESSION = Pattern.compile("<!--\\s*\\[(?<variable>[A-Za-z\\d]+)\\]\\s*-->");
 
     private static class Replacement
     {
-
         Pattern pattern;
 
         String replacement;
@@ -86,28 +84,39 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
         }
     }
 
+    @Parameter(property = "telenav.version")
+    private String version;
+
+    @Parameter(property = "telenav.branch-name")
+    private String branchName;
+
     private final Map<String, Replacement> variables = new HashMap<>();
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree,
+                           List<GitCheckout> checkouts) throws Exception
     {
         for (var checkout : checkouts)
         {
-            var pom = Pom.from(checkout.checkoutRoot());
-            if (pom.isPresent())
+            var branchName = this.branchName == null && checkout.branch().isPresent()
+                    ? checkout.branch().get()
+                    : this.branchName;
+
+            if (version == null)
             {
-                variables.put("group-id", new TagReplacement("groupId", pom.get().coords.groupId));
-                variables.put("artifact-id", new TagReplacement("artifactId", pom.get().coords.artifactId));
-                variables.put("version", new TagReplacement("version", pom.get().coords.version));
-                if (checkout.branch().isPresent())
-                {
-                    variables.put("branch-name", new Replacement("(master|develop|feature/.+|hotfix/.+)", checkout.branch().get()));
-                }
+                throw new RuntimeException("No replacement version was specified for " + checkout);
             }
+            if (branchName == null)
+            {
+                throw new RuntimeException("No replacement branch name was specified and there is no default branch for " + checkout);
+            }
+
+            variables.put("version", new TagReplacement("version", version));
+            variables.put("branch-name", new Replacement("(master|develop|feature/.+|hotfix/.+)", branchName));
 
             if (!isPretend())
             {
-                try ( var walk = Files.walk(checkout.checkoutRoot()))
+                try (var walk = Files.walk(checkout.checkoutRoot()))
                 {
                     walk.filter(path -> path.toFile().isFile()).forEach(file ->
                     {
@@ -156,7 +165,8 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                     Files.writeString(file, replaced, WRITE, TRUNCATE_EXISTING);
                 }
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new RuntimeException(e);
         }
