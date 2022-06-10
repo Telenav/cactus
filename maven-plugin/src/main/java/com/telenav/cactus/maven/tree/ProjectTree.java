@@ -155,6 +155,20 @@ public class ProjectTree
         return result;
     }
 
+    public Set<Pom> projectsForFamily(ProjectFamily fam)
+    {
+        Set<Pom> result = new TreeSet<>();
+        allProjects().forEach(project ->
+        {
+            if (fam.equals(ProjectFamily.fromGroupId(project.coords.groupId)))
+            {
+                result.add(project);
+            }
+        });
+        return result;
+
+    }
+
     public Map<String, Set<String>> branchesByGroupId()
     {
         return withCache(c ->

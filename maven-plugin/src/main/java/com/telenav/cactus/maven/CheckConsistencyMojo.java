@@ -49,8 +49,8 @@ public class CheckConsistencyMojo extends BaseMojo
                 }
                 sb.append(issue);
             }
+            log.error(sb.toString());
             throw new MojoExecutionException(this, sb.toString(), sb.toString());
         }
     }
-
 }

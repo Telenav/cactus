@@ -348,5 +348,4 @@ abstract class BaseMojo extends AbstractMojo
                     + remoteRepo.getUrl());
         }
     }
-
 }

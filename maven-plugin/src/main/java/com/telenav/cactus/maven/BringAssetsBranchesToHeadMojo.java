@@ -46,7 +46,6 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
         {
             Set<GitCheckout> nonMavenCheckouts = tree.nonMavenCheckouts();
 
-            System.out.println("NON MAVEN CHECKOUTS: " + nonMavenCheckouts);
             Map<Path, String> relativePaths = new HashMap<>();
             for (GitCheckout checkout : nonMavenCheckouts)
             {

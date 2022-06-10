@@ -16,22 +16,26 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Checks a number of dimensions of consistency in the project, and can detect if there are only a few outliers (in
- * which case - if, say, all projects but one are on the same branch and that branch exists)
+ * Checks a number of dimensions of consistency in the project, and can detect
+ * if there are only a few outliers (in which case - if, say, all projects but
+ * one are on the same branch and that branch exists)
  *
  * @author Tim Boudreau
  */
 public class ConsistencyChecker
 {
+
     /**
-     * Partition key for on-a-branch state of a repository. Git submodules, on checkout, put you in detached head state,
-     * which may not be where you want to stay.
+     * Partition key for on-a-branch state of a repository. Git submodules, on
+     * checkout, put you in detached head state, which may not be where you want
+     * to stay.
      */
     public static final String ON_BRANCH = "on-branch";
 
     /**
-     * Partition key for detached-head state of a repository. Git submodules, on checkout, put you in detached head
-     * state, which may not be where you want to stay.
+     * Partition key for detached-head state of a repository. Git submodules, on
+     * checkout, put you in detached head state, which may not be where you want
+     * to stay.
      */
     public static final String DETACHED = "detached";
 
@@ -59,8 +63,10 @@ public class ConsistencyChecker
             String targetGroupId,
             boolean forbidDirty)
     {
-        this.ignoreInBranchConsistencyCheck = splitToSet(ignoreInBranchConsistencyCheckCommaOrSpaceDelimitedList);
-        this.ignoreInVersionConsistencyCheck = splitToSet(ignoreInVersionConsistencyCheckCommaOrSpaceDelimitedList);
+        this.ignoreInBranchConsistencyCheck = splitToSet(
+                ignoreInBranchConsistencyCheckCommaOrSpaceDelimitedList);
+        this.ignoreInVersionConsistencyCheck = splitToSet(
+                ignoreInVersionConsistencyCheckCommaOrSpaceDelimitedList);
         this.targetGroupId = targetGroupId;
         this.forbidDirty = forbidDirty;
     }
@@ -95,7 +101,7 @@ public class ConsistencyChecker
     }
 
     public Set<Inconsistency<?>> checkDetached(ProjectTree tree, MavenProject project,
-                                               BuildLog log)
+            BuildLog log)
     {
         Set<Inconsistency<?>> result = new HashSet<>();
         checkDirtyAndDetached(tree, project, log, result, false);
@@ -104,34 +110,44 @@ public class ConsistencyChecker
 
     public ConsistencyChecker forbiddingDirty()
     {
-        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, true);
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck),
+                toString(ignoreInVersionConsistencyCheck), targetGroupId, true);
     }
 
     public ConsistencyChecker onlyCheckingGroupId(String targetGroupId)
     {
         if (this.targetGroupId != null)
         {
-            throw new IllegalStateException("Target group id already set to " + this.targetGroupId + " - cannot set to " + targetGroupId);
+            throw new IllegalStateException("Target group id already set to "
+                    + this.targetGroupId + " - cannot set to " + targetGroupId);
         }
-        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck),
+                toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
     }
 
     public ConsistencyChecker withIgnoreBranchConsistencySuffixes(String commaOrSpaceDelimitedList)
     {
         if (!ignoreInBranchConsistencyCheck.isEmpty())
         {
-            throw new IllegalStateException("Ignore in branches check is already set to " + ignoreInVersionConsistencyCheck + " - cannot set to " + commaOrSpaceDelimitedList);
+            throw new IllegalStateException("Ignore in branches check is already set to "
+                    + ignoreInVersionConsistencyCheck + " - cannot set to "
+                    + commaOrSpaceDelimitedList);
         }
-        return new ConsistencyChecker(commaOrSpaceDelimitedList, toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
+        return new ConsistencyChecker(commaOrSpaceDelimitedList,
+                toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
     }
 
     public ConsistencyChecker withIgnoreVersionConsistencySuffixes(String commaOrSpaceDelimitedList)
     {
         if (!ignoreInVersionConsistencyCheck.isEmpty())
         {
-            throw new IllegalStateException("Ignore in versions check is already set to " + ignoreInVersionConsistencyCheck + " - cannot set to " + commaOrSpaceDelimitedList);
+            throw new IllegalStateException(
+                    "Ignore in versions check is already set to "
+                    + ignoreInVersionConsistencyCheck + " - cannot set to "
+                    + commaOrSpaceDelimitedList);
         }
-        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck), commaOrSpaceDelimitedList, targetGroupId, forbidDirty);
+        return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck),
+                commaOrSpaceDelimitedList, targetGroupId, forbidDirty);
     }
 
     private static Set<String> splitToSet(String what)
@@ -171,12 +187,14 @@ public class ConsistencyChecker
     }
 
     private void checkBranchConsistency(ProjectTree tree, MavenProject project,
-                                        BuildLog log, Set<Inconsistency<?>> into)
+            BuildLog log, Set<Inconsistency<?>> into)
     {
-        log.info("Checking consistency of branches" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        log.info("Checking consistency of branches" + (targetGroupId == null
+                ? ""
+                : " for projects with the group id " + targetGroupId));
         Map<String, Map<String, Set<Pom>>> found
                 = tree.projectsByBranchByGroupId(
-                this::isVersionRequiredToBeConsistent);
+                        this::isVersionRequiredToBeConsistent);
 
         found.forEach((groupId, pomInfosForBranch) ->
         {
@@ -191,10 +209,13 @@ public class ConsistencyChecker
     }
 
     private void checkDirtyAndDetached(ProjectTree tree, MavenProject project,
-                                       BuildLog log, Set<? super Inconsistency<?>> into, boolean forbidDirty)
+            BuildLog log, Set<? super Inconsistency<?>> into,
+            boolean forbidDirty)
     {
-        log.info("Checking for detached-head checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
-        log.info("Checking for dirty checkouts" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
+        log.info("Checking for detached-head checkouts" + (targetGroupId == null ? ""
+                : " for projects with the group id " + targetGroupId));
+        log.info("Checking for dirty checkouts" + (targetGroupId == null ? ""
+                : " for projects with the group id " + targetGroupId));
         Map<String, Set<GitCheckout>> dirtyNotDirty = new HashMap<>();
         Map<String, Set<GitCheckout>> detachedNotDetached = new HashMap<>();
         for (GitCheckout checkout : tree.allCheckouts())
@@ -228,10 +249,12 @@ public class ConsistencyChecker
     }
 
     private void checkVersionConsistency(ProjectTree tree, MavenProject project,
-                                         BuildLog log, Set<? super Inconsistency<?>> into)
+            BuildLog log, Set<? super Inconsistency<?>> into)
     {
-        log.info("Checking consistency of versions" + (targetGroupId == null ? "" : " for projects with the group id " + targetGroupId));
-        Map<String, Set<Pom>> projectsByVersion = tree.projectsByVersion(this::isVersionRequiredToBeConsistent);
+        log.info("Checking consistency of versions" + (targetGroupId == null ? ""
+                : " for projects with the group id " + targetGroupId));
+        Map<String, Set<Pom>> projectsByVersion = tree.projectsByVersion(
+                this::isVersionRequiredToBeConsistent);
         if (projectsByVersion.size() > 1)
         {
             into.add(new Inconsistency<>(projectsByVersion, Inconsistency.Kind.VERSION, Pom::projectFolder));
