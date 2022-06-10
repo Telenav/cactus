@@ -66,6 +66,9 @@ public abstract class ScopeMojo extends BaseMojo
     @Parameter(property = "telenav.family", defaultValue = "")
     private String family;
 
+    /**
+     * If true, do not actually make changes, just print what would be done.
+     */
     @Parameter(property = "telenav.pretend", defaultValue = "false")
     private boolean pretend;
 

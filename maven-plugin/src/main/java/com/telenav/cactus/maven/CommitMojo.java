@@ -38,7 +38,10 @@ import org.apache.maven.project.MavenProject;
 public class CommitMojo extends ScopedCheckoutsMojo
 {
 
-    @Parameter(property = "commit-message", required = true)
+    /**
+     * The commit message.
+     */
+    @Parameter(property = "commit-message", required = true, name = "commit-message")
     private String message;
 
     @Override

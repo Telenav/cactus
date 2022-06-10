@@ -11,6 +11,8 @@ import org.apache.maven.project.MavenProject;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
+ * Tests if any git checkouts within the specified scope are dirty (have local
+ * modifications) and logs their state.
  *
  * @author jonathanl (shibo)
  */

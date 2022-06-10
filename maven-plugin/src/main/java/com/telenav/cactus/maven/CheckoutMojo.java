@@ -15,6 +15,8 @@ import java.util.List;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
+ * Check out a branch.
+ *
  * @author jonathanl (shibo)
  */
 @SuppressWarnings(
