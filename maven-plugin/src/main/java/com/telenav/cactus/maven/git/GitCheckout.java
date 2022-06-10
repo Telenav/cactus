@@ -543,7 +543,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     public boolean merge(String branch)
     {
-        return new GitCommand<>(ProcessResultConverter.exitCodeIsZero(), "merge", branch).run().awaitQuietly();
+        return new GitCommand<>(ProcessResultConverter.exitCodeIsZero(), 
+                root, "merge", branch).run().awaitQuietly();
     }
 
     public boolean push()

@@ -75,16 +75,31 @@ public abstract class ScopeMojo extends BaseMojo
     private Scope scope;
     private GitCheckout myCheckout;
 
+    /**
+     * Create a ScopeMojo that runs <i>on the last project</i> of those being
+     * processed in a multi-module build.
+     */
     protected ScopeMojo()
     {
-        super(true); // once per session
+        this(false);
+    }
+
+    /**
+     * Create a ScopeMojo.
+     *
+     * @param runFirst If true, run this mojo once-per-session, on the FIRST
+     * invocation; else run it once-per-session on the LAST invocation (e.g.
+     * when executed against a POM project, only run after everything is built).
+     */
+    protected ScopeMojo(boolean runFirst)
+    {
+        super(runFirst ? RunPolicies.FIRST : RunPolicies.LAST); // once per session
     }
 
     @Override
     protected final void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
         scope = Scope.find(scopeProperty);
-        System.out.println("FOUND SCOPE " + scope + " for " + scopeProperty);
         Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
         if (checkout.isEmpty())
         {

@@ -73,6 +73,11 @@ public class MergeBuildMojo extends ScopedCheckoutsMojo
 
     private String tempBranch;
 
+    public MergeBuildMojo()
+    {
+        super(true);
+    }
+
     @Override
     protected void onValidateParameters(BuildLog log, MavenProject project) throws Exception
     {

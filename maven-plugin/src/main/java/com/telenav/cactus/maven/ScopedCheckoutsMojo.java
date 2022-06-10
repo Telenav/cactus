@@ -17,6 +17,16 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class ScopedCheckoutsMojo extends ScopeMojo
 {
+
+    public ScopedCheckoutsMojo()
+    {
+    }
+
+    public ScopedCheckoutsMojo(boolean runFirst)
+    {
+        super(runFirst);
+    }
+
     /**
      * Run this mojo against the project tree and set of checkouts it is applied
      * to.

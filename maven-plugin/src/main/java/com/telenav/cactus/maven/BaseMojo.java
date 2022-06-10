@@ -11,7 +11,6 @@ import com.telenav.cactus.maven.tree.ProjectTree;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -46,18 +45,22 @@ abstract class BaseMojo extends AbstractMojo
 
     protected BuildLog log;
 
-    private final boolean oncePerSession;
-
     private ThrowingOptional<ProjectTree> tree;
+    private final RunPolicy policy;
 
-    protected BaseMojo(boolean oncePerSession)
+    protected BaseMojo(RunPolicy policy)
     {
-        this.oncePerSession = oncePerSession;
+        this.policy = notNull("policy", policy);
     }
 
     protected BaseMojo()
     {
-        this(false);
+        this(RunPolicies.EVERY);
+    }
+
+    protected BaseMojo(boolean oncePerSession)
+    {
+        this(oncePerSession ? RunPolicies.LAST : RunPolicies.FIRST);
     }
 
     /**
@@ -95,9 +98,9 @@ abstract class BaseMojo extends AbstractMojo
      *
      * @return true if the mojo should only be run once, on the last project
      */
-    protected boolean isOncePerSession()
+    protected RunPolicy runPolicy()
     {
-        return oncePerSession;
+        return policy;
     }
 
     /**
@@ -187,6 +190,7 @@ abstract class BaseMojo extends AbstractMojo
      */
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
+        // do nothing - for subclassers
     }
 
     /**
@@ -199,19 +203,17 @@ abstract class BaseMojo extends AbstractMojo
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
-        if (isOncePerSession())
+        int ix = mavenSession.getProjects().indexOf(project);
+        System.out.println("IX OF PRJECT " + ix);
+        System.out.println("PROJECTS: " + mavenSession.getProjects());
+        if (policy.shouldRun(project, mavenSession))
         {
-            boolean isRoot = session().getExecutionRootDirectory().equalsIgnoreCase(project.getBasedir().toString());;
-            if (!isRoot)
-            {
-                new BuildLog(getClass()).info("Skipping once-per-session mojo "
-                        + "until the end ("
-                        + Paths.get(session().getExecutionRootDirectory()).getFileName()
-                        + ")");
-                return;
-            }
+            run(this::performTasks);
+        } else
+        {
+            new BuildLog(getClass()).info("Skipping " + getClass().getSimpleName() + " mojo "
+                    + " per policy " + policy);
         }
-        run(this::performTasks);
     }
 
     /**
@@ -243,6 +245,10 @@ abstract class BaseMojo extends AbstractMojo
         {
             Throwable t = e;
             if (e instanceof java.util.concurrent.CompletionException && e.getCause() != null)
+            {
+                t = e.getCause();
+            }
+            if (e instanceof java.util.concurrent.ExecutionException && e.getCause() != null)
             {
                 t = e.getCause();
             }
