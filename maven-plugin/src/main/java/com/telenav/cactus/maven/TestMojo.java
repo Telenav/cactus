@@ -17,30 +17,30 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.tree.ProjectTree;
-
-import java.nio.file.Path;
-import java.util.Optional;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
 /**
  * A place holder for testing stuff.
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.COMPILE,
-        requiresDependencyResolution = ResolutionScope.COMPILE,
-        name = "do-something", threadSafe = true)
+                                           requiresDependencyResolution = ResolutionScope.COMPILE,
+                                           name = "do-something", threadSafe = true)
 public class TestMojo extends BaseMojo
 {
-
     @Parameter(property = "telenav.thing", defaultValue = "not really a thing")
     private String thing;
 
@@ -53,8 +53,9 @@ public class TestMojo extends BaseMojo
         buildLog.info("You are building " + project.getGroupId() + ":"
                 + project.getArtifactId() + ":" + project.getVersion());
         buildLog.info("The thing is '" + thing + "'");
-        
-        if (true) {
+
+        if (true)
+        {
             return;
         }
 

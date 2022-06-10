@@ -15,7 +15,6 @@ import java.util.Optional;
  */
 public final class GitCommand<T> extends CliCommand<T>
 {
-
     private final Path workingDir;
     private final String[] args;
     private final BuildLog log = BuildLog.get().child(getClass().getSimpleName());

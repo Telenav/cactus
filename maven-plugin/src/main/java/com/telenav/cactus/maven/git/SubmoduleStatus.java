@@ -9,8 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents one line of a "git submodule status" command's output showing this
- * status of all submodules. Example:
+ * Represents one line of a "git submodule status" command's output showing this status of all submodules. Example:
  * <pre>
  * +76a661a2dcd519a45fcb121ea255145f083eb94d cactus-build (1.3.0-25-g76a661a)
  * </pre>
@@ -19,29 +18,8 @@ import java.util.regex.Pattern;
  */
 public final class SubmoduleStatus
 {
-
     static final Pattern SUBMODULE_STATUS_LINE
-            = Pattern.compile("^([ +])([a-f0-9]+)\\s+(\\S+)\\s+\\((\\S+)\\)\\s*$");
-    public final boolean modifications;
-    public final String commitId;
-    public final String modulePath;
-    public final String branchOrTagInfo;
-    public final Path path;
-    public final boolean exists;
-
-    public SubmoduleStatus(boolean modifications, String commitId, String modulePath, String branchOrTagInfo, Path path, boolean exists)
-    {
-        this.modifications = modifications;
-        this.commitId = commitId;
-        this.modulePath = modulePath;
-        this.branchOrTagInfo = branchOrTagInfo;
-        this.path = path;
-        this.exists = exists;
-    }
-    
-    public boolean is(GitCheckout git) {
-        return exists && git.checkoutRoot().equals(path);
-    }
+            = Pattern.compile("^([ +])([a-f\\d]+)\\s+(\\S+)\\s+\\((\\S+)\\)\\s*$");
 
     public static Optional<SubmoduleStatus> from(Path root, String line)
     {
@@ -71,6 +49,34 @@ public final class SubmoduleStatus
             from(root, line).ifPresent(result::add);
         }
         return result;
+    }
+
+    public final boolean modifications;
+
+    public final String commitId;
+
+    public final String modulePath;
+
+    public final String branchOrTagInfo;
+
+    public final Path path;
+
+    public final boolean exists;
+
+    public SubmoduleStatus(boolean modifications, String commitId, String modulePath, String branchOrTagInfo, Path path,
+                           boolean exists)
+    {
+        this.modifications = modifications;
+        this.commitId = commitId;
+        this.modulePath = modulePath;
+        this.branchOrTagInfo = branchOrTagInfo;
+        this.path = path;
+        this.exists = exists;
+    }
+
+    public boolean is(GitCheckout git)
+    {
+        return exists && git.checkoutRoot().equals(path);
     }
 
     public Optional<GitCheckout> repository()

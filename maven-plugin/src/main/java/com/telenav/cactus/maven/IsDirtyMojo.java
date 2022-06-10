@@ -27,7 +27,6 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "is-dirty", threadSafe = true)
 public class IsDirtyMojo extends ScopedCheckoutsMojo
 {
-
     @Override
     protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
@@ -35,7 +34,7 @@ public class IsDirtyMojo extends ScopedCheckoutsMojo
         var dirty = false;
         for (var checkout : checkouts)
         {
-            if (!isPretend() && checkout.isDirty())
+            if (checkout.isDirty())
             {
                 dirty = true;
                 log.info("* " + checkout);

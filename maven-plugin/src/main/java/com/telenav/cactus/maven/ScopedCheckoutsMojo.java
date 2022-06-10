@@ -17,7 +17,6 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class ScopedCheckoutsMojo extends ScopeMojo
 {
-
     /**
      * Run this mojo against the project tree and set of checkouts it is applied
      * to.
