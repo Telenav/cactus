@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
@@ -22,12 +23,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.repository.LocalArtifactRequest;
-import org.eclipse.aether.repository.LocalArtifactResult;
-import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  * Runs lexakai to generate documentation and diagrams for a project into some
@@ -120,11 +115,10 @@ public class LexakaiMojo extends BaseMojo
     @Parameter(property = "output-folder", name = "lexakai-version", defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
     /**
-     * The destination folder for generated documentation - if unset, it is
-     * computed as described above.
+     * The repository to download lexakai from (central by default).
      */
-    @Parameter(property = "lexakai-repo", name = "lexakai-repo", defaultValue = "https://repo1.maven.org/maven2")
-    private String lexakaiRepo = "https://repo1.maven.org/maven2";
+    @Parameter(property = "lexakai-repo", name = "lexakai-repo", defaultValue = MAVEN_CENTRAL_REPO)
+    private String lexakaiRepo = MAVEN_CENTRAL_REPO;
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -213,7 +207,7 @@ public class LexakaiMojo extends BaseMojo
         });
     }
 
-    private final Set<GitCheckout> collectModifiedCheckouts(ProjectTree tree)
+    private Set<GitCheckout> collectModifiedCheckouts(ProjectTree tree)
     {
         tree.invalidateCache();
         Set<GitCheckout> needingCommit = new HashSet<>();
@@ -259,76 +253,37 @@ public class LexakaiMojo extends BaseMojo
         sb.append("\n\n").append("Modified checkouts:\n");
         for (GitCheckout ch : checkouts)
         {
-            sb.append("\n  * ").append(ch.name()).append(" (").append(ch.checkoutRoot()).append(")");
+            sb.append("\n  * ").append(ch.name())
+                    .append(" (").append(ch.checkoutRoot()).append(")");
         }
         return sb.append("\n").toString();
     }
 
-    Path output(MavenProject project)
+    ThrowingOptional<Path> outputFolder(MavenProject prj, GitCheckout checkout)
     {
         // If the output folder was explicitly specified, use it.
         if (outputFolder != null)
         {
-            return Paths.get(outputFolder);
+            return ThrowingOptional.of(Paths.get(outputFolder));
         }
-        // If the environment variable is set, use it
-        String envValue = System.getenv(environmentVariableName(project));
-        if (envValue != null)
-        {
-            return Paths.get(envValue);
-        }
-        // Find the root of the checkout, and if there is a
-        // groupIdAfterLastDot-assets folder, use that; if not,
-        // invent a target/lexakai dir in target/ for output
-        return GitCheckout.repository(project.getBasedir()).flatMap(repo ->
-        {
-            return repo.submoduleRoot().flatMap(subroot
-                    -> PathUtils.ifDirectory(
-                            subroot.checkoutRoot().resolve(prefix(project) + "-assets"))).toOptional();
-        }).orElseGet(() -> project.getBasedir().toPath().resolve("target").resolve("lexakai"));
+        // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a 
+        // $name-assets folder in the submodule root
+        return ProjectFamily.of(prj).assetsPath(checkout);
     }
 
-    private String prefix(MavenProject project)
+    Path output(MavenProject project)
     {
-        String gid = project.getGroupId();
-        int ix = gid.lastIndexOf('.');
-        if (ix >= 0 && ix < gid.length() - 1)
-        {
-            return gid.substring(ix + 1);
-        }
-        return gid;
-    }
-
-    private String environmentVariableName(MavenProject project)
-    {
-        String tail = prefix(project).toUpperCase();
-        int hyphen = tail.indexOf('-');
-        if (hyphen > 0)
-        {
-            tail = tail.substring(0, hyphen);
-        }
-        return tail + "_ASSETS_HOME";
+        return GitCheckout.repository(project.getBasedir()).flatMap(repo
+                -> outputFolder(project, repo).toOptional()
+        ).orElseGet(
+                // Failover to generating under target/
+                () -> project.getBasedir().toPath().resolve("target").resolve("lexakai"));
     }
 
     private Path lexakaiJar() throws MojoFailureException
     {
-        // PENDING: We should pass in a target version of lexakai, not hard-code it
-        Artifact af = new DefaultArtifact("com.telenav.lexakai", "Lexakai", "jar", lexakaiVersion);
-        LocalArtifactRequest locArtifact = new LocalArtifactRequest();
-        locArtifact.setArtifact(af);
-        RemoteRepository remoteRepo = new RemoteRepository.Builder("central",
-                "x", lexakaiRepo)
-                .build();
-        locArtifact.setRepositories(Collections.singletonList(remoteRepo));
-        RepositorySystemSession sess = session().getRepositorySession();
-        LocalArtifactResult res = sess.getLocalRepositoryManager().find(sess, locArtifact);
-        log.warn("Download result for " + af + ": " + res);
-        if (res != null && res.getFile() != null)
-        {
-            log.warn("Have local lexakai jar " + res.getFile());
-            return res.getFile().toPath();
-        }
-        throw new MojoFailureException("Could not download " + af + " from " + remoteRepo.getUrl());
+        return downloadArtifact("com.telenav.lexakai", "Lexakai", lexakaiVersion)
+                .get();
     }
 
     class LexakaiRunner implements ThrowingRunnable
@@ -369,6 +324,5 @@ public class LexakaiMojo extends BaseMojo
                 Thread.currentThread().setContextClassLoader(ldr);
             }
         }
-
     }
 }

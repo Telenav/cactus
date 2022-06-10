@@ -1,7 +1,12 @@
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.util.PathUtils;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -52,6 +57,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     {
         if (is(prj))
         {
+            // Pending - use toNonThrowing w/ next maven release:
             notNull("run", run).toRunnable().run();
             return true;
         }
@@ -70,6 +76,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     {
         if (isParentFamilyOf(prj))
         {
+            // Pending - use toNonThrowing w/ next maven release:
             code.toRunnable().run();
             return true;
         }
@@ -107,18 +114,12 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      */
     public boolean isParentFamilyOf(MavenProject prj)
     {
-        String gid = notNull("prj", prj).getGroupId();
-        int ix = gid.lastIndexOf('.');
-        if (ix > 0)
-        {
-            gid = gid.substring(0, ix);
-        }
-        return fromGroupId(gid).equals(this);
+        return isParentFamilyOf(notNull("prj", prj).getGroupId());
     }
 
     public boolean isParentFamilyOf(String gid)
     {
-        int ix = gid.lastIndexOf('.');
+        int ix = notNull("gid", gid).lastIndexOf('.');
         if (ix > 0)
         {
             gid = gid.substring(0, ix);
@@ -178,6 +179,32 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
             tail = tail.substring(0, dashIndex);
         }
         return new ProjectFamily(tail);
+    }
+
+    public ThrowingOptional<Path> assetsPath(GitCheckout checkout)
+    {
+        String envVar = System.getenv(assetsEnvironmentVariable());
+        Path path = null;
+        if (envVar != null)
+        {
+            path = Paths.get(envVar);
+            ThrowingOptional<Path> result = ThrowingOptional.from(PathUtils.ifDirectory(path));
+            // If the directory pointed to by the environment variable does not
+            // actually exist, use the search strategy instead
+            if (result.isPresent())
+            {
+                return result;
+            }
+        }
+        return checkout.submoduleRoot().flatMap(root ->
+        {
+            return PathUtils.ifDirectory(root.checkoutRoot().resolve(name + "-assets"));
+        });
+    }
+
+    public String assetsEnvironmentVariable()
+    {
+        return name.toUpperCase() + "_ASSETS_HOME";
     }
 
     /**
