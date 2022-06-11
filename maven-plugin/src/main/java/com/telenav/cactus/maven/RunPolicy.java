@@ -21,6 +21,14 @@ public interface RunPolicy
         };
     }
 
+    default RunPolicy or(RunPolicy other)
+    {
+        return (prj, sess) ->
+        {
+            return other.shouldRun(prj, sess) || shouldRun(prj, sess);
+        };
+    }
+
     default RunPolicy negate()
     {
         return (prj, sess) -> !shouldRun(prj, sess);

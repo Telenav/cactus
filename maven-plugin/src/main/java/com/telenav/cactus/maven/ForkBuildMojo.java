@@ -4,7 +4,10 @@ import com.telenav.cactus.maven.git.Branches;
 import com.telenav.cactus.maven.git.Branches.Branch;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.shared.SharedData;
+import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -27,13 +31,23 @@ import org.apache.maven.project.MavenProject;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
         name = "attempt-merge", threadSafe = true)
-public class MergeBuildMojo extends ScopedCheckoutsMojo
+public class ForkBuildMojo extends ScopedCheckoutsMojo
 {
+
+    static final SharedDataKey<String> TEMP_BRANCH_KEY
+            = SharedDataKey.of("tempBranch", String.class);
+    static final SharedDataKey<GitCheckout[]> BRANCHED_REPOS_KEY
+            = SharedDataKey.of(GitCheckout[].class);
+    static final SharedDataKey<String> TARGET_BRANCH_KEY
+            = SharedDataKey.of("mergeTo", String.class);
+
+    @Inject
+    SharedData sharedData;
 
     /**
      * The stable branch to merge into.
      */
-    @Parameter(property = "stable-branch", name = "stable-branch", defaultValue = "develop")
+    @Parameter(property = "stable-branch", defaultValue = "develop")
     private String stableBranch;
 
     /**
@@ -45,13 +59,13 @@ public class MergeBuildMojo extends ScopedCheckoutsMojo
     /**
      * If true, merge and push to the remote stable branch on success.
      */
-    @Parameter(property = "push", name = "push", defaultValue = "false")
+    @Parameter(property = "push", defaultValue = "false")
     private boolean push;
 
     /**
      * If true, log what will be done.
      */
-    @Parameter(property = "verbose", name = "verbose", defaultValue = "true")
+    @Parameter(property = "verbose", defaultValue = "true")
     private boolean verbose;
 
     /**
@@ -73,9 +87,12 @@ public class MergeBuildMojo extends ScopedCheckoutsMojo
 
     private String tempBranch;
 
-    public MergeBuildMojo()
+    public ForkBuildMojo()
     {
+        // This needs to run before the build, so the build builds the right
+        // thing
         super(true);
+        new Exception("Create fork build mojo").printStackTrace(System.out);
     }
 
     @Override
@@ -85,6 +102,8 @@ public class MergeBuildMojo extends ScopedCheckoutsMojo
         validateBranchName(stableBranch, false);
         tempBranch = branchToMerge + "_" + stableBranch + "_" + Long.toString(System.currentTimeMillis(), 36)
                 + "_" + Long.toString(ThreadLocalRandom.current().nextLong(), 36);
+        sharedData.put(TEMP_BRANCH_KEY, tempBranch);
+        sharedData.put(TARGET_BRANCH_KEY, stableBranch);
         log.info("Temporary branch name " + tempBranch);
     }
 
@@ -147,11 +166,13 @@ public class MergeBuildMojo extends ScopedCheckoutsMojo
             Branch base = e.getValue();
             GitCheckout checkout = e.getKey();
             log.info("Create and switch to " + tempBranch + " in " + checkout.name());
-            if (!isPretend())
+            boolean success = checkout.createAndSwitchToBranch(tempBranch, Optional.of(base.trackingName()), isPretend());
+            if (!success)
             {
-                checkout.createAndSwitchToBranch(tempBranch, Optional.of(base.toString()), isPretend());
+                fail("Failed to create and switch to " + tempBranch + " using " + base);
             }
         }
+        List<GitCheckout> successfullyMerged = new ArrayList<>();
         for (Map.Entry<GitCheckout, Branch> e : branchesToMerge.entrySet())
         {
             Branch target = e.getValue();
@@ -159,9 +180,17 @@ public class MergeBuildMojo extends ScopedCheckoutsMojo
             log.info("Merge " + target + " into " + tempBranch + " for " + checkout.name());
             if (!isPretend())
             {
-                checkout.merge(target.toString());
+                if (checkout.merge(target.trackingName()))
+                {
+                    successfullyMerged.add(checkout);
+                } else
+                {
+//                    fail("Failed to merge " + target + " into " + tempBranch);
+                    log.warn("Failed to merge " + target + " into " + tempBranch);
+                }
             }
         }
+        sharedData.put(BRANCHED_REPOS_KEY, successfullyMerged.toArray(GitCheckout[]::new));
     }
 
     private void fetchAll(List<GitCheckout> checkouts, BuildLog log)
