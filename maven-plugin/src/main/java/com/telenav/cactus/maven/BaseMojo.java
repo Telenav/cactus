@@ -203,9 +203,6 @@ abstract class BaseMojo extends AbstractMojo
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
-        int ix = mavenSession.getProjects().indexOf(project);
-        System.out.println("IX OF PRJECT " + ix);
-        System.out.println("PROJECTS: " + mavenSession.getProjects());
         if (policy.shouldRun(project, mavenSession))
         {
             run(this::performTasks);

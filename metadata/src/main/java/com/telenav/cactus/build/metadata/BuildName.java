@@ -29,8 +29,8 @@ import java.time.ZonedDateTime;
  */
 public class BuildName
 {
-    /** Start of KivaKit epoch is December 5, 2020 (blue monkey) */
-    public static final int KIVAKIT_EPOCH_DAY = 18_601;
+    /** Start of Telenav epoch is December 5, 2020 (blue monkey) */
+    public static final int TELENAV_EPOCH_DAY = 18_601;
 
     private static final String[] nouns = new String[]
             {
@@ -57,7 +57,7 @@ public class BuildName
 
 
     public static int toBuildNumber(LocalDate date) {
-        return (int) (date.toEpochDay() - KIVAKIT_EPOCH_DAY);
+        return (int) (date.toEpochDay() - TELENAV_EPOCH_DAY);
     }
 
     public static String name(ZonedDateTime when) {

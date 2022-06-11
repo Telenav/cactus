@@ -85,7 +85,7 @@ public class BuildMetadataTest
 
         assertTrue(commitHash.isPresent());
         assertEquals(SOME_HASH, md.gitCommitHash().get());
-        assertTrue(md.isCleanRepo());
+        assertTrue(md.isCleanRepository());
         assertTrue(md.shortGitCommitHash().isPresent());
         assertEquals(SOME_HASH_SHORT, md.shortGitCommitHash().get());
 
@@ -116,7 +116,7 @@ public class BuildMetadataTest
 
         assertTrue(md.gitCommitHash().isPresent());
         assertEquals(SOME_HASH, md.gitCommitHash().get());
-        assertFalse(md.isCleanRepo());
+        assertFalse(md.isCleanRepository());
         assertTrue(md.shortGitCommitHash().isPresent());
         assertEquals(SOME_HASH_SHORT, md.shortGitCommitHash().get());
 
@@ -144,7 +144,7 @@ public class BuildMetadataTest
         withTempFile(md ->
         {
             assertNotNull(md);
-            assertTrue(md.isCleanRepo());
+            assertTrue(md.isCleanRepository());
             assertEquals(SOME_HASH, md.gitCommitHash().get());
             LocalDate currentDate = todaysLocalDate();
             LocalDate gitDate = ZDT.toLocalDate();

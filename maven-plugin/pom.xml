@@ -8,16 +8,16 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 -->
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+        xmlns = "http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-build-superpom</artifactId>
-        <version>1.4.5</version> <!-- [[version]] -->
+        <version>1.4.5</version> <!-- [version] -->
         <relativePath/>
     </parent>
 
@@ -68,11 +68,6 @@
             <artifactId>cactus-build-metadata</artifactId>
             <version>[${cactus.version},)</version>
         </dependency>
-        <!--        <dependency>
-            <groupId>com.telenav.lexakai</groupId>
-            <artifactId>lexakai</artifactId>
-            <version>[${lexakai.prev.version},)</version>
-        </dependency>-->
 
         <!-- Maven -->
 
@@ -94,10 +89,26 @@
             <version>${maven.api.version}</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>cactus.build.maven.plugin</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
+            </plugin>
 
             <plugin>
 

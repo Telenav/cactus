@@ -18,21 +18,22 @@
 
 package com.telenav.cactus.build.metadata;
 
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import static java.util.Arrays.copyOfRange;
-import static java.util.Collections.emptyMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
+import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
+import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.util.Arrays.copyOfRange;
+import static java.util.Collections.emptyMap;
 
 /**
  * This application is run from Maven builds to produce a <i>build.properties</i> file in <i>src/main/java</i>
@@ -85,11 +86,11 @@ public class BuildMetadataUpdater
                 {
                     Files.createDirectory(outputPath);
                 }
-                Map<String,String> additionalArguments 
+                Map<String, String> additionalArguments
                         = collectAdditionalArguments(arguments);
 
                 // formulate the lines of the build.properties file,
-                var properties = new BuildMetadata(null, 
+                var properties = new BuildMetadata(null,
                         BuildMetadata.Type.CURRENT, additionalArguments).buildProperties();
                 var lines = new ArrayList<String>();
                 for (var key : properties.keySet())
@@ -103,13 +104,14 @@ public class BuildMetadataUpdater
                     out.println(String.join("\n", lines));
                 }
             }
-            catch (RuntimeException ex) {
+            catch (RuntimeException ex)
+            {
                 // Don't swallow errors that actually describe what's wrong
                 throw ex;
             }
             catch (Exception cause)
             {
-                throw new IllegalStateException("Unable to write metadata: " 
+                throw new IllegalStateException("Unable to write metadata: "
                         + Arrays.toString(arguments), cause);
             }
         }
@@ -118,63 +120,66 @@ public class BuildMetadataUpdater
             System.err.println("Usage: kivakit-metadata [output-folder] ([key] [value])*");
         }
     }
-    
-    private static Map<String, String> collectAdditionalArguments(String[] arguments) 
+
+    private static Map<String, String> collectAdditionalArguments(String[] arguments)
     {
-        if (arguments.length > 1) 
+        if (arguments.length > 1)
         {
-            Map<String, String> additionalArguments = new TreeMap<>();
-                if (arguments.length % 2 == 0) 
+            Map<String, String> additionalArguments;
+            if (arguments.length % 2 == 0)
+            {
+                throw new IllegalArgumentException(
+                        "Following key/value pairs must be balanced,"
+                                + " but " + (arguments.length - 1)
+                                + " passed: "
+                                + Arrays.toString(copyOfRange(arguments,
+                                1, arguments.length)));
+            }
+            additionalArguments = new TreeMap<>();
+            for (int i = 1; i < arguments.length; i += 2)
+            {
+                switch (arguments[i])
                 {
-                    throw new IllegalArgumentException(
-                            "Following key/value pairs must be balanced,"
-                                    + " but " + (arguments.length - 1) 
-                                    + " passed: " 
-                                    + Arrays.toString(copyOfRange(arguments, 
-                                            1, arguments.length)));
-                }
-                additionalArguments = new TreeMap<>();
-                for (int i = 1; i < arguments.length; i+=2)
-                {
-                    switch(arguments[i]) 
-                    {
-                        case KEY_GIT_COMMIT_TIMESTAMP:
-                            try 
-                            {
-                                ZonedDateTime.parse(arguments[i + 1], ISO_DATE_TIME);
-                            } catch (DateTimeParseException ex)
-                            {
-                                throw new IllegalArgumentException(arguments[i] 
+                    case KEY_GIT_COMMIT_TIMESTAMP:
+                        try
+                        {
+                            ZonedDateTime.parse(arguments[i + 1], ISO_DATE_TIME);
+                        }
+                        catch (DateTimeParseException ex)
+                        {
+                            throw new IllegalArgumentException(arguments[i]
                                     + " must be in ISO 8601 instant format,"
-                                    + " but got " + arguments[i+1]);
-                            }
-                            break;
-                        case KEY_GIT_REPO_CLEAN :
-                            switch(arguments[i+1]) 
-                            {
-                                case "true":
-                                case "false":
-                                    break;
-                                default :
-                                    throw new IllegalArgumentException(arguments[i]
+                                    + " but got " + arguments[i + 1]);
+                        }
+                        break;
+                    case KEY_GIT_REPO_CLEAN:
+                        switch (arguments[i + 1])
+                        {
+                            case "true":
+                            case "false":
+                                break;
+                            default:
+                                throw new IllegalArgumentException(arguments[i]
                                         + " must be either 'true' or 'false' "
-                                                + "but got '" + arguments[i+1]);
-                            }
-                            break;
-                        case KEY_GIT_COMMIT_HASH :
-                            for (int j = 0; j < arguments[i+1].length(); j++) 
+                                        + "but got '" + arguments[i + 1]);
+                        }
+                        break;
+                    case KEY_GIT_COMMIT_HASH:
+                        for (int j = 0; j < arguments[i + 1].length(); j++)
+                        {
+                            char c = arguments[i + 1].charAt(j);
+                            if (!(c >= 'a' && c <= 'f') && !(c >= '0' && c <= '9'))
                             {
-                                char c = arguments[i+1].charAt(j);
-                                if (!(c >= 'a' && c <= 'f') && !(c >= '0' && c <= '9')) {
-                                    throw new IllegalArgumentException("Valid characters in a git "
+                                throw new IllegalArgumentException("Valid characters in a git "
                                         + " hash are 0-9 a-f");
-                                }
                             }
-                    }
-                    additionalArguments.put(arguments[i], arguments[i+1]);
+                        }
                 }
-                return additionalArguments;
-        } else 
+                additionalArguments.put(arguments[i], arguments[i + 1]);
+            }
+            return additionalArguments;
+        }
+        else
         {
             return emptyMap();
         }
