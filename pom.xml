@@ -16,7 +16,7 @@
 
     <parent>
         <groupId>com.telenav</groupId>
-        <artifactId>telenav-family-superpom</artifactId>
+        <artifactId>telenav-superpom-project-family</artifactId>
         <version>1.0</version>
         <relativePath/>
     </parent>
@@ -48,9 +48,9 @@
     <!-- Modules -->
     
     <modules>
-        <module>metadata</module>
-        <module>maven-model</module>
-        <module>maven-plugin</module>
+        <module>cactus-build-metadata</module>
+        <module>cactus-build-maven-model</module>
+        <module>cactus-build-maven-plugin</module>
     </modules>
     
     <!-- Properties -->

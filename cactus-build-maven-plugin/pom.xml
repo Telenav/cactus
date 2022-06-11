@@ -16,7 +16,7 @@
 
     <parent>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>cactus-build-superpom</artifactId>
+        <artifactId>telenav-superpom-cactus-build</artifactId>
         <version>1.4.5</version> <!-- [version] -->
         <relativePath/>
     </parent>
