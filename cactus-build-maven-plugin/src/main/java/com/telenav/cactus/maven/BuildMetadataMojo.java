@@ -90,12 +90,14 @@ public class BuildMetadataMojo extends BaseMojo
         {
             log.info("Wrote project.properties");
             log.info("------------------------");
+            log.info("to " + propsFile + "\n");
             log.info(propertiesFileContent + "\n");
             Path buildProps = propsFile.getParent().resolve("build.properties");
             if (Files.exists(buildProps))
             {
                 log.info("Wrote build.properties");
                 log.info("----------------------");
+                log.info("to " + buildProps + "\n");
                 log.info(Files.readString(buildProps));
             } else
             {
@@ -118,5 +120,4 @@ public class BuildMetadataMojo extends BaseMojo
                 .append("\nproject-artifact-id=").append(project.getArtifactId())
                 .append('\n').toString();
     }
-
 }
