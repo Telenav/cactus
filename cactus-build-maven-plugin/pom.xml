@@ -34,6 +34,7 @@
         <mastfrog.version>2.8.1</mastfrog.version>
         <enforcer.skip>true</enforcer.skip>
         <lexakai.prev.version>1.0.7</lexakai.prev.version>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
