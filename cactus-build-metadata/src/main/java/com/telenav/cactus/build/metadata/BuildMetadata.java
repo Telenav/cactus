@@ -263,17 +263,14 @@ public class BuildMetadata
                         .collect(Collectors.joining("\n"))
                         .trim();
             }
-            throw new IllegalStateException("No metadata found relative to " 
+            throw new IllegalStateException("No metadata found relative to "
                     + project.getName() + " at " + path + " using classloader "
-                    + project.getClassLoader() 
+                    + project.getClassLoader()
                     + " (" + project.getClassLoader().getClass().getName()
                     + ")");
         }
         catch (Exception cause)
         {
-            if (cause instanceof RuntimeException) {
-                throw ((RuntimeException) cause);
-            }
             throw new IllegalStateException("Unable to read: " + path, cause);
         }
     }
