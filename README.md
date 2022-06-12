@@ -18,14 +18,14 @@
 [//]: # (end-user-text)
 
 # cactus-build 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/logos/kivakit/kivakit-64.png" srcset="https://telenav.github.io/telenav-assets/images/logos/kivakit/kivakit-64-2x.png 2x"/>
-
+ 
 This module contains tools for building modules and applications.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-512.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-512-2x.png 2x"/>
 
 [//]: # (start-user-text)
 
-
+> [How to build this project](https://github.com/Telenav/telenav-build/blob/develop/documentation/building.md) <!-- [branch-name] --> 
 
 [//]: # (end-user-text)
 
