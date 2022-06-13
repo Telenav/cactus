@@ -17,7 +17,6 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class ScopedCheckoutsMojo extends ScopeMojo
 {
-
     public ScopedCheckoutsMojo()
     {
     }

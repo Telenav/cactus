@@ -31,16 +31,16 @@ public class GitFlowMojo extends ScopedCheckoutsMojo
     @Parameter(property = "operation", required = true)
     private String operation;
 
-    @Parameter(property = "branch-type", required = true)
+    @Parameter(property = "branchType", required = true)
     private String branchType;
 
-    @Parameter(property = "branch", required = true)
-    private String branch;
+    @Parameter(property = "branchName", required = true)
+    private String branchName;
 
     @Override
     protected void onValidateParameters(BuildLog log, MavenProject project) throws Exception
     {
-        validateBranchName(branch, false);
+        validateBranchName(branchName, false);
         if (!branchType.matches("feature|hotfix|release"))
         {
             throw new RuntimeException("Branch type must be one of: feature, hotfix, or release");
@@ -63,7 +63,7 @@ public class GitFlowMojo extends ScopedCheckoutsMojo
 
         for (var checkout : checkouts)
         {
-            checkout.flow(operation, branchType, branch);
+            checkout.flow(operation, branchType, branchName);
         }
     }
 }

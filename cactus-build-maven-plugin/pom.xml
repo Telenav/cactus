@@ -115,7 +115,7 @@
 
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
-                    <goalPrefix>cactus</goalPrefix>
+                    <goalPrefix>cactus-build</goalPrefix>
                 </configuration>
                 <executions>
                     <execution>

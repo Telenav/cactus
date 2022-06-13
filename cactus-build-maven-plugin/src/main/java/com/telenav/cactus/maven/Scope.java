@@ -52,7 +52,6 @@ public enum Scope
 
     public static Scope find(String prop) throws MojoExecutionException
     {
-
         if (prop == null)
         {
             return FAMILY;
