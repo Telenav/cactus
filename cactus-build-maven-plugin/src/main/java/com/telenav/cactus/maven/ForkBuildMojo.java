@@ -23,6 +23,26 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Performs the first steps of attempting to automatically merge a development
+ * or feature branch into a stable branch - given a branch to merge, it will
+ * create a new temporary branch from the stable branch, and merge the development
+ * branch into it, failing if the merge creates conflicts.
+ * <p>
+ * If it succeeds, the build will proceed, and MergeToBranchMojo (which shares
+ * data with this one) can be configured as a packaging step (at any step after
+ * tests run, really) to merge the temporary branches into the stable branch.
+ * </p><p>
+ * The use case here is continuous builds which are set up to maintain a "stable"
+ * branch, know about some set of "team" or feature branches, which automatically
+ * update the stable branch from those branches if they are mergeable and all tests
+ * pass, so developers working on other branches/features have a stable source to
+ * merge from which incorporates the work of their colleagues, and reduce the
+ * frequency/severity of "big bang" merges.
+ * </p><p>
+ * To do that, you will want to set up your pom files with a profile that executes
+ * this mojo on the validate phase (or some very early phase in the build), and
+ * execute the MergeToBranchMojo afterwards (which will never run if the build fails).
+ * </p>
  *
  * @author Tim Boudreau
  */

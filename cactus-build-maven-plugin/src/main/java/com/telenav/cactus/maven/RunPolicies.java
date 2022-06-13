@@ -16,6 +16,7 @@ public enum RunPolicies implements RunPolicy
     NON_POM_PROJECT_ONLY,
     LAST;
 
+    @Override
     public boolean shouldRun(MavenProject invokedOn, MavenSession session)
     {
         switch (this)
@@ -38,6 +39,8 @@ public enum RunPolicies implements RunPolicy
 
     private static boolean isFirst(MavenProject invokedOn, MavenSession session)
     {
+        // XXX verify that this actually always works - if the first project
+        // invoked does not use this mojo, this test might fail.
         return session.getProjects().indexOf(invokedOn) == 0;
     }
 
