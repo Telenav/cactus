@@ -6,7 +6,7 @@
 
 # cactus-build maven-plugin 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//gears-32-2x.png 2x"/>
 
-This module provides maven support for Telenav open source projects.
+This module provides maven support for Telenav Open Source projects.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-512.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-512-2x.png 2x"/>
 
