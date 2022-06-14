@@ -13,7 +13,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-build metadata 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//tag-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//tag-32-2x.png 2x"/>
+# cactus metadata 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//tag-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//tag-32-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 
@@ -29,13 +29,13 @@ This module saves and loads build metadata to *src/main/java/build.properties*.
 
 ### Dependencies <a name="dependencies"></a> &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/dependencies-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/dependencies-32-2x.png 2x"/>
 
-[*Dependency Diagram*](https://telenav.github.io/cactus-build-assets/1.4.3/lexakai/cactus-build/metadata/documentation/diagrams/dependencies.svg)
+[*Dependency Diagram*](https://telenav.github.io/cactus-assets/1.4.3/lexakai/cactus/metadata/documentation/diagrams/dependencies.svg)
 
 #### Maven Dependency
 
     <dependency>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>cactus-build-metadata</artifactId>
+        <artifactId>cactus-metadata</artifactId>
         <version>1.4.3</version>
     </dependency>
 
@@ -65,7 +65,7 @@ None
 
 ### Package Diagrams <a name="package-diagrams"></a> &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/box-24.png" srcset="https://telenav.github.io/telenav-assets/images/icons/box-24-2x.png 2x"/>
 
-[*com.telenav.cactus.build.metadata*](https://telenav.github.io/cactus-build-assets/1.4.3/lexakai/cactus-build/metadata/documentation/diagrams/com.telenav.cactus.build.metadata.svg)
+[*com.telenav.cactus.build.metadata*](https://telenav.github.io/cactus-assets/1.4.3/lexakai/cactus/metadata/documentation/diagrams/com.telenav.cactus.build.metadata.svg)
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
@@ -80,10 +80,10 @@ Javadoc coverage for this project is 100.0%.
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildMetadata*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.metadata////////////////////////////////////////////////.html) |  |  
-| [*BuildMetadata.Type*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.metadata/////////////////////////////////////////////////////.html) |  |  
-| [*BuildMetadataUpdater*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.metadata///////////////////////////////////////////////////////.html) |  |  
-| [*BuildName*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.metadata////////////////////////////////////////////.html) |  |  
+| [*BuildMetadata*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata////////////////////////////////////////////////.html) |  |  
+| [*BuildMetadata.Type*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata/////////////////////////////////////////////////////.html) |  |  
+| [*BuildMetadataUpdater*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata///////////////////////////////////////////////////////.html) |  |  
+| [*BuildName*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata////////////////////////////////////////////.html) |  |  
 
 [//]: # (start-user-text)
 

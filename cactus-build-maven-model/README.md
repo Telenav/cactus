@@ -4,7 +4,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-build maven-model 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//diagram-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//diagram-32-2x.png 2x"/>
+# cactus-maven-model 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//diagram-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//diagram-32-2x.png 2x"/>
 
 This module provides a simple model of Maven POM files.
 
@@ -20,13 +20,13 @@ This module provides a simple model of Maven POM files.
 
 ### Dependencies <a name="dependencies"></a> &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/dependencies-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/dependencies-32-2x.png 2x"/>
 
-[*Dependency Diagram*](https://telenav.github.io/cactus-build-assets/1.4.3/lexakai/cactus-build/maven-model/documentation/diagrams/dependencies.svg)
+[*Dependency Diagram*](https://telenav.github.io/cactus-assets/1.4.3/lexakai/cactus/maven-model/documentation/diagrams/dependencies.svg)
 
 #### Maven Dependency
 
     <dependency>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>cactus-build-maven-model</artifactId>
+        <artifactId>cactus-maven-model</artifactId>
         <version>1.4.3</version>
     </dependency>
 
@@ -48,7 +48,7 @@ None
 
 ### Package Diagrams <a name="package-diagrams"></a> &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/box-24.png" srcset="https://telenav.github.io/telenav-assets/images/icons/box-24-2x.png 2x"/>
 
-[*com.telenav.cactus.maven.model*](https://telenav.github.io/cactus-build-assets/1.4.3/lexakai/cactus-build/maven-model/documentation/diagrams/com.telenav.cactus.maven.model.svg)
+[*com.telenav.cactus.maven.model*](https://telenav.github.io/cactus-assets/1.4.3/lexakai/cactus/maven-model/documentation/diagrams/com.telenav.cactus.maven.model.svg)
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
@@ -63,12 +63,6 @@ The following significant classes are undocumented:
 
 - com.telenav.cactus.maven.model  
 - com.telenav.cactus.maven.model
-
-| Class | Documentation Sections |
-|---|---|
-| [*MavenCoordinates*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.maven.model////////////////////////////////////////////////.html) |  |  
-| [*Pom*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.maven.model///////////////////////////////////.html) |  |  
-| [*PomFile*](https://telenav.github.io/cactus-build-assets/1.4.3/javadoc/cactus-build/cactus.build.maven.model///////////////////////////////////////.html) |  |  
 
 [//]: # (start-user-text)
 

@@ -17,14 +17,14 @@
 
     <parent>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>telenav-superpom-cactus-build</artifactId>
+        <artifactId>telenav-superpom-cactus</artifactId>
         <version>1.4.5</version>
         <relativePath/>
     </parent>
 
-    <artifactId>cactus-build-metadata</artifactId>
+    <artifactId>cactus-metadata</artifactId>
     <description>
-        The cactus-build-metadata project generates build metadata consumed by
+        The cactus-metadata project generates build metadata consumed by
         KivaKit and other projects.
     </description>
     
@@ -53,7 +53,7 @@
                         
                         <configuration>
                             
-                            <finalName>cactus-build-metadata-${project.version}</finalName>
+                            <finalName>cactus-metadata-${project.version}</finalName>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
                                 <transformer

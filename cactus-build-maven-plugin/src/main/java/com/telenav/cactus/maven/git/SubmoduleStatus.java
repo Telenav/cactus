@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Represents one line of a "git submodule status" command's output showing this status of all submodules. Example:
  * <pre>
- * +76a661a2dcd519a45fcb121ea255145f083eb94d cactus-build (1.3.0-25-g76a661a)
+ * +76a661a2dcd519a45fcb121ea255145f083eb94d cactus (1.3.0-25-g76a661a)
  * </pre>
  *
  * @author Tim Boudreau

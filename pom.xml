@@ -22,8 +22,8 @@
     </parent>
 
     <groupId>com.telenav.cactus</groupId>    
-    <artifactId>cactus-build</artifactId>
-    <name>cactus-build</name>
+    <artifactId>cactus</artifactId>
+    <name>cactus</name>
     <version>1.4.5</version>
     
     <packaging>pom</packaging>
@@ -31,7 +31,7 @@
     <!-- Project -->
     
     <description>
-        The cactus-build project generates build metadata consumed by KivaKit and
+        The cactus project generates build metadata consumed by KivaKit and
         other projects.
     </description>
     
@@ -48,9 +48,9 @@
     <!-- Modules -->
     
     <modules>
-        <module>cactus-build-metadata</module>
-        <module>cactus-build-maven-model</module>
-        <module>cactus-build-maven-plugin</module>
+        <module>cactus-metadata</module>
+        <module>cactus-maven-model</module>
+        <module>cactus-maven-plugin</module>
     </modules>
     
     <!-- Properties -->
@@ -171,7 +171,7 @@
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
                         <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/${env.CACTUS_VERSION}/javadoc</reportOutputDirectory>
-                        <destDir>cactus-build</destDir>
+                        <destDir>cactus</destDir>
                         <additionalOptions>
                             -notimestamp --show-module-contents all --show-packages
                             all --show-types private
@@ -345,9 +345,9 @@
     <!-- Source Code -->
     
     <scm>
-        <connection>scm:git:https://Telenav/cactus-build.git</connection>
-        <developerConnection>scm:git:https://Telenav/cactus-build.git</developerConnection>
-        <url>https://Telenav/cactus-build.git</url>
+        <connection>scm:git:https://Telenav/cactus.git</connection>
+        <developerConnection>scm:git:https://Telenav/cactus.git</developerConnection>
+        <url>https://Telenav/cactus.git</url>
     </scm>
     
     <url>https://www.kivakit.org</url>
@@ -356,7 +356,7 @@
     
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Telenav/cactus-build/issues</url>
+        <url>https://github.com/Telenav/cactus/issues</url>
     </issueManagement>
     
     <inceptionYear>2021</inceptionYear>
