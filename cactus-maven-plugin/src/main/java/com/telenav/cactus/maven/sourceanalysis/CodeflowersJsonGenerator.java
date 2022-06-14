@@ -22,7 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Tim Boudreau
  */
-public class CodeflowersJsonGenerator implements ProjectScanConsumer {
+public class CodeflowersJsonGenerator implements ProjectScanConsumer
+{
 
     private final String title;
 
@@ -31,7 +32,8 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
     private final Set<String> artifactIds = ConcurrentHashMap.newKeySet();
     private final boolean pretend;
 
-    public CodeflowersJsonGenerator(String title, Path outputDir, boolean whitespace, boolean pretend) {
+    public CodeflowersJsonGenerator(String title, Path outputDir, boolean whitespace, boolean pretend)
+    {
         this.title = title;
         this.outputDir = outputDir;
         this.whitespace = whitespace;
@@ -39,29 +41,38 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
     }
 
     @Override
-    public void onDone() throws IOException {
+    public void onDone() throws IOException
+    {
         new CodeflowersIndexGenerator(outputDir.getParent()).generate(title,
                 new TreeSet<>(artifactIds));
     }
 
     @Override
-    public void onProjectScanned(Pom pom, Map<Path, Integer> scores) throws IOException {
+    public void onProjectScanned(Pom pom, Map<Path, Integer> scores) throws IOException
+    {
         artifactIds.add(pom.coords.artifactId);
         HFolder root = new HFolder();
-        scores.forEach((path, score) -> {
-            if (path.getParent() == null) {
+        scores.forEach((path, score) ->
+        {
+            if (path.getParent() == null)
+            {
                 root.addFile(path.getFileName().toString(), score);
                 return;
             }
             root.findChildFolder(path.getParent(), 0).addFile(path.getFileName().toString(), score);
         });
         String fnBase = pom.coords.artifactId;
-        if (!Files.exists(outputDir)) {
-            synchronized (CodeflowersJsonGenerator.class) {
-                if (!Files.exists(outputDir)) {
-                    try {
+        if (!Files.exists(outputDir))
+        {
+            synchronized (CodeflowersJsonGenerator.class)
+            {
+                if (!Files.exists(outputDir))
+                {
+                    try
+                    {
                         Files.createDirectories(outputDir);
-                    } catch (IOException ioe) {
+                    } catch (IOException ioe)
+                    {
                         // this can race - we are being called on multiple threads here
                     }
                 }
@@ -69,39 +80,48 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
         }
         Path jsonFile = outputDir.resolve(fnBase + ".json");
         Path wcFile = outputDir.resolve(fnBase + ".wc");
-        if (!pretend) {
-            try ( OutputStream jsonOut = Files.newOutputStream(jsonFile, WRITE, TRUNCATE_EXISTING, CREATE)) {
+        if (!pretend)
+        {
+            try ( OutputStream jsonOut = Files.newOutputStream(jsonFile, WRITE, TRUNCATE_EXISTING, CREATE))
+            {
                 jsonOut.write(root.jsonify(0, new SB(whitespace)).toString().getBytes(UTF_8));
             }
         }
         StringBuilder wc = new StringBuilder();
         Int total = Int.create();
-        scores.forEach((path, score) -> {
-            if (wc.length() > 0) {
+        scores.forEach((path, score) ->
+        {
+            if (wc.length() > 0)
+            {
                 wc.append('\n');
             }
             total.increment(score);
             String txt = Integer.toString(score);
-            for (int i = 0; i < 7 - txt.length(); i++) {
+            for (int i = 0; i < 7 - txt.length(); i++)
+            {
                 wc.append(' ');
             }
             wc.append(txt).append(' ').append(path);
         });
         wc.append('\n');
         String tot = total.toString();
-        for (int i = 0; i < 7 - tot.length(); i++) {
+        for (int i = 0; i < 7 - tot.length(); i++)
+        {
             wc.append(' ');
         }
         wc.append(tot).append(" total\n");
-        if (!pretend) {
-            try ( OutputStream wcOut = Files.newOutputStream(wcFile, WRITE, TRUNCATE_EXISTING, CREATE)) {
+        if (!pretend)
+        {
+            try ( OutputStream wcOut = Files.newOutputStream(wcFile, WRITE, TRUNCATE_EXISTING, CREATE))
+            {
                 wcOut.write(wc.toString().getBytes(UTF_8));
             }
         }
         System.out.println(jsonFile);
     }
 
-    private static final class HFolder implements Comparable<HFolder> {
+    private static final class HFolder implements Comparable<HFolder>
+    {
 
         private final Map<String, HFolder> childFolders = new TreeMap<>();
         private final String name;
@@ -111,34 +131,46 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
         private static final String SIZE_PREFIX = "\"size\" : ";
 
         @SuppressWarnings("LeakingThisInConstructor")
-        HFolder(String name) {
+        HFolder(String name)
+        {
             this.name = name;
         }
 
-        HFolder() {
+        HFolder()
+        {
             this("");
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return jsonify(0, new SB(false)).toString();
         }
 
-        SB jsonify(int depth, SB sb) {
-            if (sb.length() > 0) {
+        SB jsonify(int depth, SB sb)
+        {
+            // Pulling in a json lib would be a potent source of conflicts
+            // with other plugins, and the JSON we need is simple enough to
+            // just generate it manually.
+            if (sb.length() > 0)
+            {
                 sb.newline();
             }
             sb.spaces(depth).append('{').newline();
-            if (!name.isEmpty()) {
+            if (!name.isEmpty())
+            {
                 sb.spaces(depth).append(NAME_PREFIX).quote(name);
             }
-            if (!childFolders.isEmpty() || !childFileScores.isEmpty()) {
-                if (!name.isEmpty()) {
+            if (!childFolders.isEmpty() || !childFileScores.isEmpty())
+            {
+                if (!name.isEmpty())
+                {
                     sb.append(',').newline();
                 }
                 sb.spaces(name.isEmpty() ? depth + 1 : depth).append(CHILDREN_PREFIX);
                 for (Iterator<Map.Entry<String, Integer>> it
-                        = childFileScores.entrySet().iterator(); it.hasNext();) {
+                        = childFileScores.entrySet().iterator(); it.hasNext();)
+                {
                     Map.Entry<String, Integer> en = it.next();
                     String child = en.getKey();
                     Integer score = en.getValue();
@@ -149,38 +181,46 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
                     sb.newline().spaces(depth + 3)
                             .append(SIZE_PREFIX).append(score);
                     sb.newline().spaces(depth + 2).append("}");
-                    if (it.hasNext() || !childFolders.isEmpty()) {
+                    if (it.hasNext() || !childFolders.isEmpty())
+                    {
                         sb.append(",");
                     }
                 }
                 for (Iterator<Map.Entry<String, HFolder>> it
-                        = childFolders.entrySet().iterator(); it.hasNext();) {
+                        = childFolders.entrySet().iterator(); it.hasNext();)
+                {
                     Map.Entry<String, HFolder> en = it.next();
                     en.getValue().jsonify(depth + 1, sb);
-                    if (it.hasNext()) {
+                    if (it.hasNext())
+                    {
                         sb.append(',');
                     }
                 }
                 sb.append(']');
             }
             sb.newline().spaces(depth).append('}');
-            if (name.isEmpty()) {
+            if (name.isEmpty())
+            {
                 sb.sb.append('\n');
             }
             return sb;
         }
 
-        void addFile(String filename, int score) {
+        void addFile(String filename, int score)
+        {
             childFileScores.put(filename, score);
         }
 
-        HFolder findChildFolder(Path folderPath, int nameIndex) {
-            if (nameIndex >= folderPath.getNameCount()) {
+        HFolder findChildFolder(Path folderPath, int nameIndex)
+        {
+            if (nameIndex >= folderPath.getNameCount())
+            {
                 return this;
             }
             String nm = folderPath.getName(nameIndex).toString();
             HFolder result = childFolders.get(nm);
-            if (result == null) {
+            if (result == null)
+            {
                 result = new HFolder(nm);
                 childFolders.put(nm, result);
             }
@@ -188,45 +228,56 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
         }
 
         @Override
-        public int compareTo(HFolder o) {
+        public int compareTo(HFolder o)
+        {
             return name.compareTo(o.name);
         }
     }
 
-    static class SB {
+    static class SB
+    {
 
         private final StringBuilder sb = new StringBuilder();
         private final boolean whitespace;
 
-        SB(boolean whitespace) {
+        SB(boolean whitespace)
+        {
             this.whitespace = whitespace;
         }
 
-        SB() {
+        SB()
+        {
             this(true);
         }
 
-        int length() {
+        int length()
+        {
             return sb.length();
         }
 
-        public SB newline() {
-            if (whitespace) {
+        public SB newline()
+        {
+            if (whitespace)
+            {
                 sb.append('\n');
             }
             return this;
         }
 
-        public SB append(char c) {
-            if (!whitespace && c == '\n') {
+        public SB append(char c)
+        {
+            if (!whitespace && c == '\n')
+            {
                 return this;
             }
             sb.append(c);
             return this;
         }
 
-        public SB append(String s) {
-            if (!whitespace) {
+        public SB append(String s)
+        {
+            if (!whitespace)
+            {
                 s = s.replaceAll("\n", "");
                 s = s.replaceAll(" : ", ":");
             }
@@ -234,13 +285,16 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
             return this;
         }
 
-        public SB append(Object o) {
+        public SB append(Object o)
+        {
             sb.append(o);
             return this;
         }
 
-        public SB spaces(int count) {
-            if (!whitespace) {
+        public SB spaces(int count)
+        {
+            if (!whitespace)
+            {
                 return this;
             }
             char[] c = new char[count * 2];
@@ -249,12 +303,14 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer {
             return this;
         }
 
-        public SB quote(String what) {
+        public SB quote(String what)
+        {
             sb.append('"').append(what.replaceAll("\"", "\\\"")).append('"');
             return this;
         }
 
-        public String toString() {
+        public String toString()
+        {
             return sb.toString();
         }
     }

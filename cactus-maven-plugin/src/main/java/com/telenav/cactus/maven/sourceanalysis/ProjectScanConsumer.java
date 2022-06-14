@@ -9,11 +9,13 @@ import java.util.Map;
  *
  * @author Tim Boudreau
  */
-public interface ProjectScanConsumer {
+public interface ProjectScanConsumer
+{
 
     void onProjectScanned(Pom pom, Map<Path, Integer> scores) throws IOException;
-    
-    default void onDone() throws IOException{
-        
+
+    default void onDone() throws IOException
+    {
+
     }
 }

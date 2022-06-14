@@ -17,37 +17,49 @@ import java.util.zip.ZipInputStream;
  *
  * @author Tim Boudreau
  */
-public class CodeflowersIndexGenerator {
+public class CodeflowersIndexGenerator
+{
 
     private final Path dir;
 
-    public CodeflowersIndexGenerator(Path dir) {
+    public CodeflowersIndexGenerator(Path dir)
+    {
         this.dir = dir;
     }
 
-    public void generate(String title, Set<String> ids) throws IOException {
+    public void generate(String title, Set<String> ids) throws IOException
+    {
         String result = template().replaceAll("__PROJECT__", title).replaceAll("__OPTIONS__", options(ids));
         Files.write(dir.resolve("index.html"), result.getBytes(UTF_8), WRITE, TRUNCATE_EXISTING, CREATE);
         unzipAssets();
     }
 
-    private void unzipAssets() throws IOException {
-        try ( InputStream in = CodeflowersIndexGenerator.class.getResourceAsStream("cf.zip")) {
-            if (in == null) {
+    private void unzipAssets() throws IOException
+    {
+        try ( InputStream in = CodeflowersIndexGenerator.class.getResourceAsStream("cf.zip"))
+        {
+            if (in == null)
+            {
                 throw new IOException("cf.zip not adjacent to "
                         + CodeflowersIndexGenerator.class + " on classpath");
             }
-            try ( ZipInputStream zip = new ZipInputStream(in)) {
+            try ( ZipInputStream zip = new ZipInputStream(in))
+            {
                 ZipEntry en;
-                while ((en = zip.getNextEntry()) != null) {
-                    if (en.isDirectory()) {
+                while ((en = zip.getNextEntry()) != null)
+                {
+                    if (en.isDirectory())
+                    {
                         Path dest = dir.resolve(en.getName());
-                        if (!Files.exists(dest)) {
+                        if (!Files.exists(dest))
+                        {
                             Files.createDirectories(dest);
                         }
-                    } else {
+                    } else
+                    {
                         Path dest = dir.resolve(en.getName());
-                        if (!Files.exists(dest.getParent())) {
+                        if (!Files.exists(dest.getParent()))
+                        {
                             Files.createDirectories(dest.getParent());
                         }
                         Files.copy(zip, dest, StandardCopyOption.REPLACE_EXISTING);
@@ -57,9 +69,12 @@ public class CodeflowersIndexGenerator {
         }
     }
 
-    private static String template() throws IOException {
-        try ( InputStream in = CodeflowersIndexGenerator.class.getResourceAsStream("index-template.html")) {
-            if (in == null) {
+    private static String template() throws IOException
+    {
+        try ( InputStream in = CodeflowersIndexGenerator.class.getResourceAsStream("index-template.html"))
+        {
+            if (in == null)
+            {
                 throw new IOException("index-template.html not adjacent to "
                         + CodeflowersIndexGenerator.class + " on classpath");
             }
@@ -67,10 +82,13 @@ public class CodeflowersIndexGenerator {
         }
     }
 
-    private String options(Set<String> ids) {
+    private String options(Set<String> ids)
+    {
         StringBuilder sb = new StringBuilder();
-        for (String id : ids) {
-            if (sb.length() > 0) {
+        for (String id : ids)
+        {
+            if (sb.length() > 0)
+            {
                 sb.append('\n');
             }
             String friendlyName = friendlyName(id);
@@ -80,12 +98,15 @@ public class CodeflowersIndexGenerator {
         return sb.toString();
     }
 
-    private static String friendlyName(String name) {
+    private static String friendlyName(String name)
+    {
         StringBuilder sb = new StringBuilder();
-        for (String part : name.split("-")) {
+        for (String part : name.split("-"))
+        {
             char[] c = part.toCharArray();
             c[0] = Character.toUpperCase(c[0]);
-            if (sb.length() > 0) {
+            if (sb.length() > 0)
+            {
                 sb.append(' ');
             }
             sb.append(c);

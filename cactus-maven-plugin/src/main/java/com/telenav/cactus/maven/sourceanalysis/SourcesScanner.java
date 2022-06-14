@@ -13,22 +13,28 @@ import java.util.stream.Stream;
  *
  * @author Tim Boudreau
  */
-public class SourcesScanner {
+public class SourcesScanner
+{
 
     private final SourceScorer scorer;
 
-    public SourcesScanner() {
+    public SourcesScanner()
+    {
         this(new WordCount());
     }
 
-    public SourcesScanner(SourceScorer scorer) {
+    public SourcesScanner(SourceScorer scorer)
+    {
         this.scorer = scorer;
     }
 
-    public int scan(Path sourceRoot, BiConsumer<Path, Integer> output) throws IOException {
+    public int scan(Path sourceRoot, BiConsumer<Path, Integer> output) throws IOException
+    {
         int result = 0;
-        try ( Stream<Path> files = Files.walk(sourceRoot).filter(SourcesScanner::isJavaFile)) {
-            for (Path path : files.collect(Collectors.toCollection(ArrayList::new))) {
+        try ( Stream<Path> files = Files.walk(sourceRoot).filter(SourcesScanner::isJavaFile))
+        {
+            for (Path path : files.collect(Collectors.toCollection(ArrayList::new)))
+            {
                 int score = scorer.score(path);
                 output.accept(path, score);
                 result++;
@@ -37,7 +43,8 @@ public class SourcesScanner {
         return result;
     }
 
-    private static boolean isJavaFile(Path path) {
+    private static boolean isJavaFile(Path path)
+    {
         return path.getFileName().toString().endsWith(".java")
                 && !Files.isDirectory(path)
                 && Files.isReadable(path);

@@ -32,7 +32,8 @@ import org.apache.maven.project.MavenProject;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.SINGLETON,
         name = "codeflowers", threadSafe = true)
-public class CodeFlowersMojo extends ScopedCheckoutsMojo {
+public class CodeFlowersMojo extends ScopedCheckoutsMojo
+{
 
     /**
      * If true, generate JSON files indented for human-readability; if false,
@@ -42,45 +43,57 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo {
     private boolean indent = false;
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception {
+    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    {
         Map<ProjectFamily, Set<Pom>> all = allPoms(tree, checkouts);
-        for (Map.Entry<ProjectFamily, Set<Pom>> e : all.entrySet()) {
-            if (e.getValue().isEmpty()) {
+        for (Map.Entry<ProjectFamily, Set<Pom>> e : all.entrySet())
+        {
+            if (e.getValue().isEmpty())
+            {
                 continue;
             }
             String version = checkConsistentVersion(e.getKey(), e.getValue());
-            if (version == null) { // empty = should not happen
+            if (version == null)
+            { // empty = should not happen
                 log.warn("Got no versions at all in " + e.getKey());
                 continue;
             }
             ProjectFamily fam = e.getKey();
-            fam.assetsPath(myCheckout).ifPresentOrElse(assetsRoot -> {
+            fam.assetsPath(myCheckout).ifPresentOrElse(assetsRoot ->
+            {
                 Path codeflowersPath = assetsRoot.resolve("docs").resolve(version).resolve("codeflowers")
                         .resolve("site").resolve("data");
                 log.info("Will generate codeflowers for '" + fam + "' into " + codeflowersPath);
                 MavenProjectsScanner scanner = new MavenProjectsScanner(log.child("scanProjects"), new WordCount(), e.getValue());
                 CodeflowersJsonGenerator gen = new CodeflowersJsonGenerator(fam.toString(), codeflowersPath, indent, isPretend());
                 scanner.scan(gen);
-            }, () -> {
+            }, () ->
+            {
                 log.warn("Could not find an assets root for family " + fam);
             });
         }
     }
 
-    private String checkConsistentVersion(ProjectFamily fam, Set<Pom> poms) throws Exception {
+    private String checkConsistentVersion(ProjectFamily fam, Set<Pom> poms) throws Exception
+    {
         Set<String> versions = new HashSet<>();
         poms.forEach(pom -> versions.add(pom.coords.version));
-        if (versions.size() > 1) {
+        if (versions.size() > 1)
+        {
             throw new MojoExecutionException("Not all projects in family '" + fam + "' have the same version: " + versions);
         }
         return versions.isEmpty() ? null : versions.iterator().next();
     }
 
-    private Map<ProjectFamily, Set<Pom>> allPoms(ProjectTree tree, Collection<? extends GitCheckout> checkouts) {
+    private Map<ProjectFamily, Set<Pom>> allPoms(ProjectTree tree, Collection<? extends GitCheckout> checkouts)
+    {
         Map<ProjectFamily, Set<Pom>> result = new HashMap<>();
-        for (GitCheckout co : checkouts) {
-            for (Pom pom : tree.projectsWithin(co)) {
-                if (!"pom".equals(pom.packaging)) {
+        for (GitCheckout co : checkouts)
+        {
+            for (Pom pom : tree.projectsWithin(co))
+            {
+                if (!"pom".equals(pom.packaging))
+                {
                     Set<Pom> poms = result.computeIfAbsent(ProjectFamily.fromGroupId(pom.coords.groupId), f -> new HashSet<>());
                     poms.add(pom);
                 }

@@ -7,14 +7,18 @@ import java.nio.file.Path;
  *
  * @author Tim Boudreau
  */
-public class WordCount implements SourceScorer.StringSourceScorer {
+public class WordCount implements SourceScorer.StringSourceScorer
+{
 
     @Override
-    public int score(Path path, String lines) {
+    public int score(Path path, String lines)
+    {
         int result = 0;
-        for (String line : lines.split("\n")) {
+        for (String line : lines.split("\n"))
+        {
             line = line.trim();
-            if (line.isEmpty() || line.startsWith("//") || line.startsWith("/*")) {
+            if (line.isEmpty() || line.startsWith("//") || line.startsWith("/*"))
+            {
                 continue;
             }
             result += scoreLine(line);
@@ -22,14 +26,18 @@ public class WordCount implements SourceScorer.StringSourceScorer {
         return result;
     }
 
-    private int scoreLine(String line) {
+    private int scoreLine(String line)
+    {
         Kind lastState = Kind.WHITESPACE;
         int result = 0;
-        for (int i = 0; i < line.length(); i++) {
+        for (int i = 0; i < line.length(); i++)
+        {
             char c = line.charAt(i);
             Kind newState = Kind.get(c);
-            if (lastState != newState) {
-                if (newState.isWord() && !lastState.isWord()) {
+            if (lastState != newState)
+            {
+                if (newState.isWord() && !lastState.isWord())
+                {
                     result++;
                 }
             }
@@ -38,17 +46,21 @@ public class WordCount implements SourceScorer.StringSourceScorer {
         return result;
     }
 
-    enum Kind {
+    enum Kind
+    {
         WHITESPACE,
         WORD_CHAR,
         OTHER_CHAR;
 
-        boolean isWord() {
+        boolean isWord()
+        {
             return this == WORD_CHAR;
         }
 
-        boolean is(char c) {
-            switch (this) {
+        boolean is(char c)
+        {
+            switch (this)
+            {
                 case WHITESPACE:
                     return Character.isWhitespace(c);
                 case WORD_CHAR:
@@ -60,14 +72,19 @@ public class WordCount implements SourceScorer.StringSourceScorer {
             }
         }
 
-        static Kind get(char ch) {
-            if (WHITESPACE.is(ch)) {
+        static Kind get(char ch)
+        {
+            if (WHITESPACE.is(ch))
+            {
                 return WHITESPACE;
-            } else if (WORD_CHAR.is(ch)) {
-                return WORD_CHAR;
-            } else {
-                return OTHER_CHAR;
-            }
+            } else
+                if (WORD_CHAR.is(ch))
+                {
+                    return WORD_CHAR;
+                } else
+                {
+                    return OTHER_CHAR;
+                }
         }
     }
 
