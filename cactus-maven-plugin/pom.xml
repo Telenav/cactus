@@ -16,9 +16,8 @@
 
     <parent>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>telenav-superpom-cactus</artifactId>
-        <version>1.4.5</version> <!-- [version] -->
-        <relativePath/>
+        <artifactId>cactus</artifactId>
+        <version>1.4.6</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -35,6 +34,7 @@
         <enforcer.skip>true</enforcer.skip>
         <lexakai.prev.version>1.0.7</lexakai.prev.version>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <cactus.version>1.4.6</cactus.version>
     </properties>
 
     <dependencies>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-maven-model</artifactId>
-            <version>[${cactus.version},)</version>
+            <version>${cactus.version}</version>
         </dependency>
 
         <!-- Mastfrog -->
@@ -67,14 +67,10 @@
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-metadata</artifactId>
-            <version>[${cactus.version},)</version>
+            <version>${cactus.version}</version>
         </dependency>
 
         <!-- Maven -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.maven</groupId>

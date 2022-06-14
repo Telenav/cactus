@@ -17,9 +17,8 @@
 
     <parent>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>telenav-superpom-cactus</artifactId>
-        <version>1.4.5</version>
-        <relativePath/>
+        <artifactId>cactus</artifactId>
+        <version>1.4.6</version>
     </parent>
 
     <artifactId>cactus-metadata</artifactId>
