@@ -5,7 +5,7 @@
     title "kivakit-commandline"
     
     artifact jackson_annotations
-    artifact cactus_build_metadata
+    artifact cactus_metadata
     artifact kivakit_commandline
     artifact kivakit_kernel
     artifact lexakai_annotations
@@ -16,7 +16,7 @@
     junit --> hamcrest_core
     kivakit_commandline --> kivakit_kernel
     kivakit_kernel --> annotations
-    kivakit_kernel --> cactus_build_metadata
+    kivakit_kernel --> cactus_metadata
     kivakit_kernel --> jackson_annotations
     kivakit_kernel --> junit
     kivakit_kernel --> lexakai_annotations

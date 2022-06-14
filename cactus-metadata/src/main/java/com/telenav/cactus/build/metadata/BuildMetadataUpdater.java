@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.build.metadata;
+package com.telenav.cactus.metadata;
 
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -28,9 +28,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.util.Arrays.copyOfRange;
 import static java.util.Collections.emptyMap;

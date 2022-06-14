@@ -65,7 +65,7 @@ None
 
 ### Package Diagrams <a name="package-diagrams"></a> &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/box-24.png" srcset="https://telenav.github.io/telenav-assets/images/icons/box-24-2x.png 2x"/>
 
-[*com.telenav.cactus.build.metadata*](https://telenav.github.io/cactus-assets/1.4.3/lexakai/cactus/metadata/documentation/diagrams/com.telenav.cactus.build.metadata.svg)
+[*com.telenav.cactus.metadata*](https://telenav.github.io/cactus-assets/1.4.3/lexakai/cactus/metadata/documentation/diagrams/com.telenav.cactus.metadata.svg)
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
@@ -80,10 +80,10 @@ Javadoc coverage for this project is 100.0%.
 
 | Class | Documentation Sections |
 |---|---|
-| [*BuildMetadata*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata////////////////////////////////////////////////.html) |  |  
-| [*BuildMetadata.Type*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata/////////////////////////////////////////////////////.html) |  |  
-| [*BuildMetadataUpdater*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata///////////////////////////////////////////////////////.html) |  |  
-| [*BuildName*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.build.metadata////////////////////////////////////////////.html) |  |  
+| [*BuildMetadata*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.metadata////////////////////////////////////////////////.html) |  |  
+| [*BuildMetadata.Type*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.metadata/////////////////////////////////////////////////////.html) |  |  
+| [*BuildMetadataUpdater*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.metadata///////////////////////////////////////////////////////.html) |  |  
+| [*BuildName*](https://telenav.github.io/cactus-assets/1.4.3/javadoc/cactus/cactus.metadata////////////////////////////////////////////.html) |  |  
 
 [//]: # (start-user-text)
 

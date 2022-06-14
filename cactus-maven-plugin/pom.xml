@@ -39,7 +39,7 @@
 
     <dependencies>
 
-        <!-- Cactus Build -->
+        <!-- Cactus -->
 
         <dependency>
             <groupId>com.telenav.cactus</groupId>
@@ -104,7 +104,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>cactus.build.maven.plugin</Automatic-Module-Name>
+                            <Automatic-Module-Name>cactus.maven.plugin</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

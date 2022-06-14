@@ -15,13 +15,13 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.build.metadata;
+package com.telenav.cactus.metadata;
 
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
-import static com.telenav.cactus.build.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
-import static com.telenav.cactus.build.metadata.BuildMetadata.todaysLocalDate;
-import static com.telenav.cactus.build.metadata.BuildName.toBuildNumber;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
+import static com.telenav.cactus.metadata.BuildMetadata.todaysLocalDate;
+import static com.telenav.cactus.metadata.BuildName.toBuildNumber;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -1,6 +1,6 @@
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.build.metadata.BuildName;
+import com.telenav.cactus.metadata.BuildName;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.util.PathUtils;

@@ -58,7 +58,7 @@
                             <transformers>
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.telenav.cactus.build.metadata.BuildMetadataUpdater</mainClass>
+                                    <mainClass>com.telenav.cactus.metadata.BuildMetadataUpdater</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>

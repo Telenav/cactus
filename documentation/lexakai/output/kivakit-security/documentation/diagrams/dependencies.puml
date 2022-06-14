@@ -5,7 +5,7 @@
     title "kivakit-security"
     
     artifact jackson_annotations
-    artifact cactus_build_metadata
+    artifact cactus_metadata
     artifact kivakit_kernel
     artifact kivakit_security
     artifact kivakit_test
@@ -16,7 +16,7 @@
     artifact annotations
     junit --> hamcrest_core
     kivakit_kernel --> annotations
-    kivakit_kernel --> cactus_build_metadata
+    kivakit_kernel --> cactus_metadata
     kivakit_kernel --> jackson_annotations
     kivakit_kernel --> lexakai_annotations
     kivakit_kernel --> swagger_annotations
