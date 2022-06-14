@@ -3,6 +3,7 @@ package com.telenav.cactus.maven.sourceanalysis;
 import java.nio.file.Path;
 
 /**
+ * A simple word count computer.
  *
  * @author Tim Boudreau
  */
@@ -13,7 +14,7 @@ public class WordCount implements SourceScorer.StringSourceScorer {
         int result = 0;
         for (String line : lines.split("\n")) {
             line = line.trim();
-            if (line.startsWith("//") || line.startsWith("/*")) {
+            if (line.isEmpty() || line.startsWith("//") || line.startsWith("/*")) {
                 continue;
             }
             result += scoreLine(line);
@@ -51,7 +52,7 @@ public class WordCount implements SourceScorer.StringSourceScorer {
                 case WHITESPACE:
                     return Character.isWhitespace(c);
                 case WORD_CHAR:
-                    return Character.isAlphabetic(c) || Character.isDigit(c);
+                    return Character.isAlphabetic(c) || Character.isDigit(c) || c == '.' || c == '$';
                 case OTHER_CHAR:
                     return !Character.isAlphabetic(c) && !Character.isDigit(c) && !Character.isWhitespace(c);
                 default:

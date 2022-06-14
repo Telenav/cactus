@@ -1,18 +1,15 @@
 package com.telenav.cactus.maven.sourceanalysis;
 
 import com.mastfrog.concurrent.ConcurrentLinkedList;
-import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.model.Pom;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiConsumer;
@@ -39,7 +36,7 @@ public class MavenProjectsScanner {
         }
     }
 
-    public void scan(ProjectScanConsumer c) throws InterruptedException {
+    public void scan(ProjectScanConsumer c) throws InterruptedException, IOException {
         int count = Runtime.getRuntime().availableProcessors();
         CountDownLatch latch = new CountDownLatch(count);
         for (int i = 0; i < count - 1; i++) {
@@ -47,6 +44,7 @@ public class MavenProjectsScanner {
         }
         scanLoop(latch, c);
         latch.await();
+        c.onDone();
     }
 
     private void scanLoop(CountDownLatch latch, ProjectScanConsumer c) {
@@ -84,6 +82,4 @@ public class MavenProjectsScanner {
         });
         return result;
     }
-
-
 }
