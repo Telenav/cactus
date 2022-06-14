@@ -1,4 +1,4 @@
-open module cactus.build.metadata
+open module cactus.metadata
 {
     exports com.telenav.cactus.build.metadata;
 }

@@ -1,4 +1,4 @@
-open module cactus.build.maven.model
+open module cactus.maven.model
 {
     requires jdk.xml.dom;
     requires java.logging;
