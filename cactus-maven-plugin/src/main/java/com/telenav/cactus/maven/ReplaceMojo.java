@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -26,7 +44,10 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author jonathanl (shibo)
  */
-@SuppressWarnings({ "unused", "DuplicatedCode" })
+@SuppressWarnings(
+        {
+            "unused", "DuplicatedCode"
+        })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -34,7 +55,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "replace", threadSafe = true)
 public class ReplaceMojo extends ScopedCheckoutsMojo
 {
-    private static final Pattern REPLACE_EXPRESSION = Pattern.compile("<!--\\s*\\[(?<variable>[A-Za-z\\d]+)\\]\\s*-->");
+    private static final Pattern REPLACE_EXPRESSION = Pattern.compile(
+            "<!--\\s*\\[(?<variable>[A-Za-z\\d]+)\\]\\s*-->");
 
     private static class Replacement
     {
@@ -82,34 +104,41 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
     private final Map<String, Replacement> variables = new HashMap<>();
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree,
-                           List<GitCheckout> checkouts) throws Exception
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout, ProjectTree tree,
+            List<GitCheckout> checkouts) throws Exception
     {
         for (var checkout : checkouts)
         {
-            var branchName = this.branchName == null && checkout.branch().isPresent()
-                    ? checkout.branch().get()
-                    : this.branchName;
+            var branchName = this.branchName == null && checkout.branch()
+                    .isPresent()
+                         ? checkout.branch().get()
+                         : this.branchName;
 
             if (version == null)
             {
-                throw new RuntimeException("No replacement version was specified for " + checkout);
+                throw new RuntimeException(
+                        "No replacement version was specified for " + checkout);
             }
             if (branchName == null)
             {
-                throw new RuntimeException("No replacement branch name was specified and there is no default branch for " + checkout);
+                throw new RuntimeException(
+                        "No replacement branch name was specified and there is no default branch for " + checkout);
             }
 
-            variables.put("version", new Replacement("\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", version));
-            variables.put("branch-name", new Replacement("(master|develop|feature/.+|hotfix/.+)", branchName));
+            variables.put("version", new Replacement(
+                    "\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", version));
+            variables.put("branch-name", new Replacement(
+                    "(master|develop|feature/.+|hotfix/.+)", branchName));
 
             if (!isPretend())
             {
-                try (var walk = Files.walk(checkout.checkoutRoot()))
+                try ( var walk = Files.walk(checkout.checkoutRoot()))
                 {
                     walk.filter(path -> path.toFile().isFile()).forEach(file ->
                     {
-                        if (file.endsWith(".md") || file.getFileName().equals(Paths.get("pom.xml")))
+                        if (file.endsWith(".md") || file.getFileName().equals(
+                                Paths.get("pom.xml")))
                         {
                             replaceIn(file);
                         }
@@ -129,7 +158,8 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
             var replacement = variables.get(variable);
             if (replacement == null)
             {
-                throw new RuntimeException("Cannot find replace-next variable: " + variable);
+                throw new RuntimeException(
+                        "Cannot find replace-next variable: " + variable);
             }
 
             replaced.append(text.substring(matcher.start()));

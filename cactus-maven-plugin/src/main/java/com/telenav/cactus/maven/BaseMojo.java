@@ -1,12 +1,29 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.maven.log.BuildLog;
 import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
-import static com.mastfrog.util.preconditions.Checks.notNull;
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,6 +41,8 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.LocalArtifactRequest;
 import org.eclipse.aether.repository.LocalArtifactResult;
 import org.eclipse.aether.repository.RemoteRepository;
+
+import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
  * A base class for our mojos, which sets up a build logger and provides a way
@@ -60,7 +79,9 @@ abstract class BaseMojo extends AbstractMojo
 
     protected BaseMojo(boolean oncePerSession)
     {
-        this(oncePerSession ? RunPolicies.LAST : RunPolicies.FIRST);
+        this(oncePerSession
+             ? RunPolicies.LAST
+             : RunPolicies.FIRST);
     }
 
     /**
@@ -114,7 +135,8 @@ abstract class BaseMojo extends AbstractMojo
         if (tree == null)
         {
             tree = ProjectTree.from(project());
-        } else
+        }
+        else
         {
             tree.ifPresent(ProjectTree::invalidateCache);
         }
@@ -128,7 +150,8 @@ abstract class BaseMojo extends AbstractMojo
      * @param func A function applied to the project tree
      * @return An optional result
      */
-    protected final <T> ThrowingOptional<T> withProjectTree(ThrowingFunction<ProjectTree, T> func)
+    protected final <T> ThrowingOptional<T> withProjectTree(
+            ThrowingFunction<ProjectTree, T> func)
     {
         return projectTree().map(func);
     }
@@ -168,7 +191,8 @@ abstract class BaseMojo extends AbstractMojo
         return project;
     }
 
-    private void internalValidateParameters(BuildLog log, MavenProject project) throws Exception
+    private void internalValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
     {
         if (project == null)
         {
@@ -206,9 +230,11 @@ abstract class BaseMojo extends AbstractMojo
         if (policy.shouldRun(project, mavenSession))
         {
             run(this::performTasks);
-        } else
+        }
+        else
         {
-            new BuildLog(getClass()).info("Skipping " + getClass().getSimpleName() + " mojo "
+            new BuildLog(getClass()).info("Skipping " + getClass()
+                    .getSimpleName() + " mojo "
                     + " per policy " + policy);
         }
     }
@@ -223,9 +249,11 @@ abstract class BaseMojo extends AbstractMojo
         return mavenSession;
     }
 
-    protected abstract void performTasks(BuildLog log, MavenProject project) throws Exception;
+    protected abstract void performTasks(BuildLog log, MavenProject project)
+            throws Exception;
 
-    private void run(ThrowingBiConsumer<BuildLog, MavenProject> run) throws MojoExecutionException, MojoFailureException
+    private void run(ThrowingBiConsumer<BuildLog, MavenProject> run)
+            throws MojoExecutionException, MojoFailureException
     {
         try
         {
@@ -235,17 +263,21 @@ abstract class BaseMojo extends AbstractMojo
                 internalValidateParameters(theLog, project());
                 run.accept(theLog, project());
             });
-        } catch (MojoFailureException | MojoExecutionException e)
+        }
+        catch (MojoFailureException | MojoExecutionException e)
         {
             throw e;
-        } catch (Exception | Error e)
+        }
+        catch (Exception | Error e)
         {
             Throwable t = e;
-            if (e instanceof java.util.concurrent.CompletionException && e.getCause() != null)
+            if (e instanceof java.util.concurrent.CompletionException && e
+                    .getCause() != null)
             {
                 t = e.getCause();
             }
-            if (e instanceof java.util.concurrent.ExecutionException && e.getCause() != null)
+            if (e instanceof java.util.concurrent.ExecutionException && e
+                    .getCause() != null)
             {
                 t = e.getCause();
             }
@@ -253,7 +285,8 @@ abstract class BaseMojo extends AbstractMojo
         }
     }
 
-    protected void validateBranchName(String branchName, boolean nullOk) throws MojoExecutionException
+    protected void validateBranchName(String branchName, boolean nullOk)
+            throws MojoExecutionException
     {
         if (branchName == null)
         {
@@ -263,7 +296,8 @@ abstract class BaseMojo extends AbstractMojo
             }
             fail("Branch name unset");
         }
-        if (branchName.isBlank() || !branchName.startsWith("-") && branchName.contains(" ")
+        if (branchName.isBlank() || !branchName.startsWith("-") && branchName
+                .contains(" ")
                 && !branchName.contains("\"") && !branchName.contains("'"))
         {
             fail("Illegal branch name format: '" + branchName + "'");
@@ -275,7 +309,8 @@ abstract class BaseMojo extends AbstractMojo
         throw new MojoExecutionException(this, msg, msg);
     }
 
-    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId, String version)
+    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
+            String version)
     {
         return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
     }
@@ -291,12 +326,14 @@ abstract class BaseMojo extends AbstractMojo
         private final BuildLog log;
         private final MavenSession session;
 
-        private ArtifactFetcher(String groupId, String artifactId, String version, MavenSession session)
+        private ArtifactFetcher(String groupId, String artifactId,
+                String version, MavenSession session)
         {
             this.groupId = groupId;
             this.artifactId = artifactId;
             this.version = version;
-            this.log = BuildLog.get().child("fetch").child(groupId).child(artifactId).child(version);
+            this.log = BuildLog.get().child("fetch").child(groupId).child(
+                    artifactId).child(version);
             this.session = session;
         }
 
@@ -312,7 +349,8 @@ abstract class BaseMojo extends AbstractMojo
             try
             {
                 new URL(notNull("repoUrl", repoUrl));
-            } catch (MalformedURLException ex)
+            }
+            catch (MalformedURLException ex)
             {
                 log.error("Invalid repository URL '" + repoUrl);
                 return Exceptions.chuck(new MojoExecutionException(

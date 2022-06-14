@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.mastfrog.util.strings.Strings;
@@ -39,7 +57,8 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
      * @throws Exception if something goes wrong
      */
     protected abstract void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception;
+            GitCheckout myCheckout, ProjectTree tree,
+            List<GitCheckout> checkouts) throws Exception;
 
     /**
      * If this mojo should fail if any checkout it operates on is locally
@@ -60,11 +79,13 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
         withProjectTree(tree ->
         {
             List<GitCheckout> checkouts = scope.matchCheckouts(tree,
-                    myCheckout, includeRoot, projectFamily(), project.getGroupId());
+                    myCheckout, includeRoot, projectFamily(), project
+                            .getGroupId());
 
             log.ifDebug(() ->
             {
-                log.debug("Operate on the following repositories for " + scope + ":");
+                log.debug(
+                        "Operate on the following repositories for " + scope + ":");
                 checkouts.forEach(co -> log.debug("  * " + co));
             });
 
@@ -77,12 +98,14 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
         });
     }
 
-    private void checkLocallyModified(Collection<? extends GitCheckout> coll) throws Exception
+    private void checkLocallyModified(Collection<? extends GitCheckout> coll)
+            throws Exception
     {
         List<GitCheckout> modified = coll
                 .stream()
                 .filter(GitCheckout::isDirty)
-                .collect(Collectors.toCollection(() -> new ArrayList<>(coll.size())));
+                .collect(Collectors.toCollection(() -> new ArrayList<>(coll
+                .size())));
         if (!modified.isEmpty())
         {
             String message = "Some checkouts are locally modified:\n"

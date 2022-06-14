@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -12,8 +30,9 @@ import java.nio.file.Paths;
 import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
- * A project family a Maven project may belong to, as determined by the last dot-delimited portion of a maven group id,
- * omitting any hyphen-delimited suffix. <code>^.*\.(\S+)-?.*</code>.
+ * A project family a Maven project may belong to, as determined by the last
+ * dot-delimited portion of a maven group id, omitting any hyphen-delimited
+ * suffix. <code>^.*\.(\S+)-?.*</code>.
  *
  * @author Tim Boudreau
  */
@@ -41,7 +60,8 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         int dashIndex = tail.indexOf('-');
         if (dashIndex == 0 || dashIndex == tail.length() - 1)
         {
-            throw new IllegalArgumentException("Leading and trailing - not allowed: '"
+            throw new IllegalArgumentException(
+                    "Leading and trailing - not allowed: '"
                     + tail + "'");
         }
         if (dashIndex > 0)
@@ -98,7 +118,8 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         if (envVar != null)
         {
             path = Paths.get(envVar);
-            ThrowingOptional<Path> result = ThrowingOptional.from(PathUtils.ifDirectory(path));
+            ThrowingOptional<Path> result = ThrowingOptional.from(PathUtils
+                    .ifDirectory(path));
             // If the directory pointed to by the environment variable does not
             // actually exist, use the search strategy instead
             if (result.isPresent())
@@ -108,7 +129,8 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         }
         return checkout.submoduleRoot().flatMap(root ->
         {
-            return PathUtils.ifDirectory(root.checkoutRoot().resolve(name + "-assets"));
+            return PathUtils.ifDirectory(root.checkoutRoot().resolve(
+                    name + "-assets"));
         });
     }
 
@@ -160,7 +182,8 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     }
 
     /**
-     * Run some code if this family is the family or parent family of the passed project.
+     * Run some code if this family is the family or parent family of the passed
+     * project.
      *
      * @param prj A project
      * @param code Some code
@@ -177,7 +200,8 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     }
 
     /**
-     * Run some code only if the passed project's <i>parent family</i> is the same as this ProjectFamily.
+     * Run some code only if the passed project's <i>parent family</i> is the
+     * same as this ProjectFamily.
      *
      * @param prj A project
      * @param code Something to run
@@ -206,10 +230,12 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     }
 
     /**
-     * Determine if this family is the <i>parent family</i> of the passed project - the next-to-last dot-delimited
-     * portion is a match for this family name - for example, the parent family of <code>com.foo.bar</code> is
-     * <code>foo</code>. This is useful when a bill-of-materials POM uses the parent name, but we want to run actions
-     * for all sub-families of that family.
+     * Determine if this family is the <i>parent family</i> of the passed
+     * project - the next-to-last dot-delimited portion is a match for this
+     * family name - for example, the parent family of <code>com.foo.bar</code>
+     * is <code>foo</code>. This is useful when a bill-of-materials POM uses the
+     * parent name, but we want to run actions for all sub-families of that
+     * family.
      *
      * @param prj A project
      * @return A family

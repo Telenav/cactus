@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -69,17 +87,18 @@ import org.apache.maven.project.MavenProject;
         name = "lexakai", threadSafe = true)
 public class LexakaiMojo extends BaseMojo
 {
-
     /**
      * If true, instruct lexakai to overwrite resources.
      */
-    @Parameter(property = "overwrite-resources", defaultValue = "true", name = "overwrite-resources")
+    @Parameter(property = "overwrite-resources", defaultValue = "true",
+            name = "overwrite-resources")
     private boolean overwriteResources;
 
     /**
      * If true, instruct lexakai to update readme files.
      */
-    @Parameter(property = "update-readme", defaultValue = "true", name = "update-readme")
+    @Parameter(property = "update-readme", defaultValue = "true",
+            name = "update-readme")
     private boolean updateReadme;
 
     /**
@@ -105,19 +124,22 @@ public class LexakaiMojo extends BaseMojo
      * The destination folder for generated documentation - if unset, it is
      * computed as described above.
      */
-    @Parameter(property = "commit-changes", name = "commit-changes", defaultValue = "false")
+    @Parameter(property = "commit-changes", name = "commit-changes",
+            defaultValue = "false")
     private boolean commitChanges;
 
     /**
      * The destination folder for generated documentation - if unset, it is
      * computed as described above.
      */
-    @Parameter(property = "lexakai-version", name = "lexakai-version", defaultValue = "1.0.7")
+    @Parameter(property = "lexakai-version", name = "lexakai-version",
+            defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
     /**
      * The repository to download lexakai from (central by default).
      */
-    @Parameter(property = "lexakai-repo", name = "lexakai-repo", defaultValue = MAVEN_CENTRAL_REPO)
+    @Parameter(property = "lexakai-repo", name = "lexakai-repo",
+            defaultValue = MAVEN_CENTRAL_REPO)
     private String lexakaiRepo = MAVEN_CENTRAL_REPO;
 
     @Override
@@ -142,7 +164,8 @@ public class LexakaiMojo extends BaseMojo
             {
                 // Returns the set of repositories which were _not_ modified
                 // *before* we ran lexakai, but are now
-                Set<GitCheckout> modified = collectedChangedRepos(project, runner);
+                Set<GitCheckout> modified = collectedChangedRepos(project,
+                        runner);
                 if (!modified.isEmpty())
                 {
                     // Commit each repo in deepest-child down order
@@ -163,7 +186,8 @@ public class LexakaiMojo extends BaseMojo
                     // set of commits the submodule root points to, so make sure
                     // we generate a final commit here so it points to our updates
                     GitCheckout.repository(project.getBasedir())
-                            .flatMap(prjCheckout -> prjCheckout.submoduleRoot().toOptional())
+                            .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
+                            .toOptional())
                             .ifPresent(root ->
                             {
                                 if (root.isDirty())
@@ -179,7 +203,8 @@ public class LexakaiMojo extends BaseMojo
                                 }
                             });
                 }
-            } else
+            }
+            else
             {
                 runner.run();
             }
@@ -191,7 +216,8 @@ public class LexakaiMojo extends BaseMojo
         return new LexakaiRunner(lexakaiJar(), args);
     }
 
-    private Set<GitCheckout> collectedChangedRepos(MavenProject prj, ThrowingRunnable toRun)
+    private Set<GitCheckout> collectedChangedRepos(MavenProject prj,
+            ThrowingRunnable toRun)
     {
         return ProjectTree.from(prj).map(tree ->
         {
@@ -277,7 +303,8 @@ public class LexakaiMojo extends BaseMojo
                 -> outputFolder(project, repo).toOptional()
         ).orElseGet(
                 // Failover to generating under target/
-                () -> project.getBasedir().toPath().resolve("target").resolve("lexakai"));
+                () -> project.getBasedir().toPath().resolve("target").resolve(
+                        "lexakai"));
     }
 
     private Path lexakaiJar() throws MojoFailureException
@@ -310,16 +337,20 @@ public class LexakaiMojo extends BaseMojo
                     new URL("jar:" + jarFile.toUri().toURL() + "!/")
                 };
                 runLog.warn("Invoke lexakai reflectivly from " + url[0]);
-                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai", url, ldr))
+                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai",
+                        url, ldr))
                 {
                     Thread.currentThread().setContextClassLoader(jarLoader);
-                    Class<?> what = jarLoader.loadClass("com.telenav.lexakai.Lexakai");
+                    Class<?> what = jarLoader.loadClass(
+                            "com.telenav.lexakai.Lexakai");
                     Method mth = what.getMethod("main", String[].class);
-                    runLog.info("Invoking lexakai " + mth + " on " + what.getName());
+                    runLog.info("Invoking lexakai " + mth + " on " + what
+                            .getName());
                     mth.invoke(null, (Object) args.toArray(String[]::new));
                     runLog.info("Lexakai done.");
                 }
-            } finally
+            }
+            finally
             {
                 Thread.currentThread().setContextClassLoader(ldr);
             }

@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.util;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
@@ -13,20 +31,22 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
- * A utility program we need to run, which takes care of the general ugliness of java process management, and converting
- * output into a usable object.
+ * A utility program we need to run, which takes care of the general ugliness of
+ * java process management, and converting output into a usable object.
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused")
 public abstract class CliCommand<T> implements Supplier<String>
 {
-    public static AwaitableCompletionStage<Process> completionStageForProcess(Process proc)
+    public static AwaitableCompletionStage<Process> completionStageForProcess(
+            Process proc)
     {
         return AwaitableCompletionStage.of(proc.onExit());
     }
 
-    public static CliCommand<String> fixed(String command, Path workingDir, String... fixedArgs)
+    public static CliCommand<String> fixed(String command, Path workingDir,
+            String... fixedArgs)
     {
         return new SimpleCommand(command, workingDir, fixedArgs);
     }
@@ -96,8 +116,8 @@ public abstract class CliCommand<T> implements Supplier<String>
         {
             sb.append(' ').append(arg);
         }
-        workingDirectory().ifPresent(dir ->
-                sb.append(" (in ").append(dir).append(')'));
+        workingDirectory().ifPresent(dir
+                -> sb.append(" (in ").append(dir).append(')'));
         return sb.toString();
     }
 

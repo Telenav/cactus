@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -24,7 +42,6 @@ import java.util.TreeSet;
  */
 public class ConsistencyChecker
 {
-
     /**
      * Partition key for on-a-branch state of a repository. Git submodules, on
      * checkout, put you in detached head state, which may not be where you want
@@ -76,31 +93,39 @@ public class ConsistencyChecker
         this(null, null, null, false);
     }
 
-    public Set<Inconsistency<?>> checkBranchConsistency(ProjectTree tree, MavenProject project, BuildLog log)
+    public Set<Inconsistency<?>> checkBranchConsistency(ProjectTree tree,
+            MavenProject project, BuildLog log)
     {
         Set<Inconsistency<?>> branchInconsistencies = new HashSet<>();
         checkBranchConsistency(tree, project, log, branchInconsistencies);
         return branchInconsistencies;
     }
 
-    public Set<Inconsistency<?>> checkConsistency(MavenProject project, BuildLog log) throws Exception
+    public Set<Inconsistency<?>> checkConsistency(MavenProject project,
+            BuildLog log) throws Exception
     {
         log = log.child("consistency");
-        ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project.getBasedir().toPath());
+        ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project
+                .getBasedir().toPath());
         if (!treeOpt.isPresent())
         {
-            log.child("checkConsistency").error("Could not find a project tree for " + project.getBasedir());
+            log.child("checkConsistency").error(
+                    "Could not find a project tree for " + project.getBasedir());
             return Collections.emptySet();
         }
         Set<Inconsistency<?>> result = new LinkedHashSet<>();
-        checkBranchConsistency(treeOpt.get(), project, log.child("branch"), result);
-        checkVersionConsistency(treeOpt.get(), project, log.child("versions"), result);
-        checkDirtyAndDetached(treeOpt.get(), project, log.child(DIRTY), result, forbidDirty);
+        checkBranchConsistency(treeOpt.get(), project, log.child("branch"),
+                result);
+        checkVersionConsistency(treeOpt.get(), project, log.child("versions"),
+                result);
+        checkDirtyAndDetached(treeOpt.get(), project, log.child(DIRTY), result,
+                forbidDirty);
 
         return result;
     }
 
-    public Set<Inconsistency<?>> checkDetached(ProjectTree tree, MavenProject project,
+    public Set<Inconsistency<?>> checkDetached(ProjectTree tree,
+            MavenProject project,
             BuildLog log)
     {
         Set<Inconsistency<?>> result = new HashSet<>();
@@ -122,22 +147,27 @@ public class ConsistencyChecker
                     + this.targetGroupId + " - cannot set to " + targetGroupId);
         }
         return new ConsistencyChecker(toString(ignoreInBranchConsistencyCheck),
-                toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
+                toString(ignoreInVersionConsistencyCheck), targetGroupId,
+                forbidDirty);
     }
 
-    public ConsistencyChecker withIgnoreBranchConsistencySuffixes(String commaOrSpaceDelimitedList)
+    public ConsistencyChecker withIgnoreBranchConsistencySuffixes(
+            String commaOrSpaceDelimitedList)
     {
         if (!ignoreInBranchConsistencyCheck.isEmpty())
         {
-            throw new IllegalStateException("Ignore in branches check is already set to "
+            throw new IllegalStateException(
+                    "Ignore in branches check is already set to "
                     + ignoreInVersionConsistencyCheck + " - cannot set to "
                     + commaOrSpaceDelimitedList);
         }
         return new ConsistencyChecker(commaOrSpaceDelimitedList,
-                toString(ignoreInVersionConsistencyCheck), targetGroupId, forbidDirty);
+                toString(ignoreInVersionConsistencyCheck), targetGroupId,
+                forbidDirty);
     }
 
-    public ConsistencyChecker withIgnoreVersionConsistencySuffixes(String commaOrSpaceDelimitedList)
+    public ConsistencyChecker withIgnoreVersionConsistencySuffixes(
+            String commaOrSpaceDelimitedList)
     {
         if (!ignoreInVersionConsistencyCheck.isEmpty())
         {
@@ -190,8 +220,8 @@ public class ConsistencyChecker
             BuildLog log, Set<Inconsistency<?>> into)
     {
         log.info("Checking consistency of branches" + (targetGroupId == null
-                ? ""
-                : " for projects with the group id " + targetGroupId));
+                                                       ? ""
+                                                       : " for projects with the group id " + targetGroupId));
         Map<String, Map<String, Set<Pom>>> found
                 = tree.projectsByBranchByGroupId(
                         this::isVersionRequiredToBeConsistent);
@@ -212,10 +242,12 @@ public class ConsistencyChecker
             BuildLog log, Set<? super Inconsistency<?>> into,
             boolean forbidDirty)
     {
-        log.info("Checking for detached-head checkouts" + (targetGroupId == null ? ""
-                : " for projects with the group id " + targetGroupId));
-        log.info("Checking for dirty checkouts" + (targetGroupId == null ? ""
-                : " for projects with the group id " + targetGroupId));
+        log.info("Checking for detached-head checkouts" + (targetGroupId == null
+                                                           ? ""
+                                                           : " for projects with the group id " + targetGroupId));
+        log.info("Checking for dirty checkouts" + (targetGroupId == null
+                                                   ? ""
+                                                   : " for projects with the group id " + targetGroupId));
         Map<String, Set<GitCheckout>> dirtyNotDirty = new HashMap<>();
         Map<String, Set<GitCheckout>> detachedNotDetached = new HashMap<>();
         for (GitCheckout checkout : tree.allCheckouts())
@@ -224,40 +256,49 @@ public class ConsistencyChecker
             {
                 if (forbidDirty)
                 {
-                    String cleanDirtyKey = tree.isDirty(checkout) ? DIRTY : CLEAN;
+                    String cleanDirtyKey = tree.isDirty(checkout)
+                                           ? DIRTY
+                                           : CLEAN;
                     Set<GitCheckout> checkouts = dirtyNotDirty.computeIfAbsent(
                             cleanDirtyKey, k -> new TreeSet<>());
                     checkouts.add(checkout);
                 }
 
-                String detachedKey = checkout.isDetachedHead() ? DETACHED : ON_BRANCH;
-                Set<GitCheckout> detachedCheckouts = detachedNotDetached.computeIfAbsent(
-                        detachedKey, k -> new TreeSet<>());
+                String detachedKey = checkout.isDetachedHead()
+                                     ? DETACHED
+                                     : ON_BRANCH;
+                Set<GitCheckout> detachedCheckouts = detachedNotDetached
+                        .computeIfAbsent(
+                                detachedKey, k -> new TreeSet<>());
                 detachedCheckouts.add(checkout);
             }
         }
         if (dirtyNotDirty.containsKey(DIRTY))
         {
             into.add(new Inconsistency<GitCheckout>(dirtyNotDirty,
-                    Inconsistency.Kind.CONTAINS_MODIFIED_SOURCES, GitCheckout::checkoutRoot));
+                    Inconsistency.Kind.CONTAINS_MODIFIED_SOURCES,
+                    GitCheckout::checkoutRoot));
         }
         if (detachedNotDetached.containsKey("detached"))
         {
             into.add(new Inconsistency<GitCheckout>(detachedNotDetached,
-                    Inconsistency.Kind.NOT_ON_A_BRANCH, GitCheckout::checkoutRoot));
+                    Inconsistency.Kind.NOT_ON_A_BRANCH,
+                    GitCheckout::checkoutRoot));
         }
     }
 
     private void checkVersionConsistency(ProjectTree tree, MavenProject project,
             BuildLog log, Set<? super Inconsistency<?>> into)
     {
-        log.info("Checking consistency of versions" + (targetGroupId == null ? ""
-                : " for projects with the group id " + targetGroupId));
+        log.info("Checking consistency of versions" + (targetGroupId == null
+                                                       ? ""
+                                                       : " for projects with the group id " + targetGroupId));
         Map<String, Set<Pom>> projectsByVersion = tree.projectsByVersion(
                 this::isVersionRequiredToBeConsistent);
         if (projectsByVersion.size() > 1)
         {
-            into.add(new Inconsistency<>(projectsByVersion, Inconsistency.Kind.VERSION, Pom::projectFolder));
+            into.add(new Inconsistency<>(projectsByVersion,
+                    Inconsistency.Kind.VERSION, Pom::projectFolder));
         }
     }
 
@@ -298,7 +339,8 @@ public class ConsistencyChecker
         }
         if (targetGroupId != null)
         {
-            Pom info = Pom.from(checkout.checkoutRoot().resolve("pom.xml")).get();
+            Pom info = Pom.from(checkout.checkoutRoot().resolve("pom.xml"))
+                    .get();
             if (!targetGroupId.equals(info.coords.groupId))
             {
                 return false;

@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.sourceanalysis;
 
 import com.mastfrog.function.state.Int;
@@ -32,7 +50,8 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer
     private final Set<String> artifactIds = ConcurrentHashMap.newKeySet();
     private final boolean pretend;
 
-    public CodeflowersJsonGenerator(String title, Path outputDir, boolean whitespace, boolean pretend)
+    public CodeflowersJsonGenerator(String title, Path outputDir,
+            boolean whitespace, boolean pretend)
     {
         this.title = title;
         this.outputDir = outputDir;
@@ -59,7 +78,8 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer
                 root.addFile(path.getFileName().toString(), score);
                 return;
             }
-            root.findChildFolder(path.getParent(), 0).addFile(path.getFileName().toString(), score);
+            root.findChildFolder(path.getParent(), 0).addFile(path.getFileName()
+                    .toString(), score);
         });
         String fnBase = pom.coords.artifactId;
         if (!Files.exists(outputDir))
@@ -71,7 +91,8 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer
                     try
                     {
                         Files.createDirectories(outputDir);
-                    } catch (IOException ioe)
+                    }
+                    catch (IOException ioe)
                     {
                         // this can race - we are being called on multiple threads here
                     }
@@ -82,9 +103,11 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer
         Path wcFile = outputDir.resolve(fnBase + ".wc");
         if (!pretend)
         {
-            try ( OutputStream jsonOut = Files.newOutputStream(jsonFile, WRITE, TRUNCATE_EXISTING, CREATE))
+            try ( OutputStream jsonOut = Files.newOutputStream(jsonFile, WRITE,
+                    TRUNCATE_EXISTING, CREATE))
             {
-                jsonOut.write(root.jsonify(0, new SB(whitespace)).toString().getBytes(UTF_8));
+                jsonOut.write(root.jsonify(0, new SB(whitespace)).toString()
+                        .getBytes(UTF_8));
             }
         }
         StringBuilder wc = new StringBuilder();
@@ -112,7 +135,8 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer
         wc.append(tot).append(" total\n");
         if (!pretend)
         {
-            try ( OutputStream wcOut = Files.newOutputStream(wcFile, WRITE, TRUNCATE_EXISTING, CREATE))
+            try ( OutputStream wcOut = Files.newOutputStream(wcFile, WRITE,
+                    TRUNCATE_EXISTING, CREATE))
             {
                 wcOut.write(wc.toString().getBytes(UTF_8));
             }
@@ -167,7 +191,9 @@ public class CodeflowersJsonGenerator implements ProjectScanConsumer
                 {
                     sb.append(',').newline();
                 }
-                sb.spaces(name.isEmpty() ? depth + 1 : depth).append(CHILDREN_PREFIX);
+                sb.spaces(name.isEmpty()
+                          ? depth + 1
+                          : depth).append(CHILDREN_PREFIX);
                 for (Iterator<Map.Entry<String, Integer>> it
                         = childFileScores.entrySet().iterator(); it.hasNext();)
                 {

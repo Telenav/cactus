@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.tree;
 
 import java.nio.file.Path;
@@ -14,19 +32,19 @@ import java.util.function.Function;
 
 /**
  * A problem with branch or version consistency within a set of checked out
- * projects. An inconsistency is typed on some object type (Pom or
- * GitCheckout depending on the type of test), and consists of a set of
- * partitions, each of which has a different key name (a branch name, a version,
- * or a fixed string like "dirty" or "clean".
+ * projects. An inconsistency is typed on some object type (Pom or GitCheckout
+ * depending on the type of test), and consists of a set of partitions, each of
+ * which has a different key name (a branch name, a version, or a fixed string
+ * like "dirty" or "clean".
  */
 public class Inconsistency<T>
 {
-
     private final Map<String, Set<T>> partitions;
     private final Kind kind;
     private final Function<T, Path> pathConverter;
 
-    Inconsistency(Map<String, Set<T>> partitions, Kind kind, Function<T, Path> pathConverter)
+    Inconsistency(Map<String, Set<T>> partitions, Kind kind,
+            Function<T, Path> pathConverter)
     {
         this.partitions = partitions;
         this.kind = kind;
@@ -92,8 +110,8 @@ public class Inconsistency<T>
         Set<String> all = new HashSet<>(partitions.keySet());
         all.removeAll(outlierPartitions());
         return all.size() == 1
-                ? Optional.of(all.iterator().next())
-                : Optional.empty();
+               ? Optional.of(all.iterator().next())
+               : Optional.empty();
     }
 
     /**
@@ -113,7 +131,8 @@ public class Inconsistency<T>
         {
             return partitions.keySet();
         }
-        List<Map.Entry<String, Set<T>>> entries = new ArrayList<>(partitions.entrySet());
+        List<Map.Entry<String, Set<T>>> entries = new ArrayList<>(partitions
+                .entrySet());
         Collections.sort(entries, (a, b) ->
         {
             // reverse sort
@@ -136,7 +155,7 @@ public class Inconsistency<T>
             }
         }
     }
-    
+
     /**
      * The kind of consistency failure encountered.
      */

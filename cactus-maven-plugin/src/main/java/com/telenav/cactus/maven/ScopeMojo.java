@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -92,14 +110,18 @@ public abstract class ScopeMojo extends BaseMojo
      */
     protected ScopeMojo(boolean runFirst)
     {
-        super(runFirst ? RunPolicies.FIRST : RunPolicies.LAST); // once per session
+        super(runFirst
+              ? RunPolicies.FIRST
+              : RunPolicies.LAST); // once per session
     }
 
     @Override
-    protected final void validateParameters(BuildLog log, MavenProject project) throws Exception
+    protected final void validateParameters(BuildLog log, MavenProject project)
+            throws Exception
     {
         scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project.getBasedir());
+        Optional<GitCheckout> checkout = GitCheckout.repository(project
+                .getBasedir());
         if (checkout.isEmpty())
         {
             throw new MojoExecutionException(project.getBasedir()
@@ -109,14 +131,16 @@ public abstract class ScopeMojo extends BaseMojo
         onValidateParameters(log, project);
         if (!scope.appliesFamily() && (family != null && !"".equals(family)))
         {
-            log.warn("Useless assignment of telanav.family to '" + family + "' when "
+            log.warn(
+                    "Useless assignment of telanav.family to '" + family + "' when "
                     + "using scope " + scope + " which will not read it.  It is useful "
                     + "only with " + Scope.FAMILY + " and "
                     + Scope.FAMILY_OR_CHILD_FAMILY);
         }
     }
 
-    protected void onValidateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void onValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
     {
         // for subclasses
     }
@@ -136,7 +160,9 @@ public abstract class ScopeMojo extends BaseMojo
     @Override
     protected final String overrideProjectFamily()
     {
-        return family == null ? null : family.trim();
+        return family == null
+               ? null
+               : family.trim();
     }
 
     protected boolean isPretend()

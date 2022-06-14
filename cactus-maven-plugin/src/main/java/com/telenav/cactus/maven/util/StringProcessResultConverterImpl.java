@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.util;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
@@ -16,7 +33,8 @@ import java.util.function.Supplier;
  *
  * @author Tim Boudreau
  */
-final class StringProcessResultConverterImpl implements StringProcessResultConverter
+final class StringProcessResultConverterImpl implements
+        StringProcessResultConverter
 {
 
     final IntPredicate exitCodeTest;
@@ -35,7 +53,8 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
     }
 
     @Override
-    public AwaitableCompletionStage<String> onProcessStarted(Supplier<String> description, Process process)
+    public AwaitableCompletionStage<String> onProcessStarted(
+            Supplier<String> description, Process process)
     {
         stderr = new OutputReader(process.getErrorStream()).start();
         stdout = new OutputReader(process.getInputStream()).start();
@@ -46,13 +65,16 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
             log.debug(() ->
             {
                 return "exit " + proc.exitValue() + ":\n" + stdout.toString() + "\n"
-                        + (proc.exitValue() != 0 ? stderr.toString() : "");
+                        + (proc.exitValue() != 0
+                           ? stderr.toString()
+                           : "");
             });
             if (exitCodeTest.test(proc.exitValue()))
             {
                 return stdout.done();
             }
-            throw new ProcessFailedException(description, process, stdout.done(), stderr.done());
+            throw new ProcessFailedException(description, process, stdout.done(),
+                    stderr.done());
         });
     }
 
@@ -68,7 +90,8 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
         // is still goshawful.
         public OutputReader(InputStream in)
         {
-            this.in = new BufferedReader(new InputStreamReader(in, Charset.defaultCharset()), 512);
+            this.in = new BufferedReader(new InputStreamReader(in, Charset
+                    .defaultCharset()), 512);
         }
 
         @Override
@@ -112,7 +135,8 @@ final class StringProcessResultConverterImpl implements StringProcessResultConve
                         sb.append(buf, 0, count);
                     }
                 }
-            } catch (IOException ex)
+            }
+            catch (IOException ex)
             {
                 ex.printStackTrace();
                 thrown = ex;

@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -43,7 +61,9 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
     private boolean indent = false;
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout, ProjectTree tree,
+            List<GitCheckout> checkouts) throws Exception
     {
         Map<ProjectFamily, Set<Pom>> all = allPoms(tree, checkouts);
         for (Map.Entry<ProjectFamily, Set<Pom>> e : all.entrySet())
@@ -61,11 +81,15 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             ProjectFamily fam = e.getKey();
             fam.assetsPath(myCheckout).ifPresentOrElse(assetsRoot ->
             {
-                Path codeflowersPath = assetsRoot.resolve("docs").resolve(version).resolve("codeflowers")
+                Path codeflowersPath = assetsRoot.resolve("docs").resolve(
+                        version).resolve("codeflowers")
                         .resolve("site").resolve("data");
-                log.info("Will generate codeflowers for '" + fam + "' into " + codeflowersPath);
-                MavenProjectsScanner scanner = new MavenProjectsScanner(log.child("scanProjects"), new WordCount(), e.getValue());
-                CodeflowersJsonGenerator gen = new CodeflowersJsonGenerator(fam.toString(), codeflowersPath, indent, isPretend());
+                log.info(
+                        "Will generate codeflowers for '" + fam + "' into " + codeflowersPath);
+                MavenProjectsScanner scanner = new MavenProjectsScanner(log
+                        .child("scanProjects"), new WordCount(), e.getValue());
+                CodeflowersJsonGenerator gen = new CodeflowersJsonGenerator(fam
+                        .toString(), codeflowersPath, indent, isPretend());
                 scanner.scan(gen);
             }, () ->
             {
@@ -74,18 +98,23 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private String checkConsistentVersion(ProjectFamily fam, Set<Pom> poms) throws Exception
+    private String checkConsistentVersion(ProjectFamily fam, Set<Pom> poms)
+            throws Exception
     {
         Set<String> versions = new HashSet<>();
         poms.forEach(pom -> versions.add(pom.coords.version));
         if (versions.size() > 1)
         {
-            throw new MojoExecutionException("Not all projects in family '" + fam + "' have the same version: " + versions);
+            throw new MojoExecutionException(
+                    "Not all projects in family '" + fam + "' have the same version: " + versions);
         }
-        return versions.isEmpty() ? null : versions.iterator().next();
+        return versions.isEmpty()
+               ? null
+               : versions.iterator().next();
     }
 
-    private Map<ProjectFamily, Set<Pom>> allPoms(ProjectTree tree, Collection<? extends GitCheckout> checkouts)
+    private Map<ProjectFamily, Set<Pom>> allPoms(ProjectTree tree,
+            Collection<? extends GitCheckout> checkouts)
     {
         Map<ProjectFamily, Set<Pom>> result = new HashMap<>();
         for (GitCheckout co : checkouts)
@@ -94,7 +123,9 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             {
                 if (!"pom".equals(pom.packaging))
                 {
-                    Set<Pom> poms = result.computeIfAbsent(ProjectFamily.fromGroupId(pom.coords.groupId), f -> new HashSet<>());
+                    Set<Pom> poms = result.computeIfAbsent(ProjectFamily
+                            .fromGroupId(pom.coords.groupId),
+                            f -> new HashSet<>());
                     poms.add(pom);
                 }
             }

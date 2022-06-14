@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -32,7 +50,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "push", threadSafe = true)
 public class PushMojo extends ScopedCheckoutsMojo
 {
-    static Map<GitCheckout, NeedPushResult> collectPushKinds(Collection<? extends GitCheckout> checkouts)
+    static Map<GitCheckout, NeedPushResult> collectPushKinds(
+            Collection<? extends GitCheckout> checkouts)
     {
         Map<GitCheckout, NeedPushResult> result = new HashMap<>();
         for (GitCheckout co : checkouts)
@@ -48,18 +67,21 @@ public class PushMojo extends ScopedCheckoutsMojo
 
     static boolean needPull(GitCheckout checkout)
     {
-        return checkout.mergeBase().map((String mergeBase) ->
-                checkout.remoteHead().map((String remoteHead) ->
-                        checkout.head().equals(mergeBase)).orElse(false)).orElse(false);
+        return checkout.mergeBase().map((String mergeBase)
+                -> checkout.remoteHead().map((String remoteHead)
+                        -> checkout.head().equals(mergeBase)).orElse(false))
+                .orElse(false);
     }
 
-    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true",
-               name = "permit-local-modifications")
+    @Parameter(property = "telenav.permit-local-modifications",
+            defaultValue = "true",
+            name = "permit-local-modifications")
     private boolean permitLocalModifications;
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
         // Depth first sort, so we process the submodule root last, in
         // case commits to child modules put it into the dirty state.
@@ -81,7 +103,9 @@ public class PushMojo extends ScopedCheckoutsMojo
         return !permitLocalModifications;
     }
 
-    private Set<GitCheckout> checkNeedPull(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush, BuildLog log)
+    private Set<GitCheckout> checkNeedPull(
+            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush,
+            BuildLog log)
     {
         Set<GitCheckout> needingPull = new LinkedHashSet<>();
         for (Map.Entry<GitCheckout, NeedPushResult> co : needingPush)
@@ -118,14 +142,16 @@ public class PushMojo extends ScopedCheckoutsMojo
     }
 
     private void pullIfNeededAndPush(BuildLog log, MavenProject project,
-                                     List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
+            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
     {
-        Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child("checkNeedPull"));
+        Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child(
+                "checkNeedPull"));
         pull(needingPull, log.child("pull"));
         push(needingPush, log.child("push"));
     }
 
-    private void push(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush, BuildLog log)
+    private void push(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush,
+            BuildLog log)
     {
         log.warn("Begin push.");
         for (Map.Entry<GitCheckout, NeedPushResult> co : needingPush)

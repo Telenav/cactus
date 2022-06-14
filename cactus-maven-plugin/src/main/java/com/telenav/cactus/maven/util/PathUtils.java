@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.util;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -31,13 +49,16 @@ public class PathUtils
 
     public static Path home()
     {
-        return fromSystemProperty("user.home", () -> fromSystemProperty("java.io.tmpdir", () -> Paths.get("/")));
+        return fromSystemProperty("user.home", () -> fromSystemProperty(
+                "java.io.tmpdir", () -> Paths.get("/")));
     }
 
     private static Path fromSystemProperty(String what, Supplier<Path> fallback)
     {
         String prop = System.getProperty(what);
-        return prop == null ? fallback.get() : Paths.get(prop);
+        return prop == null
+               ? fallback.get()
+               : Paths.get(prop);
     }
 
     public static Optional<Path> ifExists(Path path)
@@ -57,7 +78,9 @@ public class PathUtils
     {
         return ifExists(path).flatMap(maybeDir ->
         {
-            return Files.isDirectory(maybeDir) ? Optional.of(maybeDir) : Optional.empty();
+            return Files.isDirectory(maybeDir)
+                   ? Optional.of(maybeDir)
+                   : Optional.empty();
         });
     }
 
@@ -78,7 +101,8 @@ public class PathUtils
         return what.toString();
     }
 
-    public static Optional<Path> findExecutable(String name, Path... additionalSearchLocations)
+    public static Optional<Path> findExecutable(String name,
+            Path... additionalSearchLocations)
     {
         if (additionalSearchLocations.length == 0)
         {
@@ -90,7 +114,8 @@ public class PathUtils
         return _findExecutable(name, additionalSearchLocations);
     }
 
-    private static Optional<Path> _findExecutable(String name, Path... additionalSearchLocations)
+    private static Optional<Path> _findExecutable(String name,
+            Path... additionalSearchLocations)
     {
         if (name.indexOf(File.separatorChar) >= 0)
         {
@@ -102,7 +127,8 @@ public class PathUtils
             name = path.getFileName().toString();
         }
         String systemPath = System.getenv("PATH");
-        Set<Path> all = new LinkedHashSet<>(Arrays.asList(additionalSearchLocations));
+        Set<Path> all = new LinkedHashSet<>(Arrays.asList(
+                additionalSearchLocations));
         if (systemPath != null)
         {
             for (String s : systemPath.split(":"))
@@ -124,7 +150,8 @@ public class PathUtils
         return findExecutable(all, name);
     }
 
-    public static Optional<Path> findExecutable(Iterable<? extends Path> in, String name)
+    public static Optional<Path> findExecutable(Iterable<? extends Path> in,
+            String name)
     {
         for (Path path : in)
         {
@@ -137,14 +164,17 @@ public class PathUtils
         return Optional.empty();
     }
 
-    public static Optional<Path> findGitCheckoutRoot(Path of, boolean skipSubmodules)
+    public static Optional<Path> findGitCheckoutRoot(Path of,
+            boolean skipSubmodules)
     {
         // If .git is a file, we are in a submodule
         return findParentWithChild(of, skipSubmodules
-                ? FileKind.FOLDER : FileKind.EITHER, ".git");
+                                       ? FileKind.FOLDER
+                                       : FileKind.EITHER, ".git");
     }
 
-    public static Optional<Path> findParentWithChild(Path of, FileKind dirOrFile, String fileOrFolderName)
+    public static Optional<Path> findParentWithChild(Path of, FileKind dirOrFile,
+            String fileOrFolderName)
     {
         return findInParents(of, path ->
         {
@@ -200,12 +230,14 @@ public class PathUtils
 
     public static Path userCacheRoot()
     {
-        Path home = Paths.get(System.getProperty("user.home", System.getenv("HOME")));
+        Path home = Paths.get(System.getProperty("user.home", System.getenv(
+                "HOME")));
         String os = System.getProperty("os.name");
         if ("Mac OS X".equals(os))
         {
             return home.resolve("Library").resolve("Caches");
-        } else
+        }
+        else
         {
             // Linux default; Windows would be ? Do we care?
             return home.resolve(".cache");
@@ -245,7 +277,8 @@ public class PathUtils
             {
                 all.forEach(paths::add);
                 break;
-            } catch (NoSuchFileException ex)
+            }
+            catch (NoSuchFileException ex)
             {
                 // ok, pid file deleted by postgres during
                 // shutdown or similar racing with our file deletion
@@ -261,7 +294,8 @@ public class PathUtils
             try
             {
                 Files.delete(p);
-            } catch (NoSuchFileException ex)
+            }
+            catch (NoSuchFileException ex)
             {
                 // do nothing - this can race, since a process may still be
                 // shutting down and deleting things

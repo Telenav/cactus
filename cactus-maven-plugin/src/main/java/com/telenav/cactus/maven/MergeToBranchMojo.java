@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import static com.telenav.cactus.maven.ForkBuildMojo.BRANCHED_REPOS_KEY;
@@ -37,24 +55,24 @@ public class MergeToBranchMojo extends ScopedCheckoutsMojo
     SharedData sharedData;
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout, ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout, ProjectTree tree,
+            List<GitCheckout> checkouts) throws Exception
     {
         Optional<String> tempBranch = sharedData.remove(TEMP_BRANCH_KEY);
         Optional<String> targetBranch = sharedData.remove(TARGET_BRANCH_KEY);
-        Optional<GitCheckout[]> ourCheckouts = sharedData.remove(BRANCHED_REPOS_KEY);
-        System.out.println("\n\n\nDO THE THING\n\n\n\n");
-        if (tempBranch.isPresent() && targetBranch.isPresent() && ourCheckouts.isPresent())
+        Optional<GitCheckout[]> ourCheckouts = sharedData.remove(
+                BRANCHED_REPOS_KEY);
+        if (tempBranch.isPresent() && targetBranch.isPresent() && ourCheckouts
+                .isPresent())
         {
-            System.out.println("HAVE BRANCH " + tempBranch.get());
-            System.out.println("HAVE TARGET " + targetBranch.get());
-            System.out.println("HAVE REPOS " + Arrays.toString(ourCheckouts.get()));
-
-            performMerge(tempBranch.get(), ourCheckouts.get(), targetBranch.get(), log.child("merge"));
+            performMerge(tempBranch.get(), ourCheckouts.get(), targetBranch
+                    .get(), log.child("merge"));
         }
-        System.out.println("\n\n\nDONE DID THE THING\n");
     }
 
-    private void performMerge(String tempBranch, GitCheckout[] checkouts, String targetBranch, BuildLog log) throws MojoExecutionException
+    private void performMerge(String tempBranch, GitCheckout[] checkouts,
+            String targetBranch, BuildLog log) throws MojoExecutionException
     {
         Set<GitCheckout> toMerge = new LinkedHashSet<>(Arrays.asList(checkouts));
         for (GitCheckout co : checkouts)
@@ -62,19 +80,25 @@ public class MergeToBranchMojo extends ScopedCheckoutsMojo
             Optional<String> currBranch = co.branch();
             if (!currBranch.isPresent())
             {
-                log.warn(co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co.head());
+                log.warn(
+                        co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co
+                        .head());
                 toMerge.remove(co);
 //                fail(co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co.head());
-            } else
+            }
+            else
             {
                 if (!tempBranch.equals(currBranch.get()))
                 {
-                    log.warn(co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co.head());
+                    log.warn(
+                            co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co
+                            .head());
 //                    fail(co.name() + " should be on " + tempBranch + " but it is on the branch " + currBranch.get());
                     toMerge.remove(co);
                 }
             }
-            log.info("Check out target branch '" + targetBranch + "' in " + co.name());
+            log.info("Check out target branch '" + targetBranch + "' in " + co
+                    .name());
             if (!isPretend())
             {
                 co.switchToBranch(targetBranch);
@@ -82,7 +106,9 @@ public class MergeToBranchMojo extends ScopedCheckoutsMojo
         }
         for (GitCheckout co : toMerge)
         {
-            log.info("Merge " + tempBranch + " into " + targetBranch + " in " + co.name());
+            log.info(
+                    "Merge " + tempBranch + " into " + targetBranch + " in " + co
+                            .name());
             if (!isPretend())
             {
                 co.merge(tempBranch);

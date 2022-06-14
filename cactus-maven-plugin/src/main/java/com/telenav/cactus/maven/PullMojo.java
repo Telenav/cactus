@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -5,7 +23,6 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -36,7 +53,8 @@ import org.apache.maven.project.MavenProject;
         name = "pull", threadSafe = true)
 public class PullMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "telenav.permit-local-modifications", defaultValue = "true")
+    @Parameter(property = "telenav.permit-local-modifications",
+            defaultValue = "true")
     private boolean permitLocalModifications;
 
     private Scope scope;
@@ -49,14 +67,17 @@ public class PullMojo extends ScopedCheckoutsMojo
     }
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
         List<GitCheckout> needingPull = needingPull(checkouts);
         if (needingPull.isEmpty())
         {
-            log.info("Nothing to pull. All projects are up to date with remote.");
-        } else
+            log
+                    .info("Nothing to pull. All projects are up to date with remote.");
+        }
+        else
         {
             for (GitCheckout checkout : needingPull)
             {
@@ -73,7 +94,10 @@ public class PullMojo extends ScopedCheckoutsMojo
     private List<GitCheckout> needingPull(Collection<? extends GitCheckout> cos)
     {
         return cos.stream()
-                .filter(co -> isPretend() ? co.needsPull() : co.updateRemoteHeads().needsPull())
-                .collect(Collectors.toCollection(() -> new ArrayList<>(cos.size())));
+                .filter(co -> isPretend()
+                              ? co.needsPull()
+                              : co.updateRemoteHeads().needsPull())
+                .collect(Collectors.toCollection(() -> new ArrayList<>(cos
+                .size())));
     }
 }

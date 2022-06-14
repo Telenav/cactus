@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -31,18 +49,19 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings("unused")
-@org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.GENERATE_SOURCES,
-                                           requiresDependencyResolution = ResolutionScope.NONE,
-                                           instantiationStrategy = SINGLETON,
-                                           name = "build-metadata")
+@org.apache.maven.plugins.annotations.Mojo(
+        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        requiresDependencyResolution = ResolutionScope.NONE,
+        instantiationStrategy = SINGLETON,
+        name = "build-metadata", threadSafe = false)
 public class BuildMetadataMojo extends BaseMojo
 {
 
     /**
      * The relative path to the destination directory.
      */
-    @Parameter(property = "project-properties-dest", defaultValue = "target/classes/project.properties")
+    @Parameter(property = "project-properties-dest",
+            defaultValue = "target/classes/project.properties")
     private String projectPropertiesDest;
 
     /**
@@ -59,7 +78,8 @@ public class BuildMetadataMojo extends BaseMojo
             log.info("Not writing project metadata for a non-java project.");
             return;
         }
-        Path propsFile = project.getBasedir().toPath().resolve(projectPropertiesDest);
+        Path propsFile = project.getBasedir().toPath().resolve(
+                projectPropertiesDest);
         if (!Files.exists(propsFile.getParent()))
         {
             Files.createDirectories(propsFile.getParent());
@@ -121,7 +141,8 @@ public class BuildMetadataMojo extends BaseMojo
         return sb.append("project-name=").append(name)
                 .append("\nproject-version=").append(project.getVersion())
                 .append("\nproject-group-id=").append(project.getGroupId())
-                .append("\nproject-artifact-id=").append(project.getArtifactId())
+                .append("\nproject-artifact-id=")
+                .append(project.getArtifactId())
                 .append('\n').toString();
     }
 }

@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -178,7 +196,8 @@ public class ProjectTree
             {
                 GitCheckout.repository(pom.pom).ifPresent(checkout ->
                 {
-                    Set<String> branches = result.computeIfAbsent(pom.coords.groupId, g -> new TreeSet<>());
+                    Set<String> branches = result.computeIfAbsent(
+                            pom.coords.groupId, g -> new TreeSet<>());
 
                 });
             });
@@ -186,7 +205,8 @@ public class ProjectTree
         });
     }
 
-    public Map<String, Map<String, Set<Pom>>> projectsByBranchByGroupId(Predicate<Pom> filter)
+    public Map<String, Map<String, Set<Pom>>> projectsByBranchByGroupId(
+            Predicate<Pom> filter)
     {
         return withCache(c ->
         {
@@ -218,10 +238,12 @@ public class ProjectTree
         Map<String, Map<String, Set<Pom>>> result = new TreeMap<>();
         projectsByGroupId().forEach((gid, poms) ->
         {
-            Map<String, Set<Pom>> subMap = result.computeIfAbsent(gid, g -> new TreeMap<>());
+            Map<String, Set<Pom>> subMap = result.computeIfAbsent(gid,
+                    g -> new TreeMap<>());
             for (Pom info : poms)
             {
-                Set<Pom> pomSet = subMap.computeIfAbsent(info.coords.version, v -> new TreeSet<>());
+                Set<Pom> pomSet = subMap.computeIfAbsent(info.coords.version,
+                        v -> new TreeSet<>());
                 pomSet.add(info);
             }
         });
@@ -232,7 +254,8 @@ public class ProjectTree
     {
         return withCache(c ->
         {
-            return c.projectsWithin(checkout).stream().map(info -> info.coords.groupId)
+            return c.projectsWithin(checkout).stream().map(
+                    info -> info.coords.groupId)
                     .collect(Collectors.toCollection(HashSet::new));
         });
     }
@@ -242,7 +265,8 @@ public class ProjectTree
         Map<String, Set<Pom>> result = new TreeMap<>();
         allProjects().forEach(pom ->
         {
-            Set<Pom> set = result.computeIfAbsent(pom.coords.groupId, x -> new TreeSet<>());
+            Set<Pom> set = result.computeIfAbsent(pom.coords.groupId,
+                    x -> new TreeSet<>());
             set.add(pom);
         });
         return result;
@@ -267,7 +291,8 @@ public class ProjectTree
             {
                 if (filter.test(pom))
                 {
-                    Set<Pom> infos = result.computeIfAbsent(pom.coords.version, v -> new TreeSet<>());
+                    Set<Pom> infos = result.computeIfAbsent(pom.coords.version,
+                            v -> new TreeSet<>());
                     infos.add(pom);
                 }
             });
@@ -368,9 +393,11 @@ public class ProjectTree
         return withCache(c -> c.checkoutsInProjectFamily(family));
     }
 
-    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(ProjectFamily family)
+    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
+            ProjectFamily family)
     {
-        return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(family));
+        return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(
+                family));
     }
 
     public Heads remoteHeads(GitCheckout checkout)
@@ -423,7 +450,8 @@ public class ProjectTree
             {
                 for (Pom project : projectSet)
                 {
-                    if (family.equals(ProjectFamily.fromGroupId(project.coords.groupId)))
+                    if (family.equals(ProjectFamily.fromGroupId(
+                            project.coords.groupId)))
                     {
                         all.add(repo);
                         break;
@@ -433,15 +461,18 @@ public class ProjectTree
             return all;
         }
 
-        public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(ProjectFamily family)
+        public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
+                ProjectFamily family)
         {
             Set<GitCheckout> all = new HashSet<>();
             projectsByRepository.forEach((repo, projectSet) ->
             {
                 for (Pom project : projectSet)
                 {
-                    ProjectFamily pomFamily = ProjectFamily.fromGroupId(project.coords.groupId);
-                    if (family.equals(pomFamily) || family.isParentFamilyOf(project.coords.groupId))
+                    ProjectFamily pomFamily = ProjectFamily.fromGroupId(
+                            project.coords.groupId);
+                    if (family.equals(pomFamily) || family.isParentFamilyOf(
+                            project.coords.groupId))
                     {
                         all.add(repo);
                         break;
@@ -458,13 +489,15 @@ public class ProjectTree
 
         public boolean isDetachedHead(GitCheckout checkout)
         {
-            return detachedHeads.computeIfAbsent(checkout, GitCheckout::isDetachedHead);
+            return detachedHeads.computeIfAbsent(checkout,
+                    GitCheckout::isDetachedHead);
         }
 
         public Optional<String> mostCommonBranchForGroupId(String groupId)
         {
             // Cache these since they are expensive to compute
-            return branchByGroupId.computeIfAbsent(groupId, this::_mostCommonBranchForGroupId);
+            return branchByGroupId.computeIfAbsent(groupId,
+                    this::_mostCommonBranchForGroupId);
         }
 
         private Optional<String> _mostCommonBranchForGroupId(String groupId)
@@ -477,7 +510,8 @@ public class ProjectTree
             checkoutForPom.forEach((pom, checkout) ->
             {
                 // Filter out any irrelevant or already examined checkouts
-                if (seen.contains(checkout) || !groupId.equals(pom.coords.groupId))
+                if (seen.contains(checkout) || !groupId.equals(
+                        pom.coords.groupId))
                 {
                     return;
                 }
@@ -502,7 +536,8 @@ public class ProjectTree
                 return Optional.empty();
             }
             // Reverse sort the map entries by the count
-            List<Map.Entry<String, Integer>> entries = new ArrayList<>(branchNameCounts.entrySet());
+            List<Map.Entry<String, Integer>> entries = new ArrayList<>(
+                    branchNameCounts.entrySet());
             Collections.sort(entries, (a, b) ->
             {
                 return b.getValue().compareTo(a.getValue());
@@ -514,7 +549,9 @@ public class ProjectTree
         public Set<Pom> projectsWithin(GitCheckout checkout)
         {
             Set<Pom> infos = projectsByRepository.get(checkout);
-            return infos == null ? Collections.emptySet() : infos;
+            return infos == null
+                   ? Collections.emptySet()
+                   : infos;
         }
 
         public Branches branches(GitCheckout checkout)
@@ -600,12 +637,14 @@ public class ProjectTree
                 Pom.from(path).ifPresent(info ->
                 {
                     Map<String, Pom> subcache
-                            = infoForGroupAndArtifact.computeIfAbsent(info.coords.groupId,
+                            = infoForGroupAndArtifact.computeIfAbsent(
+                                    info.coords.groupId,
                                     id -> new HashMap<>());
                     subcache.put(info.coords.artifactId, info);
                     GitCheckout.repository(info.pom).ifPresent(co ->
                     {
-                        Set<Pom> poms = projectsByRepository.computeIfAbsent(co, c -> new HashSet<>());
+                        Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
+                                c -> new HashSet<>());
 //                        System.out.println("CACHE: " + info + " is in " + co.checkoutRoot().getFileName());
                         poms.add(info);
                     });

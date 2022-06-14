@@ -1,21 +1,27 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven;
 
-import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.git.Branches;
-import com.telenav.cactus.maven.git.Branches.Branch;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.function.Predicate;
-import org.apache.maven.plugin.MojoExecutionException;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,26 +53,30 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
     @Parameter(property = "telenav.autoFixBranches", defaultValue = "false")
     boolean autoFixBranches = false;
 
-    @Parameter(property = "telenav.createBranchesIfNeeded", defaultValue = "true")
+    @Parameter(property = "telenav.createBranchesIfNeeded",
+            defaultValue = "true")
     boolean createBranchesIfNeeded = true;
 
     @Parameter(property = "branch", name = "branch")
     String branchName;
 
-    @Parameter(property = "telenav.baseBranch", defaultValue = "develop", name = "base-branch")
+    @Parameter(property = "telenav.baseBranch", defaultValue = "develop",
+            name = "base-branch")
     String baseBranch = "develop";
 
-    protected void onValidateParameters(BuildLog log, MavenProject project) throws Exception
+    protected void onValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
     {
         validateBranchName(branchName, true);
         validateBranchName(baseBranch, false);
     }
 
     @Override
-    protected void execute(BuildLog log, MavenProject project, GitCheckout myCheckout,
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        
+
 //        if (branchName != null)
 //        {
 //            ensureOnBranch(tree, log.child("branch-to:" + branchName), project, checkouts);
@@ -75,7 +85,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
 //            ensureOnSomeConsistentBranch(tree, log.child("ensure-some-branch"), project);
 //        }
     }
-/*
+    /*
     private void ensureOnBranch(ProjectTree tree, BuildLog log, MavenProject project, List<GitCheckout> checkouts)
             throws Exception
     {
@@ -293,5 +303,5 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             }
         }
     }
-*/
+     */
 }

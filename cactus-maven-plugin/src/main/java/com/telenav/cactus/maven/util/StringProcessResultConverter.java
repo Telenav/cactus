@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package com.telenav.cactus.maven.util;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
@@ -10,7 +28,8 @@ import java.util.regex.Pattern;
  * Converter interface specific to strings with convenience wrappers for
  * trimming, pattern matching and simply testing for output or not.
  */
-public interface StringProcessResultConverter extends ProcessResultConverter<String>
+public interface StringProcessResultConverter extends
+        ProcessResultConverter<String>
 {
 
     default ProcessResultConverter<Boolean> trueIfEmpty()
@@ -18,7 +37,8 @@ public interface StringProcessResultConverter extends ProcessResultConverter<Str
         return testedWith(String::isEmpty);
     }
 
-    default ProcessResultConverter<Boolean> testedWith(Predicate<String> predicate)
+    default ProcessResultConverter<Boolean> testedWith(
+            Predicate<String> predicate)
     {
         return map(text -> predicate.test(text));
     }
@@ -27,7 +47,8 @@ public interface StringProcessResultConverter extends ProcessResultConverter<Str
     {
         return (description, proc) ->
         {
-            return AwaitableCompletionStage.of(onProcessStarted(description, proc).thenApply(String::trim));
+            return AwaitableCompletionStage.of(onProcessStarted(description,
+                    proc).thenApply(String::trim));
         };
     }
 
@@ -41,16 +62,19 @@ public interface StringProcessResultConverter extends ProcessResultConverter<Str
                 if (thrown != null)
                 {
                     result.completeExceptionally(thrown);
-                } else
+                }
+                else
                 {
                     Matcher m = pattern.matcher(str);
                     assert m.groupCount() == 1;
                     if (m.find())
                     {
                         result.complete(m.group(1));
-                    } else
+                    }
+                    else
                     {
-                        result.completeExceptionally(new IllegalStateException("Pattern " + pattern.pattern() + " not matched in '" + str + "'"));
+                        result.completeExceptionally(new IllegalStateException(
+                                "Pattern " + pattern.pattern() + " not matched in '" + str + "'"));
                     }
                 }
             });
