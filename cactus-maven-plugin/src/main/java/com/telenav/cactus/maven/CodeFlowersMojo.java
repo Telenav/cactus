@@ -58,7 +58,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo {
                 Path codeflowersPath = assetsRoot.resolve("docs").resolve(version).resolve("codeflowers")
                         .resolve("site").resolve("data");
                 log.info("Will generate codeflowers for '" + fam + "' into " + codeflowersPath);
-                MavenProjectsScanner scanner = new MavenProjectsScanner(log::error, new WordCount(), e.getValue());
+                MavenProjectsScanner scanner = new MavenProjectsScanner(log.child("scanProjects"), new WordCount(), e.getValue());
                 CodeflowersJsonGenerator gen = new CodeflowersJsonGenerator(fam.toString(), codeflowersPath, indent, isPretend());
                 scanner.scan(gen);
             }, () -> {

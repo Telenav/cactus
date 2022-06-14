@@ -42,11 +42,4 @@ public class SourcesScanner {
                 && !Files.isDirectory(path)
                 && Files.isReadable(path);
     }
-
-    public static void main(String[] args) throws Exception {
-        Path p = Paths.get("/Users/timb/work/telenav/jonstuff/kivakit/kivakit-core/src/main/java");
-        new SourcesScanner().scan(p, (path, ct) -> {
-            System.out.println(ct + "\t" + path.getFileName() + "\t" + Thread.currentThread().getName());
-        });
-    }
 }

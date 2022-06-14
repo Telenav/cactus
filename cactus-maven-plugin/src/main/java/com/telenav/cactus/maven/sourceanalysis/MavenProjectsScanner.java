@@ -1,18 +1,16 @@
 package com.telenav.cactus.maven.sourceanalysis;
 
 import com.mastfrog.concurrent.ConcurrentLinkedList;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.BiConsumer;
 
 /**
  *
@@ -21,10 +19,10 @@ import java.util.function.BiConsumer;
 public class MavenProjectsScanner {
 
     private final ConcurrentLinkedList<Pom> poms;
-    private final BiConsumer<String, Throwable> log;
+    private final BuildLog log;
     private final SourcesScanner scanner;
 
-    public MavenProjectsScanner(BiConsumer<String, Throwable> log, SourceScorer scorer, Collection<? extends Pom> poms) {
+    public MavenProjectsScanner(BuildLog log, SourceScorer scorer, Collection<? extends Pom> poms) {
         this.poms = ConcurrentLinkedList.lifo();
         this.scanner = new SourcesScanner(scorer);
         // Use a biconsumer for manual testing without SLF4J on the classpath
@@ -64,10 +62,10 @@ public class MavenProjectsScanner {
             if (scoreForSourceFileRelativePath != null) {
                 c.onProjectScanned(pom, scoreForSourceFileRelativePath);
             } else {
-//                log.warn("Could not scan source dir for " + pom);
+                log.warn("Could not scan source dir for " + pom);
             }
         } catch (Exception | Error ex) {
-            log.accept("Exception scanning " + pom, ex);
+            log.error("Exception scanning " + pom, ex);
         }
     }
 
