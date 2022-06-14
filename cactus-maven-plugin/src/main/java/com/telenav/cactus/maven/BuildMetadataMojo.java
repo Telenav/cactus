@@ -1,25 +1,27 @@
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.metadata.BuildMetadata;
 import com.telenav.cactus.metadata.BuildMetadataUpdater;
-import com.telenav.cactus.maven.git.GitCheckout;
-import static com.telenav.cactus.maven.git.GitCheckout.repository;
-import com.telenav.cactus.maven.log.BuildLog;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static com.telenav.cactus.maven.git.GitCheckout.repository;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
  * Generates build.properties and project.properties files into
@@ -29,10 +31,11 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.GENERATE_SOURCES,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = SINGLETON,
-        name = "build-metadata", threadSafe = true)
+                                           requiresDependencyResolution = ResolutionScope.NONE,
+                                           instantiationStrategy = SINGLETON,
+                                           name = "build-metadata")
 public class BuildMetadataMojo extends BaseMojo
 {
 
@@ -67,7 +70,7 @@ public class BuildMetadataMojo extends BaseMojo
         List<String> args = new ArrayList<>(8);
         args.add(propsFile.getParent().toString());
         Optional<GitCheckout> checkout = repository(project.getBasedir());
-        if (!checkout.isPresent())
+        if (checkout.isEmpty())
         {
             log.warn("Did not find a git checkout for " + project.getBasedir());
         }
@@ -99,7 +102,8 @@ public class BuildMetadataMojo extends BaseMojo
                 log.info("----------------------");
                 log.info("to " + buildProps + "\n");
                 log.info(Files.readString(buildProps));
-            } else
+            }
+            else
             {
                 log.warn("No build file was generated in " + buildProps);
             }
