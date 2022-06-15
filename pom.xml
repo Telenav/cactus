@@ -7,10 +7,8 @@
  //
  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  -->
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
 
@@ -24,19 +22,19 @@
     <groupId>com.telenav.cactus</groupId>    
     <artifactId>cactus</artifactId>
     <name>cactus</name>
-    <version>1.4.6</version>
+    <version>1.4.7</version>
     
     <packaging>pom</packaging>
-    
+
     <!-- Project -->
-    
+
     <description>
         The cactus project generates build metadata consumed by KivaKit and
         other projects.
     </description>
-    
+
     <!-- Licensing -->
-    
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -44,25 +42,25 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <!-- Modules -->
-    
+
     <modules>
         <module>cactus-metadata</module>
         <module>cactus-maven-model</module>
         <module>cactus-maven-plugin</module>
     </modules>
-    
+
     <!-- Properties -->
-    
+
     <properties>
         
         <!-- Java -->
-        
+
         <java.version>11</java.version>
-        
+
         <!-- Maven -->
-        
+
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
@@ -135,7 +133,7 @@
     <build>
         
         <!-- Resource Copying -->
-        
+
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -171,9 +169,9 @@
                 </includes>
             </testResource>
         </testResources>
-        
+
         <!-- Plugins -->
-        
+
         <pluginManagement>
             <plugins>
 
@@ -192,7 +190,7 @@
                 </plugin>
 
                 <!-- Compiling -->
-                
+
                 <plugin>
                     
                     <groupId>org.apache.maven.plugins</groupId>
@@ -208,17 +206,17 @@
                     </configuration>
                     
                 </plugin>
-                
+
                 <!-- Building -->
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>3.2.0</version>
                 </plugin>
-                
+
                 <!-- Testing -->
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -227,9 +225,9 @@
                         <argLine>-Xmx2g</argLine>
                     </configuration>
                 </plugin>
-                
+
                 <!-- Documentation -->
-                
+
                 <plugin>
                     
                     <groupId>org.apache.maven.plugins</groupId>
@@ -267,9 +265,9 @@
         </pluginManagement>
         
     </build>
-    
+
     <!-- Profiles -->
-    
+
     <profiles>
         
         <!-- Attaching -->
@@ -330,7 +328,7 @@
                 
             </build>
         </profile>
-        
+
         <!-- Signing -->
 
         <profile>
@@ -371,9 +369,9 @@
         </profile>
         
     </profiles>
-    
+
     <!-- OSSRH (Maven Central Staging) -->
-    
+
     <repositories>
         <repository>
             <id>ossrh</id>
@@ -396,7 +394,7 @@
     </repositories>
 
     <!-- Source Code -->
-    
+
     <scm>
         <connection>scm:git:https://Telenav/cactus.git</connection>
         <developerConnection>scm:git:https://Telenav/cactus.git</developerConnection>
@@ -404,9 +402,9 @@
     </scm>
     
     <url>https://www.kivakit.org</url>
-    
+
     <!-- Issue Tracking -->
-    
+
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/Telenav/cactus/issues</url>
@@ -418,9 +416,9 @@
         <name>Telenav</name>
         <url>https://www.telenav.com</url>
     </organization>
-    
+
     <!-- Contributors -->
-    
+
     <developers>
         
         <developer>

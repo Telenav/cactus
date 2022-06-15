@@ -33,10 +33,10 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.VERIFY,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = SINGLETON,
-        name = "project-info", threadSafe = true)
-public class ProjectInfoMojo extends BaseMojo
+                                           requiresDependencyResolution = ResolutionScope.NONE,
+                                           instantiationStrategy = SINGLETON,
+                                           name = "project-information", threadSafe = true)
+public class ProjectInformationMojo extends BaseMojo
 {
     @Override
     protected void performTasks(BuildLog log, MavenProject project)
