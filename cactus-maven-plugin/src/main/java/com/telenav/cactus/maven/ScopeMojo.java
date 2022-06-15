@@ -20,15 +20,15 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
-import java.util.Optional;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.util.Optional;
+
 /**
- * Base class for once-per-session mojos which operate within a Scope -
- * typically git operations which may be performed against a project, family of
- * projects or entire tree of projects.
+ * Base class for once-per-session mojos which operate within a Scope - typically git operations which may be performed
+ * against a project, family of projects or entire tree of projects.
  *
  * @author Tim Boudreau
  */
@@ -36,9 +36,8 @@ import org.apache.maven.project.MavenProject;
 public abstract class ScopeMojo extends BaseMojo
 {
     /**
-     * Defines the scope this mojo operates on - used by mojos which may operate
-     * on one <i>or more</i> git checkouts to determine which ones will be
-     * operated on. This can be one of:
+     * Defines the scope this mojo operates on - used by mojos which may operate on one <i>or more</i> git checkouts to
+     * determine which ones will be operated on. This can be one of:
      * <ul>
      * <li><code>all</code> &mdash; Operate on every git repository below the
      * <i>submodule-root</code> of any project this mojo is run against.</li>
@@ -62,23 +61,21 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @see Scope#FAMILY
      */
-    @Parameter(property = "telenav.scope", defaultValue = "FAMILY")
+    @Parameter(property = "telenav.scope", name = "scopeProperty", defaultValue = "FAMILY")
     private String scopeProperty;
 
     /**
-     * If true, include the submodule root project even if it does not directly
-     * contain a maven project matching the scope - this is important for mojos
-     * which generate a new submodule commit, which in turn results in a
-     * modification to the submodule parent, which now points to a different
-     * commit than before, in order to ensure that a commit is generated for the
-     * submodule parent updating it to point to the new commit(s).
+     * If true, include the submodule root project even if it does not directly contain a maven project matching the
+     * scope - this is important for mojos which generate a new submodule commit, which in turn results in a
+     * modification to the submodule parent, which now points to a different commit than before, in order to ensure that
+     * a commit is generated for the submodule parent updating it to point to the new commit(s).
      */
     @Parameter(property = "telenav.include-root", defaultValue = "true")
     private boolean includeRoot;
 
     /**
-     * Override the project family, using this value instead of one derived from
-     * the project's group id. Only relevant for scopes concerned with families.
+     * Override the project family, using this value instead of one derived from the project's group id. Only relevant
+     * for scopes concerned with families.
      */
     @Parameter(property = "telenav.family", defaultValue = "")
     private String family;
@@ -90,11 +87,11 @@ public abstract class ScopeMojo extends BaseMojo
     private boolean pretend;
 
     private Scope scope;
+
     private GitCheckout myCheckout;
 
     /**
-     * Create a ScopeMojo that runs <i>on the last project</i> of those being
-     * processed in a multi-module build.
+     * Create a ScopeMojo that runs <i>on the last project</i> of those being processed in a multi-module build.
      */
     protected ScopeMojo()
     {
@@ -104,15 +101,55 @@ public abstract class ScopeMojo extends BaseMojo
     /**
      * Create a ScopeMojo.
      *
-     * @param runFirst If true, run this mojo once-per-session, on the FIRST
-     * invocation; else run it once-per-session on the LAST invocation (e.g.
-     * when executed against a POM project, only run after everything is built).
+     * @param runFirst If true, run this mojo once-per-session, on the FIRST invocation; else run it once-per-session on
+     * the LAST invocation (e.g. when executed against a POM project, only run after everything is built).
      */
     protected ScopeMojo(boolean runFirst)
     {
         super(runFirst
-              ? RunPolicies.FIRST
-              : RunPolicies.LAST); // once per session
+                ? RunPolicies.FIRST
+                : RunPolicies.LAST); // once per session
+    }
+
+    protected abstract void execute(BuildLog log, MavenProject project,
+                                    GitCheckout myCheckout,
+                                    Scope scope, ProjectFamily family, boolean includeRoot,
+                                    boolean pretend) throws Exception;
+
+    protected boolean isIncludeRoot()
+    {
+        return includeRoot;
+    }
+
+    protected boolean isPretend()
+    {
+        return pretend;
+    }
+
+    protected void onValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
+    {
+        // for subclasses
+    }
+
+    @Override
+    protected final String overrideProjectFamily()
+    {
+        return family == null
+                ? null
+                : family.trim();
+    }
+
+    @Override
+    protected final void performTasks(BuildLog log, MavenProject project) throws Exception
+    {
+        execute(log, project, myCheckout, scope, projectFamily(),
+                includeRoot, pretend);
+    }
+
+    protected Scope scope()
+    {
+        return scope;
     }
 
     @Override
@@ -133,50 +170,9 @@ public abstract class ScopeMojo extends BaseMojo
         {
             log.warn(
                     "Useless assignment of telanav.family to '" + family + "' when "
-                    + "using scope " + scope + " which will not read it.  It is useful "
-                    + "only with " + Scope.FAMILY + " and "
-                    + Scope.FAMILY_OR_CHILD_FAMILY);
+                            + "using scope " + scope + " which will not read it.  It is useful "
+                            + "only with " + Scope.FAMILY + " and "
+                            + Scope.FAMILY_OR_CHILD_FAMILY);
         }
-    }
-
-    protected void onValidateParameters(BuildLog log, MavenProject project)
-            throws Exception
-    {
-        // for subclasses
-    }
-
-    @Override
-    protected final void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        execute(log, project, myCheckout, scope, projectFamily(),
-                includeRoot, pretend);
-    }
-
-    protected abstract void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            Scope scope, ProjectFamily family, boolean includeRoot,
-            boolean pretend) throws Exception;
-
-    @Override
-    protected final String overrideProjectFamily()
-    {
-        return family == null
-               ? null
-               : family.trim();
-    }
-
-    protected boolean isPretend()
-    {
-        return pretend;
-    }
-
-    protected boolean isIncludeRoot()
-    {
-        return includeRoot;
-    }
-
-    protected Scope scope()
-    {
-        return scope;
     }
 }

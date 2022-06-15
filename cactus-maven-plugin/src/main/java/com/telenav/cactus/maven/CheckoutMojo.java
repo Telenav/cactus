@@ -30,6 +30,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.util.List;
+
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -39,7 +40,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
+                "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -49,11 +50,26 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 public class CheckoutMojo extends ScopedCheckoutsMojo
 {
 
-    @Parameter(property = "branch", required = true)
+    @Parameter(property = "telenav.branch", required = true)
     private String branch;
 
-    @Parameter(property = "default-base-branch", required = true)
+    @Parameter(property = "telenav.failover-base-branch", required = true)
     private String failoverBaseBranch;
+
+    @Override
+    protected void execute(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    {
+        if (checkouts.isEmpty())
+        {
+            log.info("No checkouts matched.");
+            return;
+        }
+        new Brancher(branch, failoverBaseBranch, log, this, isPretend(),
+                NonexistentBranchBehavior.FAIL)
+                .updateBranches(checkouts, log, tree);
+    }
 
     @Override
     protected void onValidateParameters(BuildLog log, MavenProject project)
@@ -67,20 +83,4 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         validateBranchName(branch, false);
         validateBranchName(failoverBaseBranch, true);
     }
-
-    @Override
-    protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
-    {
-        if (checkouts.isEmpty())
-        {
-            log.info("No checkouts matched.");
-            return;
-        }
-        new Brancher(branch, failoverBaseBranch, log, this, isPretend(),
-                NonexistentBranchBehavior.FAIL)
-                .updateBranches(checkouts, log, tree);
-    }
-
 }

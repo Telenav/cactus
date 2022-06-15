@@ -20,18 +20,20 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.util.PathUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.maven.plugin.MojoExecutionException;
+
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 /**
  * Cleans any cache dirs for the project or projects.
@@ -45,19 +47,7 @@ import org.apache.maven.project.MavenProject;
         name = "clean-caches", threadSafe = true)
 public class CleanCachesMojo extends BaseMojo
 {
-    @Parameter(property = "cacheFindingStrategy",
-            defaultValue = "byGroupIdVersion")
-    private String cacheFindingStrategy;
-
     private static final Set<Path> seen = ConcurrentHashMap.newKeySet();
-
-    @Override
-    protected void performTasks(BuildLog log, MavenProject project) throws Exception
-    {
-        CacheFindingStrategy strategy = CacheFindingStrategy.find(
-                cacheFindingStrategy);
-        strategy.deleteCache(project, log, seen);
-    }
 
     public static enum CacheFindingStrategy
     {
@@ -111,7 +101,7 @@ public class CleanCachesMojo extends BaseMojo
         }
 
         public void deleteCache(MavenProject project, BuildLog log,
-                Set<Path> seen) throws IOException
+                                Set<Path> seen) throws IOException
         {
             Path dir = cacheDir(project);
             if (seen.contains(dir))
@@ -130,5 +120,17 @@ public class CleanCachesMojo extends BaseMojo
                 PathUtils.deleteWithSubtree(dir);
             }
         }
+    }
+
+    @Parameter(property = "telenav.cache-finding-strategy",
+               defaultValue = "byGroupIdVersion")
+    private String cacheFindingStrategy;
+
+    @Override
+    protected void performTasks(BuildLog log, MavenProject project) throws Exception
+    {
+        CacheFindingStrategy strategy = CacheFindingStrategy.find(
+                cacheFindingStrategy);
+        strategy.deleteCache(project, log, seen);
     }
 }

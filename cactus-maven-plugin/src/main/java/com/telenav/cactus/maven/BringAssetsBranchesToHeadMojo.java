@@ -20,15 +20,17 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
  * Change the branch of all non-maven git submodules.
@@ -42,24 +44,23 @@ import org.apache.maven.project.MavenProject;
         name = "update-assets-checkouts", threadSafe = true)
 public class BringAssetsBranchesToHeadMojo extends BaseMojo
 {
-
     /**
      * The branch they should be on.
      */
-    @Parameter(property = "telenav.assets.branch", defaultValue = "publish")
+    @Parameter(property = "telenav.assets-branch", defaultValue = "publish")
     private String assetsBranch;
 
     /**
      * Do a pull first?
      */
-    @Parameter(property = "telenav.assets.pull", defaultValue = "false")
+    @Parameter(property = "telenav.assets-pull", defaultValue = "false")
     private boolean pull;
 
     /**
-     * Create a new commit in the submodule root that anchors the submodules on
-     * the head commit you have changed them to.
+     * Create a new commit in the submodule root that anchors the submodules on the head commit you have changed them
+     * to.
      */
-    @Parameter(property = "telenav.assets.commit", defaultValue = "true")
+    @Parameter(property = "telenav.assets-commit", defaultValue = "true")
     private boolean commit;
 
     public BringAssetsBranchesToHeadMojo()

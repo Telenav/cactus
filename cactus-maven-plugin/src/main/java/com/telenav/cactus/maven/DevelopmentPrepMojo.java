@@ -18,20 +18,21 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.util.List;
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import java.util.List;
+
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+
 /**
- * Gets the current checkout, or all checkouts containing projects with the
- * current project's groupId, or all checkouts in the entire tree - filtering
- * them to only checkouts that contain a pom.xml in the root, and does one of:
+ * Gets the current checkout, or all checkouts containing projects with the current project's groupId, or all checkouts
+ * in the entire tree - filtering them to only checkouts that contain a pom.xml in the root, and does one of:
  * <ul>
  * <li>If a branch is specified, ensures the checkout is on the head of that
  * branch, creating it if needed (and createBranchesIfNeeded is set)</li>
@@ -50,40 +51,39 @@ import org.apache.maven.project.MavenProject;
 public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
 {
 
-    @Parameter(property = "telenav.autoFixBranches", defaultValue = "false")
+    @Parameter(property = "telenav.auto-fix-branches", defaultValue = "false")
     boolean autoFixBranches = false;
 
-    @Parameter(property = "telenav.createBranchesIfNeeded",
-            defaultValue = "true")
+    @Parameter(property = "telenav.create-branches-if-needed",
+               defaultValue = "true")
     boolean createBranchesIfNeeded = true;
 
-    @Parameter(property = "branch", name = "branch")
+    @Parameter(property = "telenav.branch", name = "branch")
     String branchName;
 
-    @Parameter(property = "telenav.baseBranch", defaultValue = "develop",
-            name = "base-branch")
+    @Parameter(property = "telenav.base-branch", defaultValue = "develop")
     String baseBranch = "develop";
+
+    @Override
+    protected void execute(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    {
+
+        //        if (branchName != null)
+        //        {
+        //            ensureOnBranch(tree, log.child("branch-to:" + branchName), project, checkouts);
+        //        } else
+        //        {
+        //            ensureOnSomeConsistentBranch(tree, log.child("ensure-some-branch"), project);
+        //        }
+    }
 
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
         validateBranchName(branchName, true);
         validateBranchName(baseBranch, false);
-    }
-
-    @Override
-    protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
-    {
-
-//        if (branchName != null)
-//        {
-//            ensureOnBranch(tree, log.child("branch-to:" + branchName), project, checkouts);
-//        } else
-//        {
-//            ensureOnSomeConsistentBranch(tree, log.child("ensure-some-branch"), project);
-//        }
     }
     /*
     private void ensureOnBranch(ProjectTree tree, BuildLog log, MavenProject project, List<GitCheckout> checkouts)

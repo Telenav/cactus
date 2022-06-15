@@ -37,7 +37,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
+                "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -46,36 +46,19 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "git-flow", threadSafe = true)
 public class GitFlowMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "operation", required = true)
+    @Parameter(property = "telenav.operation", required = true)
     private String operation;
 
-    @Parameter(property = "branchType", required = true)
+    @Parameter(property = "telenav.branch-type", required = true)
     private String branchType;
 
-    @Parameter(property = "branchName", required = true)
-    private String branchName;
-
-    @Override
-    protected void onValidateParameters(BuildLog log, MavenProject project)
-            throws Exception
-    {
-        validateBranchName(branchName, false);
-        if (!branchType.matches("feature|hotfix|release"))
-        {
-            throw new RuntimeException(
-                    "Branch type must be one of: feature, hotfix, or release");
-        }
-        if (!operation.matches("start|finish"))
-        {
-            throw new RuntimeException(
-                    "Operation must be either start or finish");
-        }
-    }
+    @Parameter(property = "telenav.branch", required = true)
+    private String branch;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
         if (checkouts.isEmpty())
         {
@@ -85,7 +68,24 @@ public class GitFlowMojo extends ScopedCheckoutsMojo
 
         for (var checkout : checkouts)
         {
-            checkout.flow(operation, branchType, branchName);
+            checkout.flow(operation, branchType, branch);
+        }
+    }
+
+    @Override
+    protected void onValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
+    {
+        validateBranchName(branch, false);
+        if (!branchType.matches("feature|hotfix|release"))
+        {
+            throw new RuntimeException(
+                    "Branch type must be one of: feature, hotfix, or release");
+        }
+        if (!operation.matches("start|finish"))
+        {
+            throw new RuntimeException(
+                    "Operation must be either start or finish");
         }
     }
 }

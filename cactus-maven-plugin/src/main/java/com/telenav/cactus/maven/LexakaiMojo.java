@@ -24,6 +24,12 @@ import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.util.PathUtils;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -35,17 +41,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.maven.plugin.MojoFailureException;
+
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 /**
- * Runs lexakai to generate documentation and diagrams for a project into some
- * folder. This mojo is intended to be used only on the root of a family of
- * projects.
+ * Runs lexakai to generate documentation and diagrams for a project into some folder. This mojo is intended to be used
+ * only on the root of a family of projects.
  * <p>
  * The destination folder for documentation is computed as follows:
  * </p>
@@ -87,60 +88,100 @@ import org.apache.maven.project.MavenProject;
         name = "lexakai", threadSafe = true)
 public class LexakaiMojo extends BaseMojo
 {
+    class LexakaiRunner implements ThrowingRunnable
+    {
+
+        private final Path jarFile;
+
+        private final List<String> args;
+
+        private final BuildLog runLog = BuildLog.get().child("lexakai-runner");
+
+        LexakaiRunner(Path jarFile, List<String> args)
+        {
+            this.jarFile = jarFile;
+            this.args = args;
+        }
+
+        @Override
+        public void run() throws Exception
+        {
+            ClassLoader ldr = Thread.currentThread().getContextClassLoader();
+            try
+            {
+                URL[] url = new URL[]
+                        {
+                                new URL("jar:" + jarFile.toUri().toURL() + "!/")
+                        };
+                runLog.warn("Invoke lexakai reflectivly from " + url[0]);
+                try (URLClassLoader jarLoader = new URLClassLoader("lexakai",
+                        url, ldr))
+                {
+                    Thread.currentThread().setContextClassLoader(jarLoader);
+                    Class<?> what = jarLoader.loadClass(
+                            "com.telenav.lexakai.Lexakai");
+                    Method mth = what.getMethod("main", String[].class);
+                    runLog.info("Invoking lexakai " + mth + " on " + what
+                            .getName());
+                    mth.invoke(null, (Object) args.toArray(String[]::new));
+                    runLog.info("Lexakai done.");
+                }
+            }
+            finally
+            {
+                Thread.currentThread().setContextClassLoader(ldr);
+            }
+        }
+    }
+
     /**
      * If true, instruct lexakai to overwrite resources.
      */
-    @Parameter(property = "overwrite-resources", defaultValue = "true",
-            name = "overwrite-resources")
+    @Parameter(property = "telenav.overwrite-resources", defaultValue = "true")
     private boolean overwriteResources;
 
     /**
      * If true, instruct lexakai to update readme files.
      */
-    @Parameter(property = "update-readme", defaultValue = "true",
-            name = "update-readme")
+    @Parameter(property = "telenav.update-readme", defaultValue = "true")
     private boolean updateReadme;
 
     /**
      * If true, log the commands being passed to lexakai.
      */
-    @Parameter(property = "verbose", defaultValue = "true")
+    @Parameter(property = "telenav.verbose", defaultValue = "true")
     private boolean verbose;
 
     /**
      * If true, don't really run lexakai.
      */
-    @Parameter(property = "lexakai.skip", defaultValue = "false")
+    @Parameter(property = "telenav.lexakai.skip", defaultValue = "false")
     private boolean skip;
 
     /**
-     * The destination folder for generated documentation - if unset, it is
-     * computed as described above.
+     * The destination folder for generated documentation - if unset, it is computed as described above.
      */
-    @Parameter(property = "output-folder", name = "output-folder")
+    @Parameter(property = "telenav.output-folder")
     private String outputFolder;
 
     /**
-     * The destination folder for generated documentation - if unset, it is
-     * computed as described above.
+     * The destination folder for generated documentation - if unset, it is computed as described above.
      */
-    @Parameter(property = "commit-changes", name = "commit-changes",
-            defaultValue = "false")
+    @Parameter(property = "telenav.commit-changes", defaultValue = "false")
     private boolean commitChanges;
 
     /**
-     * The destination folder for generated documentation - if unset, it is
-     * computed as described above.
+     * The destination folder for generated documentation - if unset, it is computed as described above.
      */
-    @Parameter(property = "lexakai-version", name = "lexakai-version",
-            defaultValue = "1.0.7")
+    @Parameter(property = "telenav.lexakai-version", defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
+
     /**
      * The repository to download lexakai from (central by default).
      */
-    @Parameter(property = "lexakai-repo", name = "lexakai-repo",
-            defaultValue = MAVEN_CENTRAL_REPO)
-    private String lexakaiRepo = MAVEN_CENTRAL_REPO;
+    @Parameter(property = "telenav.lexakai-repository",
+               defaultValue = MAVEN_CENTRAL_REPO)
+    private String lexakaiRepository = MAVEN_CENTRAL_REPO;
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -187,7 +228,7 @@ public class LexakaiMojo extends BaseMojo
                     // we generate a final commit here so it points to our updates
                     GitCheckout.repository(project.getBasedir())
                             .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
-                            .toOptional())
+                                    .toOptional())
                             .ifPresent(root ->
                             {
                                 if (root.isDirty())
@@ -211,26 +252,26 @@ public class LexakaiMojo extends BaseMojo
         }
     }
 
-    private ThrowingRunnable lexakaiRunner(List<String> args) throws Exception
+    Path output(MavenProject project)
     {
-        return new LexakaiRunner(lexakaiJar(), args);
+        return GitCheckout.repository(project.getBasedir()).flatMap(repo
+                -> outputFolder(project, repo).toOptional()
+        ).orElseGet(
+                // Failover to generating under target/
+                () -> project.getBasedir().toPath().resolve("target").resolve(
+                        "lexakai"));
     }
 
-    private Set<GitCheckout> collectedChangedRepos(MavenProject prj,
-            ThrowingRunnable toRun)
+    ThrowingOptional<Path> outputFolder(MavenProject prj, GitCheckout checkout)
     {
-        return ProjectTree.from(prj).map(tree ->
+        // If the output folder was explicitly specified, use it.
+        if (outputFolder != null)
         {
-            Set<GitCheckout> needingCommitBefore = collectModifiedCheckouts(tree);
-            toRun.run();
-            Set<GitCheckout> needingCommitAfter = collectModifiedCheckouts(tree);
-            needingCommitAfter.removeAll(needingCommitBefore);
-            return needingCommitAfter;
-        }).orElseGet(() ->
-        {
-            toRun.run();
-            return Collections.emptySet();
-        });
+            return ThrowingOptional.of(Paths.get(outputFolder));
+        }
+        // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
+        // $name-assets folder in the submodule root
+        return ProjectFamily.of(prj).assetsPath(checkout);
     }
 
     private Set<GitCheckout> collectModifiedCheckouts(ProjectTree tree)
@@ -256,6 +297,23 @@ public class LexakaiMojo extends BaseMojo
             }
         }
         return needingCommit;
+    }
+
+    private Set<GitCheckout> collectedChangedRepos(MavenProject prj,
+                                                   ThrowingRunnable toRun)
+    {
+        return ProjectTree.from(prj).map(tree ->
+        {
+            Set<GitCheckout> needingCommitBefore = collectModifiedCheckouts(tree);
+            toRun.run();
+            Set<GitCheckout> needingCommitAfter = collectModifiedCheckouts(tree);
+            needingCommitAfter.removeAll(needingCommitBefore);
+            return needingCommitAfter;
+        }).orElseGet(() ->
+        {
+            toRun.run();
+            return Collections.emptySet();
+        });
     }
 
     private String commitMessage(MavenProject prj, Set<GitCheckout> checkouts)
@@ -285,75 +343,14 @@ public class LexakaiMojo extends BaseMojo
         return sb.append("\n").toString();
     }
 
-    ThrowingOptional<Path> outputFolder(MavenProject prj, GitCheckout checkout)
-    {
-        // If the output folder was explicitly specified, use it.
-        if (outputFolder != null)
-        {
-            return ThrowingOptional.of(Paths.get(outputFolder));
-        }
-        // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a 
-        // $name-assets folder in the submodule root
-        return ProjectFamily.of(prj).assetsPath(checkout);
-    }
-
-    Path output(MavenProject project)
-    {
-        return GitCheckout.repository(project.getBasedir()).flatMap(repo
-                -> outputFolder(project, repo).toOptional()
-        ).orElseGet(
-                // Failover to generating under target/
-                () -> project.getBasedir().toPath().resolve("target").resolve(
-                        "lexakai"));
-    }
-
     private Path lexakaiJar() throws MojoFailureException
     {
         return downloadArtifact("com.telenav.lexakai", "Lexakai", lexakaiVersion)
                 .get();
     }
 
-    class LexakaiRunner implements ThrowingRunnable
+    private ThrowingRunnable lexakaiRunner(List<String> args) throws Exception
     {
-
-        private final Path jarFile;
-        private final List<String> args;
-        private final BuildLog runLog = BuildLog.get().child("lexakai-runner");
-
-        LexakaiRunner(Path jarFile, List<String> args)
-        {
-            this.jarFile = jarFile;
-            this.args = args;
-        }
-
-        @Override
-        public void run() throws Exception
-        {
-            ClassLoader ldr = Thread.currentThread().getContextClassLoader();
-            try
-            {
-                URL[] url = new URL[]
-                {
-                    new URL("jar:" + jarFile.toUri().toURL() + "!/")
-                };
-                runLog.warn("Invoke lexakai reflectivly from " + url[0]);
-                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai",
-                        url, ldr))
-                {
-                    Thread.currentThread().setContextClassLoader(jarLoader);
-                    Class<?> what = jarLoader.loadClass(
-                            "com.telenav.lexakai.Lexakai");
-                    Method mth = what.getMethod("main", String[].class);
-                    runLog.info("Invoking lexakai " + mth + " on " + what
-                            .getName());
-                    mth.invoke(null, (Object) args.toArray(String[]::new));
-                    runLog.info("Lexakai done.");
-                }
-            }
-            finally
-            {
-                Thread.currentThread().setContextClassLoader(ldr);
-            }
-        }
+        return new LexakaiRunner(lexakaiJar(), args);
     }
 }

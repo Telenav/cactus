@@ -37,7 +37,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
+                "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -46,14 +46,31 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "git-pull-request", threadSafe = true)
 public class GitPullRequestMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "authentication-token", required = true)
+    @Parameter(property = "telenav.authentication-token", required = true)
     private String authenticationToken;
 
-    @Parameter(property = "title", required = true)
+    @Parameter(property = "telenav.title", required = true)
     private String title;
 
-    @Parameter(property = "body", required = true)
+    @Parameter(property = "telenav.body", required = true)
     private String body;
+
+    @Override
+    protected void execute(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    {
+        if (checkouts.isEmpty())
+        {
+            log.info("No checkouts matched.");
+            return;
+        }
+
+        for (var checkout : checkouts)
+        {
+            checkout.pullRequest(authenticationToken, title, body);
+        }
+    }
 
     @Override
     protected void onValidateParameters(BuildLog log, MavenProject project)
@@ -70,23 +87,6 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
         if (body.isBlank())
         {
             throw new RuntimeException("Must supply body");
-        }
-    }
-
-    @Override
-    protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
-    {
-        if (checkouts.isEmpty())
-        {
-            log.info("No checkouts matched.");
-            return;
-        }
-
-        for (var checkout : checkouts)
-        {
-            checkout.pullRequest(authenticationToken, title, body);
         }
     }
 }

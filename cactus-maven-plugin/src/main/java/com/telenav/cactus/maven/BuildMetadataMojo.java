@@ -60,14 +60,14 @@ public class BuildMetadataMojo extends BaseMojo
     /**
      * The relative path to the destination directory.
      */
-    @Parameter(property = "project-properties-dest",
-            defaultValue = "target/classes/project.properties")
-    private String projectPropertiesDest;
+    @Parameter(property = "telenav.project-properties-destination",
+               defaultValue = "target/classes/project.properties")
+    private String projectPropertiesDestination;
 
     /**
      * If true, log the contents of generated files.
      */
-    @Parameter(property = "verbose", defaultValue = "false")
+    @Parameter(property = "telenav.verbose", defaultValue = "false")
     private boolean verbose;
 
     @Override
@@ -79,7 +79,7 @@ public class BuildMetadataMojo extends BaseMojo
             return;
         }
         Path propsFile = project.getBasedir().toPath().resolve(
-                projectPropertiesDest);
+                projectPropertiesDestination);
         if (!Files.exists(propsFile.getParent()))
         {
             Files.createDirectories(propsFile.getParent());

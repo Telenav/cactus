@@ -25,6 +25,13 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -33,35 +40,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import javax.inject.Inject;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 /**
- * Performs the first steps of attempting to automatically merge a development
- * or feature branch into a stable branch - given a branch to merge, it will
- * create a new temporary branch from the stable branch, and merge the
- * development branch into it, failing if the merge creates conflicts.
+ * Performs the first steps of attempting to automatically merge a development or feature branch into a stable branch -
+ * given a branch to merge, it will create a new temporary branch from the stable branch, and merge the development
+ * branch into it, failing if the merge creates conflicts.
  * <p>
- * If it succeeds, the build will proceed, and MergeToBranchMojo (which shares
- * data with this one) can be configured as a packaging step (at any step after
- * tests run, really) to merge the temporary branches into the stable branch.
+ * If it succeeds, the build will proceed, and MergeToBranchMojo (which shares data with this one) can be configured as
+ * a packaging step (at any step after tests run, really) to merge the temporary branches into the stable branch.
  * </p><p>
- * The use case here is continuous builds which are set up to maintain a
- * "stable" branch, know about some set of "team" or feature branches, which
- * automatically update the stable branch from those branches if they are
- * mergeable and all tests pass, so developers working on other
- * branches/features have a stable source to merge from which incorporates the
- * work of their colleagues, and reduce the frequency/severity of "big bang"
- * merges.
+ * The use case here is continuous builds which are set up to maintain a "stable" branch, know about some set of "team"
+ * or feature branches, which automatically update the stable branch from those branches if they are mergeable and all
+ * tests pass, so developers working on other branches/features have a stable source to merge from which incorporates
+ * the work of their colleagues, and reduce the frequency/severity of "big bang" merges.
  * </p><p>
- * To do that, you will want to set up your pom files with a profile that
- * executes this mojo on the validate phase (or some very early phase in the
- * build), and execute the MergeToBranchMojo afterwards (which will never run if
- * the build fails).
+ * To do that, you will want to set up your pom files with a profile that executes this mojo on the validate phase (or
+ * some very early phase in the build), and execute the MergeToBranchMojo afterwards (which will never run if the build
+ * fails).
  * </p>
  *
  * @author Tim Boudreau
@@ -76,8 +71,10 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
 
     static final SharedDataKey<String> TEMP_BRANCH_KEY
             = SharedDataKey.of("tempBranch", String.class);
+
     static final SharedDataKey<GitCheckout[]> BRANCHED_REPOS_KEY
             = SharedDataKey.of(GitCheckout[].class);
+
     static final SharedDataKey<String> TARGET_BRANCH_KEY
             = SharedDataKey.of("mergeTo", String.class);
 
@@ -87,42 +84,40 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     /**
      * The stable branch to merge into.
      */
-    @Parameter(property = "stable-branch", defaultValue = "develop")
+    @Parameter(property = "telenav.stable-branch", defaultValue = "develop")
     private String stableBranch;
 
     /**
      * The branch to merge into the stable branch if the build succeeds.
      */
-    @Parameter(property = "merge-branch", required = true)
-    private String branchToMerge;
+    @Parameter(property = "telenav.merge-branch", required = true)
+    private String mergeBranch;
 
     /**
      * If true, merge and push to the remote stable branch on success.
      */
-    @Parameter(property = "push", defaultValue = "false")
+    @Parameter(property = "telenav.push", defaultValue = "false")
     private boolean push;
 
     /**
      * If true, log what will be done.
      */
-    @Parameter(property = "verbose", defaultValue = "true")
+    @Parameter(property = "telenav.verbose", defaultValue = "true")
     private boolean verbose;
 
     /**
-     * If true, allow some checkouts not to have a branch with the stable-branch
-     * name, and simply do not move them to a branch - this is primarily for
-     * testing.
+     * If true, allow some checkouts not to have a branch with the stable-branch name, and simply do not move them to a
+     * branch - this is primarily for testing.
      */
-    @Parameter(property = "ignore-no-stable-branch", defaultValue = "true")
+    @Parameter(property = "telenav.ignore-no-stable-branch", defaultValue = "true")
     private boolean ignoreNoStableBranch;
 
     /**
-     * If true, perform a <code>git fetch --all</code> on each repository before
-     * checking for and attempting to create branches. Continuous builds will
-     * want this always set to true, but it can slow things down for local
-     * testing of changes to this mojo.
+     * If true, perform a <code>git fetch --all</code> on each repository before checking for and attempting to create
+     * branches. Continuous builds will want this always set to true, but it can slow things down for local testing of
+     * changes to this mojo.
      */
-    @Parameter(property = "fetch-first", defaultValue = "false")
+    @Parameter(property = "telenav.fetch-first", defaultValue = "false")
     private boolean fetchFirst;
 
     private String tempBranch;
@@ -136,24 +131,9 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     }
 
     @Override
-    protected void onValidateParameters(BuildLog log, MavenProject project)
-            throws Exception
-    {
-        validateBranchName(branchToMerge, false);
-        validateBranchName(stableBranch, false);
-        tempBranch = branchToMerge + "_" + stableBranch + "_" + Long.toString(
-                System.currentTimeMillis(), 36)
-                + "_" + Long
-                        .toString(ThreadLocalRandom.current().nextLong(), 36);
-        sharedData.put(TEMP_BRANCH_KEY, tempBranch);
-        sharedData.put(TARGET_BRANCH_KEY, stableBranch);
-        log.info("Temporary branch name " + tempBranch);
-    }
-
-    @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
         if (fetchFirst)
         {
@@ -171,12 +151,12 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
             {
                 branchesToCreateFrom.put(checkout, br);
             });
-            branches.find(branchToMerge, true).ifPresentOrElse(br ->
+            branches.find(mergeBranch, true).ifPresentOrElse(br ->
             {
                 branchesToMerge.put(checkout, br);
             }, () ->
             {
-                branches.find(branchToMerge, false).ifPresent(remoteBranch ->
+                branches.find(mergeBranch, false).ifPresent(remoteBranch ->
                 {
                     branchesToMerge.put(checkout, remoteBranch);
                 });
@@ -192,7 +172,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
         if (branchesToMerge.isEmpty())
         {
             // Should this fail, or just end execution?
-            fail("Did not find any branches named '" + branchToMerge + "' in " + checkouts);
+            fail("Did not find any branches named '" + mergeBranch + "' in " + checkouts);
         }
         if (verbose)
         {
@@ -203,7 +183,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
                 if (merge != null)
                 {
                     log.warn(
-                            co.name() + ":\tcreate " + tempBranch + " merging " + branchToMerge + " into " + stableBranch);
+                            co.name() + ":\tcreate " + tempBranch + " merging " + mergeBranch + " into " + stableBranch);
                 }
             });
         }
@@ -236,7 +216,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
                 }
                 else
                 {
-//                    fail("Failed to merge " + target + " into " + tempBranch);
+                    //                    fail("Failed to merge " + target + " into " + tempBranch);
                     log
                             .warn("Failed to merge " + target + " into " + tempBranch);
                 }
@@ -244,6 +224,21 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
         }
         sharedData.put(BRANCHED_REPOS_KEY, successfullyMerged.toArray(
                 GitCheckout[]::new));
+    }
+
+    @Override
+    protected void onValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
+    {
+        validateBranchName(mergeBranch, false);
+        validateBranchName(stableBranch, false);
+        tempBranch = mergeBranch + "_" + stableBranch + "_" + Long.toString(
+                System.currentTimeMillis(), 36)
+                + "_" + Long
+                .toString(ThreadLocalRandom.current().nextLong(), 36);
+        sharedData.put(TEMP_BRANCH_KEY, tempBranch);
+        sharedData.put(TARGET_BRANCH_KEY, stableBranch);
+        log.info("Temporary branch name " + tempBranch);
     }
 
     private void fetchAll(List<GitCheckout> checkouts, BuildLog log)
