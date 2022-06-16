@@ -272,6 +272,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
     {
         for (GitCheckout co : checkouts)
         {
+            log().info("Fetch all in " + co.name());
             co.fetchAll();
         }
     }
@@ -452,6 +453,39 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         }
     }
 
+    private static final class PullOnlyBranchingBehavior extends BranchingBehavior
+    {
+        public PullOnlyBranchingBehavior(ProjectTree tree, GitCheckout checkout,
+                BuildLog log, String targetBranch)
+        {
+            super(tree, checkout, log, targetBranch, true, false, false);
+        }
+
+        @Override
+        void validate(Collection<? super String> problems) throws Exception
+        {
+            // do nothing
+        }
+
+        @Override
+        protected boolean performBranchChange()
+        {
+            if (checkout.needsPull())
+            {
+                log.info(
+                        "Pull " + checkout.name() + " on " + targetBranch);
+                checkout.pull();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean isNoOp()
+        {
+            return true;
+        }
+    }
+
     private static final class FailureBranchingBehavior extends BranchingBehavior
     {
         private final String failure;
@@ -507,7 +541,8 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         protected void onPostRun() throws Exception
         {
             // We may be back on a branch, but behind the fetch head, so pull.
-            if (checkout.needsPull()) {
+            if (checkout.needsPull())
+            {
                 checkout.pull();
             }
             if (!isUpdateRoot())
@@ -741,6 +776,11 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                     // Our checkout is already on some branch
                     if (current.get().equals(base))
                     {
+                        if (checkout.needsPull())
+                        {
+                            return new PullOnlyBranchingBehavior(tree, checkout,
+                                    log, this.baseBranch);
+                        }
                         // We're already on the right branch - do nothing
                         return new DoNothingBranchingBehavior(tree, checkout,
                                 log, this.baseBranch);
@@ -771,6 +811,11 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             if (current.isPresent() && current.get().name().equals(
                     realTargetBranch))
             {
+                if (checkout.needsPull())
+                {
+                    return new PullOnlyBranchingBehavior(tree, checkout, log,
+                            this.baseBranch);
+                }
                 // We are already on the right branch, so do nothing
                 return new DoNothingBranchingBehavior(tree, checkout, log,
                         targetBranch);
@@ -809,6 +854,11 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                         if (current.isPresent() && current.get().name().equals(
                                 baseBranch))
                         {
+                            if (checkout.needsPull())
+                            {
+                                return new PullOnlyBranchingBehavior(tree,
+                                        checkout, log, this.baseBranch);
+                            }
                             // If already on the base branch, do nothing
                             return new DoNothingBranchingBehavior(tree, checkout,
                                     log, baseBranch);
