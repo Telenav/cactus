@@ -22,7 +22,7 @@
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
     <name>cactus</name>
-    <version>1.4.7</version>
+    <version>1.4.8</version>
 
     <packaging>pom</packaging>
 
@@ -57,6 +57,13 @@
     <!-- Properties -->
 
     <properties>
+        <!-- Cactus -->
+
+        <cactus.version>1.4.8</cactus.version>
+
+        <!-- If manually set to true with -D, after a deploy to maven central, the release
+             will be automatic without requiring a website visit -->
+        <release.on.close>false</release.on.close>
 
         <!-- Java -->
 
@@ -81,7 +88,6 @@
         <mastfrog.version>2.8.1</mastfrog.version>
 
         <lexakai.prev.version>1.0.7</lexakai.prev.version>
-        <cactus.version>1.4.7</cactus.version>
         <slf4j.version>1.7.36</slf4j.version>
         
         <junit5.version>5.8.2</junit5.version>
@@ -296,7 +302,7 @@
                     <configuration>
                         <serverId>ossrh</serverId>
                         <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        <autoReleaseAfterClose>${release.on.close>}</autoReleaseAfterClose>
                     </configuration>
                 </plugin>
 
