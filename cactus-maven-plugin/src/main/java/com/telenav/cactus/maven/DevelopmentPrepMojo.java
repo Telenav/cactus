@@ -38,6 +38,7 @@ import java.util.Optional;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import static com.telenav.cactus.maven.git.GitCheckout.isGitCommitId;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -553,13 +554,16 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             {
                 withSubmoduleRoot(subroot ->
                 {
-                    log.info(
-                            "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
-                    checkout.submoduleRelativePath().ifPresent(path ->
+                    if (!isGitCommitId(targetBranch))
                     {
-                        subroot.setSubmoduleBranch(path.toString(),
-                                targetBranch);
-                    });
+                        log.info(
+                                "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
+                        checkout.submoduleRelativePath().ifPresent(path ->
+                        {
+                            subroot.setSubmoduleBranch(path.toString(),
+                                    targetBranch);
+                        });
+                    }
                 });
             }
             else
@@ -607,14 +611,17 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             {
                 withSubmoduleRoot(subroot ->
                 {
-                    log.info(
-                            "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
-                    checkout.submoduleRelativePath().ifPresent(path ->
+                    if (!isGitCommitId(targetBranch))
                     {
-                        subroot
-                                .setSubmoduleBranch(path.toString(),
-                                        targetBranch);
-                    });
+                        log.info(
+                                "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
+                        checkout.submoduleRelativePath().ifPresent(path ->
+                        {
+                            subroot
+                                    .setSubmoduleBranch(path.toString(),
+                                            targetBranch);
+                        });
+                    }
                 });
             }
             else
