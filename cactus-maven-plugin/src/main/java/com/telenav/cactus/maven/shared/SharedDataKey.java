@@ -43,9 +43,11 @@ public final class SharedDataKey<T> {
         return new SharedDataKey<>(type, name);
     }
 
-    public static <T> SharedDataKey<T> of(Class<T> type)
+    @SuppressWarnings("unchecked")
+    public static <T> SharedDataKey<T> of(Class<? super T> type)
     {
-        return of(type.getName(), type);
+        // use ? super T so we can pass List for List<Foo>, etc.
+        return of(type.getName(), (Class<T>) type);
     }
 
     public <R> Optional<T> cast(R obj)

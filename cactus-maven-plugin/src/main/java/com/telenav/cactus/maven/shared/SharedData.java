@@ -15,12 +15,12 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.shared;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import javax.inject.Singleton;
 
 /**
@@ -52,5 +52,17 @@ public final class SharedData
     public <T> Optional<T> remove(SharedDataKey<T> key)
     {
         return key.cast(contents.remove(key));
+    }
+
+    public <T> T computeIfAbsent(SharedDataKey<T> key, Supplier<T> supp)
+    {
+        Optional<T> result = get(key);
+        if (!result.isPresent())
+        {
+            T obj = supp.get();
+            put(key, obj);
+            return obj;
+        }
+        return result.get();
     }
 }

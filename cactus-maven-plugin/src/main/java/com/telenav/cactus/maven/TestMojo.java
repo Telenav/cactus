@@ -15,16 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.shared.SharedData;
+import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.nio.file.Path;
-import java.util.Optional;
-import org.apache.maven.plugin.MojoFailureException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -44,78 +46,97 @@ public class TestMojo extends BaseMojo
     @Parameter(property = "telenav.thing", defaultValue = "not really a thing")
     private String thing;
 
-    @Override
-    public void performTasks(BuildLog buildLog, MavenProject project) throws Exception
+    private static final SharedDataKey<ProjectTree> TREE_KEY = SharedDataKey.of(
+            ProjectTree.class);
+    private static final SharedDataKey<Set<FamilyAndScope>> SEEN_KEY = SharedDataKey
+            .of(
+                    Set.class);
+
+    @Inject
+    SharedData shared;
+
+    private ProjectTree tree(MavenProject prj)
     {
-        buildLog.child("blee").child("blah").child("blorg").info(
-                "This is the build log:");
+        // Cache this, as creating the tree is _very_ expensive.
+        return shared.computeIfAbsent(TREE_KEY, () -> ProjectTree.from(prj)
+                .get());
+    }
 
-        buildLog.info(
-                "\n--------------------- Cactus Maven Plugin Says ---------------------");
-        buildLog.info("You are building " + project.getGroupId() + ":"
-                + project.getArtifactId() + ":" + project.getVersion());
-        buildLog.info("The thing is '" + thing + "'");
+    private boolean seen(ProjectFamily family, Scope scope, GitCheckout co)
+    {
+        FamilyAndScope test = new FamilyAndScope(scope, family, co);
+        Set<FamilyAndScope> set = shared.computeIfAbsent(SEEN_KEY, HashSet::new);
+        return !set.add(test);
+    }
 
-        if (true)
+    @Override
+    public void performTasks(BuildLog log, MavenProject project) throws Exception
+    {
+        ProjectTree tree = tree(project);
+        GitCheckout co = GitCheckout.repository(project.getBasedir()).get();
+        ProjectFamily family = ProjectFamily.of(project);
+        for (Scope scope : Scope.values())
         {
-            return;
-        }
-
-        Optional<GitCheckout> repoOpt = GitCheckout.repository(project
-                .getBasedir());
-        if (!repoOpt.isPresent())
-        {
-            throw new MojoFailureException("Uh oh, no git in " + project
-                    .getBasedir());
-        }
-        GitCheckout repo = repoOpt.get();
-
-        buildLog.error("Remotes: " + repo.defaultRemote().get());
-
-        buildLog.error("Branches:\n" + repo.branches());
-        buildLog.error("Remote Names:\n" + repo.remoteProjectNames());
-
-        buildLog.info("You are on branch: " + repo.branch());
-        buildLog.info("Submodule root: " + repo.submoduleRoot());
-
-        buildLog.info("Submodules:");
-        repo.submodules().ifPresent(subs ->
-        {
-            subs.forEach(sub ->
+            if (seen(family, scope, co))
             {
-                buildLog.info(" * " + sub);
-                buildLog.info("   * " + sub.repository().get().branch()
-                        + " dirty? " + sub.repository().get()
-                                .hasUncommitedChanges());
-                sub.repository().ifPresent(re ->
+                continue;
+            }
+            log.info(
+                    "------------- " + scope + " " + family + " --------------");
+            List<GitCheckout> matched = scope.matchCheckouts(tree, co, true,
+                    family, project.getGroupId());
+            for (GitCheckout gc : matched)
+            {
+                String nm = gc.name();
+                if (nm.isEmpty())
                 {
-                    System.out.println("  * " + re.remoteProjectNames());
-                    re.scanForPomFiles(pom ->
-                    {
-                        Path relPath = re.checkoutRoot().relativize(pom
-                                .getParent());
-                        buildLog.info(
-                                "    * " + (relPath.toString().length() == 0
-                                            ? "(root)"
-                                            : relPath.toString()));
-                        Pom.from(pom).ifPresent(info ->
-                        {
-                            buildLog.info("      * " + info);
-                        });
-                    });
-                });
-            });
-        });
+                    nm = "(root)";
+                }
+                System.out.println("  * " + nm);
+            }
+        }
+    }
 
-        // ProjectTree is pretty well the thing that can tell us *everything* about
-        // the entire checkout environment we're in - and caches results of running
-        // git so it's fast (you can invalidate it if you need to).
-        ProjectTree.from(project.getBasedir().toPath()).ifPresent(tree ->
+    private static final class FamilyAndScope
+    {
+        private final Scope scope;
+        private final ProjectFamily family;
+        private final GitCheckout checkout;
+
+        public FamilyAndScope(Scope scope, ProjectFamily family,
+                GitCheckout checkout)
         {
-            buildLog.warn("Root: " + tree.root());
-        });
+            this.scope = scope;
+            this.family = family;
+            this.checkout = checkout;
+        }
 
-        buildLog.info(
-                "---------------------------------------------------------------------\n");
+        @Override
+        public int hashCode()
+        {
+            int hash = 7;
+            hash = 97 * hash + Objects.hashCode(this.scope);
+            hash = 97 * hash + Objects.hashCode(this.family);
+            hash = 97 * hash + Objects.hashCode(this.checkout);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final FamilyAndScope other = (FamilyAndScope) obj;
+            if (this.scope != other.scope)
+                return false;
+            if (!Objects.equals(this.family, other.family))
+                return false;
+            return Objects.equals(this.checkout, other.checkout);
+        }
+
     }
 }

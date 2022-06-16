@@ -85,7 +85,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = "create-branches",
             defaultValue = "false")
-    boolean createBranchesIfNeeded = false;
+    boolean createBranchesIfNeeded;
 
     /**
      * If true, update <code>.gitmodules</code> in the submodule root to spell
@@ -93,8 +93,8 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
      * commit in it.
      */
     @Parameter(property = "update-root",
-            defaultValue = "false")
-    boolean updateRoot = false;
+            defaultValue = "true")
+    boolean updateRoot = true;
 
     /**
      * If we create new branches, push them to the remote immediately.
@@ -182,20 +182,9 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         // Ensure we don't have any assets projects which have their own
         // branching scheme
         checkouts.removeAll(tree.nonMavenCheckouts());
-        // If we are going to update the root, then ensure it's included
-        // in the set of repos;  if we're definitely not going to, then
-        // ensure it's NOT there.
-        if (updateRoot)
-        {
-            if (!checkouts.contains(tree.root()))
-            {
-                checkouts.add(0, tree.root());
-            }
-        }
-        else
-        {
-            checkouts.remove(tree.root());
-        }
+        // Ensure that we either definitely do or definitely don't have
+        // the submodule root, depending on the value of updateRoot
+        includeOrRemoveRoot(checkouts, tree);
         // Perform a git fetch --all to ensure our branch lists are up-to-date
         if (fetchFirst)
         {
@@ -246,15 +235,60 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         // changes to the refs pointed to by the submodule parent only after
         // we have fully updated .gitmodules)
         Collections.reverse(changers);
+        // This will update the submodule root, and set .gitmodules to point to
+        // the right place if we're updating the root.
         for (BranchingBehavior beh : changers)
         {
             beh.postRun();
+        }
+        if (push && updateRoot)
+        {
+            // Ensure we push our new branch if needed
+            switch (tree.root().needsPush())
+            {
+                case YES:
+                    log.info("Push submodule root");
+                    if (!isPretend())
+                    {
+                        tree.root().push();
+                    }
+                    break;
+                case REMOTE_BRANCH_DOES_NOT_EXIST:
+                    log.info("Push submodule root creating new branch "
+                            + tree.root().branch());
+                    if (!isPretend())
+                    {
+                        tree.root().pushCreatingBranch();
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void includeOrRemoveRoot(List<GitCheckout> checkouts,
+            ProjectTree tree)
+    {
+        // If we are going to update the root, then ensure it's included
+        // in the set of repos;  if we're definitely not going to, then
+        // ensure it's NOT there.
+        if (updateRoot)
+        {
+            if (!checkouts.contains(tree.root()))
+            {
+                checkouts.add(0, tree.root());
+            }
+        }
+        else
+        {
+            checkouts.remove(tree.root());
         }
     }
 
     private void validateBehaviorsCanRun(List<BranchingBehavior> changers)
             throws Exception, MojoExecutionException
     {
+        // Checks if there are local modifications or other reasons something
+        // would fail if we tried to make the changes
         List<String> problems = new ArrayList<>();
         for (BranchingBehavior beh : changers)
         {
@@ -423,11 +457,43 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         {
             return false;
         }
+
+        protected void updateRootCheckout() throws Exception
+        {
+            if (succeeded() && !isSubmoduleRoot())
+            {
+                withSubmoduleRoot(subroot ->
+                {
+                    if (!isGitCommitId(targetBranch))
+                    {
+                        log.info(
+                                "Update .gitmodules for " + checkout.name()
+                                + " -> " + targetBranch);
+                        checkout.submoduleRelativePath().ifPresent(path ->
+                        {
+                            subroot.setSubmoduleBranch(path.toString(),
+                                    targetBranch);
+                        });
+                    }
+                });
+            }
+            else
+                if (isSubmoduleRoot() && checkout.isDirty())
+                {
+                    log.info(
+                            "Generated local modifications in submodule root"
+                            + " - creating a commit");
+                    checkout.addAll();
+                    checkout.commit(
+                            "cactus-maven: Create or move branch " + targetBranch
+                            + " to new heads");
+                }
+        }
     }
 
-    private static final class DoNothingBranchingBehavior extends BranchingBehavior
+    private static final class DoNothing extends BranchingBehavior
     {
-        public DoNothingBranchingBehavior(ProjectTree tree, GitCheckout checkout,
+        public DoNothing(ProjectTree tree, GitCheckout checkout,
                 BuildLog log, String targetBranch)
         {
             super(tree, checkout, log, targetBranch, true, false, false);
@@ -443,7 +509,8 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         protected boolean performBranchChange()
         {
             log.info(
-                    "No change needed for " + checkout.name() + " -> " + targetBranch);
+                    "No change needed for " + checkout.name() + " -> "
+                    + targetBranch);
             return true;
         }
 
@@ -454,9 +521,9 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private static final class PullOnlyBranchingBehavior extends BranchingBehavior
+    private static final class PullOnly extends BranchingBehavior
     {
-        public PullOnlyBranchingBehavior(ProjectTree tree, GitCheckout checkout,
+        public PullOnly(ProjectTree tree, GitCheckout checkout,
                 BuildLog log, String targetBranch)
         {
             super(tree, checkout, log, targetBranch, true, false, false);
@@ -473,6 +540,9 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         {
             if (checkout.needsPull())
             {
+                // We need to pull to ensure that a branch which was on the
+                // right branch but behind some commits gets yanked up to
+                // the branch head.
                 log.info(
                         "Pull " + checkout.name() + " on " + targetBranch);
                 checkout.pull();
@@ -487,11 +557,11 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private static final class FailureBranchingBehavior extends BranchingBehavior
+    private static final class FailureBranching extends BranchingBehavior
     {
         private final String failure;
 
-        public FailureBranchingBehavior(ProjectTree tree, GitCheckout checkout,
+        public FailureBranching(ProjectTree tree, GitCheckout checkout,
                 BuildLog log, String targetBranch, boolean pretend,
                 String failure)
         {
@@ -512,11 +582,16 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             throw new MojoFailureException("Should not be called for " + this);
         }
 
+        @Override
+        protected void onPostRun() throws Exception
+        {
+            throw new MojoFailureException("Should not be called for " + this);
+        }
     }
 
-    private static final class SwitchToExistingLocalBranchBehavior extends BranchingBehavior
+    private static final class SwitchToExistingLocalBranch extends BranchingBehavior
     {
-        public SwitchToExistingLocalBranchBehavior(ProjectTree tree,
+        public SwitchToExistingLocalBranch(ProjectTree tree,
                 GitCheckout checkout, BuildLog log, String targetBranch,
                 boolean pretend, boolean allowLocalChangesIfPossible,
                 boolean updateRoot)
@@ -550,46 +625,25 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             {
                 return;
             }
-            if (succeeded() && !isSubmoduleRoot())
-            {
-                withSubmoduleRoot(subroot ->
-                {
-                    if (!isGitCommitId(targetBranch))
-                    {
-                        log.info(
-                                "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
-                        checkout.submoduleRelativePath().ifPresent(path ->
-                        {
-                            subroot.setSubmoduleBranch(path.toString(),
-                                    targetBranch);
-                        });
-                    }
-                });
-            }
-            else
-                if (isSubmoduleRoot() && checkout.isDirty())
-                {
-                    log.info(
-                            "Generated local modifications in submodule root - creating a commit");
-                    checkout.addAll();
-                    checkout.commit(
-                            "Create or move branch " + targetBranch + " to new heads");
-                }
+            updateRootCheckout();
         }
     }
 
-    private static final class CreateAndSwitchToBranchBehavior extends BranchingBehavior
+    private static final class CreateAndSwitchToBranch extends BranchingBehavior
     {
         private final String baseBranch;
+        private final boolean push;
 
-        public CreateAndSwitchToBranchBehavior(ProjectTree tree,
+        public CreateAndSwitchToBranch(ProjectTree tree,
                 GitCheckout checkout, BuildLog log, String targetBranch,
                 boolean pretend, String baseBranch,
-                boolean allowLocalChangesIfPossible, boolean updateRoot)
+                boolean allowLocalChangesIfPossible, boolean updateRoot,
+                boolean push)
         {
             super(tree, checkout, log, targetBranch, pretend,
                     allowLocalChangesIfPossible, updateRoot);
             this.baseBranch = baseBranch;
+            this.push = push;
         }
 
         @Override
@@ -603,36 +657,15 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         @Override
         protected void onPostRun() throws Exception
         {
+            if (push)
+            {
+                checkout.pushCreatingBranch();
+            }
             if (!isUpdateRoot())
             {
                 return;
             }
-            if (succeeded() && !isSubmoduleRoot())
-            {
-                withSubmoduleRoot(subroot ->
-                {
-                    if (!isGitCommitId(targetBranch))
-                    {
-                        log.info(
-                                "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
-                        checkout.submoduleRelativePath().ifPresent(path ->
-                        {
-                            subroot
-                                    .setSubmoduleBranch(path.toString(),
-                                            targetBranch);
-                        });
-                    }
-                });
-            }
-            else
-                if (isSubmoduleRoot() && checkout.isDirty())
-                {
-                    log.info(
-                            "Generated local modifications in submodule root - creating a commit");
-                    checkout.addAll();
-                    checkout.commit(
-                            "Create or move branch " + targetBranch + " to new heads");
-                }
+            updateRootCheckout();
         }
     }
 
@@ -733,7 +766,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             // so bypass all of the branch existence checking below and Just Do It,
             // and if it fails then the commit we're trying to doesn't exist and
             // the build fails here.
-            return new SwitchToExistingLocalBranchBehavior(tree, checkout, log,
+            return new SwitchToExistingLocalBranch(tree, checkout, log,
                     overrideBranchWith, isPretend(), permitLocalChanges,
                     updateRoot);
         }
@@ -743,14 +776,18 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         if (!baseOpt.isPresent())
         {
             // Do this so we can report ALL failures, not just bail out on
-            // the first one
-            return new FailureBranchingBehavior(tree, checkout, log,
+            // the first one.  The validate() method will apply our failure
+            // message, and the build will abort before any changes are made.
+            return new FailureBranching(tree, checkout, log,
                     baseBranch, isPretend(),
                     "No branch named '" + baseBranch + "' in " + checkout
                             .name() + ": " + br);
         }
         Branch base = baseOpt.get();
         Optional<Branch> current = br.currentBranch();
+        log.info("Base branch " + base + " current " + current + " create? " + createBranchesIfNeeded
+            + " base " + baseBranch + " target " + targetBranch);
+        // First case is we are just moving things to the base branch
         if (targetBranch == null)
         {
             // We are just trying to get on the "develop" or whatever the base is
@@ -760,7 +797,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                 // There is no local branch for "develop" or similar
                 if (createBranchesIfNeeded)
                 {
-                    return new FailureBranchingBehavior(tree, checkout, log,
+                    return new FailureBranching(tree, checkout, log,
                             baseBranch, isPretend(),
                             "No local branch '" + baseBranch
                             + "' and createBranchesIfNeeded is false - will not create it.");
@@ -768,10 +805,10 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                 else
                 {
                     // Create a local branch for the remote, e.g. refs/heads/develop
-                    return new CreateAndSwitchToBranchBehavior(tree, checkout,
+                    return new CreateAndSwitchToBranch(tree, checkout,
                             log,
                             this.baseBranch, isPretend(), base.trackingName(),
-                            permitLocalChanges, updateRoot);
+                            permitLocalChanges, updateRoot, push);
                 }
             }
             else
@@ -783,20 +820,22 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                     // Our checkout is already on some branch
                     if (current.get().equals(base))
                     {
+                        // Get us to the head of branch if we're not there
                         if (checkout.needsPull())
                         {
-                            return new PullOnlyBranchingBehavior(tree, checkout,
+                            return new PullOnly(tree, checkout,
                                     log, this.baseBranch);
                         }
+                        log.info("Use do nothing for '" + checkout.name() + "'");
                         // We're already on the right branch - do nothing
-                        return new DoNothingBranchingBehavior(tree, checkout,
+                        return new DoNothing(tree, checkout,
                                 log, this.baseBranch);
                     }
                     else
                     {
                         // We are not on the branch, but it does exist locally,
                         // so switch to it
-                        return new SwitchToExistingLocalBranchBehavior(tree,
+                        return new SwitchToExistingLocalBranch(tree,
                                 checkout, log, base.name(), isPretend(),
                                 permitLocalChanges, updateRoot);
                     }
@@ -805,7 +844,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                 {
                     // We are in detached head mode, but the local branch exists,
                     // so switch to it
-                    return new SwitchToExistingLocalBranchBehavior(tree,
+                    return new SwitchToExistingLocalBranch(tree,
                             checkout, log, base.name(), isPretend(),
                             permitLocalChanges, updateRoot);
                 }
@@ -820,11 +859,14 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             {
                 if (checkout.needsPull())
                 {
-                    return new PullOnlyBranchingBehavior(tree, checkout, log,
+                    // Get on the head of the target branch - we are on it but
+                    // not on the head commit
+                    return new PullOnly(tree, checkout, log,
                             this.baseBranch);
                 }
+                log.info("Use do nothing 2 for '" + checkout.name() + "' target " + realTargetBranch);
                 // We are already on the right branch, so do nothing
-                return new DoNothingBranchingBehavior(tree, checkout, log,
+                return new DoNothing(tree, checkout, log,
                         targetBranch);
             }
             // Look for a branch with teh right name, locally or remotely
@@ -836,7 +878,7 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                 if (existingTargetBranch.isLocal())
                 {
                     // Local branch exists - just switch to it
-                    return new SwitchToExistingLocalBranchBehavior(tree,
+                    return new SwitchToExistingLocalBranch(tree,
                             checkout, log,
                             realTargetBranch, isPretend(), permitLocalChanges,
                             updateRoot);
@@ -847,11 +889,11 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                     if (createBranchesIfNeeded)
                     {
                         // Create a new branch tracking the remote one
-                        return new CreateAndSwitchToBranchBehavior(tree,
+                        return new CreateAndSwitchToBranch(tree,
                                 checkout,
                                 log, realTargetBranch, isPretend(),
                                 existingTargetBranch.trackingName(),
-                                permitLocalChanges, updateRoot);
+                                permitLocalChanges, updateRoot, push);
                     }
                     else
                     {
@@ -863,16 +905,17 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                         {
                             if (checkout.needsPull())
                             {
-                                return new PullOnlyBranchingBehavior(tree,
+                                return new PullOnly(tree,
                                         checkout, log, this.baseBranch);
                             }
+                            log.info("Use do nothing 3 for '" + checkout.name() + "' current " + current.get());
                             // If already on the base branch, do nothing
-                            return new DoNothingBranchingBehavior(tree, checkout,
+                            return new DoNothing(tree, checkout,
                                     log, baseBranch);
                         }
                         // Just switch to the base branch, since we're not creating
                         // branches here
-                        return new SwitchToExistingLocalBranchBehavior(tree,
+                        return new SwitchToExistingLocalBranch(tree,
                                 checkout, log, baseBranch, isPretend(),
                                 permitLocalChanges, updateRoot);
                     }
@@ -884,10 +927,11 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                 // are creating, say, a new feature branch from scratch.
                 if (createBranchesIfNeeded)
                 {
-                    return new CreateAndSwitchToBranchBehavior(tree, checkout,
+                    // Create the new branch and switch to it
+                    return new CreateAndSwitchToBranch(tree, checkout,
                             log, realTargetBranch, isPretend(), base
                                     .trackingName(), permitLocalChanges,
-                            updateRoot);
+                            updateRoot, push);
 
                 }
                 else
@@ -897,12 +941,12 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                             baseBranch))
                     {
                         // Already on the right branch, do nothing
-                        return new DoNothingBranchingBehavior(tree, checkout,
+                        return new DoNothing(tree, checkout,
                                 log, baseBranch);
                     }
                     // Can't create a branch, and no branch to move to.
                     // Give up.
-                    return new FailureBranchingBehavior(tree, checkout, log,
+                    return new FailureBranching(tree, checkout, log,
                             targetBranch, isPretend(),
                             "Branch '" + targetBranch + "' "
                             + "does not exist locally or remotely, and "

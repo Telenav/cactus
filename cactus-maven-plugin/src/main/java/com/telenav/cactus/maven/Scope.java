@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -25,6 +24,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -130,7 +130,7 @@ public enum Scope
                         callingProjectsGroupId);
                 break;
             case JUST_THIS:
-                checkouts = Collections.singleton(callingProjectsCheckout);
+                checkouts = new HashSet<>(Arrays.asList(callingProjectsCheckout));
                 break;
             case ALL:
                 checkouts = new HashSet<>(tree.allCheckouts());
@@ -139,6 +139,7 @@ public enum Scope
             default:
                 throw new AssertionError(this);
         }
+        checkouts = new LinkedHashSet<>(checkouts);
         if (!includeRoot)
         {
             callingProjectsCheckout.submoduleRoot().ifPresent(checkouts::remove);

@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -628,26 +627,39 @@ public class ProjectTree
                         {
                             nonMavenCheckouts.add(repo);
                         }
+                        else
+                        {
+                            repo.pomFiles(false).forEach(path ->
+                            {
+                                cacheOnePomFile(path);
+
+                            });
+                        }
                     });
                 });
             });
 
             root.pomFiles(true).forEach(path ->
             {
-                Pom.from(path).ifPresent(info ->
+                cacheOnePomFile(path);
+            });
+        }
+
+        private void cacheOnePomFile(Path path)
+        {
+            Pom.from(path).ifPresent(info ->
+            {
+                Map<String, Pom> subcache
+                        = infoForGroupAndArtifact.computeIfAbsent(
+                                info.coords.groupId,
+                                id -> new HashMap<>());
+                subcache.put(info.coords.artifactId, info);
+                GitCheckout.repository(info.pom).ifPresent(co ->
                 {
-                    Map<String, Pom> subcache
-                            = infoForGroupAndArtifact.computeIfAbsent(
-                                    info.coords.groupId,
-                                    id -> new HashMap<>());
-                    subcache.put(info.coords.artifactId, info);
-                    GitCheckout.repository(info.pom).ifPresent(co ->
-                    {
-                        Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
-                                c -> new HashSet<>());
-//                        System.out.println("CACHE: " + info + " is in " + co.checkoutRoot().getFileName());
+                    Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
+                            c -> new HashSet<>());
+                    if (info.coords.toString().contains("lexakai"))
                         poms.add(info);
-                    });
                 });
             });
         }
