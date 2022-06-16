@@ -178,6 +178,9 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
             GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
+        // Ensure we don't have any assets projects which have their own
+        // branching scheme
+        checkouts.removeAll(tree.nonMavenCheckouts());
         // If we are going to update the root, then ensure it's included
         // in the set of repos;  if we're definitely not going to, then
         // ensure it's NOT there.
