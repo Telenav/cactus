@@ -23,7 +23,11 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
 /**
- *
+ * Policy that determines whether a BaseMojo's execution method should be
+ * run.  We have a lot of mojos which operate on one or more git checkouts,
+ * not per-project, and either need to be run at the start or end of a build.
+ * 
+ * @see RunPolicies
  * @author Tim Boudreau
  */
 public interface RunPolicy

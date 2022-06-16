@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.util;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -24,6 +23,8 @@ import java.util.Iterator;
 import java.util.Optional;
 
 /**
+ * Case insensitive matching of enums which allows for underscores to be
+ * replaced with hyphens.
  *
  * @author Tim Boudreau
  */

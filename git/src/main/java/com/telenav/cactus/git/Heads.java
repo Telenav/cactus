@@ -16,10 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.maven.git;
+package com.telenav.cactus.git;
 
 import com.mastfrog.util.strings.Strings;
-import com.telenav.cactus.maven.git.Heads.Head;
+import com.telenav.cactus.git.Heads.Head;
 
 import java.util.ArrayList;
 import java.util.Arrays;

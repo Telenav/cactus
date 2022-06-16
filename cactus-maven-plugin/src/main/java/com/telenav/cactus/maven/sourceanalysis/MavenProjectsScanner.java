@@ -34,7 +34,7 @@ import java.util.concurrent.ForkJoinPool;
  *
  * @author Tim Boudreau
  */
-public class MavenProjectsScanner
+public final class MavenProjectsScanner
 {
 
     private final ConcurrentLinkedList<Pom> poms;

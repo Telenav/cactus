@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- //
- // © 2011-2022 Telenav, Inc.
- // Licensed under Apache License, Version 2.0
- //
- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- -->
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+// Licensed under Apache License, Version 2.0
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -19,11 +19,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.telenav.cactus</groupId>    
+    <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
     <name>cactus</name>
     <version>1.4.7</version>
-    
+
     <packaging>pom</packaging>
 
     <!-- Project -->
@@ -49,15 +49,21 @@
         <module>cactus-metadata</module>
         <module>cactus-maven-model</module>
         <module>cactus-maven-plugin</module>
+        <module>mavenlog</module>
+        <module>git</module>
+        <module>cli</module>
     </modules>
 
     <!-- Properties -->
 
     <properties>
-        
+
         <!-- Java -->
 
         <java.version>11</java.version>
+
+        <!-- Mastfrog -->
+        <mastfrog.version>2.8.1</mastfrog.version>
 
         <!-- Maven -->
 
@@ -69,6 +75,16 @@
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+
+        <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
+        <maven.api.version>3.8.5</maven.api.version>
+        <mastfrog.version>2.8.1</mastfrog.version>
+
+        <lexakai.prev.version>1.0.7</lexakai.prev.version>
+        <cactus.version>1.4.7</cactus.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        
+        <junit5.version>5.8.2</junit5.version>
 
         <!-- NetBeans code formatting global options for all Java projects -->
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
@@ -116,6 +132,101 @@
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.allowConvertToStaticStarImport>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.allowConvertToStaticStarImport>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Cactus -->
+
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-maven-model</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>git</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-metadata</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>cli</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>mavenlog</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+
+            <!-- Mastfrog -->
+
+            <dependency>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>function</artifactId>
+                <version>${mastfrog.version}.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>concurrent</artifactId>
+                <version>${mastfrog.version}.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>util-strings</artifactId>
+                <version>${mastfrog.version}</version>
+            </dependency>
+
+            <!-- Maven -->
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${maven.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>${maven.plugin.plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven.api.version}</version>
+            </dependency>
+
+            <!-- Logging -->
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            
+            <!-- Testing -->
+            
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit5.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
     <!-- Publishing -->
 
     <distributionManagement>
@@ -131,7 +242,7 @@
     </distributionManagement>
 
     <build>
-        
+
         <!-- Resource Copying -->
 
         <resources>
@@ -151,7 +262,7 @@
                 </includes>
             </resource>
         </resources>
-        
+
         <testResources>
             <testResource>
                 <directory>src/test/java</directory>
@@ -192,7 +303,7 @@
                 <!-- Compiling -->
 
                 <plugin>
-                    
+
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
@@ -204,7 +315,7 @@
                             <compilerArgument>-Xlint:deprecation</compilerArgument>
                         </compilerArgs>
                     </configuration>
-                    
+
                 </plugin>
 
                 <!-- Building -->
@@ -229,12 +340,12 @@
                 <!-- Documentation -->
 
                 <plugin>
-                    
+
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
-                        
+
                         <show>public</show>
                         <source>11</source>
                         <detectJavaApiLink>false</detectJavaApiLink>
@@ -246,7 +357,7 @@
                             -notimestamp --show-module-contents all --show-packages
                             all --show-types private
                         </additionalOptions>
-                        
+
                     </configuration>
                     <executions>
                         <execution>
@@ -257,28 +368,28 @@
                             </goals>
                         </execution>
                     </executions>
-                    
+
                 </plugin>
 
             </plugins>
-            
+
         </pluginManagement>
-        
+
     </build>
 
     <!-- Profiles -->
 
     <profiles>
-        
+
         <!-- Attaching -->
 
         <profile>
             <id>attach-jars</id>
             <build>
                 <plugins>
-                    
+
                     <plugin>
-                        
+
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>${maven-source-plugin.version}</version>
@@ -290,16 +401,16 @@
                                 </goals>
                             </execution>
                         </executions>
-                        
+
                     </plugin>
-                    
+
                     <plugin>
-                        
+
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${maven-javadoc-plugin.version}</version>
                         <configuration>
-                            
+
                             <show>public</show>
                             <source>11</source>
                             <sourcepath>src/main/java</sourcepath>
@@ -311,7 +422,7 @@
                                 all --show-types private
                             </additionalOptions>
                             <destDir>target/attached-javadocs</destDir>
-                            
+
                         </configuration>
                         <executions>
                             <execution>
@@ -321,11 +432,11 @@
                                 </goals>
                             </execution>
                         </executions>
-                        
+
                     </plugin>
-                    
+
                 </plugins>
-                
+
             </build>
         </profile>
 
@@ -335,16 +446,16 @@
             <id>sign-artifacts</id>
             <build>
                 <plugins>
-                    
+
                     <plugin>
-                        
+
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${maven-gpg-plugin.version}</version>
                         <executions>
-                            
+
                             <execution>
-                                
+
                                 <id>sign-artifacts</id>
                                 <phase>verify</phase>
                                 <configuration>
@@ -356,18 +467,18 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
-                                
+
                             </execution>
-                            
+
                         </executions>
-                        
+
                     </plugin>
-                    
+
                 </plugins>
-                
+
             </build>
         </profile>
-        
+
     </profiles>
 
     <!-- OSSRH (Maven Central Staging) -->
@@ -400,7 +511,7 @@
         <developerConnection>scm:git:https://Telenav/cactus.git</developerConnection>
         <url>https://Telenav/cactus.git</url>
     </scm>
-    
+
     <url>https://www.kivakit.org</url>
 
     <!-- Issue Tracking -->
@@ -409,9 +520,9 @@
         <system>GitHub</system>
         <url>https://github.com/Telenav/cactus/issues</url>
     </issueManagement>
-    
+
     <inceptionYear>2021</inceptionYear>
-    
+
     <organization>
         <name>Telenav</name>
         <url>https://www.telenav.com</url>
@@ -420,9 +531,9 @@
     <!-- Contributors -->
 
     <developers>
-        
+
         <developer>
-            
+
             <id>jonathan</id>
             <name>Jonathan Locke (Luo Shibo)</name>
             <email>jonathanl@telenav.com</email>
@@ -432,11 +543,11 @@
                 <role>lead</role>
                 <role>administrator</role>
             </roles>
-            
+
         </developer>
-        
+
         <developer>
-            
+
             <id>haifeng</id>
             <name>Haifeng Zhu</name>
             <email>hfzhu@telenav.com</email>
@@ -446,9 +557,9 @@
                 <role>developer</role>
                 <role>administrator</role>
             </roles>
-            
+
         </developer>
-        
+
     </developers>
 
 </project>

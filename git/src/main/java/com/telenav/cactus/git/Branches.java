@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.maven.git;
+package com.telenav.cactus.git;
 
-import com.telenav.cactus.maven.git.Heads.Head;
+import com.telenav.cactus.git.Heads.Head;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

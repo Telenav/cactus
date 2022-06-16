@@ -20,7 +20,7 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.scope.Scope;
 import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;

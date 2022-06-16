@@ -16,12 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.maven.git;
+package com.telenav.cactus.git;
 
 import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.util.CliCommand;
-import com.telenav.cactus.maven.util.ProcessResultConverter;
+import com.telenav.cactus.cli.CliCommand;
+import com.telenav.cactus.cli.ProcessResultConverter;
 
 import java.nio.file.Path;
 import java.util.Arrays;

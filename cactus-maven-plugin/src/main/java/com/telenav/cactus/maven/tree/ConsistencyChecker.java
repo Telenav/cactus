@@ -19,7 +19,7 @@
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import org.apache.maven.project.MavenProject;

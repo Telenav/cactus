@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.maven.util;
+package com.telenav.cactus.cli;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import java.io.File;

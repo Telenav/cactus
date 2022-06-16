@@ -35,7 +35,7 @@ import java.util.zip.ZipInputStream;
  *
  * @author Tim Boudreau
  */
-public class CodeflowersIndexGenerator
+final class CodeflowersIndexGenerator
 {
 
     private final Path dir;

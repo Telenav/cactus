@@ -15,19 +15,17 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.sourceanalysis;
 
 import java.nio.file.Path;
 
 /**
- * A simple word count computer.
+ * A simple word count SourceScorer.
  *
  * @author Tim Boudreau
  */
 public class WordCount implements SourceScorer.StringSourceScorer
 {
-
     @Override
     public int score(Path path, String lines)
     {

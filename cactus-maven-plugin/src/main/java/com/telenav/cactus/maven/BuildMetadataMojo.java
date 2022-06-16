@@ -19,7 +19,7 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.metadata.BuildMetadata;
 import com.telenav.cactus.metadata.BuildMetadataUpdater;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.telenav.cactus.maven.git.GitCheckout.repository;
+import static com.telenav.cactus.git.GitCheckout.repository;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;

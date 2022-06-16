@@ -15,14 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.git;
+package com.telenav.cactus.git;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.util.preconditions.Exceptions;
-import com.telenav.cactus.maven.git.Branches.Branch;
+import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.util.PathUtils;
-import com.telenav.cactus.maven.util.ProcessResultConverter;
+import com.telenav.cactus.cli.PathUtils;
+import com.telenav.cactus.cli.ProcessResultConverter;
 
 import java.io.File;
 import java.io.IOException;

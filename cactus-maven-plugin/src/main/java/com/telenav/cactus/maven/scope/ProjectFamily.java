@@ -20,8 +20,8 @@ package com.telenav.cactus.maven.scope;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
-import com.telenav.cactus.maven.git.GitCheckout;
-import com.telenav.cactus.maven.util.PathUtils;
+import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.cli.PathUtils;
 import org.apache.maven.project.MavenProject;
 
 import java.nio.file.Path;

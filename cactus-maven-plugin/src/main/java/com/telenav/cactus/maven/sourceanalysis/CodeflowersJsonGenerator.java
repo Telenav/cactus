@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Tim Boudreau
  */
-public class CodeflowersJsonGenerator implements ProjectScanConsumer
+public final class CodeflowersJsonGenerator implements ProjectScanConsumer
 {
 
     private final String title;

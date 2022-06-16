@@ -18,8 +18,8 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.telenav.cactus.maven.git.GitCheckout;
-import com.telenav.cactus.maven.git.NeedPushResult;
+import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;

@@ -20,9 +20,9 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.util.strings.Strings;
-import com.telenav.cactus.maven.git.Branches;
-import com.telenav.cactus.maven.git.Branches.Branch;
-import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.git.Branches;
+import com.telenav.cactus.git.Branches.Branch;
+import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.Optional;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import static com.telenav.cactus.maven.git.GitCheckout.isGitCommitId;
+import static com.telenav.cactus.git.GitCheckout.isGitCommitId;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**

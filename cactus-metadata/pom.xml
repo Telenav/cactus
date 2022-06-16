@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- //
- // © 2011-2022 Telenav, Inc.
- // Licensed under Apache License, Version 2.0
- //
- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- -->
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+// Licensed under Apache License, Version 2.0
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
 
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -24,7 +24,7 @@
         The cactus-metadata project generates build metadata consumed by
         KivaKit and other projects.
     </description>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -37,7 +37,7 @@
             <!-- Create Executable JAR -->
 
             <plugin>
-                
+
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven-shade-plugin.version}</version>
@@ -47,9 +47,9 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        
+
                         <configuration>
-                            
+
                             <finalName>cactus-metadata-${project.version}</finalName>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
@@ -70,31 +70,31 @@
                                     <include>*:*</include>
                                 </includes>
                             </artifactSet>
-                            
+
                         </configuration>
-                        
+
                     </execution>
                 </executions>
-                
+
             </plugin>
 
             <!-- Create Build Metadata -->
 
             <plugin>
-                
+
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
-                    
+
                     <execution>
-                        
+
                         <id>project-metadata</id>
                         <phase>validate</phase>
                         <configuration>
-                            
+
                             <target name = "build-metadata">
-                                
+
                                 <property name = "project.groupId" value = "${project.groupId}"/>
                                 <property name = "project.artifactId" value = "${project.artifactId}"/>
                                 <property name = "project.version" value = "${project.version}"/>
@@ -122,16 +122,16 @@
                                         </echo>
                                     </else>
                                 </if>
-                                
+
                             </target>
-                            
+
                         </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        
+
                     </execution>
-                    
+
                 </executions>
                 <dependencies>
                     <dependency>
@@ -140,29 +140,26 @@
                         <version>20020829</version>
                     </dependency>
                 </dependencies>
-                
+
             </plugin>
-            
+
         </plugins>
-        
+
     </build>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

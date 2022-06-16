@@ -15,19 +15,19 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.shared;
 
 import com.mastfrog.util.preconditions.Checks;
 import java.util.Optional;
 
 /**
- * A key into an instance of SharedDate, which allows mojos to share data
- * within a run.
+ * A type-safe key into an instance of SharedDate, which allows mojos to share
+ * data within a run.
  *
  * @author Tim Boudreau
  */
-public final class SharedDataKey<T> {
+public final class SharedDataKey<T>
+{
 
     private final Class<T> type;
     private final String name;
@@ -69,7 +69,8 @@ public final class SharedDataKey<T> {
         if (o == this)
         {
             return true;
-        } else
+        }
+        else
         {
             if (o == null || o.getClass() != SharedDataKey.class)
             {

@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.sourceanalysis;
 
 import java.io.IOException;
@@ -23,14 +22,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
+ * Reads a file and generates an integer score for it.
  *
  * @author Tim Boudreau
  */
 public interface SourceScorer
 {
 
+    /**
+     * Score one file.
+     *
+     * @param path A file
+     * @return A score
+     * @throws IOException if something goes wrong
+     */
     int score(Path path) throws IOException;
 
+    /**
+     * Convenience scorer implementation that processes the file's content as a
+     * string.
+     */
     public interface StringSourceScorer extends SourceScorer
     {
 

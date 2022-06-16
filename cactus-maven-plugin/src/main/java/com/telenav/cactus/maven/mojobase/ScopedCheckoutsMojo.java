@@ -21,7 +21,7 @@ package com.telenav.cactus.maven.mojobase;
 import com.telenav.cactus.maven.scope.Scope;
 import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.mastfrog.util.strings.Strings;
-import com.telenav.cactus.maven.git.GitCheckout;
+import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;

@@ -60,6 +60,11 @@ public final class SharedData
         if (!result.isPresent())
         {
             T obj = supp.get();
+            if (obj == null)
+            {
+                throw new IllegalArgumentException("Supplier returned null: "
+                        + supp);
+            }
             put(key, obj);
             return obj;
         }
