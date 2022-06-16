@@ -506,6 +506,10 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         @Override
         protected void onPostRun() throws Exception
         {
+            // We may be back on a branch, but behind the fetch head, so pull.
+            if (checkout.needsPull()) {
+                checkout.pull();
+            }
             if (!isUpdateRoot())
             {
                 return;
