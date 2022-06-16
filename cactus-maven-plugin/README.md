@@ -1,6 +1,74 @@
 [//]: # (start-user-text)
 
+A set of Maven mojos specifically designed for working in environments where multiple
+trees of projects are joined together with a root bill-of-materials POM using Git
+submodules.
 
+Think of this development style as an extension to git-flow for large, multi-module
+sets of related projects.
+
+### Scopes and Families
+
+Most of the mojos here can have what they apply to controlled via the `telenav.scope` 
+property.  Unlike typical Maven mojos, these operate at the level of git checkouts - and
+(since many projects under an aggregator may be in the same repository) run _once_ at
+the end of a build cycle.
+
+A key concept is the "project family" - these are projects that have similar group ids -
+the same Maven group-id suffix, omitting any characters after the first `-` character - so
+com.foo.fooframework and com.foo.fooframework-extensions both are members of the family
+"fooframework".
+
+When the `family` scope is selected, mojos that match a family will operate on _all git
+submodules containing at least one maven project with a group-id in that family.
+
+You can manually pass `-Dtelenav.family=whatever` to override the default family detection
+mechinism (this is useful when making changes when running Maven against a root pom which
+has some other group-id).
+
+### What It's Good For
+
+These mojos simplify performing git operations identically across a tree of git submodules - 
+pull, checkout, branch, push or update all checkouts in a family (or all of them, period)
+at once.
+
+Say you want to execute a `git pull` across all submodules in the same family as the
+project you're in (and optionally the submodule root):
+
+```
+mvn -Dtelenav.scope=FAMILY -Dtelenav.update-root=true com.telenav.cactus:cactus-maven-plugin:pull
+```
+
+Or you want to generate a commit across all modified projects within the same project family:
+
+```
+mvn -Dtelenav.scope=FAMILY '-Dtelenav.commit-message=Initial v3.x modularization' \
+   -Dtelenav.update-root=true com.telenav.cactus:cactus-maven-plugin:commit
+```
+
+And push _all_ of your local changes:
+
+```
+mvn -Dtelenav.scope=ALL -Dtelenav.update-root=true com.telenav.cactus:cactus-maven-plugin:push
+```
+
+Or you have a fresh clone, and a bunch of submodules in "detached head" state, and you
+just want to get all of them onto the default development branch to do some coding (the default
+branch name is _develop_ - you can pass `-Dbase-branch=whatever` if you use something else):
+```
+mvn -Dtelenav.scope=ALL -Dupdate-root=true -Dpermit-local-changes=true \
+    com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+```
+
+Or, say you want to work on a new feature branch named `woovlesnorks`
+ - `cd` to the project directory of any project in the family you want to work on and run:
+
+```
+  mvn -Dtelenav.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
+    -Dtarget-branch=feature/woovlesnorks -Dpermit-local-changes=true \
+    -Dtelenav.update-root=true -Dpush=true \
+    com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+```
 
 [//]: # (end-user-text)
 
@@ -27,7 +95,7 @@ This module provides maven support for Telenav Open Source projects.
     <dependency>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-maven-plugin</artifactId>
-        <version>1.4.3</version>
+        <version>1.4.7</version>
     </dependency>
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>

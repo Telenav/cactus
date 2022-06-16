@@ -59,8 +59,50 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * feature branches for other git submodules in the same (or every) family</li>
  * </ul>
  * <p>
- *
+ * Like other mojos in this plugin, the set of repositories that are altered can
+ * be controlled by the <code>telenav.scope</code> property, to apply to all git
+ * repositories matching that scope - all subrepositories are scanned, and those
+ * containing maven projects matching the scope are selected.
  * </p>
+ * <p>
+ * Some useful one-liners using this mojo:
+ * </p>
+ * <ol>
+ * <li>
+ * Get all checkouts in the entire checkout tree down to the root git checkout
+ * onto the default development branch:
+ * <pre>
+ *
+ * mvn -Dtelenav.scope=all -Dupdate-root=true -Dpermit-local-changes=true \
+ *    com.telenav.cactus:cactus-maven-plugin:dev-prep
+ *
+ * </pre>
+ * </li>
+ * <li>Create a new feature branch named "feature/foo" for all projects in the
+ * same family as the one you're invoking maven against, and switch to it, also
+ * creating a branch in to submodule root, updating .gitmodules and pushing the
+ * new branches:
+ * <pre>
+ *
+ * mvn -Dtelenav.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
+ *      -Dpush=true -Dtarget-branch=feature/foo -Dpermit-local-changes=true \
+ *      com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+ *
+ * </pre></li>
+ * <li>Continuous-build use-case - you want to build <i>all</i> projects on a
+ * new pull request or commit - get everything on a known-stable branch except
+ * for one git submodule for which you're providing a separate PR branch name or
+ * commit id:
+ * <pre>
+ *
+ * mvn -Dtelenav.scope=FAMILY -Dcreate-branches=false \
+ *     -Dupdate-root=false -Doverride-branch-in=kivakit-stuff \
+ *     -Doverride-branch-with=$PULL_REQUEST_REF \
+ *      com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+ *
+ * </pre>
+ * </li>
+ * </ol>
  *
  * @author Tim Boudreau
  */
@@ -785,8 +827,9 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
         }
         Branch base = baseOpt.get();
         Optional<Branch> current = br.currentBranch();
-        log.info("Base branch " + base + " current " + current + " create? " + createBranchesIfNeeded
-            + " base " + baseBranch + " target " + targetBranch);
+        log.info(
+                "Base branch " + base + " current " + current + " create? " + createBranchesIfNeeded
+                + " base " + baseBranch + " target " + targetBranch);
         // First case is we are just moving things to the base branch
         if (targetBranch == null)
         {
@@ -864,7 +907,8 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                     return new PullOnly(tree, checkout, log,
                             this.baseBranch);
                 }
-                log.info("Use do nothing 2 for '" + checkout.name() + "' target " + realTargetBranch);
+                log.info(
+                        "Use do nothing 2 for '" + checkout.name() + "' target " + realTargetBranch);
                 // We are already on the right branch, so do nothing
                 return new DoNothing(tree, checkout, log,
                         targetBranch);
@@ -908,7 +952,9 @@ public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
                                 return new PullOnly(tree,
                                         checkout, log, this.baseBranch);
                             }
-                            log.info("Use do nothing 3 for '" + checkout.name() + "' current " + current.get());
+                            log.info(
+                                    "Use do nothing 3 for '" + checkout.name() + "' current " + current
+                                    .get());
                             // If already on the base branch, do nothing
                             return new DoNothing(tree, checkout,
                                     log, baseBranch);

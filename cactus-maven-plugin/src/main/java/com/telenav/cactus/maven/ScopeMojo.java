@@ -42,7 +42,7 @@ public abstract class ScopeMojo extends BaseMojo
      * <ul>
      * <li><code>all</code> &mdash; Operate on every git repository below the
      * <i>submodule-root</code> of any project this mojo is run against.</li>
-     * <li><code>all</code> &mdash; Operate on every git repository <b>that
+     * <li><code>all-java-projects</code> &mdash; Operate on every git repository <b>that
      * contains at least one <code>pom.xml</code> file</b>
      * <i>submodule-root</code> of any project this mojo is run against.</li>
      * <li><code>just_this</code> &mdash; Operate only on the git repository

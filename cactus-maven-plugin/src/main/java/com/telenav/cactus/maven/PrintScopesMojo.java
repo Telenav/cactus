@@ -34,7 +34,10 @@ import org.apache.maven.project.MavenProject;
 
 /**
  * For debugging - prints all members of each family for each possible scope; if
- * run against an aggregator project
+ * run against an aggregator project, does so once for each child project that
+ * is in a distinct family+repository combination. Pass
+ * <code>-Ddetail=true</code> to print out projects within a given checkout as
+ * well, for each family + scope + checkout.
  *
  * @author Tim Boudreau
  */
@@ -104,7 +107,9 @@ public class PrintScopesMojo extends BaseMojo
                 {
                     tree.projectsWithin(gc).forEach(prj ->
                     {
-                        if (ProjectFamily.fromGroupId(prj.coords.groupId).equals(family)) {
+                        if (ProjectFamily.fromGroupId(prj.coords.groupId)
+                                .equals(family))
+                        {
                             System.out.println("    * " + prj.coords);
                         }
                     });
