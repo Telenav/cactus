@@ -59,7 +59,7 @@ abstract class BaseMojo extends AbstractMojo
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
 
-    @Parameter(defaultValue = "${session}")
+    @Parameter(defaultValue = "${session}", readonly = true)
     private MavenSession mavenSession;
 
     protected BuildLog log;
@@ -304,7 +304,7 @@ abstract class BaseMojo extends AbstractMojo
         }
     }
 
-    protected void fail(String msg) throws MojoExecutionException
+    protected <T> T fail(String msg) throws MojoExecutionException
     {
         throw new MojoExecutionException(this, msg, msg);
     }

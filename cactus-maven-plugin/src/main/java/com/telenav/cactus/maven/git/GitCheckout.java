@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.git;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -139,7 +138,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     private static final ZoneId GMT = ZoneId.of("GMT");
 
-    public static int compareByDepth(GitCheckout a, GitCheckout b)
+    public static int depthFirstCompare(GitCheckout a, GitCheckout b)
     {
         int result = Integer.compare(b.checkoutRoot().getNameCount(),
                 a.checkoutRoot().getNameCount());
@@ -155,7 +154,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
             Collection<? extends GitCheckout> all)
     {
         List<GitCheckout> checkouts = new ArrayList<>(all);
-        checkouts.sort(GitCheckout::compareByDepth);
+        checkouts.sort(GitCheckout::depthFirstCompare);
         return checkouts;
     }
 
@@ -165,9 +164,30 @@ public final class GitCheckout implements Comparable<GitCheckout>
         List<Map.Entry<GitCheckout, R>> needingPush = new ArrayList<>(
                 pushTypeForCheckout.entrySet());
         // In case we have nested submodules, sort so we push deepest first
-        needingPush.sort((a, b) -> GitCheckout.compareByDepth(a.getKey(), b
+        needingPush.sort((a, b) -> GitCheckout.depthFirstCompare(a.getKey(), b
                 .getKey()));
         return needingPush;
+    }
+
+    public static boolean isGitCommitId(String what)
+    {
+        if (what == null)
+        {
+            return false;
+        }
+        if (what.length() != 40)
+        {
+            return false;
+        }
+        for (int i = 0; i < what.length(); i++)
+        {
+            char c = what.charAt(i);
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isGitFlowInstalled()

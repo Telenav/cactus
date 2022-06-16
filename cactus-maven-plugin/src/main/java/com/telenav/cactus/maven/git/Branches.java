@@ -221,6 +221,10 @@ public class Branches
     {
         return Optional.ofNullable(currentBranch);
     }
+    
+    public Optional<Branch> localOrRemoteBranch(String name) {
+        return find(name, true).or(() -> find(name, false));
+    }
 
     public Optional<Branch> find(String name, boolean local)
     {

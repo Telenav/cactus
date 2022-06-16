@@ -15,31 +15,51 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.throwing.ThrowingConsumer;
+import com.mastfrog.util.strings.Strings;
+import com.telenav.cactus.maven.git.Branches;
+import com.telenav.cactus.maven.git.Branches.Branch;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Gets the current checkout, or all checkouts containing projects with the current project's groupId, or all checkouts
- * in the entire tree - filtering them to only checkouts that contain a pom.xml in the root, and does one of:
+ * Multi-repo git branching swiss-army-knife. Uses:
  * <ul>
- * <li>If a branch is specified, ensures the checkout is on the head of that
- * branch, creating it if needed (and createBranchesIfNeeded is set)</li>
- * <li>If no branch is specified, attempts to find the branch the majority of
- * checkouts containing the same group id are on, and sets it to that, creating
- * it if needed</li>
+ * <li>You ran <code>git submodule update</code> and now you have a bunch of git
+ * submodules in "detached head" state - use this to get them all onto the head
+ * of a specific branch.</li>
+ * <li>You want to create a new feature-branch (or whatever branch) across a set
+ * of submodules, optionally creating them if needed</li>
+ * <li>You have a continuous build, and you want it to get all submodules onto a
+ * known branch, except for the one that received a pull request, which should
+ * end up on the commit corresponding to the pull request (use
+ * <code>override-branch-in</code> and <code>override-branch-with</code>)</li>
+ * <li>You just want to switch branches across a bunch of stuff and the branches
+ * already exist (at least remotely)</li>
+ * <li>You have a local feature branch, and need to fill out similarly named
+ * feature branches for other git submodules in the same (or every) family</li>
  * </ul>
+ * <p>
+ *
+ * </p>
  *
  * @author Tim Boudreau
  */
@@ -51,257 +71,781 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 public class DevelopmentPrepMojo extends ScopedCheckoutsMojo
 {
 
-    @Parameter(property = "telenav.auto-fix-branches", defaultValue = "false")
-    boolean autoFixBranches = false;
+    /**
+     * If true, perform a git fetch before testing for branch existence so that
+     * the set of remote branches is as accurate as possible.
+     */
+    @Parameter(property = "fetch-first",
+            defaultValue = "true")
+    private boolean fetchFirst;
 
-    @Parameter(property = "telenav.create-branches-if-needed",
-               defaultValue = "true")
-    boolean createBranchesIfNeeded = true;
+    /**
+     * If true, create branches if they do not exist.
+     */
+    @Parameter(property = "create-branches",
+            defaultValue = "false")
+    boolean createBranchesIfNeeded = false;
 
-    @Parameter(property = "telenav.branch", name = "branch")
-    String branchName;
+    /**
+     * If true, update <code>.gitmodules</code> in the submodule root to spell
+     * out the new branches for those checkouts that changed, and generate a
+     * commit in it.
+     */
+    @Parameter(property = "update-root",
+            defaultValue = "false")
+    boolean updateRoot = false;
 
-    @Parameter(property = "telenav.base-branch", defaultValue = "develop")
+    /**
+     * If we create new branches, push them to the remote immediately.
+     */
+    @Parameter(property = "push",
+            defaultValue = "false")
+    boolean push;
+
+    /**
+     * The target branch - this can either be an existing branch you want to get
+     * all of the checkouts on, or if createBranchesIfNeeded is true, you want
+     * to be created off the base branch.
+     * <p>
+     * If unset, the base branch is used as the target to get checkouts onto.
+     */
+    @Parameter(property = "target-branch", required = false)
+    String targetBranch;
+
+    /**
+     * The base branch which new feature-branches should be created from, and
+     * which, if createBranchesIfNeeded is false, should be used as the fallback
+     * branch to put checkouts on if the target branch does not exist.
+     */
+    @Parameter(property = "base-branch", defaultValue = "develop",
+            required = true)
     String baseBranch = "develop";
 
+    /**
+     * For buliding a PR in a continuous build, there will be one git submodule
+     * for which we may be passed a specific git commit ID we need to check out,
+     * rather than just putting it on the branch-head.
+     * <p>
+     * This is the submodule path that should be put on the commit identified by
+     * override-branch-with.
+     * </p>
+     */
+    @Parameter(property = "override-branch-in", required = false)
+    String overrideBranchSubmodule;
+
+    /**
+     * For buliding a PR in a continuous build, there will be one git submodule
+     * for which we may be passed a specific git commit ID we need to check out,
+     * rather than just putting it on the branch-head.
+     * <p>
+     * This is the branch name or commit ID the repo identified in
+     * override-branch-in should be updated to.
+     * </p>
+     */
+    @Parameter(property = "override-branch-with", required = false)
+    String overrideBranchWith;
+
+    /**
+     * If true, attempt to switch branches, even in the presence of local
+     * changes, if a local branch with the name of the target branch already
+     * exists. This can fail if the local changes depend on changes from a head
+     * other than the target branch's head commit. Ignored and the build files
+     * if there are local changes <i>and</i> the branch exists remotely but not
+     * locally.
+     */
+    @Parameter(property = "permit-local-changes",
+            defaultValue = "false")
+    boolean permitLocalChanges = false;
+
     @Override
-    protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
-    {
-
-        //        if (branchName != null)
-        //        {
-        //            ensureOnBranch(tree, log.child("branch-to:" + branchName), project, checkouts);
-        //        } else
-        //        {
-        //            ensureOnSomeConsistentBranch(tree, log.child("ensure-some-branch"), project);
-        //        }
-    }
-
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        validateBranchName(branchName, true);
+        validateBranchName(targetBranch, true);
         validateBranchName(baseBranch, false);
-    }
-    /*
-    private void ensureOnBranch(ProjectTree tree, BuildLog log, MavenProject project, List<GitCheckout> checkouts)
-            throws Exception
-    {
-        Map<GitCheckout, String> toMove;
-        if (thisCheckoutOnly)
+        validateBranchName(overrideBranchWith, true);
+        if ((overrideBranchWith == null) != (overrideBranchSubmodule == null))
         {
-            toMove = Collections.singletonMap(myCheckout, baseBranch);
-        } else
-        {
-            toMove = new TreeMap<>();
-            tree.allCheckouts().forEach(checkout ->
-            {
-                if (checkout.hasPomInRoot())
-                {
-                    Optional<String> currentBranch = tree.branchFor(checkout);
-                    if (thisGroupIdOnly)
-                    {
-                        if (!tree.groupIdsIn(checkout).contains(project.getGroupId()))
-                        {
-                            return;
-                        }
-                    }
-                    if (!currentBranch.isPresent() || !branchName.equals(currentBranch.get()))
-                    {
-                        System.out.println("ADD " + checkout.checkoutRoot().getFileName());
-                        toMove.put(checkout, branchName);
-                    }
-                }
-            });
-        }
-        if (!toMove.isEmpty())
-        {
-            // Once without doing anything, to fail-fast without changing any branches
-            moveCheckoutsToBranches(toMove, log, tree, true);
-            // And again to really do it, now that we know it can work
-            moveCheckoutsToBranches(toMove, log, tree, false);
-        } else
-        {
-            log.info("All checkouts already on the branch '" + branchName + "'");
+            fail("Either override-branch-in and override-branch-with must "
+                    + "BOTH be set, or neither, but have overrideBranchSubmodule="
+                    + overrideBranchSubmodule + " and overrideBranchWith="
+                    + overrideBranchWith);
         }
     }
 
-    private void ensureOnSomeConsistentBranch(ProjectTree tree, BuildLog log, MavenProject project)
-            throws Exception
+    @Override
+    protected void execute(BuildLog log, MavenProject project,
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        Map<GitCheckout, String> changes = new HashMap<>();
-        if (thisCheckoutOnly)
+        // If we are going to update the root, then ensure it's included
+        // in the set of repos;  if we're definitely not going to, then
+        // ensure it's NOT there.
+        if (updateRoot)
         {
-            if (!myCheckout.isDetachedHead())
+            if (!checkouts.contains(tree.root()))
             {
-                log.info("Single repo, already on a branch, nothing to do.");
-                return;
+                checkouts.add(0, tree.root());
             }
-            log.info("Single repo, not on a branch - will move to '"
-                    + baseBranch + "'.");
-            changes.put(myCheckout, baseBranch);
-        } else
+        }
+        else
         {
-            Predicate<GitCheckout> filter;
-            if (thisGroupIdOnly)
-            {
-                filter = checkout ->
-                {
-                    return tree.groupIdsIn(checkout).contains(project.getGroupId());
-                };
-            } else
-            {
-                filter = ignored -> true;
-            }
+            checkouts.remove(tree.root());
+        }
+        // Perform a git fetch --all to ensure our branch lists are up-to-date
+        if (fetchFirst)
+        {
+            fetchAll(checkouts);
+            // In case the tree was used before, dump any cached branch lists
+            tree.invalidateCache();
+        }
 
-            tree.allCheckouts().stream().filter(filter).filter(GitCheckout::hasPomInRoot).forEach(checkout ->
+        // Create a branch changer for each repo
+        List<BranchingBehavior> changers = new ArrayList<>();
+        // It may be that all repos are already in the desired state and there
+        // is nothing to do, so keep a count of how many repos will actually
+        // do something, so we can bail out doing nothing if there's really
+        // nothing to do.
+        int nonNoOpCount = 0;
+        for (GitCheckout co : checkouts)
+        {
+            BranchingBehavior behavior = branchChangerFor(tree, co,
+                    log);
+            changers.add(behavior);
+            // Ignore the submodule root - it will always want to do something
+            if (!behavior.isNoOp() && !behavior.isSubmoduleRoot())
             {
-                if (checkout.isSubmoduleRoot())
+                nonNoOpCount++;
+            }
+        }
+        if (nonNoOpCount == 0)
+        {
+            log.info("All checkouts already on branch "
+                    + (targetBranch == null
+                       ? baseBranch
+                       : targetBranch));
+            return;
+        }
+        // Make sure we apply our changes in deepest-first order, root checkout
+        // first
+        Collections.sort(changers);
+        // Fail fast before we make any changes here.
+        validateBehaviorsCanRun(changers);
+        // Do the thing.
+        for (BranchingBehavior beh : changers)
+        {
+            beh.run();
+        }
+        // Nuke any cached branch info
+        tree.invalidateCache();
+        // Post work happens in the opposite order, root-last (so we commit
+        // changes to the refs pointed to by the submodule parent only after
+        // we have fully updated .gitmodules)
+        Collections.reverse(changers);
+        for (BranchingBehavior beh : changers)
+        {
+            beh.postRun();
+        }
+    }
+
+    private void validateBehaviorsCanRun(List<BranchingBehavior> changers)
+            throws Exception, MojoExecutionException
+    {
+        List<String> problems = new ArrayList<>();
+        for (BranchingBehavior beh : changers)
+        {
+            beh.validate(problems);
+        }
+        if (!problems.isEmpty())
+        {
+            fail("Cannot change all branches to '" + (targetBranch == null
+                                                      ? baseBranch
+                                                      : targetBranch) + ":\n"
+                    + Strings.join("\n", problems));
+        }
+    }
+
+    private void fetchAll(List<GitCheckout> checkouts)
+    {
+        for (GitCheckout co : checkouts)
+        {
+            co.fetchAll();
+        }
+    }
+
+    private static abstract class BranchingBehavior implements
+            Comparable<BranchingBehavior>
+    {
+        protected final ProjectTree tree;
+        protected final GitCheckout checkout;
+        protected final BuildLog log;
+        protected final String targetBranch;
+        protected final boolean pretend;
+        private boolean succeeded;
+        private final boolean allowLocalChangesIfPossible;
+        private final boolean isRoot;
+        private final boolean updateRoot;
+
+        protected BranchingBehavior(ProjectTree tree, GitCheckout checkout,
+                BuildLog log, String targetBranch, boolean pretend,
+                boolean allowLocalChangesIfPossible, boolean updateRoot)
+        {
+            this.tree = tree;
+            this.checkout = checkout;
+            this.targetBranch = targetBranch;
+            this.pretend = pretend;
+            this.updateRoot = updateRoot;
+            this.allowLocalChangesIfPossible = allowLocalChangesIfPossible;
+            isRoot = checkout.equals(tree.root());
+            this.log = log.child(getClass().getSimpleName()).child(checkout
+                    .name());
+        }
+
+        protected final void withSubmoduleRoot(ThrowingConsumer<GitCheckout> c)
+                throws Exception
+        {
+            if (tree.root().isSubmoduleRoot())
+            {
+                c.accept(tree.root());
+            }
+        }
+
+        boolean isUpdateRoot()
+        {
+            return updateRoot;
+        }
+
+        boolean isRoot()
+        {
+            return isRoot;
+        }
+
+        boolean isSubmoduleRoot()
+        {
+            // We may be in a singleton checkout where there *is* not submodule root
+            return isRoot && checkout.isSubmoduleRoot();
+        }
+
+        GitCheckout checkout()
+        {
+            return checkout;
+        }
+
+        @Override
+        public String toString()
+        {
+            return getClass().getSimpleName() + "(" + checkout.name() + " -> "
+                    + targetBranch + ")";
+        }
+
+        boolean canTolerateLocalChanges()
+        {
+            return false;
+        }
+
+        void validate(Collection<? super String> problems) throws Exception
+        {
+            if ((!allowLocalChangesIfPossible || !canTolerateLocalChanges()) && tree
+                    .isDirty(checkout))
+            {
+                if (isSubmoduleRoot())
                 {
                     return;
                 }
-                Set<String> gids = tree.groupIdsIn(checkout);
-                System.out.println("   gits " + gids + " in " + checkout);
-                if (gids.size() > 1)
-                {
-                    String msg = "More than one group id in non-root checkout " + checkout
-                            + ".  Will not guess what branch to move this to.  "
-                            + "Explicitly specify a branch instead with "
-                            + "-Dtelenav.branch=someBranch";
-                    // Quietly throw:
-                    Exceptions.chuck(new MojoExecutionException(this, msg, msg));
-                } else
-                {
-                    if (gids.isEmpty())
-                    {
-                        // This should have already been filtered out, but throwing a
-                        // NoSuchElementException would be non-intuitive
-                        log.warn("No group ids at all for checkout " + checkout);
-                        return;
-                    }
-                }
-                Optional<String> targetBranch = tree.mostCommonBranchForGroupId(gids.iterator().next());
-                String target = targetBranch.orElse(baseBranch);
-                boolean needAdd = tree.isDetachedHead(checkout);
-                System.out.println("  detached head " + needAdd + " for " + checkout);
-                if (!needAdd)
-                {
-                    Optional<String> currentBranch = tree.branchFor(checkout);
-                    needAdd = !currentBranch.isPresent() || !target.equals(currentBranch.get());
-                }
-                if (needAdd)
-                {
-                    changes.put(checkout, target);
-                }
-            });
+                problems.add(
+                        "Have local changes in " + checkout.name()
+                        + " - cannot proceed to change to branch " + targetBranch);
+            }
         }
-        if (!changes.isEmpty())
+
+        String targetBranch()
         {
-            // Once to fail fast without making changes
-            moveCheckoutsToBranches(changes, log, tree, true);
-            // And once to make changes
-            moveCheckoutsToBranches(changes, log, tree, false);
-        } else
+            return targetBranch;
+        }
+
+        boolean succeeded()
         {
-            log.info("Nothing to do.");
+            return succeeded;
+        }
+
+        final void run() throws Exception
+        {
+            log.info(Strings.camelCaseToDelimited(getClass().getSimpleName(),
+                    ' ') + " " + checkout.name() + " -> " + targetBranch);
+            if (!pretend)
+            {
+                succeeded = performBranchChange();
+            }
+        }
+
+        protected abstract boolean performBranchChange() throws Exception;
+
+        final void postRun() throws Exception
+        {
+            if (succeeded() && !pretend)
+            {
+                onPostRun();
+            }
+        }
+
+        /**
+         * Called after the entire batch has run.
+         */
+        protected void onPostRun() throws Exception
+        {
+            // do nothing
+        }
+
+        @Override
+        public int compareTo(BranchingBehavior o)
+        {
+            // The root checkout comes first in this case
+            if (isRoot != o.isRoot)
+            {
+                if (isRoot)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            return -GitCheckout.depthFirstCompare(checkout, o.checkout());
+        }
+
+        public boolean isNoOp()
+        {
+            return false;
         }
     }
 
-    private void moveCheckoutsToBranches(Map<GitCheckout, String> targetBranchToMoveToForCheckout,
-            BuildLog childLog, ProjectTree tree, boolean pretend) throws MojoExecutionException
+    private static final class DoNothingBranchingBehavior extends BranchingBehavior
     {
-        if (!targetBranchToMoveToForCheckout.isEmpty())
+        public DoNothingBranchingBehavior(ProjectTree tree, GitCheckout checkout,
+                BuildLog log, String targetBranch)
         {
-            childLog.info("Have " + targetBranchToMoveToForCheckout.size()
-                    + " checkouts to change branches for");
+            super(tree, checkout, log, targetBranch, true, false, false);
+        }
 
-            Map<Path, String> submoduleBranchesToUpdate = new HashMap<>();
-            for (Map.Entry<GitCheckout, String> e : targetBranchToMoveToForCheckout.entrySet())
+        @Override
+        void validate(Collection<? super String> problems) throws Exception
+        {
+            // do nothing
+        }
+
+        @Override
+        protected boolean performBranchChange()
+        {
+            log.info(
+                    "No change needed for " + checkout.name() + " -> " + targetBranch);
+            return true;
+        }
+
+        @Override
+        public boolean isNoOp()
+        {
+            return true;
+        }
+    }
+
+    private static final class FailureBranchingBehavior extends BranchingBehavior
+    {
+        private final String failure;
+
+        public FailureBranchingBehavior(ProjectTree tree, GitCheckout checkout,
+                BuildLog log, String targetBranch, boolean pretend,
+                String failure)
+        {
+            super(tree, checkout, log, targetBranch, pretend, false, false);
+            this.failure = failure;
+        }
+
+        @Override
+        void validate(
+                Collection<? super String> problems) throws Exception
+        {
+            problems.add(failure);
+        }
+
+        @Override
+        protected boolean performBranchChange() throws Exception
+        {
+            throw new MojoFailureException("Should not be called for " + this);
+        }
+
+    }
+
+    private static final class SwitchToExistingLocalBranchBehavior extends BranchingBehavior
+    {
+        public SwitchToExistingLocalBranchBehavior(ProjectTree tree,
+                GitCheckout checkout, BuildLog log, String targetBranch,
+                boolean pretend, boolean allowLocalChangesIfPossible,
+                boolean updateRoot)
+        {
+            super(tree, checkout, log, targetBranch, pretend,
+                    allowLocalChangesIfPossible, updateRoot);
+        }
+
+        @Override
+        boolean canTolerateLocalChanges()
+        {
+            return true;
+        }
+
+        @Override
+        protected boolean performBranchChange() throws Exception
+        {
+            checkout.switchToBranch(targetBranch);
+            return true;
+        }
+
+        @Override
+        protected void onPostRun() throws Exception
+        {
+            if (!isUpdateRoot())
             {
-                GitCheckout checkout = e.getKey();
-                String branchToChangeTo = e.getValue();
-                if (autoFixBranches)
+                return;
+            }
+            if (succeeded() && !isSubmoduleRoot())
+            {
+                withSubmoduleRoot(subroot ->
                 {
-                    childLog.info("Move to branch '" + branchToChangeTo + "' for " + checkout);
-                    Branches branches = e.getKey().branches();
-                    Optional<Branch> branch = branches.find(branchToChangeTo, true);
-                    if (!branch.isPresent())
+                    log.info(
+                            "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
+                    checkout.submoduleRelativePath().ifPresent(path ->
                     {
-                        if (createBranchesIfNeeded)
-                        {
-                            if (checkout.hasUncommitedChanges() && !checkout.isSubmoduleRoot())
-                            {
-                                if (tree.branchFor(checkout).isPresent() && !tree.branchFor(checkout).get().equals(baseBranch))
-                                {
-                                    throw new MojoExecutionException("Cannot create a new branch named '"
-                                            + branchToChangeTo + " in " + checkout
-                                            + " because it contain uncommited changes.");
-                                }
-                            }
+                        subroot.setSubmoduleBranch(path.toString(),
+                                targetBranch);
+                    });
+                });
+            }
+            else
+                if (isSubmoduleRoot() && checkout.isDirty())
+                {
+                    log.info(
+                            "Generated local modifications in submodule root - creating a commit");
+                    checkout.addAll();
+                    checkout.commit(
+                            "Create or move branch " + targetBranch + " to new heads");
+                }
+        }
+    }
 
-                            boolean success = checkout.createAndSwitchToBranch(branchToChangeTo,
-                                    Optional.ofNullable(baseBranch), pretend);
-                            checkout.submoduleRelativePath().ifPresent(relativePath ->
-                            {
-                                submoduleBranchesToUpdate.put(relativePath, branchToChangeTo);
-                            });
-                            if (!success)
-                            {
-                                throw new MojoExecutionException("Create and switch to branch "
-                                        + branchToChangeTo + " failed for " + checkout);
-                            }
-                        } else
-                        {
-                            throw new MojoExecutionException("Local branch '"
-                                    + e.getValue() + "' does not exist for "
-                                    + e.getKey() + " and createBranchesIfNeeded is not set to true."
-                                    + " Cannot switch to that branch.");
-                        }
-                    } else
+    private static final class CreateAndSwitchToBranchBehavior extends BranchingBehavior
+    {
+        private final String baseBranch;
+
+        public CreateAndSwitchToBranchBehavior(ProjectTree tree,
+                GitCheckout checkout, BuildLog log, String targetBranch,
+                boolean pretend, String baseBranch,
+                boolean allowLocalChangesIfPossible, boolean updateRoot)
+        {
+            super(tree, checkout, log, targetBranch, pretend,
+                    allowLocalChangesIfPossible, updateRoot);
+            this.baseBranch = baseBranch;
+        }
+
+        @Override
+        protected boolean performBranchChange() throws Exception
+        {
+            checkout.createAndSwitchToBranch(targetBranch, Optional.of(
+                    baseBranch));
+            return true;
+        }
+
+        @Override
+        protected void onPostRun() throws Exception
+        {
+            if (!isUpdateRoot())
+            {
+                return;
+            }
+            if (succeeded() && !isSubmoduleRoot())
+            {
+                withSubmoduleRoot(subroot ->
+                {
+                    log.info(
+                            "Update .gitmodules for " + checkout.name() + " -> " + targetBranch);
+                    checkout.submoduleRelativePath().ifPresent(path ->
                     {
-                        boolean switched = pretend ? true : checkout.switchToBranch(branchToChangeTo);
-                        if (!switched)
-                        {
-                            throw new MojoExecutionException("Failed to switch to branch "
-                                    + branchToChangeTo + " in " + checkout);
-                        }
-                        checkout.submoduleRelativePath().ifPresent(relativePath ->
-                        {
-                            submoduleBranchesToUpdate.put(relativePath, branchToChangeTo);
-                        });
+                        subroot
+                                .setSubmoduleBranch(path.toString(),
+                                        targetBranch);
+                    });
+                });
+            }
+            else
+                if (isSubmoduleRoot() && checkout.isDirty())
+                {
+                    log.info(
+                            "Generated local modifications in submodule root - creating a commit");
+                    checkout.addAll();
+                    checkout.commit(
+                            "Create or move branch " + targetBranch + " to new heads");
+                }
+        }
+    }
+
+    private Optional<Branch> baseBranchFor(GitCheckout checkout,
+            ProjectTree tree)
+    {
+        Branches br = tree.branches(checkout);
+        return br.localOrRemoteBranch(baseBranch);
+    }
+
+    private String targetBranchFor(GitCheckout checkout)
+    {
+        String tb = targetBranch(checkout);
+        return tb == null
+               ? baseBranch
+               : tb;
+    }
+
+    private String targetBranch(GitCheckout checkout)
+    {
+        if (overrideBranchSubmodule != null && !checkout.isSubmoduleRoot())
+        {
+            String relPath = checkout.submoduleRelativePath().map(p -> p
+                    .toString()).orElse("---");
+            if (overrideBranchSubmodule.equals(checkout.name()) || relPath
+                    .equals(overrideBranchSubmodule))
+            {
+                return overrideBranchWith;
+            }
+        }
+        return targetBranch;
+    }
+
+    private boolean isOverrideCheckout(GitCheckout checkout)
+    {
+        if (overrideBranchSubmodule != null && (Objects.equals(targetBranch,
+                overrideBranchWith) || (targetBranch == null && baseBranch
+                        .equals(overrideBranchWith))))
+        {
+            // If the override target is exactly the same as the branch
+            // we would move to anyway, no need to bypass the existence
+            // checks
+            return false;
+        }
+        if (overrideBranchSubmodule != null && !checkout.isSubmoduleRoot())
+        {
+            String relPath = checkout.submoduleRelativePath().map(p -> p
+                    .toString()).orElse("---");
+            if (overrideBranchSubmodule.equals(checkout.name()) || relPath
+                    .equals(overrideBranchSubmodule))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private BranchingBehavior branchChangerFor(ProjectTree tree,
+            GitCheckout checkout, BuildLog log) throws Exception
+    {
+        // Okay, the states we have to deal with:
+        //  - Base branch neither exists remotely nor locally
+        //    - This is a hard fail - we don't have a branch to fork off of
+        //  - Base branch does not exist locally but does exist remotely
+        //    - This is okay, but we need to pass its target name when branching
+        //    - If target branch null, create local branch off remote and switch to it
+        //    - If target branch non-null and not same, create local branch off 
+        //      remote with target name and switch to it
+        //  - There is no target branch - base branch _is_ the target branch
+        //  - There is a target branch AND
+        //    - Target branch exists locally (and probably remotely)
+        //      - Just change to it
+        //    - Target branch exists remotely but not locally
+        //      - Create a new local branch off the remote
+        //    - Target branch neither exists remotely nor locally, but base
+        //      branch exists somewhere
+        //      - Create a new target branch off the base branch
+        //      - Push -u the new branch to the origin so tracking is set up
+        //
+        // Add to that that one submodule may be special and have its own branch
+        // or commit id we should move it to, which is not the same as the target
+        // everything else should land on.
+        //
+        // Root checkout handling is special and must be done FIRST initially
+        // (so we don't alter what checkout child repos are on that we've
+        // already changed), and LAST when calling onPostRun(), which may generate
+        // a commit in the submodule root repo if the child repos have moved or
+        // .gitmodules was updated
+
+        if (isOverrideCheckout(checkout))
+        {
+            // This checkout matches the value of overrideBranchSubmodule - we
+            // may have a commit id not a branch name to move to.
+            log.info("Have override ref for '" + checkout.name()
+                    + "' - bypassing checks and will attempt to blindly check out '"
+                    + overrideBranchWith + " (presumably a PR).  This may fail.");
+            // The override may be a git commit ID and not a branch name at all,
+            // so bypass all of the branch existence checking below and Just Do It,
+            // and if it fails then the commit we're trying to doesn't exist and
+            // the build fails here.
+            return new SwitchToExistingLocalBranchBehavior(tree, checkout, log,
+                    overrideBranchWith, isPretend(), permitLocalChanges,
+                    updateRoot);
+        }
+
+        Branches br = tree.branches(checkout);
+        Optional<Branch> baseOpt = baseBranchFor(checkout, tree);
+        if (!baseOpt.isPresent())
+        {
+            // Do this so we can report ALL failures, not just bail out on
+            // the first one
+            return new FailureBranchingBehavior(tree, checkout, log,
+                    baseBranch, isPretend(),
+                    "No branch named '" + baseBranch + "' in " + checkout
+                            .name() + ": " + br);
+        }
+        Branch base = baseOpt.get();
+        Optional<Branch> current = br.currentBranch();
+        if (targetBranch == null)
+        {
+            // We are just trying to get on the "develop" or whatever the base is
+            // branch
+            if (base.isRemote())
+            {
+                // There is no local branch for "develop" or similar
+                if (createBranchesIfNeeded)
+                {
+                    return new FailureBranchingBehavior(tree, checkout, log,
+                            baseBranch, isPretend(),
+                            "No local branch '" + baseBranch
+                            + "' and createBranchesIfNeeded is false - will not create it.");
+                }
+                else
+                {
+                    // Create a local branch for the remote, e.g. refs/heads/develop
+                    return new CreateAndSwitchToBranchBehavior(tree, checkout,
+                            log,
+                            this.baseBranch, isPretend(), base.trackingName(),
+                            permitLocalChanges, updateRoot);
+                }
+            }
+            else
+            {
+                // The base branch already exists locally, and that is what we
+                // are switching to.
+                if (current.isPresent())
+                {
+                    // Our checkout is already on some branch
+                    if (current.get().equals(base))
+                    {
+                        // We're already on the right branch - do nothing
+                        return new DoNothingBranchingBehavior(tree, checkout,
+                                log, this.baseBranch);
                     }
-                } else
+                    else
+                    {
+                        // We are not on the branch, but it does exist locally,
+                        // so switch to it
+                        return new SwitchToExistingLocalBranchBehavior(tree,
+                                checkout, log, base.name(), isPretend(),
+                                permitLocalChanges, updateRoot);
+                    }
+                }
+                else
                 {
-                    childLog.info("autoFixBranches is false - branch should be "
-                            + branchToChangeTo + " for " + checkout);
+                    // We are in detached head mode, but the local branch exists,
+                    // so switch to it
+                    return new SwitchToExistingLocalBranchBehavior(tree,
+                            checkout, log, base.name(), isPretend(),
+                            permitLocalChanges, updateRoot);
                 }
             }
-            if (!autoFixBranches && !pretend)
+        }
+        else
+        {
+            String realTargetBranch = targetBranchFor(checkout);
+            // We have a branch to switch to or create
+            if (current.isPresent() && current.get().name().equals(
+                    realTargetBranch))
             {
-                throw new MojoExecutionException(this, "Some checkouts need their branches changed, "
-                        + "but telenav.autoFixBranches is false",
-                        "Some checkouts need their branches changed: " + targetBranchToMoveToForCheckout);
+                // We are already on the right branch, so do nothing
+                return new DoNothingBranchingBehavior(tree, checkout, log,
+                        targetBranch);
             }
-            if (!pretend && targetBranchToMoveToForCheckout.containsKey(tree.root()))
+            // Look for a branch with teh right name, locally or remotely
+            Optional<Branch> target = br.localOrRemoteBranch(realTargetBranch);
+            if (target.isPresent())
             {
-                log.info("Updating .gitmodules.");
-                StringBuilder msg = new StringBuilder("Automated .gitmodules branch update moving");
-                for (Map.Entry<Path, String> e : submoduleBranchesToUpdate.entrySet())
+                // A branch with the right name exists somewhere
+                Branch existingTargetBranch = target.get();
+                if (existingTargetBranch.isLocal())
                 {
-                    tree.root().setSubmoduleBranch(e.getKey().toString(), e.getValue());
-                    msg.append("\n * ").append(e.getKey()).append(" to ").append(e.getValue());
+                    // Local branch exists - just switch to it
+                    return new SwitchToExistingLocalBranchBehavior(tree,
+                            checkout, log,
+                            realTargetBranch, isPretend(), permitLocalChanges,
+                            updateRoot);
                 }
-                if (tree.root().hasUncommitedChanges())
+                else
                 {
-                    log.info("Committing updated .gitmodules");
-                    tree.root().addAll();
-                    tree.root().commit(msg.toString());
+                    // Local branch does not exist but a remote one does.
+                    if (createBranchesIfNeeded)
+                    {
+                        // Create a new branch tracking the remote one
+                        return new CreateAndSwitchToBranchBehavior(tree,
+                                checkout,
+                                log, realTargetBranch, isPretend(),
+                                existingTargetBranch.trackingName(),
+                                permitLocalChanges, updateRoot);
+                    }
+                    else
+                    {
+                        // Remote branch exists, but we are not allowed to create
+                        // a new local branch, so we just switch to the
+                        // base branch we would otherwise create it off of
+                        if (current.isPresent() && current.get().name().equals(
+                                baseBranch))
+                        {
+                            // If already on the base branch, do nothing
+                            return new DoNothingBranchingBehavior(tree, checkout,
+                                    log, baseBranch);
+                        }
+                        // Just switch to the base branch, since we're not creating
+                        // branches here
+                        return new SwitchToExistingLocalBranchBehavior(tree,
+                                checkout, log, baseBranch, isPretend(),
+                                permitLocalChanges, updateRoot);
+                    }
                 }
-                tree.invalidateCache();
+            }
+            else
+            {
+                // The target branch does not exist locally OR remotely - we
+                // are creating, say, a new feature branch from scratch.
+                if (createBranchesIfNeeded)
+                {
+                    return new CreateAndSwitchToBranchBehavior(tree, checkout,
+                            log, realTargetBranch, isPretend(), base
+                                    .trackingName(), permitLocalChanges,
+                            updateRoot);
+
+                }
+                else
+                {
+                    // We are not allowed to create branches
+                    if (current.isPresent() && current.get().name().equals(
+                            baseBranch))
+                    {
+                        // Already on the right branch, do nothing
+                        return new DoNothingBranchingBehavior(tree, checkout,
+                                log, baseBranch);
+                    }
+                    // Can't create a branch, and no branch to move to.
+                    // Give up.
+                    return new FailureBranchingBehavior(tree, checkout, log,
+                            targetBranch, isPretend(),
+                            "Branch '" + targetBranch + "' "
+                            + "does not exist locally or remotely, and "
+                            + "createBranchesIfNeeded is false, so we"
+                            + "will not create it.");
+                }
             }
         }
     }
-     */
 }
