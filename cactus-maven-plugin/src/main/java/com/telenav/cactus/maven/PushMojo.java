@@ -79,8 +79,7 @@ public class PushMojo extends ScopedCheckoutsMojo
      * neglected, but there are occasions when it is desirable.
      */
     @Parameter(property = "telenav.permit.local.modifications",
-            defaultValue = "true",
-            name = "permit.local.modifications")
+            defaultValue = "true")
     private boolean permitLocalModifications;
 
     @Override
