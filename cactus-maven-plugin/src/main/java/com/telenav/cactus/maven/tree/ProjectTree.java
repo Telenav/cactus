@@ -658,8 +658,7 @@ public class ProjectTree
                 {
                     Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
                             c -> new HashSet<>());
-                    if (info.coords.toString().contains("lexakai"))
-                        poms.add(info);
+                    poms.add(info);
                 });
             });
         }

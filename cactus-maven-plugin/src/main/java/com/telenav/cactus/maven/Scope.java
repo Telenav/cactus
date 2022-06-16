@@ -69,11 +69,21 @@ public enum Scope
      */
     SAME_GROUP_ID,
     /**
+     * Operate on all checkouts which contain at least one pom.xml file.
+     */
+    ALL_JAVA_PROJECTS,
+    /**
      * Operate on all git submodules containing a root pom.xml within any
      * submodule below the root of the project tree the project maven was
      * invoked against lives in.
      */
     ALL;
+
+    @Override
+    public String toString()
+    {
+        return name().toLowerCase().replace('_', '-');
+    }
 
     public static Scope find(String prop) throws MojoExecutionException
     {
@@ -131,6 +141,9 @@ public enum Scope
                 break;
             case JUST_THIS:
                 checkouts = new HashSet<>(Arrays.asList(callingProjectsCheckout));
+                break;
+            case ALL_JAVA_PROJECTS:
+                checkouts = new HashSet<>(tree.allCheckouts());
                 break;
             case ALL:
                 checkouts = new HashSet<>(tree.allCheckouts());

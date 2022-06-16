@@ -33,18 +33,22 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
- * A place holder for testing stuff.
+ * For debugging - prints all members of each family for each possible scope; if
+ * run against an aggregator project
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.COMPILE,
         requiresDependencyResolution = ResolutionScope.COMPILE,
-        name = "do-something", threadSafe = true)
-public class TestMojo extends BaseMojo
+        name = "print-scopes", threadSafe = true)
+public class PrintScopesMojo extends BaseMojo
 {
-    @Parameter(property = "telenav.thing", defaultValue = "not really a thing")
-    private String thing;
+    /**
+     * If true, list each project underneath each checkout.
+     */
+    @Parameter(property = "detail", defaultValue = "false")
+    private boolean printProjects;
 
     private static final SharedDataKey<ProjectTree> TREE_KEY = SharedDataKey.of(
             ProjectTree.class);
@@ -53,7 +57,7 @@ public class TestMojo extends BaseMojo
                     Set.class);
 
     @Inject
-    SharedData shared;
+    private SharedData shared;
 
     private ProjectTree tree(MavenProject prj)
     {
@@ -81,8 +85,11 @@ public class TestMojo extends BaseMojo
             {
                 continue;
             }
-            log.info(
-                    "------------- " + scope + " " + family + " --------------");
+            System.out.println(
+                    "\n----- scope '" + scope + "' for family '" + family + "' in "
+                    + (co.name().isEmpty()
+                       ? "(root)"
+                       : co.name()) + " -----");
             List<GitCheckout> matched = scope.matchCheckouts(tree, co, true,
                     family, project.getGroupId());
             for (GitCheckout gc : matched)
@@ -93,6 +100,15 @@ public class TestMojo extends BaseMojo
                     nm = "(root)";
                 }
                 System.out.println("  * " + nm);
+                if (printProjects)
+                {
+                    tree.projectsWithin(gc).forEach(prj ->
+                    {
+                        if (ProjectFamily.fromGroupId(prj.coords.groupId).equals(family)) {
+                            System.out.println("    * " + prj.coords);
+                        }
+                    });
+                }
             }
         }
     }
@@ -137,6 +153,5 @@ public class TestMojo extends BaseMojo
                 return false;
             return Objects.equals(this.checkout, other.checkout);
         }
-
     }
 }
