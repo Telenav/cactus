@@ -256,12 +256,13 @@ public class LexakaiMojo extends BaseMojo
 
     Path output(MavenProject project)
     {
-        return GitCheckout.repository(project.getBasedir()).flatMap(repo
+        Path result = GitCheckout.repository(project.getBasedir()).flatMap(repo
                 -> outputFolder(project, repo).toOptional()
         ).orElseGet(
                 // Failover to generating under target/
                 () -> project.getBasedir().toPath().resolve("target").resolve(
                         "lexakai"));
+        return result.resolve("docs").resolve(project.getVersion());
     }
 
     ThrowingOptional<Path> outputFolder(MavenProject prj, GitCheckout checkout)
