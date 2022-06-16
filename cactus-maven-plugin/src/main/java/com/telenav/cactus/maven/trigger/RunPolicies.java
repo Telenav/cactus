@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.maven;
+package com.telenav.cactus.maven.trigger;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;

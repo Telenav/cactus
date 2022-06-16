@@ -18,6 +18,7 @@
 
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.git.Branches;
 import com.telenav.cactus.maven.git.Branches.Branch;
 import com.telenav.cactus.maven.git.GitCheckout;

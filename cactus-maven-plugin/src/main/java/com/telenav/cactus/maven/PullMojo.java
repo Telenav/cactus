@@ -15,9 +15,10 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
+import com.telenav.cactus.maven.scope.Scope;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -34,14 +35,16 @@ import java.util.stream.Collectors;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Performs a (careful) git pull on any checkouts in the tree that need it, scoped to project family, all, just this
- * checkout or all checkouts with a project of the same group id, using the <code>scope</code> property.
+ * Performs a (careful) git pull on any checkouts in the tree that need it,
+ * scoped to project family, all, just this checkout or all checkouts with a
+ * project of the same group id, using the <code>scope</code> property.
  * <p>
- * If <code>telenav.permit.local.modifications</code> is set to true, pulls will be attempted even with modified
- * sources.
+ * If <code>telenav.permit.local.modifications</code> is set to true, pulls will
+ * be attempted even with modified sources.
  * </p>
  * <p>
- * Checkouts which are in detached-head state (no branch to pull from) are skipped.
+ * Checkouts which are in detached-head state (no branch to pull from) are
+ * skipped.
  * </p>
  *
  * @author Tim Boudreau
@@ -53,8 +56,11 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "pull", threadSafe = true)
 public class PullMojo extends ScopedCheckoutsMojo
 {
+    /**
+     * If true, allow for local modifications to be present.
+     */
     @Parameter(property = "telenav.permit-local-modifications",
-               defaultValue = "true")
+            defaultValue = "true")
     private boolean permitLocalModifications;
 
     private Scope scope;
@@ -63,8 +69,9 @@ public class PullMojo extends ScopedCheckoutsMojo
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts)
+            throws Exception
     {
         List<GitCheckout> needingPull = needingPull(checkouts);
         if (needingPull.isEmpty())
@@ -95,9 +102,9 @@ public class PullMojo extends ScopedCheckoutsMojo
     {
         return cos.stream()
                 .filter(co -> isPretend()
-                        ? co.needsPull()
-                        : co.updateRemoteHeads().needsPull())
+                              ? co.needsPull()
+                              : co.updateRemoteHeads().needsPull())
                 .collect(Collectors.toCollection(() -> new ArrayList<>(cos
-                        .size())));
+                .size())));
     }
 }

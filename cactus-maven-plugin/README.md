@@ -32,6 +32,16 @@ These mojos simplify performing git operations identically across a tree of git 
 pull, checkout, branch, push or update all checkouts in a family (or all of them, period)
 at once.
 
+They also protect against common problems and inconsistencies, and go to some effort to
+ensure that all operations can succeed before any changes are made.  For example:
+
+  * The commit mojo will not let you commit changes in detached-head mode (which would
+    create a commit on no branch at all, which you lose track of as soon as you change
+    to a branch)
+  * Switching branches will not succeed on some branches if others have local modifications
+  * Feature branches are always created from the default development branch, so you cannot
+    accidentally create one against some other feature branch
+
 Say you want to execute a `git pull` across all submodules in the same family as the
 project you're in (and optionally the submodule root):
 
@@ -69,6 +79,14 @@ Or, say you want to work on a new feature branch named `woovlesnorks`
     -Dtelenav.update-root=true -Dpush=true \
     com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
 ```
+
+ForkBuildMojo and MergeToBranchMojo can be combined (running the former on the `validate` phase
+and the latter in the `package` or `install` phase) in a Maven `profile` - pass in a
+branch you want to try merging and building, and it will create a temporary branch,
+from a stable branch, merge the target branch into it, build, and if the build succeeds,
+optionally push the changes back to the stable branch - creating a branch safe to pull from
+for all developers which incorporates incremental changes from feature branches (this is
+the "team repositories" concept used for years in NetBeans' development).
 
 [//]: # (end-user-text)
 

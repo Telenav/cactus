@@ -16,8 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.cactus.maven;
+package com.telenav.cactus.maven.mojobase;
 
+import com.telenav.cactus.maven.scope.Scope;
+import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
@@ -30,16 +32,26 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Subtype of ScopeMojo for mojos that perform git operations against a set
+ * of repositories, which pre-creates the project tree and collects the set of
+ * repositories that match the requested scope.
  *
  * @author Tim Boudreau
  */
 public abstract class ScopedCheckoutsMojo extends ScopeMojo
 {
-    public ScopedCheckoutsMojo()
+    protected  ScopedCheckoutsMojo()
     {
     }
 
-    public ScopedCheckoutsMojo(boolean runFirst)
+    /**
+     * Create a new mojo.
+     * 
+     * @param runFirst If true, this mojo should run on the <i>first</i> invocation,
+     * in the case of an aggregator project, instead of on the last - this is needed,
+     * for example, for mojos that want to change branches before any code is built.
+     */
+    protected ScopedCheckoutsMojo(boolean runFirst)
     {
         super(runFirst);
     }

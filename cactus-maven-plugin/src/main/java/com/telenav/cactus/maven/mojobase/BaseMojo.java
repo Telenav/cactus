@@ -15,9 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.maven.mojobase;
 
-package com.telenav.cactus.maven;
-
+import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.maven.trigger.RunPolicies;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
@@ -50,7 +52,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  *
  * @author Tim Boudreau
  */
-abstract class BaseMojo extends AbstractMojo
+public abstract class BaseMojo extends AbstractMojo
 {
 
     protected static final String MAVEN_CENTRAL_REPO
@@ -249,6 +251,13 @@ abstract class BaseMojo extends AbstractMojo
         return mavenSession;
     }
 
+    /**
+     * Override to do the work of this mojo.
+     *
+     * @param log A log
+     * @param project The project
+     * @throws Exception If something goes wrong
+     */
     protected abstract void performTasks(BuildLog log, MavenProject project)
             throws Exception;
 
@@ -285,6 +294,13 @@ abstract class BaseMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Throws an exception if a branch name passed in is invalid.
+     *
+     * @param branchName A branch name
+     * @param nullOk IF true and the branch is null, simply returns
+     * @throws MojoExecutionException if the branch is invalid by these criteria
+     */
     protected void validateBranchName(String branchName, boolean nullOk)
             throws MojoExecutionException
     {
@@ -304,11 +320,30 @@ abstract class BaseMojo extends AbstractMojo
         }
     }
 
-    protected <T> T fail(String msg) throws MojoExecutionException
+    /**
+     * Simplified way to throw a MojoExecutionException.
+     *
+     * @param <T> A type
+     * @param msg A message
+     * @return Nothing, but parameterized so that this method can be an exit
+     * point of any method that returns something
+     * @throws MojoExecutionException always, using the passed message
+     */
+    public <T> T fail(String msg) throws MojoExecutionException
     {
         throw new MojoExecutionException(this, msg, msg);
     }
 
+    /**
+     * Downloads or finds in the local repo an artifact from maven central
+     * (overridable) independent of what the dependencies of the project are.
+     *
+     * @param groupId A group id
+     * @param artifactId An artifact id
+     * @param version A version
+     * @return An ArtifactFetcher which can be used to configure the artifact
+     * type and repository if needed, and then fetch the artifact.
+     */
     protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
             String version)
     {
@@ -337,12 +372,26 @@ abstract class BaseMojo extends AbstractMojo
             this.session = session;
         }
 
+        /**
+         * Set the artifact type, if you want something other than the default
+         * of "jar".
+         *
+         * @param type A type
+         * @return this
+         */
         public ArtifactFetcher withType(String type)
         {
             this.type = notNull("type", type);
             return this;
         }
 
+        /**
+         * Change the repository URL used (the default is Maven Central).
+         *
+         * @param repoUrl A repository URL
+         * @return this
+         * @throws MalformedURLException if the URL is invalid
+         */
         @SuppressWarnings("ResultOfObjectAllocationIgnored")
         public ArtifactFetcher withRepositoryURL(String repoUrl)
         {
@@ -360,6 +409,13 @@ abstract class BaseMojo extends AbstractMojo
             return this;
         }
 
+        /**
+         * Download the artifact if needed, returning a Path to it in the local
+         * repository.
+         *
+         * @return A path
+         * @throws MojoFailureException
+         */
         public Path get() throws MojoFailureException
         {
             Artifact af = new DefaultArtifact(

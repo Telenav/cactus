@@ -15,27 +15,28 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
-import static com.telenav.cactus.maven.ForkBuildMojo.BRANCHED_REPOS_KEY;
-import static com.telenav.cactus.maven.ForkBuildMojo.TARGET_BRANCH_KEY;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.inject.Inject;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+
+import static com.telenav.cactus.maven.ForkBuildMojo.BRANCHED_REPOS_KEY;
+import static com.telenav.cactus.maven.ForkBuildMojo.TARGET_BRANCH_KEY;
 import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import org.apache.maven.plugin.MojoExecutionException;
 
 /**
  * End-of-build correlate of ForkBuildMojo, which (since it only runs if the
@@ -81,8 +82,9 @@ public class MergeToBranchMojo extends ScopedCheckoutsMojo
             if (!currBranch.isPresent())
             {
                 log.warn(
-                        co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co
-                        .head());
+                        co.name() + " should be on " + tempBranch
+                        + " but is not on a branch with head "
+                        + co.head());
                 toMerge.remove(co);
 //                fail(co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co.head());
             }
@@ -91,14 +93,15 @@ public class MergeToBranchMojo extends ScopedCheckoutsMojo
                 if (!tempBranch.equals(currBranch.get()))
                 {
                     log.warn(
-                            co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co
-                            .head());
+                            co.name() + " should be on " + tempBranch
+                            + " but is not on a branch with head "
+                            + co.head());
 //                    fail(co.name() + " should be on " + tempBranch + " but it is on the branch " + currBranch.get());
                     toMerge.remove(co);
                 }
             }
-            log.info("Check out target branch '" + targetBranch + "' in " + co
-                    .name());
+            log.info("Check out target branch '" + targetBranch + "' in "
+                    + co.name());
             if (!isPretend())
             {
                 co.switchToBranch(targetBranch);

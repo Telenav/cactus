@@ -15,8 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven;
+package com.telenav.cactus.maven.mojobase;
 
+import com.telenav.cactus.maven.scope.Scope;
+import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -42,8 +45,8 @@ public abstract class ScopeMojo extends BaseMojo
      * <ul>
      * <li><code>all</code> &mdash; Operate on every git repository below the
      * <i>submodule-root</code> of any project this mojo is run against.</li>
-     * <li><code>all-java-projects</code> &mdash; Operate on every git repository <b>that
-     * contains at least one <code>pom.xml</code> file</b>
+     * <li><code>all-java-projects</code> &mdash; Operate on every git
+     * repository <b>that contains at least one <code>pom.xml</code> file</b>
      * <i>submodule-root</code> of any project this mojo is run against.</li>
      * <li><code>just_this</code> &mdash; Operate only on the git repository
      * containing the project this mojo is being run against.</li>
@@ -120,27 +123,68 @@ public abstract class ScopeMojo extends BaseMojo
               : RunPolicies.LAST); // once per session
     }
 
+    /**
+     * Do the work of this Mojo.
+     *
+     * @param log A log
+     * @param project The project the mojo is being invoked against
+     * @param myCheckout A git checkout
+     * @param scope The scope
+     * @param family The project family
+     * @param includeRoot Whether or not the include-root property was set
+     * @param pretend If true, we are in pretend-mode - log but do not do
+     * @throws Exception If something goes wrong
+     */
     protected abstract void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
             Scope scope, ProjectFamily family, boolean includeRoot,
             boolean pretend) throws Exception;
 
+    /**
+     * Some scopes will not return a set of repositories that contain the
+     * submodule root, but those that generate new commits may want to include
+     * it anyway in order to update the commits it points to.
+     *
+     * @return true if the root is included
+     */
     protected boolean isIncludeRoot()
     {
         return includeRoot;
     }
 
+    /**
+     * Generic "don't really do anything" parameter - if this returns true, the
+     * subclass should not really make changes, but log what it would do as
+     * accurately as possible.
+     *
+     * @return True if we are in pretend mode
+     */
     protected boolean isPretend()
     {
         return pretend;
     }
 
+    /**
+     * Override to throw an exception if some parameters are unusable.
+     *
+     * @param log A log
+     * @param project A project
+     * @throws Exception If a parameter is invalid, preferably
+     * MojoExecutionException (hint: call fail())
+     */
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
         // for subclasses
     }
 
+    /**
+     * Returns the project family passed explicitly, which should override that
+     * of the target project when searching for git repositories to match, if
+     * set.
+     *
+     * @return A string or null
+     */
     @Override
     protected final String overrideProjectFamily()
     {
@@ -149,6 +193,13 @@ public abstract class ScopeMojo extends BaseMojo
                : family.trim();
     }
 
+    /**
+     * Delegates to execute().
+     *
+     * @param log A log
+     * @param project The project
+     * @throws Exception If something goes wrong
+     */
     @Override
     protected final void performTasks(BuildLog log, MavenProject project) throws Exception
     {
@@ -156,11 +207,24 @@ public abstract class ScopeMojo extends BaseMojo
                 includeRoot, pretend);
     }
 
+    /**
+     * Get the scope we're using.
+     *
+     * @return A scope
+     */
     protected Scope scope()
     {
         return scope;
     }
 
+    /**
+     * Validate the paramaters - override onValidateParameters() to perform
+     * additional validation.
+     *
+     * @param log A log
+     * @param project The project
+     * @throws Exception If something is invalid
+     */
     @Override
     protected final void validateParameters(BuildLog log, MavenProject project)
             throws Exception

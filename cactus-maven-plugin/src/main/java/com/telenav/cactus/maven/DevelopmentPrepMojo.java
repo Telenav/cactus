@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.maven.git.Branches;

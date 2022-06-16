@@ -15,9 +15,9 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -37,16 +37,18 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * <b>must</b> be supplied (try enclosing the -D argument entirely on the
  * command-line, e.g. <code>'-Dcommit-message=Some commit message'</code>).
  * <p>
- * The scope for which commits are generated is FAMILY by default, generating commits for all git sub-repositories of
- * the subrepo parent which share a project family (derived from the project's groupId). Passing ALL will change it to
- * any repos containing modified sources). JUST_THIS will commit only the repository that owns the current project.
+ * The scope for which commits are generated is FAMILY by default, generating
+ * commits for all git sub-repositories of the subrepo parent which share a
+ * project family (derived from the project's groupId). Passing ALL will change
+ * it to any repos containing modified sources). JUST_THIS will commit only the
+ * repository that owns the current project.
  * </p>
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings(
         {
-                "unused", "DuplicatedCode"
+            "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -60,31 +62,75 @@ public class CommitMojo extends ScopedCheckoutsMojo
      * The commit message.
      */
     @Parameter(property = "telenav.commit-message", required = true,
-               name = "commitMessage")
+            name = "commitMessage")
     private String commitMessage;
+
+    /**
+     * If true, push after committing. If no remote branch of the same name as
+     * the local branch exists, one will be created.
+     */
+    @Parameter(property = "push", defaultValue = "false")
+    private boolean push;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> matched) throws Exception
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> matched) throws Exception
     {
         List<GitCheckout> checkouts = matched.stream().filter(
-                        GitCheckout::hasUncommitedChanges)
+                GitCheckout::hasUncommitedChanges)
                 .collect(Collectors.toCollection(ArrayList::new));
+
+        if (checkouts.isEmpty())
+        {
+            log.warn("No matched checkouts contain local modifications.");
+            return;
+        }
 
         GitCheckout root = tree.root();
         if (isIncludeRoot() && !checkouts.contains(root))
         {
             checkouts.add(root);
         }
+
+        // Make sure nobody is in detached-head state, or we'll create a commit
+        // that is not on any branch, and the changes will be un-findable if we
+        // switch to a branch post-commit.
+        for (GitCheckout checkout : checkouts)
+        {
+            if (checkout.isDetachedHead())
+            {
+                fail("Checkout is in detached-head state but has local changes. "
+                        + "Switch to a branch before committing or you risk losing "
+                        + "track of them.");
+            }
+        }
+
         log.info("Begin commit with message '" + commitMessage + "'");
         for (GitCheckout at : checkouts)
         {
-            log.info("add/commit " + at);
+            log.info("add/commit " + (at.name().isEmpty()
+                                      ? "(root)"
+                                      : at.name()));
             if (!isPretend())
             {
                 at.addAll();
                 at.commit(commitMessage);
+            }
+        }
+        if (push)
+        {
+            for (GitCheckout co : checkouts)
+            {
+                switch (co.needsPush())
+                {
+                    case YES:
+                        co.push();
+                        break;
+                    case REMOTE_BRANCH_DOES_NOT_EXIST:
+                        co.pushCreatingBranch();
+                        break;
+                }
             }
         }
     }

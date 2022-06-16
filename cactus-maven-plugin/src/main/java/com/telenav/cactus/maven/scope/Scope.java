@@ -15,14 +15,13 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven;
+package com.telenav.cactus.maven.scope;
 
 import com.telenav.cactus.maven.git.GitCheckout;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;

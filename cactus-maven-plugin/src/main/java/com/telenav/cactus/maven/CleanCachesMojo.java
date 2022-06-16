@@ -18,6 +18,8 @@
 
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.util.PathUtils;
 import org.apache.maven.plugin.MojoExecutionException;

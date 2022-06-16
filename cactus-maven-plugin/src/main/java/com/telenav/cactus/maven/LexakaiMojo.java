@@ -18,6 +18,8 @@
 
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.maven.git.GitCheckout;
@@ -328,7 +330,6 @@ public class LexakaiMojo extends BaseMojo
 
         String user = System.getProperty("user.name");
         Path home = PathUtils.home();
-        String ver = System.getProperty("java.version");
         String host = System.getenv("HOST");
         sb.append("User:\t").append(user);
         sb.append("\nHome:\t").append(home);
