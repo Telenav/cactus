@@ -22,7 +22,7 @@
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
     <name>cactus</name>
-    <version>1.4.9</version>
+    <version>1.4.10</version>
 
     <packaging>pom</packaging>
 

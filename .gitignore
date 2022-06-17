@@ -24,8 +24,8 @@ nbactions.xml
 *.orig
 
 /metadata/nbproject/
-${env.KIVAKIT_ASSETS_HOME}
-
+${env.KIVAKIT_ASSETS_HOME}/
+${env.CACTUS_ASSETS_HOME}/
 # build product cruft
 cactus-maven-model/cactus/
 cactus-metadata/cactus/
