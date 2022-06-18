@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.log;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
@@ -74,7 +73,8 @@ public class BuildLog
         {
             LOG.set(log);
             run.run();
-        } finally
+        }
+        finally
         {
             LOG.set(old);
         }
@@ -97,9 +97,12 @@ public class BuildLog
             try
             {
                 consumer.run();
-            } catch (Exception | Error e)
+            }
+            catch (Exception | Error e)
             {
-                logger.error(prefix == null ? "root" : prefix, e);
+                logger.error(prefix == null
+                             ? "root"
+                             : prefix, e);
                 throw e;
             }
         });
@@ -107,13 +110,17 @@ public class BuildLog
 
     public BuildLog child(String name)
     {
-        String pfx = prefix == null ? name : prefix + ":" + name;
+        String pfx = prefix == null
+                     ? name
+                     : prefix + ":" + name;
         return new BuildLog(pfx, logger);
     }
 
     private String prefixed(String what)
     {
-        return prefix == null ? what : prefix + ": " + what;
+        return prefix == null
+               ? what
+               : prefix + ": " + what;
     }
 
     private void logSplit(String what, Consumer<String> linesConsumer)
@@ -125,7 +132,8 @@ public class BuildLog
                 linesConsumer.accept(prefixed(seq.toString()));
                 return true;
             });
-        } else
+        }
+        else
         {
             linesConsumer.accept(prefixed(what));
         }
