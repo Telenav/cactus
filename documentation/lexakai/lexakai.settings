@@ -7,9 +7,9 @@
 #
 # Locations of resources linked to from README.md files
 #
-lexakai-documentation-location = https://telenav.github.io/cactus-build-assets/${project-version}/lexakai
-lexakai-javadoc-location       = https://telenav.github.io/cactus-build-assets/${project-version}/javadoc
-lexakai-images-location        = https://www.kivakit.org/images
+lexakai-documentation-location = https://telenav.github.io/cactus-assets/${project-version}/lexakai
+lexakai-javadoc-location       = https://telenav.github.io/cactus-assets/${project-version}/javadoc
+lexakai-images-location        = https://telenav.github.io/telenav-assets
 
 #
 # Default project settings

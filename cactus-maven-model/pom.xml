@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //
+ // © 2011-2022 Telenav, Inc.
+ // Licensed under Apache License, Version 2.0
+ //
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ -->
+<project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.telenav.cactus</groupId>
+        <artifactId>cactus</artifactId>
+        <version>1.4.11</version>
+    </parent>
+
+    <artifactId>cactus-maven-model</artifactId>
+
+    <description>
+        The cactus-maven-plugin project codifies Telenav Open Source processes.
+    </description>
+
+    <properties>
+        <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
+        <maven.api.version>3.8.5</maven.api.version>
+        <enforcer.skip>true</enforcer.skip>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
+                             fails without it. -->
+                        <manifestEntries>
+                            <Automatic-Module-Name>cactus.maven.model</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
+            </plugin>            
+        </plugins>
+    </build>
+
+</project>

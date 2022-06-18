@@ -9,7 +9,7 @@
     artifact reflectasm
     artifact jackson_annotations
     artifact gson
-    artifact cactus_build_metadata
+    artifact cactus_metadata
     artifact kivakit_application
     artifact kivakit_collections
     artifact kivakit_commandline
@@ -39,7 +39,7 @@
     kivakit_configuration --> kivakit_serialization_json
     kivakit_configuration --> kivakit_test
     kivakit_kernel --> annotations
-    kivakit_kernel --> cactus_build_metadata
+    kivakit_kernel --> cactus_metadata
     kivakit_kernel --> jackson_annotations
     kivakit_kernel --> junit
     kivakit_kernel --> lexakai_annotations

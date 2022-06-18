@@ -11,7 +11,7 @@
     artifact gson
     artifact javax_activation
     artifact javax_mail
-    artifact cactus_build_metadata
+    artifact cactus_metadata
     artifact kivakit_collections
     artifact kivakit_commandline
     artifact kivakit_configuration
@@ -38,7 +38,7 @@
     kivakit_configuration --> kivakit_serialization_json
     kivakit_configuration --> kivakit_test
     kivakit_kernel --> annotations
-    kivakit_kernel --> cactus_build_metadata
+    kivakit_kernel --> cactus_metadata
     kivakit_kernel --> jackson_annotations
     kivakit_kernel --> lexakai_annotations
     kivakit_kernel --> swagger_annotations
