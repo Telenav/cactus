@@ -15,17 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.util.streams.stdio.ThreadMappedStdIO;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.cli.PathUtils;
+import com.telenav.cactus.maven.trigger.RunPolicies;
+import java.io.IOException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -35,6 +36,7 @@ import org.apache.maven.project.MavenProject;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -43,12 +45,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Runs lexakai to generate documentation and diagrams for a project into some folder. This mojo is intended to be used
- * only on the root of a family of projects.
+ * Runs lexakai to generate documentation and diagrams for a project into some
+ * folder. This mojo is intended to be used only on the root of a family of
+ * projects.
  * <p>
  * The destination folder for documentation is computed as follows:
  * </p>
@@ -112,11 +120,11 @@ public class LexakaiMojo extends BaseMojo
             try
             {
                 URL[] url = new URL[]
-                        {
-                                new URL("jar:" + jarFile.toUri().toURL() + "!/")
-                        };
+                {
+                    new URL("jar:" + jarFile.toUri().toURL() + "!/")
+                };
                 runLog.warn("Invoke lexakai reflectivly from " + url[0]);
-                try (URLClassLoader jarLoader = new URLClassLoader("lexakai",
+                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai",
                         url, ldr))
                 {
                     Thread.currentThread().setContextClassLoader(jarLoader);
@@ -132,6 +140,17 @@ public class LexakaiMojo extends BaseMojo
             finally
             {
                 Thread.currentThread().setContextClassLoader(ldr);
+                Path dir = output(project());
+                // If we're on a project that generated nothing (some poms),
+                // don't leave behind an empty directory for it
+                if (Files.exists(dir) && Files.list(dir).count() == 0)
+                {
+                    Files.delete(dir);
+                }
+                else
+                {
+                    minimizeSVG(dir);
+                }
             }
         }
     }
@@ -161,29 +180,59 @@ public class LexakaiMojo extends BaseMojo
     private boolean skip;
 
     /**
-     * The destination folder for generated documentation - if unset, it is computed as described above.
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
      */
     @Parameter(property = "telenav.output-folder")
     private String outputFolder;
 
     /**
-     * The destination folder for generated documentation - if unset, it is computed as described above.
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
      */
     @Parameter(property = "telenav.commit-changes", defaultValue = "false")
     private boolean commitChanges;
 
     /**
-     * The destination folder for generated documentation - if unset, it is computed as described above.
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
      */
     @Parameter(property = "telenav.lexakai-version", defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
 
     /**
+     * By default, code is generated into directories that match the relative
+     * directory structure from the project-family root; if true, the relative
+     * directories are omitted so all projects' documentation are immediately
+     * below the output folder.
+     */
+    @Parameter(property = "flatten", defaultValue = "false")
+    private boolean flatten;
+
+    /**
+     * By default we strip XML comments from generated SVG, to minimize spurious
+     * diffs; if true that functionality is disabled.
+     */
+    @Parameter(property = "no-minimize", defaultValue = "false")
+    private boolean noMinimize;
+
+    /**
+     * Lexakai pribts vast and voluminous output which we suppress by default.
+     */
+    @Parameter(property = "show-lexakai-output", defaultValue = "false")
+    private boolean showLexakaiOutput;
+    
+    /**
      * The repository to download lexakai from (central by default).
      */
     @Parameter(property = "telenav.lexakai-repository",
-               defaultValue = MAVEN_CENTRAL_REPO)
+            defaultValue = MAVEN_CENTRAL_REPO)
     private String lexakaiRepository = MAVEN_CENTRAL_REPO;
+
+    public LexakaiMojo()
+    {
+        super(RunPolicies.POM_PROJECT_ONLY.and(RunPolicies.LAST));
+    }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -202,79 +251,141 @@ public class LexakaiMojo extends BaseMojo
         }
         if (!skip)
         {
-            ThrowingRunnable runner = lexakaiRunner(args);
-            if (commitChanges)
+            runLexakai(args, project, log);
+        }
+    }
+
+    private static final Pattern XML_COMMENT = Pattern.compile("<!--.*?-->",
+            Pattern.DOTALL | Pattern.MULTILINE);
+
+    private void minimizeSVG(Path dirOrFile) throws IOException
+    {
+        if (Files.isDirectory(dirOrFile))
+        {
+            try ( Stream<Path> str = Files.walk(dirOrFile, 512).filter(
+                    pth -> !Files.isDirectory(pth) && pth.getFileName()
+                    .toString().endsWith(".svg")))
             {
-                // Returns the set of repositories which were _not_ modified
-                // *before* we ran lexakai, but are now
-                Set<GitCheckout> modified = collectedChangedRepos(project,
-                        runner);
-                if (!modified.isEmpty())
+                str.forEach(path ->
                 {
-                    // Commit each repo in deepest-child down order
-                    String msg = commitMessage(project, modified);
-                    for (GitCheckout ch : GitCheckout.depthFirstSort(modified))
-                    {
-                        if (!ch.addAll())
-                        {
-                            log.error("Add all failed in " + ch);
-                            continue;
-                        }
-                        if (!ch.commit(msg))
-                        {
-                            log.error("Commit failed in " + ch);
-                        }
-                    }
-                    // Committing child repos may have generated changes in the
-                    // set of commits the submodule root points to, so make sure
-                    // we generate a final commit here so it points to our updates
-                    GitCheckout.repository(project.getBasedir())
-                            .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
-                                    .toOptional())
-                            .ifPresent(root ->
-                            {
-                                if (root.isDirty())
-                                {
-                                    if (!root.addAll())
-                                    {
-                                        log.error("Add all failed in " + root);
-                                    }
-                                    if (!root.commit(msg))
-                                    {
-                                        log.error("Commit failed in " + root);
-                                    }
-                                }
-                            });
-                }
-            }
-            else
-            {
-                runner.run();
+                    quietly(() -> minimizeSVG(path));
+                });
             }
         }
+        else
+        {
+            String text = new String(Files.readAllBytes(dirOrFile), UTF_8);
+            String revised = XML_COMMENT.matcher(text).replaceAll("") + '\n';
+            Files.write(dirOrFile, revised.getBytes(UTF_8), WRITE,
+                    TRUNCATE_EXISTING);
+        }
+    }
+
+    private void runLexakai(List<String> args, MavenProject project,
+            BuildLog log1) throws Exception
+    {
+        ThrowingRunnable runner = lexakaiRunner(args);
+        if (commitChanges)
+        {
+            // Returns the set of repositories which were _not_ modified
+            // *before* we ran lexakai, but are now
+            Set<GitCheckout> modified = collectedChangedRepos(project,
+                    runner);
+            if (!modified.isEmpty())
+            {
+                // Commit each repo in deepest-child down order
+                String msg = commitMessage(project, modified);
+                for (GitCheckout ch : GitCheckout.depthFirstSort(modified))
+                {
+                    if (!ch.addAll())
+                    {
+                        log1.error("Add all failed in " + ch);
+                        continue;
+                    }
+                    if (!ch.commit(msg))
+                    {
+                        log1.error("Commit failed in " + ch);
+                    }
+                }
+                // Committing child repos may have generated changes in the
+                // set of commits the submodule root points to, so make sure
+                // we generate a final commit here so it points to our updates
+                GitCheckout.repository(project.getBasedir())
+                        .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
+                        .toOptional())
+                        .ifPresent(root ->
+                        {
+                            if (root.isDirty())
+                            {
+                                if (!root.addAll())
+                                {
+                                    log1.error("Add all failed in " + root);
+                                }
+                                if (!root.commit(msg))
+                                {
+                                    log1.error("Commit failed in " + root);
+                                }
+                            }
+                        });
+            }
+        }
+        else
+        {
+            runner.run();
+        }
+    }
+
+    private Path appendProjectLexakaiDocPath(Path path, MavenProject prj,
+            GitCheckout checkout)
+    {
+        if (checkout.name().isEmpty())
+        {
+            throw new IllegalArgumentException(
+                    "Cannot use the root project " + checkout
+                    + " for a lexakai path for " + prj);
+        }
+
+        Path result = path.resolve("docs")
+                .resolve(prj.getVersion())
+                .resolve("lexakai")
+                .resolve(checkout.name());
+
+        if (!flatten)
+        {
+            Path relPath = checkout.submoduleRelativePath().get();
+            for (int i = 0; i < relPath.getNameCount() - 1; i++)
+            {
+                result = result.resolve(relPath.getName(i));
+            }
+        }
+        return result;
     }
 
     Path output(MavenProject project)
     {
-        Path result = GitCheckout.repository(project.getBasedir()).flatMap(repo
-                -> outputFolder(project, repo).toOptional()
-        ).orElseGet(
-                // Failover to generating under target/
-                () -> project.getBasedir().toPath().resolve("target").resolve(
-                        "lexakai"));
-        return result.resolve("docs").resolve(project.getVersion());
+        return GitCheckout.repository(project.getBasedir())
+                .map(co -> outputFolder(project, co))
+                .orElseGet(
+                        () -> project.getBasedir().toPath().resolve("target")
+                                .resolve("lexakai"));
     }
 
-    ThrowingOptional<Path> outputFolder(MavenProject prj, GitCheckout checkout)
+    Path outputFolder(MavenProject prj, GitCheckout checkout)
     {
         // If the output folder was explicitly specified, use it.
         if (outputFolder != null)
         {
-            return ThrowingOptional.of(Paths.get(outputFolder));
+            appendProjectLexakaiDocPath(Paths.get(outputFolder), prj,
+                    checkout);
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
-        return ProjectFamily.of(prj).assetsPath(checkout);
+        return ProjectFamily.of(prj).assetsPath(checkout).map(assetsPath
+                -> appendProjectLexakaiDocPath(assetsPath, prj, checkout)
+        ).orElseGet(()
+                -> appendProjectLexakaiDocPath(prj.getBasedir().toPath()
+                        .resolve("target").resolve(
+                        "lexakai"), prj, checkout));
     }
 
     private Set<GitCheckout> collectModifiedCheckouts(ProjectTree tree)
@@ -303,7 +414,7 @@ public class LexakaiMojo extends BaseMojo
     }
 
     private Set<GitCheckout> collectedChangedRepos(MavenProject prj,
-                                                   ThrowingRunnable toRun)
+            ThrowingRunnable toRun)
     {
         return ProjectTree.from(prj).map(tree ->
         {
@@ -353,6 +464,10 @@ public class LexakaiMojo extends BaseMojo
 
     private ThrowingRunnable lexakaiRunner(List<String> args) throws Exception
     {
-        return new LexakaiRunner(lexakaiJar(), args);
+        ThrowingRunnable result = new LexakaiRunner(lexakaiJar(), args);
+        if (!showLexakaiOutput) {
+            return () -> ThreadMappedStdIO.blackhole(result);
+        }
+        return result;
     }
 }

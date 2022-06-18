@@ -15,10 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.cli;
 
+import com.mastfrog.function.state.Int;
+import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.telenav.cactus.maven.log.BuildLog;
+
 import static com.mastfrog.util.preconditions.Checks.notNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,7 +41,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  *
@@ -301,6 +309,80 @@ public class PathUtils
                 // shutting down and deleting things
             }
         }
+    }
+
+    public static int deleteFolderTree(Path path) throws IOException
+    {
+        if (path == null || !Files.exists(path))
+        {
+            return 0;
+        }
+        List<Path> all = Files.walk(path, 1000).collect(Collectors.toCollection(
+                ArrayList::new));
+        Collections.sort(all, (a, b) ->
+        {
+            return Integer.compare(b.getNameCount(), a.getNameCount());
+        });
+        int result = 0;
+        for (Path fileOrFolder : all)
+        {
+            if (Files.deleteIfExists(fileOrFolder))
+            {
+                result++;
+            }
+        }
+        if (Files.deleteIfExists(path))
+        {
+            result++;
+        }
+        return result;
+    }
+
+    public static int[] copyFolderTree(BuildLog log, Path from, Path to) throws IOException
+    {
+        Int files = Int.create();
+        Int dirs = Int.create();
+        try ( Stream<Path> srcStream = Files.walk(from, 1280))
+        {
+            srcStream.forEach(fileOrDir ->
+            {
+                Path rel = from.relativize(fileOrDir);
+                Path target = to.resolve(rel);
+                boolean dir = Files.isDirectory(fileOrDir);
+                quietly(() ->
+                {
+                    Path destDir = dir
+                                   ? target
+                                   : target.getParent();
+                    if (!Files.exists(destDir))
+                    {
+                        Files.createDirectories(destDir);
+                        dirs.increment();
+                    }
+                    if (!dir)
+                    {
+                        if (!Files.exists(fileOrDir))
+                        {
+                            Files.copy(fileOrDir, target);
+                        }
+                        else
+                        {
+                            Files.copy(fileOrDir, target, REPLACE_EXISTING);
+                        }
+                        files.increment();
+                    }
+                });
+            });
+        }
+        return new int[]
+        {
+            files.getAsInt(), dirs.getAsInt()
+        };
+    }
+
+    private static void quietly(ThrowingRunnable tr)
+    {
+        tr.toRunnable().run();
     }
 
     private PathUtils()

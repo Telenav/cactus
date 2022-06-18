@@ -419,7 +419,7 @@ public class ProjectTree
         private final Map<GitCheckout, Boolean> detachedHeads = new HashMap<>();
         private final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
         private final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
-
+        
         public Heads remoteHeads(GitCheckout checkout)
         {
             return remoteHeads.computeIfAbsent(checkout, ck -> ck.remoteHeads());

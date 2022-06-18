@@ -41,6 +41,10 @@ import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
 /**
  * End-of-build correlate of ForkBuildMojo, which (since it only runs if the
  * build succeeds) merges the forked, merged branch back to the stable branch.
+ * <p>
+ * Note that this mojo <b>requires</b> that {@link ForkBuildMojo} be run at an
+ * earlier phase of the build, and will fail if it has not.
+ * </p>
  *
  * @author Tim Boudreau
  */
@@ -48,12 +52,35 @@ import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
         defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
-        name = "merge", threadSafe = true)
-public class MergeToBranchMojo extends ScopedCheckoutsMojo
+        name = "finish-attempt-merge", threadSafe = true)
+public class MergeForkBuildMojo extends ScopedCheckoutsMojo
 {
+    private final String DID_NOT_RUN_MESSAGE
+            = MergeForkBuildMojo.class.getSimpleName()
+            + " requires that "
+            + ForkBuildMojo.class.getSimpleName() + " was run at an earlier "
+            + "phase of the build, but no data provided by it was found to "
+            + "determine what needs to be merged.";
 
     @Inject
     SharedData sharedData;
+
+    @Override
+    protected void onValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
+    {
+        if (sharedData == null)
+        {
+            fail("Shared data not injected");
+        }
+        String baseMessage = MergeForkBuildMojo.class.getSimpleName() + " requires that "
+                + ForkBuildMojo.class.getSimpleName() + " was run at an earlier "
+                + "phase of the build, but no data provided by it was found to "
+                + "determine what needs to be merged.";
+        sharedData.ensureHas(TEMP_BRANCH_KEY, baseMessage);
+        sharedData.ensureHas(TARGET_BRANCH_KEY, baseMessage);
+        sharedData.ensureHas(BRANCHED_REPOS_KEY, baseMessage);
+    }
 
     @Override
     protected void execute(BuildLog log, MavenProject project,

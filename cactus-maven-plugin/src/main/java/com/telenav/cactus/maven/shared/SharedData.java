@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import javax.inject.Singleton;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Allows mojos to share data in a type-safe manner, for cases where some
@@ -37,6 +38,17 @@ public final class SharedData
 {
 
     private final Map<SharedDataKey<?>, Object> contents = new ConcurrentHashMap<>();
+    
+    public boolean has(SharedDataKey<?> key) {
+        return contents.containsKey(key);
+    }
+    
+    public void ensureHas(SharedDataKey<?> key, String message) throws MojoFailureException {
+        if (!has(key)) {
+            String msg = message + " Missing: " + key;
+            throw new MojoFailureException(this, msg, msg);
+        }
+    }
 
     public <T> SharedData put(SharedDataKey<T> key, T obj)
     {

@@ -24,6 +24,7 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
+import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -66,7 +67,7 @@ public abstract class BaseMojo extends AbstractMojo
 
     protected BuildLog log;
 
-    private ThrowingOptional<ProjectTree> tree;
+    ThrowingOptional<ProjectTree> tree;
     private final RunPolicy policy;
 
     protected BaseMojo(RunPolicy policy)
@@ -127,12 +128,24 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Get a project tree for the project this mojo is run on. Note this is an
-     * expensive operation.
+     * Run some code which throws an exception in a context such as
+     * <code>Stream.forEach()</code> where you cannot throw checked exceptions.
      *
-     * @return An optional
+     * @param r Something to run
      */
-    protected final ThrowingOptional<ProjectTree> projectTree()
+    protected static void quietly(ThrowingRunnable r)
+    {
+        r.toRunnable().run();
+    }
+
+    /**
+     * Create the project try; package private so that SharedProjectTreeMojo can
+     * use the shared data to cache the instance.
+     *
+     * @param invalidateCache Whether or not to invalidate the cache.
+     * @return A project tree, if one can be constructed.
+     */
+    ThrowingOptional<ProjectTree> projectTreeInternal(boolean invalidateCache)
     {
         if (tree == null)
         {
@@ -140,9 +153,29 @@ public abstract class BaseMojo extends AbstractMojo
         }
         else
         {
-            tree.ifPresent(ProjectTree::invalidateCache);
+            if (invalidateCache)
+            {
+                tree.ifPresent(ProjectTree::invalidateCache);
+            }
         }
         return tree;
+    }
+
+    protected final ThrowingOptional<ProjectTree> projectTree(
+            boolean invalidateCache)
+    {
+        return projectTreeInternal(invalidateCache);
+    }
+
+    /**
+     * Get a project tree for the project this mojo is run on. Note this is an
+     * expensive operation.
+     *
+     * @return An optional
+     */
+    protected final ThrowingOptional<ProjectTree> projectTree()
+    {
+        return projectTree(true);
     }
 
     /**
@@ -167,6 +200,36 @@ public abstract class BaseMojo extends AbstractMojo
     protected final boolean withProjectTree(ThrowingConsumer<ProjectTree> cons)
     {
         return projectTree().ifPresent(cons);
+    }
+
+    /**
+     * Run something against the project tree if one can be constructed.
+     *
+     * @param <T> The return value type
+     * @param invalidateCache Whether or not the tree's cache should be cleared
+     * before returning the instance if it already existed
+     * @param func A function applied to the project tree
+     * @return An optional result
+     */
+    protected final <T> ThrowingOptional<T> withProjectTree(
+            boolean invalidateCache,
+            ThrowingFunction<ProjectTree, T> func)
+    {
+        return projectTree(invalidateCache).map(func);
+    }
+
+    /**
+     * Run something against the project tree.
+     *
+     * @param invalidateCache Whether or not the tree's cache should be cleared
+     * before returning the instance if it already existed
+     * @param cons A consumer
+     * @return true if the code was run
+     */
+    protected final boolean withProjectTree(boolean invalidateCache,
+            ThrowingConsumer<ProjectTree> cons)
+    {
+        return projectTree(invalidateCache).ifPresent(cons);
     }
 
     /**
@@ -204,7 +267,14 @@ public abstract class BaseMojo extends AbstractMojo
         {
             throw new MojoFailureException("MavenSession was not injected");
         }
+        internalSubclassValidateParameters(log, project);
         validateParameters(log, project);
+    }
+
+    void internalSubclassValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
+    {
+
     }
 
     /**

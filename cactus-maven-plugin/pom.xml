@@ -42,6 +42,10 @@
             <groupId>com.telenav.cactus</groupId>
             <artifactId>git</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-metadata</artifactId>
+        </dependency>
         
 
         <!-- Mastfrog -->
@@ -51,8 +55,8 @@
             <artifactId>concurrent</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.telenav.cactus</groupId>
-            <artifactId>cactus-metadata</artifactId>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>util-streams</artifactId>
         </dependency>
 
         <!-- Maven -->

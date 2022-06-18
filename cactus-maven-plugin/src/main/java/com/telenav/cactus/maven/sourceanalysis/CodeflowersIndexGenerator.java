@@ -15,21 +15,24 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.sourceanalysis;
 
 import java.io.IOException;
 import java.io.InputStream;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  *
@@ -43,6 +46,18 @@ final class CodeflowersIndexGenerator
     public CodeflowersIndexGenerator(Path dir)
     {
         this.dir = dir;
+    }
+
+    /**
+     * Generate an index based on .wc and .json files in the directory with the
+     * same name.
+     *
+     * @param title The name of the project
+     * @throws IOException
+     */
+    public void generate(String title) throws IOException
+    {
+        generate(title, deriveOptionsFromFiles());
     }
 
     public void generate(String title, Set<String> ids) throws IOException
@@ -137,4 +152,54 @@ final class CodeflowersIndexGenerator
         }
         return sb.toString();
     }
+
+    private Set<String> deriveOptionsFromFiles() throws IOException
+    {
+        Set<String> wcFiles = new HashSet<>();
+        Set<String> jsonFiles = new HashSet<>();
+        try ( Stream<Path> allFiles = Files.list(dir))
+        {
+            allFiles.forEach(file ->
+            {
+                if (Files.isDirectory(file))
+                {
+                    return;
+                }
+                if (isJsonFile(file))
+                {
+                    jsonFiles.add(rawFileName(file));
+                }
+                else
+                    if (isWc(file))
+                    {
+                        wcFiles.add(rawFileName(file));
+                    }
+            });
+        }
+        Set<String> result = new TreeSet<>(wcFiles);
+        result.retainAll(jsonFiles);
+        return result;
+    }
+
+    private static String rawFileName(Path file)
+    {
+        String fn = file.getFileName().toString();
+        int ix = fn.lastIndexOf('.');
+        if (ix < 0)
+        {
+            return fn;
+        }
+        return fn.substring(0, ix);
+    }
+
+    private static boolean isJsonFile(Path path)
+    {
+        return path.getFileName().toString().endsWith(".json");
+    }
+
+    private static boolean isWc(Path path)
+    {
+        return path.getFileName().toString().endsWith(".json");
+    }
+
 }

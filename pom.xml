@@ -59,7 +59,7 @@
     <properties>
         <!-- Cactus -->
 
-        <cactus.version>1.4.9</cactus.version>
+        <cactus.version>1.4.10</cactus.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
              will be automatic without requiring a website visit -->
@@ -183,6 +183,11 @@
             <dependency>
                 <groupId>com.mastfrog</groupId>
                 <artifactId>util-strings</artifactId>
+                <version>${mastfrog.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>util-streams</artifactId>
                 <version>${mastfrog.version}</version>
             </dependency>
 
