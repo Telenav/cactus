@@ -135,7 +135,7 @@ public abstract class BaseMojo extends AbstractMojo
      */
     protected static void quietly(ThrowingRunnable r)
     {
-        r.toRunnable().run();
+        r.toNonThrowing().run();
     }
 
     /**

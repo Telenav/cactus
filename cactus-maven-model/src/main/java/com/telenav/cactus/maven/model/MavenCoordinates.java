@@ -4,12 +4,15 @@ import org.w3c.dom.Node;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author Tim Boudreau
  */
-public final class MavenCoordinates implements Comparable<MavenCoordinates>
+public class MavenCoordinates implements Comparable<MavenCoordinates>
 {
+    static final String PLACEHOLDER = "---";
+
     public static Optional<MavenCoordinates> from(Path pomFile)
     {
         // Pending - wipeable cache?
@@ -31,7 +34,8 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
 
     public MavenCoordinates(Node groupId, Node artifactId, Node version)
     {
-        this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId), textOrPlaceholder(version));
+        this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId),
+                textOrPlaceholder(version));
     }
 
     public MavenCoordinates(String groupId, String artifactId, String version)
@@ -39,6 +43,31 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+    }
+
+    public MavenCoordinates withVersion(String newVersion)
+    {
+        return new MavenCoordinates(groupId, artifactId, newVersion);
+    }
+
+    public Optional<String> version()
+    {
+        return PLACEHOLDER.equals(version)
+               ? Optional.empty()
+               : Optional.of(version);
+    }
+
+    public MavenCoordinates withResolvedVersion(Supplier<String> versionResolver)
+    {
+        if (PLACEHOLDER.equals(version))
+        {
+            String newVersion = versionResolver.get();
+            if (newVersion != null)
+            {
+                return withVersion(newVersion);
+            }
+        }
+        return this;
     }
 
     @Override
@@ -63,12 +92,14 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
         {
             return true;
         }
-        else if (o == null || o.getClass() != MavenCoordinates.class)
-        {
-            return false;
-        }
+        else
+            if (o == null || o.getClass() != MavenCoordinates.class)
+            {
+                return false;
+            }
         MavenCoordinates other = (MavenCoordinates) o;
-        return version.equals(other.version) && artifactId.equals(other.artifactId)
+        return version.equals(other.version) && artifactId.equals(
+                other.artifactId)
                 && groupId.equals(other.groupId);
     }
 
@@ -82,7 +113,8 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
 
     public boolean is(MavenCoordinates other)
     {
-        return other.groupId.equals(groupId) && other.artifactId.equals(artifactId);
+        return other.groupId.equals(groupId) && other.artifactId.equals(
+                artifactId);
     }
 
     @Override
@@ -91,8 +123,10 @@ public final class MavenCoordinates implements Comparable<MavenCoordinates>
         return groupId + ":" + artifactId + ":" + version;
     }
 
-    private static String textOrPlaceholder(Node node)
+    static String textOrPlaceholder(Node node)
     {
-        return node == null ? "---" : node.getTextContent().trim();
+        return node == null
+               ? PLACEHOLDER
+               : node.getTextContent().trim();
     }
 }

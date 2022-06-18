@@ -60,9 +60,11 @@
         <!-- Cactus -->
 
         <cactus.version>1.4.11</cactus.version>
+        <!-- Previous version, so we can run cactus against cactus -->
+        <cactus.prev.version>1.4.10</cactus.prev.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
-             will be automatic without requiring a website visit -->
+        will be automatic without requiring a website visit -->
         <release.on.close>false</release.on.close>
 
         <!-- Java -->
@@ -70,7 +72,7 @@
         <java.version>11</java.version>
 
         <!-- Mastfrog -->
-        <mastfrog.version>2.8.1</mastfrog.version>
+        <mastfrog.version>2.8.2</mastfrog.version>
 
         <!-- Maven -->
 
@@ -85,7 +87,6 @@
 
         <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
         <maven.api.version>3.8.5</maven.api.version>
-        <mastfrog.version>2.8.1</mastfrog.version>
 
         <lexakai.prev.version>1.0.7</lexakai.prev.version>
         <slf4j.version>1.7.36</slf4j.version>
@@ -173,12 +174,12 @@
             <dependency>
                 <groupId>com.mastfrog</groupId>
                 <artifactId>function</artifactId>
-                <version>${mastfrog.version}.1</version>
+                <version>${mastfrog.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.mastfrog</groupId>
                 <artifactId>concurrent</artifactId>
-                <version>${mastfrog.version}.1</version>
+                <version>${mastfrog.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.mastfrog</groupId>
@@ -452,6 +453,81 @@
 
                 </plugins>
 
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <maven.test.skip.exec>true</maven.test.skip.exec>
+            </properties>
+            <build>
+                <plugins>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc-no-fork</goal>
+                                    <goal>jar</goal>
+                                    <goal>aggregate-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-source-jar</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.telenav.cactus</groupId>
+                        <artifactId>cactus-maven-plugin</artifactId>
+                        <version>${cactus.prev.version}</version>
+                        <executions>
+                            <execution>
+                                <id>lexakai</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>lexakai</goal>
+                                </goals>
+                                <configuration>
+                                    <verbose>true</verbose>
+                                    <overwrite-resources>true</overwrite-resources>
+                                    <update-readme>true</update-readme>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-javadoc</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>copy-aggregated-javadoc</goal>
+                                    <goal>codeflowers</goal>
+                                </goals>
+                                <configuration>
+                                    <telenav.family>FAMILY_OR_CHILD_FAMILY</telenav.family>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                </plugins>
             </build>
         </profile>
 

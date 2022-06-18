@@ -16,8 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 open module com.telenav.cactus.cli {
-    requires concurrent;
-    requires util.preconditions;
+    requires com.mastfrog.concurrent;
+    requires com.mastfrog.preconditions;
     requires com.telenav.cactus.mavenlog;
     exports com.telenav.cactus.cli;
 }

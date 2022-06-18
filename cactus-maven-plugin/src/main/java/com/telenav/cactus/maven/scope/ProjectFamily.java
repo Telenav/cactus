@@ -174,8 +174,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     {
         if (is(prj))
         {
-            // Pending - use toNonThrowing w/ next maven release:
-            notNull("run", run).toRunnable().run();
+            notNull("run", run).toNonThrowing().run();
             return true;
         }
         return false;
@@ -211,8 +210,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     {
         if (isParentFamilyOf(prj))
         {
-            // Pending - use toNonThrowing w/ next maven release:
-            code.toRunnable().run();
+            code.toNonThrowing().run();
             return true;
         }
         return false;

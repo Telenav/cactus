@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 open module com.telenav.cactus.mavenlog {
     requires org.slf4j;
-    requires function;
-    requires util.strings;
+    requires com.mastfrog.function;
+    requires com.mastfrog.strings;
     exports com.telenav.cactus.maven.log;
 }

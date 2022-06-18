@@ -37,7 +37,9 @@
             <!-- Create Executable JAR -->
 
             <plugin>
-
+                <!-- Pending this is killing a mosquito with a sledgehammer -
+                     it appears that this could be done with jar plugin and 
+                     a single main-class manifest entry. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven-shade-plugin.version}</version>

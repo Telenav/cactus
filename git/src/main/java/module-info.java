@@ -19,6 +19,6 @@ open module com.telenav.cactus.git {
     
     requires com.telenav.cactus.cli;
     requires com.telenav.cactus.mavenlog;
-    requires function;
+    requires com.mastfrog.function;
     exports com.telenav.cactus.git;
 }

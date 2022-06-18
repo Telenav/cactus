@@ -382,7 +382,7 @@ public class PathUtils
 
     private static void quietly(ThrowingRunnable tr)
     {
-        tr.toRunnable().run();
+        tr.toNonThrowing().run();
     }
 
     private PathUtils()
