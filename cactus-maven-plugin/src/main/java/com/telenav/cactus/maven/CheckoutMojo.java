@@ -735,7 +735,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         Branch base = baseOpt.get();
         Optional<Branch> current = br.currentBranch();
         log.info(
-                "Base branch " + base + " current " + current + " create? " + createBranchesIfNeeded
+                checkout.name() + 
+                ": Base branch " + base + " current " + current + " create? " + createBranchesIfNeeded
                         + " base " + baseBranch + " target " + targetBranch);
         // First case is we are just moving things to the base branch
         if (targetBranch == null)
