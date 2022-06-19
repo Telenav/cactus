@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
-            <artifactId>git</artifactId>
+            <artifactId>cactus-git</artifactId>
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>

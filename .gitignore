@@ -29,6 +29,6 @@ ${env.CACTUS_ASSETS_HOME}/
 # build product cruft
 cactus-maven-model/cactus/
 cactus-metadata/cactus/
-cli/cactus/
-git/cactus/
-mavenlog/cactus/
+cactus-cli/cactus/
+cactus-git/cactus/
+cactus-maven-log/cactus/

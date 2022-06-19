@@ -151,7 +151,7 @@
             </dependency>
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
-                <artifactId>git</artifactId>
+                <artifactId>cactus-git</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>
@@ -161,12 +161,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>cli</artifactId>
+                <artifactId>cactus-cli</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>mavenlog</artifactId>
+                <artifactId>cactus-maven-log</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
 
