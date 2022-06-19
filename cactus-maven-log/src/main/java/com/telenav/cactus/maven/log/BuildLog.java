@@ -100,9 +100,16 @@ public class BuildLog
             }
             catch (Exception | Error e)
             {
-                logger.error(prefix == null
-                             ? "root"
-                             : prefix, e);
+                if (Boolean.getBoolean("cactus.debug"))
+                {
+                    logger.error(prefix == null
+                                 ? "root"
+                                 : prefix, e);
+                }
+                else
+                {
+                    logger.error(e.getMessage());
+                }
                 throw e;
             }
         });
