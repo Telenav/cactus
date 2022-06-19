@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.10</version>
+        <version>1.4.11</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -28,6 +28,7 @@
     <properties>
         <enforcer.skip>true</enforcer.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <mastfrog.version>2.8.2</mastfrog.version>
     </properties>
 
     <dependencies>
@@ -40,23 +41,29 @@
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
-            <artifactId>git</artifactId>
+            <artifactId>cactus-git</artifactId>
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
-        
 
         <!-- Mastfrog -->
 
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>concurrent</artifactId>
+            <version>${mastfrog.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>function</artifactId>
+            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
+            <version>${mastfrog.version}</version>
         </dependency>
 
         <!-- Maven -->

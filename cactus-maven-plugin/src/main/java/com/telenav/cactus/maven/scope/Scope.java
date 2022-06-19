@@ -70,7 +70,7 @@ public enum Scope
     /**
      * Operate on all checkouts which contain at least one pom.xml file.
      */
-    ALL_JAVA_PROJECTS,
+    ALL_PROJECT_FAMILIES,
     /**
      * Operate on all git submodules containing a root pom.xml within any
      * submodule below the root of the project tree the project maven was
@@ -141,7 +141,7 @@ public enum Scope
             case JUST_THIS:
                 checkouts = new HashSet<>(Arrays.asList(callingProjectsCheckout));
                 break;
-            case ALL_JAVA_PROJECTS:
+            case ALL_PROJECT_FAMILIES:
                 checkouts = new HashSet<>(tree.allCheckouts());
                 break;
             case ALL:

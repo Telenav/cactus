@@ -18,8 +18,8 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.tree.ConsistencyChecker;
 import com.telenav.cactus.maven.tree.Inconsistency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,6 +39,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -51,21 +52,21 @@ public class CheckConsistencyMojo extends BaseMojo
      * Comma-delimited suffix list for checkout folder names that should be ignored when checking branch consistency,
      * such as assets checkouts.
      */
-    @Parameter(property = "telenav.ignore-in-branch-consistency-check",
+    @Parameter(property = "cactus.ignore-in-branch-consistency-check",
                defaultValue = "-assets")
     private String ignoreInBranchConsistencyCheck = "";
 
     /**
      * Comma-delimited list of artifact ids which should be ignored when checking version consistency.
      */
-    @Parameter(property = "telenav.ignore-in-version-consistency-check", defaultValue = "")
+    @Parameter(property = "cactus.ignore-in-version-consistency-check", defaultValue = "")
     private String ignoreInVersionConsistencyCheck = "";
 
     /**
      * If true, check all group ids, not just checkouts containing a project with the same group id as the one owning
      * the project this mojo is being run against.
      */
-    @Parameter(property = "telenav.all-group-ids", defaultValue = "false")
+    @Parameter(property = "cactus.all-group-ids", defaultValue = "false")
     private boolean allGroupIds = false;
 
     @Override

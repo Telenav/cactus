@@ -1,15 +1,16 @@
 [//]: # (start-user-text)
 
-A set of Maven mojos specifically designed for working in environments where multiple
-trees of projects are joined together with a root bill-of-materials POM using Git
-submodules.
+# Cactus Maven Plugin
 
-Think of this development style as an extension to git-flow for large, multi-module
-sets of related projects.
+This project contains a Maven plugin that contains a set of Maven mojos specifically 
+designed for working in environments where multiple trees of projects are joined 
+together with a root bill-of-materials POM using Git submodules. You can think of 
+this development style as an extension to git-flow for large, multi-module sets 
+of related projects.
 
 ### Scopes and Families
 
-Most of the mojos here can have what they apply to controlled via the `telenav.scope` 
+Most mojos in the Cactus plugin can have what they apply to controlled via the `cactus.scope` 
 property.  Unlike typical Maven mojos, these operate at the level of git checkouts - and
 (since many projects under an aggregator may be in the same repository) run _once_ at
 the end of a build cycle.
@@ -22,8 +23,8 @@ com.foo.fooframework and com.foo.fooframework-extensions both are members of the
 When the `family` scope is selected, mojos that match a family will operate on _all git
 submodules containing at least one maven project with a group-id in that family.
 
-You can manually pass `-Dtelenav.family=whatever` to override the default family detection
-mechinism (this is useful when making changes when running Maven against a root pom which
+You can manually pass `-Dcactus.family=[branch-name]` to override the default family detection
+mechanism (this is useful when making changes when running Maven against a root pom which
 has some other group-id).
 
 ### What It's Good For
@@ -46,38 +47,38 @@ Say you want to execute a `git pull` across all submodules in the same family as
 project you're in (and optionally the submodule root):
 
 ```
-mvn -Dtelenav.scope=FAMILY -Dtelenav.update-root=true com.telenav.cactus:cactus-maven-plugin:pull
+mvn -Dcactus.scope=FAMILY -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:pull
 ```
 
 Or you want to generate a commit across all modified projects within the same project family:
 
 ```
-mvn -Dtelenav.scope=FAMILY '-Dtelenav.commit-message=Initial v3.x modularization' \
-   -Dtelenav.update-root=true com.telenav.cactus:cactus-maven-plugin:commit
+mvn -Dcactus.scope=FAMILY '-Dcactus.commit-message=Initial v3.x modularization' \
+   -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:commit
 ```
 
 And push _all_ of your local changes:
 
 ```
-mvn -Dtelenav.scope=ALL -Dtelenav.update-root=true com.telenav.cactus:cactus-maven-plugin:push
+mvn -Dcactus.scope=ALL -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:push
 ```
 
 Or you have a fresh clone, and a bunch of submodules in "detached head" state, and you
 just want to get all of them onto the default development branch to do some coding (the default
 branch name is _develop_ - you can pass `-Dbase-branch=whatever` if you use something else):
 ```
-mvn -Dtelenav.scope=ALL -Dupdate-root=true -Dpermit-local-changes=true \
-    com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+mvn -Dcactus.scope=ALL -Dupdate-root=true -Dpermit-local-changes=true \
+    com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
 ```
 
 Or, say you want to work on a new feature branch named `woovlesnorks`
  - `cd` to the project directory of any project in the family you want to work on and run:
 
 ```
-  mvn -Dtelenav.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
+  mvn -Dcactus.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
     -Dtarget-branch=feature/woovlesnorks -Dpermit-local-changes=true \
-    -Dtelenav.update-root=true -Dpush=true \
-    com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+    -Dcactus.update-root=true -Dpush=true \
+    com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
 ```
 
 ForkBuildMojo and MergeToBranchMojo can be combined (running the former on the `validate` phase
@@ -90,7 +91,7 @@ the "team repositories" concept used for years in NetBeans' development).
 
 [//]: # (end-user-text)
 
-# cactus maven-plugin 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//gears-32-2x.png 2x"/>
+# cactus maven-plugin 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/gears-32-2x.png 2x"/>
 
 This module provides maven support for Telenav Open Source projects.
 
@@ -146,7 +147,7 @@ None
 
 Javadoc coverage for this project is 43.9%.  
   
-&nbsp; &nbsp; <img src="https://telenav.github.io/telenav-assets/images/meter/meter-40-96.png" srcset="https://telenav.github.io/telenav-assets/images/meter/meter-40-96-2x.png 2x"/>
+&nbsp; &nbsp; <img src="https://telenav.github.io/telenav-assets/images/meters/meter-40-96.png" srcset="https://telenav.github.io/telenav-assets/images/meters/meter-40-96-2x.png 2x"/>
 
 
 The following significant classes are undocumented:  

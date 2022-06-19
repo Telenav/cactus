@@ -15,10 +15,9 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-open module com.telenav.cactus.git {
-    
-    requires com.telenav.cactus.cli;
-    requires com.telenav.cactus.mavenlog;
+open module com.telenav.cactus.maven.log {
+    requires org.slf4j;
     requires com.mastfrog.function;
-    exports com.telenav.cactus.git;
+    requires com.mastfrog.strings;
+    exports com.telenav.cactus.maven.log;
 }

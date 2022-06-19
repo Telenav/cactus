@@ -22,32 +22,34 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import javax.inject.Inject;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import static com.telenav.cactus.maven.ForkBuildMojo.BRANCHED_REPOS_KEY;
 import static com.telenav.cactus.maven.ForkBuildMojo.TARGET_BRANCH_KEY;
 import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
 
 /**
- * End-of-build correlate of ForkBuildMojo, which (since it only runs if the
- * build succeeds) merges the forked, merged branch back to the stable branch.
+ * End-of-build correlate of ForkBuildMojo, which (since it only runs if the build succeeds) merges the forked, merged
+ * branch back to the stable branch.
  * <p>
- * Note that this mojo <b>requires</b> that {@link ForkBuildMojo} be run at an
- * earlier phase of the build, and will fail if it has not.
+ * Note that this mojo <b>requires</b> that {@link ForkBuildMojo} be run at an earlier phase of the build, and will fail
+ * if it has not.
  * </p>
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -66,6 +68,23 @@ public class MergeForkBuildMojo extends ScopedCheckoutsMojo
     SharedData sharedData;
 
     @Override
+    protected void execute(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout, ProjectTree tree,
+                           List<GitCheckout> checkouts) throws Exception
+    {
+        Optional<String> tempBranch = sharedData.remove(TEMP_BRANCH_KEY);
+        Optional<String> targetBranch = sharedData.remove(TARGET_BRANCH_KEY);
+        Optional<GitCheckout[]> ourCheckouts = sharedData.remove(
+                BRANCHED_REPOS_KEY);
+        if (tempBranch.isPresent() && targetBranch.isPresent() && ourCheckouts
+                .isPresent())
+        {
+            performMerge(tempBranch.get(), ourCheckouts.get(), targetBranch
+                    .get(), log.child("merge"));
+        }
+    }
+
+    @Override
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
@@ -82,25 +101,8 @@ public class MergeForkBuildMojo extends ScopedCheckoutsMojo
         sharedData.ensureHas(BRANCHED_REPOS_KEY, baseMessage);
     }
 
-    @Override
-    protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts) throws Exception
-    {
-        Optional<String> tempBranch = sharedData.remove(TEMP_BRANCH_KEY);
-        Optional<String> targetBranch = sharedData.remove(TARGET_BRANCH_KEY);
-        Optional<GitCheckout[]> ourCheckouts = sharedData.remove(
-                BRANCHED_REPOS_KEY);
-        if (tempBranch.isPresent() && targetBranch.isPresent() && ourCheckouts
-                .isPresent())
-        {
-            performMerge(tempBranch.get(), ourCheckouts.get(), targetBranch
-                    .get(), log.child("merge"));
-        }
-    }
-
     private void performMerge(String tempBranch, GitCheckout[] checkouts,
-            String targetBranch, BuildLog log) throws MojoExecutionException
+                              String targetBranch, BuildLog log) throws MojoExecutionException
     {
         Set<GitCheckout> toMerge = new LinkedHashSet<>(Arrays.asList(checkouts));
         for (GitCheckout co : checkouts)
@@ -110,10 +112,10 @@ public class MergeForkBuildMojo extends ScopedCheckoutsMojo
             {
                 log.warn(
                         co.name() + " should be on " + tempBranch
-                        + " but is not on a branch with head "
-                        + co.head());
+                                + " but is not on a branch with head "
+                                + co.head());
                 toMerge.remove(co);
-//                fail(co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co.head());
+                //                fail(co.name() + " should be on " + tempBranch + " but is not on a branch with head " + co.head());
             }
             else
             {
@@ -121,9 +123,9 @@ public class MergeForkBuildMojo extends ScopedCheckoutsMojo
                 {
                     log.warn(
                             co.name() + " should be on " + tempBranch
-                            + " but is not on a branch with head "
-                            + co.head());
-//                    fail(co.name() + " should be on " + tempBranch + " but it is on the branch " + currBranch.get());
+                                    + " but is not on a branch with head "
+                                    + co.head());
+                    //                    fail(co.name() + " should be on " + tempBranch + " but it is on the branch " + currBranch.get());
                     toMerge.remove(co);
                 }
             }
@@ -145,5 +147,4 @@ public class MergeForkBuildMojo extends ScopedCheckoutsMojo
             }
         }
     }
-
 }

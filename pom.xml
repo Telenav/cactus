@@ -49,9 +49,9 @@
         <module>cactus-metadata</module>
         <module>cactus-maven-model</module>
         <module>cactus-maven-plugin</module>
-        <module>mavenlog</module>
-        <module>git</module>
-        <module>cli</module>
+        <module>cactus-maven-log</module>
+        <module>cactus-git</module>
+        <module>cactus-cli</module>
         <module>graph</module>
     </modules>
 
@@ -62,7 +62,7 @@
 
         <cactus.version>1.4.11</cactus.version>
         <!-- Previous version, so we can run cactus against cactus -->
-        <cactus.prev.version>1.4.10</cactus.prev.version>
+        <cactus.previous.version>1.4.11</cactus.previous.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
         will be automatic without requiring a website visit -->
@@ -142,6 +142,7 @@
 
     <dependencyManagement>
         <dependencies>
+
             <!-- Cactus -->
 
             <dependency>
@@ -151,7 +152,7 @@
             </dependency>
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
-                <artifactId>git</artifactId>
+                <artifactId>cactus-git</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>
@@ -161,12 +162,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>cli</artifactId>
+                <artifactId>cactus-cli</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>mavenlog</artifactId>
+                <artifactId>cactus-maven-log</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>
@@ -510,7 +511,7 @@
                     <plugin>
                         <groupId>com.telenav.cactus</groupId>
                         <artifactId>cactus-maven-plugin</artifactId>
-                        <version>${cactus.prev.version}</version>
+                        <version>${cactus.previous.version}</version>
                         <executions>
                             <execution>
                                 <id>lexakai</id>
@@ -519,9 +520,9 @@
                                     <goal>lexakai</goal>
                                 </goals>
                                 <configuration>
-                                    <verbose>true</verbose>
-                                    <overwrite-resources>true</overwrite-resources>
-                                    <update-readme>true</update-readme>
+                                    <cactus.verbose>true</cactus.verbose>
+                                    <cactus.overwrite-resources>true</cactus.overwrite-resources>
+                                    <cactus.update-readme>true</cactus.update-readme>
                                 </configuration>
                             </execution>
                             <execution>
@@ -532,7 +533,7 @@
                                     <goal>codeflowers</goal>
                                 </goals>
                                 <configuration>
-                                    <telenav.family>FAMILY_OR_CHILD_FAMILY</telenav.family>
+                                    <cactus.family>FAMILY_OR_CHILD_FAMILY</cactus.family>
                                 </configuration>
                             </execution>
                         </executions>

@@ -18,9 +18,9 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -38,6 +38,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -48,20 +49,20 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
     /**
      * The branch they should be on.
      */
-    @Parameter(property = "telenav.assets-branch", defaultValue = "publish")
+    @Parameter(property = "cactus.assets-branch", defaultValue = "publish")
     private String assetsBranch;
 
     /**
      * Do a pull first?
      */
-    @Parameter(property = "telenav.assets-pull", defaultValue = "false")
+    @Parameter(property = "cactus.assets-pull", defaultValue = "false")
     private boolean pull;
 
     /**
      * Create a new commit in the submodule root that anchors the submodules on the head commit you have changed them
      * to.
      */
-    @Parameter(property = "telenav.assets-commit", defaultValue = "true")
+    @Parameter(property = "cactus.assets-commit", defaultValue = "true")
     private boolean commit;
 
     public BringAssetsBranchesToHeadMojo()

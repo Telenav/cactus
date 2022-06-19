@@ -18,9 +18,9 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,13 +47,13 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "git-flow", threadSafe = true)
 public class GitFlowMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "telenav.operation", required = true)
+    @Parameter(property = "cactus.operation", required = true)
     private String operation;
 
-    @Parameter(property = "telenav.branch-type", required = true)
+    @Parameter(property = "cactus.branch-type", required = true)
     private String branchType;
 
-    @Parameter(property = "telenav.branch", required = true)
+    @Parameter(property = "cactus.branch", required = true)
     private String branch;
 
     @Override

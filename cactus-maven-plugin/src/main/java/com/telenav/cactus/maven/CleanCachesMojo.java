@@ -18,10 +18,10 @@
 
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.cli.PathUtils;
+import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.cli.PathUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -42,6 +42,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.CLEAN,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -124,7 +125,7 @@ public class CleanCachesMojo extends BaseMojo
         }
     }
 
-    @Parameter(property = "telenav.cache-finding-strategy",
+    @Parameter(property = "cactus.cache-finding-strategy",
                defaultValue = "byGroupIdVersion")
     private String cacheFindingStrategy;
 

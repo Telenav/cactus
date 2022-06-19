@@ -18,11 +18,11 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -85,32 +85,32 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     /**
      * The stable branch to merge into.
      */
-    @Parameter(property = "telenav.stable-branch", defaultValue = "develop")
+    @Parameter(property = "cactus.stable-branch", defaultValue = "develop")
     private String stableBranch;
 
     /**
      * The branch to merge into the stable branch if the build succeeds.
      */
-    @Parameter(property = "telenav.merge-branch", required = true)
+    @Parameter(property = "cactus.merge-branch", required = true)
     private String mergeBranch;
 
     /**
      * If true, merge and push to the remote stable branch on success.
      */
-    @Parameter(property = "telenav.push", defaultValue = "false")
+    @Parameter(property = "cactus.push", defaultValue = "false")
     private boolean push;
 
     /**
      * If true, log what will be done.
      */
-    @Parameter(property = "telenav.verbose", defaultValue = "true")
+    @Parameter(property = "cactus.verbose", defaultValue = "true")
     private boolean verbose;
 
     /**
      * If true, allow some checkouts not to have a branch with the stable-branch name, and simply do not move them to a
      * branch - this is primarily for testing.
      */
-    @Parameter(property = "telenav.ignore-no-stable-branch", defaultValue = "true")
+    @Parameter(property = "cactus.ignore-no-stable-branch", defaultValue = "true")
     private boolean ignoreNoStableBranch;
 
     /**
@@ -118,7 +118,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
      * branches. Continuous builds will want this always set to true, but it can slow things down for local testing of
      * changes to this mojo.
      */
-    @Parameter(property = "telenav.fetch-first", defaultValue = "false")
+    @Parameter(property = "cactus.fetch-first", defaultValue = "false")
     private boolean fetchFirst;
 
     private String tempBranch;
