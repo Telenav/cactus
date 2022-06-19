@@ -18,12 +18,14 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.util.EnumMatcher;
+import org.apache.maven.plugin.MojoExecutionException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,37 +33,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Branch creation logic shared between CheckoutMojo and DevelopmentPrepMojo.
+ * Branch creation logic shared between CheckoutMojo and CheckoutMojo.
  */
 class Brancher
 {
 
-    private final String branch;
-    private final String failoverBaseBranch;
-    private final BuildLog log;
-    private final BaseMojo mojo;
-    private final boolean pretend;
-    private final NonexistentBranchBehavior onNoBranch;
-
-    public Brancher(String branch, String failoverBaseBranch, BuildLog log,
-            BaseMojo mojo, boolean pretend, NonexistentBranchBehavior onNoBranch)
-    {
-        this.branch = branch == null
-                      ? failoverBaseBranch
-                      : branch;
-        this.failoverBaseBranch = failoverBaseBranch;
-        this.log = log.child("brancher");
-        this.mojo = mojo;
-        this.pretend = pretend;
-        this.onNoBranch = onNoBranch;
-    }
-
     /**
-     * How the brancher should behave if the requested branch does not exist
-     * locally or remotely.
+     * How the brancher should behave if the requested branch does not exist locally or remotely.
      */
     public enum NonexistentBranchBehavior
     {
@@ -80,14 +60,56 @@ class Brancher
     {
     }
 
+    private final String branch;
+
+    private final String failoverBaseBranch;
+
+    private final BuildLog log;
+
+    private final BaseMojo mojo;
+
+    private final boolean pretend;
+
+    private final NonexistentBranchBehavior onNoBranch;
+
+    public Brancher(String branch, String failoverBaseBranch, BuildLog log,
+                    BaseMojo mojo, boolean pretend, NonexistentBranchBehavior onNoBranch)
+    {
+        this.branch = branch == null
+                ? failoverBaseBranch
+                : branch;
+        this.failoverBaseBranch = failoverBaseBranch;
+        this.log = log.child("brancher");
+        this.mojo = mojo;
+        this.pretend = pretend;
+        this.onNoBranch = onNoBranch;
+    }
+
     List<GitCheckout> checkoutsNotAlreadyOnBranch(List<GitCheckout> checkouts)
     {
         return checkouts.stream().filter(co -> !co.isBranch(branch)).collect(
                 Collectors.toCollection(ArrayList::new));
     }
 
+    void fetchAll(Collection<? extends GitCheckout> checkouts, BuildLog log)
+            throws MojoExecutionException
+    {
+        for (GitCheckout checkout : checkouts)
+        {
+            log.info("Fetch all in " + checkout.name());
+            if (!pretend)
+            {
+                if (!checkout.fetchAll())
+                {
+                    mojo.fail("Fetch all failed in " + checkout);
+                }
+            }
+        }
+    }
+
     Set<GitCheckout> needingBranch(ProjectTree tree,
-            Collection<? extends GitCheckout> toProcess, BuildLog log) throws MojoExecutionException
+                                   Collection<? extends GitCheckout> toProcess,
+                                   BuildLog log) throws MojoExecutionException
     {
         Set<GitCheckout> needingBranchCreation = new HashSet<>();
         for (GitCheckout co : toProcess)
@@ -131,57 +153,8 @@ class Brancher
         return needingBranchCreation;
     }
 
-    void updateRemoteHeads(Collection<? extends GitCheckout> checkouts,
-            ProjectTree tree, BuildLog log)
-    {
-        checkouts.forEach(co ->
-        {
-            log.info("Update remote heads for " + co.name());
-            if (!pretend)
-            {
-                co.updateRemoteHeads();
-            }
-        });
-        tree.invalidateCache();
-    }
-
-    boolean updateBranches(List<GitCheckout> checkouts, BuildLog buildLog,
-            ProjectTree tree) throws MojoExecutionException
-    {
-        List<GitCheckout> toProcess = checkoutsNotAlreadyOnBranch(checkouts);
-        if (toProcess.isEmpty())
-        {
-            buildLog.info(
-                    "All matched checkouts are already on branch '" + branch + '\'');
-            return false;
-        }
-        updateRemoteHeads(toProcess, tree, buildLog.child("updateHeads"));
-        Set<GitCheckout> createLocalBranch = needingBranch(tree, toProcess,
-                buildLog.child("branchAbsent"));
-        fetchAll(toProcess, buildLog.child("fetchAll"));
-        performCheckouts(toProcess, buildLog.child("checkout"),
-                createLocalBranch);
-        return true;
-    }
-
-    void fetchAll(Collection<? extends GitCheckout> checkouts, BuildLog log)
-            throws MojoExecutionException
-    {
-        for (GitCheckout checkout : checkouts)
-        {
-            log.info("Fetch all in " + checkout.name());
-            if (!pretend)
-            {
-                if (!checkout.fetchAll())
-                {
-                    mojo.fail("Fetch all failed in " + checkout);
-                }
-            }
-        }
-    }
-
     void performCheckouts(List<GitCheckout> toProcess, BuildLog log,
-            Set<GitCheckout> createLocalBranch) throws MojoExecutionException
+                          Set<GitCheckout> createLocalBranch) throws MojoExecutionException
     {
         for (GitCheckout checkout : toProcess)
         {
@@ -201,5 +174,38 @@ class Brancher
                 }
             }
         }
+    }
+
+    boolean updateBranches(List<GitCheckout> checkouts, BuildLog buildLog,
+                           ProjectTree tree) throws MojoExecutionException
+    {
+        List<GitCheckout> toProcess = checkoutsNotAlreadyOnBranch(checkouts);
+        if (toProcess.isEmpty())
+        {
+            buildLog.info(
+                    "All matched checkouts are already on branch '" + branch + '\'');
+            return false;
+        }
+        updateRemoteHeads(toProcess, tree, buildLog.child("updateHeads"));
+        Set<GitCheckout> createLocalBranch = needingBranch(tree, toProcess,
+                buildLog.child("branchAbsent"));
+        fetchAll(toProcess, buildLog.child("fetchAll"));
+        performCheckouts(toProcess, buildLog.child("checkout"),
+                createLocalBranch);
+        return true;
+    }
+
+    void updateRemoteHeads(Collection<? extends GitCheckout> checkouts,
+                           ProjectTree tree, BuildLog log)
+    {
+        checkouts.forEach(co ->
+        {
+            log.info("Update remote heads for " + co.name());
+            if (!pretend)
+            {
+                co.updateRemoteHeads();
+            }
+        });
+        tree.invalidateCache();
     }
 }

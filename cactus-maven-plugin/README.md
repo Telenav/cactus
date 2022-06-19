@@ -67,7 +67,7 @@ just want to get all of them onto the default development branch to do some codi
 branch name is _develop_ - you can pass `-Dbase-branch=whatever` if you use something else):
 ```
 mvn -Dtelenav.scope=ALL -Dupdate-root=true -Dpermit-local-changes=true \
-    com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+    com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
 ```
 
 Or, say you want to work on a new feature branch named `woovlesnorks`
@@ -77,7 +77,7 @@ Or, say you want to work on a new feature branch named `woovlesnorks`
   mvn -Dtelenav.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
     -Dtarget-branch=feature/woovlesnorks -Dpermit-local-changes=true \
     -Dtelenav.update-root=true -Dpush=true \
-    com.telenav.cactus:cactus-maven-plugin:1.4.7:dev-prep
+    com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
 ```
 
 ForkBuildMojo and MergeToBranchMojo can be combined (running the former on the `validate` phase
