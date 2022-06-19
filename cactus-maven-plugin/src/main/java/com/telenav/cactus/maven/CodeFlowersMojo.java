@@ -18,11 +18,11 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
+import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.maven.sourceanalysis.CodeflowersJsonGenerator;
 import com.telenav.cactus.maven.sourceanalysis.MavenProjectsScanner;
 import com.telenav.cactus.maven.sourceanalysis.WordCount;
@@ -47,6 +47,7 @@ import java.util.Set;
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -57,7 +58,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
     /**
      * If true, generate JSON files indented for human-readability; if false, omit all inter-element whitespace.
      */
-    @Parameter(property = "telenav.indent", defaultValue = "false")
+    @Parameter(property = "cactus.indent", defaultValue = "false")
     private boolean indent = false;
 
     @Override

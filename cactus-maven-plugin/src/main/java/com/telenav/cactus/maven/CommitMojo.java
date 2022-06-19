@@ -17,9 +17,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -37,18 +37,16 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * <b>must</b> be supplied (try enclosing the -D argument entirely on the
  * command-line, e.g. <code>'-Dcommit-message=Some commit message'</code>).
  * <p>
- * The scope for which commits are generated is FAMILY by default, generating
- * commits for all git sub-repositories of the subrepo parent which share a
- * project family (derived from the project's groupId). Passing ALL will change
- * it to any repos containing modified sources). JUST_THIS will commit only the
- * repository that owns the current project.
+ * The scope for which commits are generated is FAMILY by default, generating commits for all git sub-repositories of
+ * the subrepo parent which share a project family (derived from the project's groupId). Passing ALL will change it to
+ * any repos containing modified sources). JUST_THIS will commit only the repository that owns the current project.
  * </p>
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
+                "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -61,24 +59,24 @@ public class CommitMojo extends ScopedCheckoutsMojo
     /**
      * The commit message.
      */
-    @Parameter(property = "telenav.commit-message", required = true,
-            name = "commitMessage")
+    @Parameter(property = "cactus.commit-message", required = true,
+               name = "commitMessage")
     private String commitMessage;
 
     /**
-     * If true, push after committing. If no remote branch of the same name as
-     * the local branch exists, one will be created.
+     * If true, push after committing. If no remote branch of the same name as the local branch exists, one will be
+     * created.
      */
-    @Parameter(property = "push", defaultValue = "false")
+    @Parameter(property = "cactus.push", defaultValue = "false")
     private boolean push;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> matched) throws Exception
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> matched) throws Exception
     {
         List<GitCheckout> checkouts = matched.stream().filter(
-                GitCheckout::hasUncommitedChanges)
+                        GitCheckout::hasUncommitedChanges)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (checkouts.isEmpty())
@@ -110,8 +108,8 @@ public class CommitMojo extends ScopedCheckoutsMojo
         for (GitCheckout at : checkouts)
         {
             log.info("add/commit " + (at.name().isEmpty()
-                                      ? "(root)"
-                                      : at.name()));
+                    ? "(root)"
+                    : at.name()));
             if (!isPretend())
             {
                 at.addAll();

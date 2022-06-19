@@ -18,9 +18,9 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,7 +47,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
+                "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -96,25 +96,25 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
         }
     }
 
-    @Parameter(property = "telenav.version")
+    @Parameter(property = "cactus.version")
     private String version;
 
-    @Parameter(property = "telenav.branch-name")
+    @Parameter(property = "cactus.branch-name")
     private String branchName;
 
     private final Map<String, Replacement> variables = new HashMap<>();
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts) throws Exception
+                           GitCheckout myCheckout, ProjectTree tree,
+                           List<GitCheckout> checkouts) throws Exception
     {
         for (var checkout : checkouts)
         {
             var branchName = this.branchName == null && checkout.branch()
                     .isPresent()
-                         ? checkout.branch().get()
-                         : this.branchName;
+                    ? checkout.branch().get()
+                    : this.branchName;
 
             if (version == null)
             {
@@ -134,7 +134,7 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
 
             if (!isPretend())
             {
-                try ( var walk = Files.walk(checkout.checkoutRoot()))
+                try (var walk = Files.walk(checkout.checkoutRoot()))
                 {
                     walk.filter(path -> path.toFile().isFile()).forEach(file ->
                     {

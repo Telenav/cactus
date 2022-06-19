@@ -61,7 +61,7 @@
 
         <cactus.version>1.4.11</cactus.version>
         <!-- Previous version, so we can run cactus against cactus -->
-        <cactus.prev.version>1.4.11</cactus.prev.version>
+        <cactus.previous.version>1.4.11</cactus.previous.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
         will be automatic without requiring a website visit -->
@@ -141,6 +141,7 @@
 
     <dependencyManagement>
         <dependencies>
+
             <!-- Cactus -->
 
             <dependency>
@@ -499,7 +500,7 @@
                     <plugin>
                         <groupId>com.telenav.cactus</groupId>
                         <artifactId>cactus-maven-plugin</artifactId>
-                        <version>${cactus.prev.version}</version>
+                        <version>${cactus.previous.version}</version>
                         <executions>
                             <execution>
                                 <id>lexakai</id>
@@ -508,9 +509,9 @@
                                     <goal>lexakai</goal>
                                 </goals>
                                 <configuration>
-                                    <verbose>true</verbose>
-                                    <overwrite-resources>true</overwrite-resources>
-                                    <update-readme>true</update-readme>
+                                    <cactus.verbose>true</cactus.verbose>
+                                    <cactus.overwrite-resources>true</cactus.overwrite-resources>
+                                    <cactus.update-readme>true</cactus.update-readme>
                                 </configuration>
                             </execution>
                             <execution>
@@ -521,7 +522,7 @@
                                     <goal>codeflowers</goal>
                                 </goals>
                                 <configuration>
-                                    <telenav.family>FAMILY_OR_CHILD_FAMILY</telenav.family>
+                                    <cactus.family>FAMILY_OR_CHILD_FAMILY</cactus.family>
                                 </configuration>
                             </execution>
                         </executions>

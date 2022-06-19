@@ -6,11 +6,11 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
- * Variation of the copy-javadoc mojo which only copies aggregated javadoc for
- * pom projects.
+ * Variation of the copy-javadoc mojo which only copies aggregated javadoc for pom projects.
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.POST_SITE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -23,5 +23,4 @@ public class CopyAggregatedJavadocMojo extends CopyJavadocMojo
     {
         super(RunPolicies.POM_PROJECT_ONLY.and(RunPolicies.LAST));
     }
-
 }

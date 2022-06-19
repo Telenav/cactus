@@ -18,9 +18,9 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.metadata.BuildMetadata;
 import com.telenav.cactus.metadata.BuildMetadataUpdater;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -50,6 +50,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -61,14 +62,14 @@ public class BuildMetadataMojo extends BaseMojo
     /**
      * The relative path to the destination directory.
      */
-    @Parameter(property = "telenav.project-properties-destination",
+    @Parameter(property = "cactus.project-properties-destination",
                defaultValue = "target/classes/project.properties")
     private String projectPropertiesDestination;
 
     /**
      * If true, log the contents of generated files.
      */
-    @Parameter(property = "telenav.verbose", defaultValue = "false")
+    @Parameter(property = "cactus.verbose", defaultValue = "false")
     private boolean verbose;
 
     @Override

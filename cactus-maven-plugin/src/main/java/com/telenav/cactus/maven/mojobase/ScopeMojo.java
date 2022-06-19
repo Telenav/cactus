@@ -68,7 +68,7 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @see Scope#FAMILY
      */
-    @Parameter(property = "telenav.scope", name = "scopeProperty",
+    @Parameter(property = "cactus.scope", name = "scopeProperty",
             defaultValue = "FAMILY")
     private String scopeProperty;
 
@@ -80,20 +80,20 @@ public abstract class ScopeMojo extends BaseMojo
      * commit than before, in order to ensure that a commit is generated for the
      * submodule parent updating it to point to the new commit(s).
      */
-    @Parameter(property = "telenav.include-root", defaultValue = "true")
+    @Parameter(property = "cactus.include-root", defaultValue = "true")
     private boolean includeRoot;
 
     /**
      * Override the project family, using this value instead of one derived from
      * the project's group id. Only relevant for scopes concerned with families.
      */
-    @Parameter(property = "telenav.family", defaultValue = "")
+    @Parameter(property = "cactus.family", defaultValue = "")
     private String family;
 
     /**
      * If true, do not actually make changes, just print what would be done.
      */
-    @Parameter(property = "telenav.pretend", defaultValue = "false")
+    @Parameter(property = "cactus.pretend", defaultValue = "false")
     private boolean pretend;
 
     private Scope scope;

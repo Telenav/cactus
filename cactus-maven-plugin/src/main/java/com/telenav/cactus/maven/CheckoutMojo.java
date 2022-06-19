@@ -61,7 +61,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * </ul>
  * <p>
  * Like other mojos in this plugin, the set of repositories that are altered can
- * be controlled by the <code>telenav.scope</code> property, to apply to all git
+ * be controlled by the <code>cactus.scope</code> property, to apply to all git
  * repositories matching that scope - all subrepositories are scanned, and those
  * containing maven projects matching the scope are selected.
  * </p>
@@ -74,7 +74,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * onto the default development branch:
  * <pre>
  *
- * mvn -Dtelenav.scope=all -Dupdate-root=true -Dpermit-local-changes=true \
+ * mvn -Dcactus.scope=all -Dupdate-root=true -Dpermit-local-changes=true \
  *    com.telenav.cactus:cactus-maven-plugin:checkout
  *
  * </pre>
@@ -85,7 +85,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * new branches:
  * <pre>
  *
- * mvn -Dtelenav.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
+ * mvn -Dcactus.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
  *      -Dpush=true -Dtarget-branch=feature/foo -Dpermit-local-changes=true \
  *      com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
  *
@@ -96,7 +96,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * commit id:
  * <pre>
  *
- * mvn -Dtelenav.scope=FAMILY -Dcreate-branches=false \
+ * mvn -Dcactus.scope=FAMILY -Dcreate-branches=false \
  *     -Dupdate-root=false -Doverride-branch-in=kivakit-stuff \
  *     -Doverride-branch-with=$PULL_REQUEST_REF \
  *      com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
@@ -107,6 +107,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -484,14 +485,14 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * If true, perform a git fetch before testing for branch existence so that the set of remote branches is as
      * accurate as possible.
      */
-    @Parameter(property = "telenav.fetch-first",
+    @Parameter(property = "cactus.fetch-first",
                defaultValue = "true")
     private boolean fetchFirst;
 
     /**
      * If true, create branches if they do not exist.
      */
-    @Parameter(property = "telenav.create-branches",
+    @Parameter(property = "cactus.create-branches",
                defaultValue = "false")
     boolean createBranchesIfNeeded;
 
@@ -499,14 +500,14 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * If true, update <code>.gitmodules</code> in the submodule root to spell out the new branches for those checkouts
      * that changed, and generate a commit in it.
      */
-    @Parameter(property = "telenav.update-root",
+    @Parameter(property = "cactus.update-root",
                defaultValue = "true")
     boolean updateRoot = true;
 
     /**
      * If we create new branches, push them to the remote immediately.
      */
-    @Parameter(property = "telenav.push",
+    @Parameter(property = "cactus.push",
                defaultValue = "false")
     boolean push;
 
@@ -516,14 +517,14 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * <p>
      * If unset, the base branch is used as the target to get checkouts onto.
      */
-    @Parameter(property = "telenav.target-branch")
+    @Parameter(property = "cactus.target-branch")
     String targetBranch;
 
     /**
      * The base branch which new feature-branches should be created from, and which, if createBranchesIfNeeded is false,
      * should be used as the fallback branch to put checkouts on if the target branch does not exist.
      */
-    @Parameter(property = "telenav.base-branch", defaultValue = "develop",
+    @Parameter(property = "cactus.base-branch", defaultValue = "develop",
                required = true)
     String baseBranch = "develop";
 
@@ -534,7 +535,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * This is the submodule path that should be put on the commit identified by override-branch-with.
      * </p>
      */
-    @Parameter(property = "telenav.override-branch-in")
+    @Parameter(property = "cactus.override-branch-in")
     String overrideBranchSubmodule;
 
     /**
@@ -544,7 +545,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * This is the branch name or commit ID the repo identified in override-branch-in should be updated to.
      * </p>
      */
-    @Parameter(property = "telenav.override-branch-with")
+    @Parameter(property = "cactus.override-branch-with")
     String overrideBranchWith;
 
     /**
@@ -553,7 +554,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * target branch's head commit. Ignored and the build files if there are local changes <i>and</i> the branch exists
      * remotely but not locally.
      */
-    @Parameter(property = "telenav.permit-local-changes",
+    @Parameter(property = "cactus.permit-local-changes",
                defaultValue = "false")
     boolean permitLocalChanges = false;
 

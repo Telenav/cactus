@@ -36,9 +36,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import static com.telenav.cactus.cli.PathUtils.copyFolderTree;
+
 /**
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.POST_SITE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -54,29 +57,29 @@ public class CopyJavadocMojo extends BaseMojo
     /**
      * The relative path from the project basedir to the location of javadoc output.
      */
-    @Parameter(property = "javadoc-relative-path",
+    @Parameter(property = "cactus.javadoc-relative-path",
                defaultValue = "target/site/apidocs")
-    private String javadocRelativePath = "target/site/apidocs";
+    private final String javadocRelativePath = "target/site/apidocs";
 
     /**
      * If set, delete any files in the destination before copying.
      */
-    @Parameter(property = "delete-existing",
+    @Parameter(property = "cactus.delete-existing",
                defaultValue = "false")
     private boolean deleteExisting;
 
     /**
      * If set, do not actually perform filesystem operations; just log what would be done.
      */
-    @Parameter(property = "telenav.pretend",
+    @Parameter(property = "cactus.pretend",
                defaultValue = "false")
     private boolean pretend;
 
     /**
-     * The Javadoc mojo's skip property, so we can test if there will be no javadoc to copy. If set to true, the project
-     * will be skipped.
+     * The Javadoc skip property, so we can test if there will be no javadoc to copy. If set to true, the project will
+     * be skipped.
      */
-    @Parameter(property = "javadoc.skip",
+    @Parameter(property = "cactus.javadoc-skip",
                defaultValue = "false")
     private boolean javadocSkip;
 
@@ -84,7 +87,7 @@ public class CopyJavadocMojo extends BaseMojo
      * The telenav do-not-deploy-to-maven-central property, used by projects which are unit tests only and have no use
      * as a dependency. If set to true, the project will be skipped.
      */
-    @Parameter(property = "do.not.deploy",
+    @Parameter(property = "cactus.do-not-deploy",
                defaultValue = "false")
     private boolean doNotDeploy;
 
@@ -149,7 +152,6 @@ public class CopyJavadocMojo extends BaseMojo
 
     private void copyJavadoc(Path javadocOrigin, MavenProject project,
                              BuildLog log)
-            throws Exception
     {
         ProjectFamily family = ProjectFamily.of(project);
         ThrowingOptional.from(GitCheckout

@@ -17,10 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -68,24 +68,23 @@ public class PushMojo extends ScopedCheckoutsMojo
     static boolean needPull(GitCheckout checkout)
     {
         return checkout.mergeBase().map((String mergeBase)
-                -> checkout.remoteHead().map((String remoteHead)
+                        -> checkout.remoteHead().map((String remoteHead)
                         -> checkout.head().equals(mergeBase)).orElse(false))
                 .orElse(false);
     }
 
     /**
-     * If true, do not abort if the repository to be pushed contains local
-     * modifications - this is usually an indication that committing was
-     * neglected, but there are occasions when it is desirable.
+     * If true, do not abort if the repository to be pushed contains local modifications - this is usually an indication
+     * that committing was neglected, but there are occasions when it is desirable.
      */
-    @Parameter(property = "telenav.permit.local.modifications",
-            defaultValue = "true")
+    @Parameter(property = "cactus.permit-local-modifications",
+               defaultValue = "true")
     private boolean permitLocalModifications;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+                           GitCheckout myCheckout,
+                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
         // Depth first sort, so we process the submodule root last, in
         // case commits to child modules put it into the dirty state.
@@ -146,7 +145,7 @@ public class PushMojo extends ScopedCheckoutsMojo
     }
 
     private void pullIfNeededAndPush(BuildLog log, MavenProject project,
-            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
+                                     List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
     {
         Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child(
                 "checkNeedPull"));
@@ -155,7 +154,7 @@ public class PushMojo extends ScopedCheckoutsMojo
     }
 
     private void push(List<Map.Entry<GitCheckout, NeedPushResult>> needingPush,
-            BuildLog log)
+                      BuildLog log)
     {
         log.warn("Begin push.");
         for (Map.Entry<GitCheckout, NeedPushResult> co : needingPush)

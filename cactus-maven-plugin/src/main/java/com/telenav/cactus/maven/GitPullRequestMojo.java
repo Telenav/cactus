@@ -18,9 +18,9 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,13 +47,13 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "git-pull-request", threadSafe = true)
 public class GitPullRequestMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "telenav.authentication-token", required = true)
+    @Parameter(property = "cactus.authentication-token", required = true)
     private String authenticationToken;
 
-    @Parameter(property = "telenav.title", required = true)
+    @Parameter(property = "cactus.title", required = true)
     private String title;
 
-    @Parameter(property = "telenav.body", required = true)
+    @Parameter(property = "cactus.body", required = true)
     private String body;
 
     @Override
