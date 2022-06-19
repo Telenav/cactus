@@ -25,7 +25,7 @@ This module contains tools for building modules and applications.
 
 [//]: # (start-user-text)
 
-> [How to build this project](https://github.com/Telenav/telenav-build/blob/master/documentation/building.md) <!-- [branch-name] --> 
+> [How to build this project](https://github.com/Telenav/telenav-build/blob/release/current/documentation/building.md) <!-- [branch-name] --> 
 
 [//]: # (end-user-text)
 
