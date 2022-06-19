@@ -49,9 +49,9 @@
         <module>cactus-metadata</module>
         <module>cactus-maven-model</module>
         <module>cactus-maven-plugin</module>
-        <module>mavenlog</module>
-        <module>git</module>
-        <module>cli</module>
+        <module>cactus-maven-log</module>
+        <module>cactus-git</module>
+        <module>cactus-cli</module>
     </modules>
 
     <!-- Properties -->
