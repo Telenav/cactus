@@ -1,15 +1,18 @@
 package com.telenav.cactus.maven.model;
 
-import java.util.Optional;
+import com.mastfrog.function.optional.ThrowingOptional;
+import java.nio.file.Path;
 import org.w3c.dom.Node;
 
 /**
+ * Extension of MavenCoordinates which may have a relative path to a parent pom
+ * or project.
  *
  * @author Tim Boudreau
  */
-public class ParentMavenCoordinates extends MavenCoordinates
+public final class ParentMavenCoordinates extends MavenCoordinates
 {
-    public final Optional<String> relativePath;
+    public final ThrowingOptional<String> relativePath;
 
     public ParentMavenCoordinates(Node groupId, Node artifactId, Node version,
             Node rp)
@@ -22,7 +25,28 @@ public class ParentMavenCoordinates extends MavenCoordinates
             String version, String relativePath)
     {
         super(groupId, artifactId, version);
-        this.relativePath = Optional.ofNullable(relativePath);
+        this.relativePath = ThrowingOptional.ofNullable(relativePath);
+    }
+
+    @Override
+    boolean isVersionResolved()
+    {
+        // A parent POM MUST always be fully resolved or it is unusable
+        return true;
+    }
+
+    public ThrowingOptional<Path> relativePath(Path to)
+    {
+        return relativePath.map(p -> to.resolve(p));
+    }
+
+    @Override
+    public ParentMavenCoordinates withVersion(String newVersion)
+    {
+        return new ParentMavenCoordinates(groupId, artifactId, newVersion,
+                relativePath.isPresent()
+                ? relativePath.get()
+                : null);
     }
 
     private static String relativePathFrom(Node n)
