@@ -18,13 +18,11 @@
 
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.google.common.base.Strings;
-import com.telenav.cactus.maven.Brancher.NonexistentBranchBehavior;
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.maven.Brancher.NonexistentBranchBehavior;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -54,7 +52,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     @Parameter(property = "telenav.branch", required = true)
     private String branch;
 
-    @Parameter(property = "telenav.failover-base-branch", required = true)
+    @Parameter(property = "telenav.failover-base-branch")
     private String failoverBaseBranch;
 
     @Override
@@ -76,11 +74,6 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        if (Strings.isNullOrEmpty(branch))
-        {
-            throw new MojoExecutionException(project.getBasedir()
-                    + " does not seem to be part of a git checkout.");
-        }
         validateBranchName(branch, false);
         validateBranchName(failoverBaseBranch, true);
     }
