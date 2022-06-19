@@ -4,7 +4,7 @@
 
 [//]: # (end-user-text)
 
-# cactus-maven-model 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//diagram-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//diagram-32-2x.png 2x"/>
+# cactus-maven-model 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/diagram-48.png" srcset="https://telenav.github.io/telenav-assets/images/icons/diagram-48-2x.png 2x"/>
 
 This module provides a simple model of Maven POM files.
 

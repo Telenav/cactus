@@ -28,6 +28,7 @@
     <properties>
         <enforcer.skip>true</enforcer.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <mastfrog.version>2.8.2</mastfrog.version>
     </properties>
 
     <dependencies>
@@ -46,17 +47,23 @@
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
-        
 
         <!-- Mastfrog -->
 
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>concurrent</artifactId>
+            <version>${mastfrog.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>function</artifactId>
+            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
+            <version>${mastfrog.version}</version>
         </dependency>
 
         <!-- Maven -->

@@ -90,7 +90,7 @@ the "team repositories" concept used for years in NetBeans' development).
 
 [//]: # (end-user-text)
 
-# cactus maven-plugin 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//gears-32-2x.png 2x"/>
+# cactus maven-plugin 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/gears-32-2x.png 2x"/>
 
 This module provides maven support for Telenav Open Source projects.
 

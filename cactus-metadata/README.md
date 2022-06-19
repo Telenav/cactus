@@ -13,7 +13,7 @@
 
 [//]: # (end-user-text)
 
-# cactus metadata 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons//tag-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons//tag-32-2x.png 2x"/>
+# cactus metadata 1.4.3 &nbsp;&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/tag-48.png" srcset="https://telenav.github.io/telenav-assets/images/icons/tag-48-2x.png 2x"/>
 
 This module saves and loads build metadata to *src/main/java/build.properties*.
 

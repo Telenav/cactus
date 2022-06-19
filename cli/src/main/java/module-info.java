@@ -15,8 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-open module com.telenav.cactus.cli {
+
+open module com.telenav.cactus.cli
+{
     requires com.mastfrog.concurrent;
+    requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
     requires com.telenav.cactus.mavenlog;
     exports com.telenav.cactus.cli;
