@@ -6,7 +6,7 @@
         <artifactId>cactus</artifactId>
         <version>1.4.11</version>
     </parent>
-    <artifactId>graph</artifactId>
+    <artifactId>cactus-graph</artifactId>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>graph</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
     </dependencies>
+    <name>cactus-graph</name>
 </project>

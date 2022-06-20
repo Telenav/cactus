@@ -1,7 +1,6 @@
 package com.telenav.cactus.maven.model;
 
 import com.mastfrog.util.preconditions.Exceptions;
-import com.mastfrog.function.optional.ThrowingOptional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,11 +26,10 @@ final class ParentsPropertyResolver extends AbstractPropertyResolver
         this.pomResolver = pomResolver;
         pom.visitParents(pomResolver, (Pom parentPom) ->
         {
-            System.out.println("Parent " + parentPom);
             allPoms.add(parentPom);
         });
     }
-
+    
     @Override
     public String toString()
     {
@@ -55,42 +53,26 @@ final class ParentsPropertyResolver extends AbstractPropertyResolver
         for (Pom pom : allPoms)
         {
             String x = resolverFor(pom).valueFor(k);
-            if (x != null)
+            if (x != null && !k.equals(x))
             {
-                return k;
+                return x;
             }
         }
-        return k;
+        return null;
     }
 
-    private MapPropertyResolver resolverFor(Pom pom)
+    MapPropertyResolver resolverFor(Pom pom)
     {
         return resolverForPom.computeIfAbsent(pom, p ->
         {
             try
             {
-                MapPropertyResolver result = new MapPropertyResolver(pom
-                        .properties());
-                System.out.println("For " + pom.coords + " " + result);
-                return result;
+                return new MapPropertyResolver(p.properties());
             }
             catch (Exception ex)
             {
                 return Exceptions.chuck(ex);
             }
         });
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        Pom pom = PomResolver.local().get("com.mastfrog", "acteur", "2.8.1")
-                .get();
-        System.out.println("HAVE " + pom + " at " + pom.pom);
-        ParentsPropertyResolver propRes = new ParentsPropertyResolver(pom,
-                PomResolver.local());
-        for (String k : propRes)
-        {
-            System.out.println(k + " = " + propRes.resolve(k));
-        }
     }
 }

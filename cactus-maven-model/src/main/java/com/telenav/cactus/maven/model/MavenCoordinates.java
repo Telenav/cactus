@@ -47,6 +47,11 @@ public class MavenCoordinates extends MavenId implements
         this.version = version == null
                        ? PLACEHOLDER
                        : version;
+        if ("mastfrog.version".equals(version))
+        {
+            throw new IllegalArgumentException(
+                    "Creating with a property: " + version + " for " + groupId + ":" + artifactId);
+        }
     }
 
     public MavenCoordinates withVersion(String newVersion)
@@ -71,23 +76,47 @@ public class MavenCoordinates extends MavenId implements
         return artifactId;
     }
 
+    public MavenCoordinates toPlainMavenCoordinates()
+    {
+        return this;
+    }
+
+    @Override
+    public boolean isResolved()
+    {
+        return isVersionResolved() && PropertyResolver.isResolved(groupId)
+                && PropertyResolver.isResolved(artifactId);
+    }
+
     boolean isVersionResolved()
     {
         return !PLACEHOLDER.equals(version) && version != null
                 && PropertyResolver.isResolved(version);
     }
-    
-    private MavenCoordinates resolveGidAid(PropertyResolver res) {
-        if (!PropertyResolver.isResolved(groupId) || !PropertyResolver.isResolved(artifactId)) {
+
+    private MavenCoordinates resolveGidAid(PropertyResolver res)
+    {
+        if (!PropertyResolver.isResolved(groupId) || !PropertyResolver
+                .isResolved(artifactId))
+        {
             String gid = res.resolve(groupId);
+            if ("project.groupId".equals(gid))
+            {
+                throw new IllegalStateException(
+                        "Resolved raw prop from " + groupId + " by " + res);
+            }
+
             String aid = res.resolve(artifactId);
-            if (aid == null) {
+            if (aid == null)
+            {
                 aid = artifactId;
             }
-            if (gid == null) {
+            if (gid == null)
+            {
                 gid = groupId;
             }
-            if (!aid.equals(artifactId) || !gid.equals(groupId)) {
+            if (!aid.equals(artifactId) || !gid.equals(groupId))
+            {
                 return new MavenCoordinates(gid, aid, version);
             }
         }
@@ -111,7 +140,8 @@ public class MavenCoordinates extends MavenId implements
         else
             if (!PropertyResolver.isResolved(version))
             {
-                return resolveGidAid(res).withResolvedVersion(() -> res.resolve(version));
+                String v = res.resolve(version);
+                return resolveGidAid(res).withResolvedVersion(() -> v);
             }
         return resolveGidAid(res);
     }

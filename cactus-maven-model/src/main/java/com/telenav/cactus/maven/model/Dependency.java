@@ -21,6 +21,8 @@ public class Dependency implements MavenIdentified, MavenVersioned
     public final DependencyScope scope;
     public final boolean optional;
     public final Set<MavenId> exclusions;
+    public final boolean implicitScope;
+    public final boolean implicitType;
 
     public Dependency(MavenCoordinates coords, String type, String scope,
             boolean optional, Set<MavenId> exclusions)
@@ -39,6 +41,8 @@ public class Dependency implements MavenIdentified, MavenVersioned
         this.scope = scope == null
                      ? DependencyScope.Compile
                      : scope;
+        implicitScope = scope == null;
+        implicitType = type == null;
         this.optional = optional;
         this.exclusions = exclusions == null || exclusions.isEmpty()
                           ? Collections.emptySet()
@@ -51,14 +55,21 @@ public class Dependency implements MavenIdentified, MavenVersioned
         return coords.toMavenId();
     }
 
-//    static List<Dependency> combine(List<Dependency> a, List<Dependency> b) {
-//        
-//    }
     public Optional<Dependency> merge(Dependency other)
     {
-        if (!other.coords.is(coords))
+        if (!other.coords.toMavenId().equals(other.toMavenId()))
         {
             return Optional.empty();
+        }
+        if (other.version().isPresent() && version().isPresent() && !version()
+                .get().equals(other.version().get()))
+        {
+            return Optional.empty();
+        }
+        String type = this.type;
+        if (implicitType && !other.implicitType)
+        {
+            type = other.type;
         }
         if (!other.type.equals(type))
         {
@@ -67,8 +78,26 @@ public class Dependency implements MavenIdentified, MavenVersioned
         Set<MavenId> isect = new HashSet<>(other.exclusions);
         isect.retainAll(exclusions);
         boolean opt = optional && other.optional;
-        DependencyScope sc = scope.coalesce(other.scope);
-        return Optional.of(new Dependency(coords, type, sc, opt, isect));
+        DependencyScope sc;
+        if (implicitScope && !other.implicitScope)
+        {
+            sc = other.scope;
+        }
+        else
+            if (!implicitScope && other.implicitScope)
+            {
+                sc = scope;
+            }
+            else
+            {
+                sc = scope.coalesce(other.scope);
+            }
+        Dependency result = new Dependency(coords, type, sc, opt, isect);
+        if (result.equals(this))
+        {
+            return Optional.empty();
+        }
+        return Optional.of(result);
     }
 
     public boolean excludes(MavenIdentified id)
@@ -131,7 +160,7 @@ public class Dependency implements MavenIdentified, MavenVersioned
         int hash = 7;
         hash = 11 * hash + Objects.hashCode(this.coords);
         hash = 11 * hash + Objects.hashCode(this.type);
-        hash = 11 * hash + Objects.hashCode(this.scope);
+        hash = 11 * hash + this.scope.ordinal();
         hash = 11 * hash + (this.optional
                             ? 1
                             : 0);
@@ -166,6 +195,6 @@ public class Dependency implements MavenIdentified, MavenVersioned
                 + exclusions.toString()
                 + (optional
                    ? " optional"
-                   : "") + ")");
+                   : "")) + ")";
     }
 }

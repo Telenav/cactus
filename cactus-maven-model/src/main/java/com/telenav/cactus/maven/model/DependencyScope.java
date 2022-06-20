@@ -35,7 +35,7 @@ public enum DependencyScope
     }
 
     @SuppressWarnings("ManualArrayToCollectionCopy")
-    private Set<DependencyScope> set(DependencyScope... scopes)
+    public static Set<DependencyScope> set(DependencyScope... scopes)
     {
         Set<DependencyScope> result = EnumSet.noneOf(DependencyScope.class);
         for (DependencyScope sc : scopes)
@@ -55,7 +55,7 @@ public enum DependencyScope
         {
             case Compile:
                 return trans = Collections
-                        .unmodifiableSet(set(Compile, Runtime));
+                        .unmodifiableSet(set(Compile, Runtime, Provided));
             case Test:
                 return trans = Collections.unmodifiableSet(set(Compile, Runtime,
                         Provided));
@@ -76,7 +76,7 @@ public enum DependencyScope
     {
         if (what == null || what.isBlank())
         {
-            return Compile;
+            return null;
         }
         switch (what)
         {

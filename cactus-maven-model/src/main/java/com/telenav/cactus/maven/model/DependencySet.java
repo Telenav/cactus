@@ -17,31 +17,68 @@ import java.util.Set;
  */
 public class DependencySet
 {
-
+    /*
+    Finding maven dependencies, given a scope or set of scopes:
+    
+     - Read the <dependencies> section of the POM.  Versions may be defined
+       in a <dependencyManagement> section of this POM or a parent POM.  If
+       that exists and provides versions for things in its own <dependencies> section,
+       resolve those immediately.
+      - Dependencies may initially have their group id or version defined as
+        property references, or they may be undefined entirely, relying on a
+        <dependencyManagement> definition somewhere to define the rest
+     - Read any <dependencyManagement> section in this POM, cache the values
+       and resolve any dependencies you find
+     - Find any dependencies of scope "import" add any <dependencyManagement>
+       sections there to what's here, and any dependencies.  Note that properties
+       used in those declaration are resolved in the scope of the _imported_ pom, not
+       this one - if the version of foo is ${x} and the imported pom defines x as 2
+       and this pom defines x as 3, the version of foo is 2 not 3
+     - Until you're out of parents
+       - Resolve the parent pom
+       - If it declares any direct dependencies, these apply to everything -
+         add them to the set of direct dependencies
+       - Collect the set of properties defined there, which may be used to
+         resolve versions
+     - Now you have enough information to resolve any implicit or property-defined
+       values in your dependencies - iterate and resolve
+    */
     private final Map<MavenId, Dependency> byId = new HashMap<>();
-    private final List<Dependency> depManagement = new ArrayList<>();
     private final List<Dependency> deps = new ArrayList<>();
-    private final Set<MavenId> exclusions = new HashSet<>();
     private final Pom owner;
     private final PomResolver resolver;
     private final PropertyResolver props;
     private final Map<Pom, DependencySet> sets;
     private final Pom parent;
 
-    DependencySet(Pom pom, Poms poms)
+    public DependencySet(Pom pom, Poms poms)
             throws Exception
     {
-
-        this(pom, poms, poms.or(PomResolver.local()).memoizing());
+        this(pom, poms, poms.or(PomResolver.local()));
     }
 
-    DependencySet(Pom pom, Poms poms, PomResolver pomRes)
+    public DependencySet(Pom pom, Poms poms, Map<Pom, DependencySet> sets)
+            throws Exception
+    {
+        this(pom, poms, poms.or(PomResolver.local()).memoizing(), sets);
+    }
+
+    public DependencySet(Pom pom, Poms poms, PomResolver pomRes,
+            Map<Pom, DependencySet> sets)
+            throws Exception
+    {
+        this(pom, pomRes, new ParentsPropertyResolver(pom, pomRes).memoizing(),
+                sets);
+    }
+
+    public DependencySet(Pom pom, Poms poms, PomResolver pomRes)
             throws Exception
     {
         this(pom, pomRes, new ParentsPropertyResolver(pom, pomRes).memoizing());
     }
 
-    DependencySet(Pom pom, PomResolver resolver, PropertyResolver propResolver)
+    public DependencySet(Pom pom, PomResolver resolver,
+            PropertyResolver propResolver)
             throws Exception
     {
         this(pom, resolver, propResolver, new HashMap<>());
@@ -58,14 +95,17 @@ public class DependencySet
         {
             return resolver.get(par);
         }).orElse(null);
-        this.props = propResolver.or(PropertyResolver.coords(pom.coords, parent == null ? null : parent.coords));
+        this.props = propResolver.or(PropertyResolver.coords(pom.coords,
+                parent == null
+                ? null
+                : parent.coords)).memoizing();
 
-        System.out.println("PROPS IS " + this.props);
         pom.toPomFile().visitDependencies(true, d ->
         {
+            d = d.resolve(this.props, resolver);
             MavenId id = d.coords.toMavenId();
+            System.out.println("" + pom.coords + " depMan " + d);
             byId.put(id, d);
-            exclusions.addAll(d.exclusions);
         });
         pom.toPomFile().visitDependencies(false, d ->
         {
@@ -73,17 +113,17 @@ public class DependencySet
             Dependency full = byId.get(id);
             if (full == null)
             {
-                exclusions.addAll(d.exclusions);
-                Dependency dep = d.resolve(props, resolver);
+                Dependency dep = resolve(d);
                 deps.add(dep);
                 byId.put(id, dep);
             }
             else
             {
-                Dependency dep = d.resolve(props, resolver);
+//                Dependency dep = d.resolve(props, resolver);
+                Dependency dep = resolve(full);
                 full.merge(dep).ifPresentOrElse(merged ->
                 {
-                    exclusions.addAll(merged.exclusions);
+                    deps.add(merged);
                 }, () -> deps.add(dep));
             }
         });
@@ -99,7 +139,8 @@ public class DependencySet
         {
             try
             {
-                DependencySet result = new DependencySet(pom, resolver, props,
+                PropertyResolver res = new ParentsPropertyResolver(pom, resolver);
+                DependencySet result = new DependencySet(pom, resolver, res,
                         sets);
                 sets.put(pom, result);
                 return result;
@@ -115,29 +156,44 @@ public class DependencySet
         }
     }
 
-    Dependency resolve(Dependency orig)
+    public Dependency resolve(Dependency orig)
     {
         if (orig.isResolved())
         {
             return orig;
         }
         // XXX this may be wrong and resolve against a child
-        orig = orig.resolve(props, resolver);
+//        orig = orig.resolve(props, resolver);
         Dependency mine = byId.get(orig.toMavenId());
+        if (mine != null && !mine.isResolved())
+        {
+            mine = mine.resolve(props, resolver);
+        }
         if (mine != null && mine.isResolved())
         {
-            return orig.merge(mine).orElse(orig);
+            orig = orig.merge(mine).orElse(orig);
+        }
+        if (parent != null && !orig.isResolved())
+        {
+            orig = deps(parent).resolve(orig);
         }
         return orig;
     }
 
     public Set<Dependency> directDependencies(Set<DependencyScope> scope)
     {
+        return directDependencies(scope, new HashSet<>());
+    }
+
+    Set<Dependency> directDependencies(Set<DependencyScope> scope,
+            Set<Object> traversed)
+    {
         List<DependencySet> parents = new ArrayList<>();
         owner.visitParents(resolver, parent ->
         {
             parents.add(deps(parent));
         });
+        traversed.add(this);
         Map<MavenId, Dependency> seen = new HashMap<>();
         Set<Dependency> result = new LinkedHashSet<>();
         for (Dependency dep : deps)
@@ -146,19 +202,28 @@ public class DependencySet
             {
                 continue;
             }
+            if (!dep.isResolved()) {
+                dep = resolve(dep);
+            }
+            Dependency dd = dep;
             Dependency res = seen.compute(dep.toMavenId(), (mid, old) ->
             {
                 if (old != null)
                 {
-                    return dep.merge(dep).orElse(old);
+                    return old.merge(dd).orElse(old);
                 }
-                return dep;
+                return dd;
             });
             result.add(res);
         }
         for (DependencySet par : parents)
         {
-            coalesce(seen, result, par.directDependencies(scope));
+            if (traversed.contains(par))
+            {
+                continue;
+            }
+            traversed.add(par);
+            coalesce(seen, result, par.directDependencies(scope, traversed));
         }
 
         for (DependencySet par : parents)
@@ -184,8 +249,15 @@ public class DependencySet
 
     public Set<Dependency> fullDependencies(Set<DependencyScope> scope)
     {
-        Set<Dependency> result = new LinkedHashSet<>();
-        Set<Dependency> direct = directDependencies(scope);
+        return fullDependencies(scope, new HashSet<>());
+    }
+
+    Set<Dependency> fullDependencies(Set<DependencyScope> scope,
+            Set<Object> traversed)
+    {
+        Set<Dependency> direct = directDependencies(scope, traversed);
+        traversed.add(this);
+        Set<Dependency> result = new LinkedHashSet<>(direct);
         Set<DependencyScope> trans = EnumSet.noneOf(DependencyScope.class);
         for (DependencyScope sc : scope)
         {
@@ -198,8 +270,14 @@ public class DependencySet
             if (depPom.isPresent())
             {
                 Pom dp = depPom.get();
-                Set<Dependency> depDeps = new LinkedHashSet<>(deps(dp)
-                        .fullDependencies(trans));
+                DependencySet set = deps(dp);
+                if (traversed.contains(set))
+                {
+                    continue;
+                }
+                traversed.add(set);
+                Set<Dependency> depDeps = new LinkedHashSet<>(set
+                        .fullDependencies(trans, traversed));
                 for (Dependency dd : depDeps)
                 {
                     if (!dep.excludes(dd))
@@ -210,7 +288,11 @@ public class DependencySet
             }
             else
             {
-                System.err.println("Could not resolve pom for " + dep.coords);
+                if (!dep.optional)
+                {
+                    System.err.println("Could not resolve pom for " + dep.coords
+                            + " for " + owner.coords);
+                }
             }
         }
         return result;

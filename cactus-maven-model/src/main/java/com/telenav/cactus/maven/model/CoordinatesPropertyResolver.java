@@ -22,6 +22,14 @@ class CoordinatesPropertyResolver extends AbstractPropertyResolver
     {
         this.self = notNull("self", self);
         this.parent = parent; // can be null
+        if ("project.groupId".equals(self.groupId))
+        {
+            throw new IllegalStateException(self + "");
+        }
+        if (parent != null && "project.groupId".equals(parent.groupId))
+        {
+            throw new IllegalStateException(parent + "");
+        }
         if (parent != null)
         {
             keys.add("project.parent.groupId");
@@ -32,15 +40,25 @@ class CoordinatesPropertyResolver extends AbstractPropertyResolver
             keys.add("parent.version");
         }
     }
-    
+
+    CoordinatesPropertyResolver(Pom pom)
+    {
+        this(pom.coords, pom.parent().orElse(null));
+    }
+
+
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Coordinates(" + self + ", " + parent + ")";
     }
 
     @Override
     protected String valueFor(String k)
     {
+        if (k.startsWith("${")) {
+            new RuntimeException(k).printStackTrace();
+        }
         if (parent != null)
         {
             switch (k)

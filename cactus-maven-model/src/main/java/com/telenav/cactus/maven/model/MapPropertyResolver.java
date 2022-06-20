@@ -21,7 +21,6 @@ final class MapPropertyResolver extends AbstractPropertyResolver
     @Override
     protected String valueFor(String k)
     {
-        System.out.println("tryget " + k + " with " + map.get(k));
         return map.get(k);
     }
 
@@ -33,5 +32,10 @@ final class MapPropertyResolver extends AbstractPropertyResolver
     
     Set<String> keys() {
         return map.keySet();
+    }
+    
+    @Override
+    public String toString() {
+        return "Map(" + map.keySet() + ")";
     }
 }

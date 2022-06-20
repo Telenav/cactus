@@ -27,12 +27,9 @@ public final class ParentMavenCoordinates extends MavenCoordinates
         super(groupId, artifactId, version);
         this.relativePath = ThrowingOptional.ofNullable(relativePath);
     }
-
-    @Override
-    boolean isVersionResolved()
-    {
-        // A parent POM MUST always be fully resolved or it is unusable
-        return true;
+    
+    public MavenCoordinates toPlainMavenCoordinates() {
+        return new MavenCoordinates(groupId(), artifactId(), version);
     }
 
     public ThrowingOptional<Path> relativePath(Path to)

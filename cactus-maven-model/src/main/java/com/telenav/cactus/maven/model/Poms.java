@@ -15,6 +15,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.unmodifiableList;
+
 /**
  *
  * @author Tim Boudreau
@@ -36,17 +38,25 @@ public class Poms implements PomResolver
             kids.put(pom.coords.artifactId, pom);
         }
     }
+    
+    public List<Pom> poms() {
+        return unmodifiableList(sorted);
+    }
 
     @Override
     public PropertyResolver propertyResolver(Pom pom) throws Exception
     {
         return this.or(LocalRepoResolver.INSTANCE).propertyResolver(pom)
+                .or(new CoordinatesPropertyResolver(pom))
                 .memoizing();
     }
-
+    
     public ThrowingOptional<Pom> get(String groupId, String artifactId,
             String version)
     {
+        if ("---".equals(version)) {
+            throw new IllegalStateException("Wrong get: " + groupId + ":" + artifactId);
+        }
         return get(groupId, artifactId).flatMap(pom
                 -> version.equals(pom.coords.version)
                    ? Optional.of(pom)
@@ -60,7 +70,8 @@ public class Poms implements PomResolver
         {
             return ThrowingOptional.empty();
         }
-        return ThrowingOptional.ofNullable(map.get(artifactId));
+        Pom result = map.get(artifactId);
+        return ThrowingOptional.ofNullable(result);
     }
 
     public static Poms in(Path dir) throws IOException
@@ -85,13 +96,14 @@ public class Poms implements PomResolver
     public static void main(String[] args) throws Exception
     {
         Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
-        Pom p = poms.get("com.telenav.cactus", "cactus-maven-plugin").get();
-
-        System.out.println("Have " + p);
+//        Pom p = poms.get("com.telenav.cactus", "cactus-maven-plugin").get();
+        Pom p = poms.get("com.telenav.mesakit", "mesakit-geocoding").get();
 
         p.toPomFile().visitDependencies(false, dep ->
         {
-            System.out.println(" * " + dep + (dep.isResolved() ? " RESOLVED" : ""));
+            System.out.println(" * " + dep + (dep.isResolved()
+                                              ? " RESOLVED"
+                                              : ""));
         });
 
         DependencySet set = new DependencySet(p, poms);
@@ -102,13 +114,13 @@ public class Poms implements PomResolver
         {
             System.out.println(" * " + d);
         }
-        
+
         System.out.println("\nFULL");
         for (Dependency d : set.fullDependencies(DependencyScope.Compile
                 .asSet()))
         {
             System.out.println(" * " + d);
         }
-        
+
     }
 }

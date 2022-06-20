@@ -16,6 +16,9 @@ public class MavenId implements MavenIdentified
 
     public MavenId(String groupId, String artifactId)
     {
+        if ("project.groupId".equals(groupId)) {
+            throw new IllegalArgumentException("Using raw prop for " + artifactId);
+        }
         this.groupId = groupId;
         this.artifactId = artifactId;
     }

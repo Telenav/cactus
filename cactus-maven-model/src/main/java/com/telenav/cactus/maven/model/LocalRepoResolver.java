@@ -126,6 +126,9 @@ final class LocalRepoResolver implements PomResolver
         }
         Collections.sort(result);
         String ver = result.getLast();
+        if ("3.0.0-dev".equals(ver)) {
+            throw new IllegalStateException("Gotcha: " + groupId + ":" + artifactId);
+        }
         return inLocalRepository(groupId, artifactId, ver);
     }
 
@@ -184,35 +187,5 @@ final class LocalRepoResolver implements PomResolver
             }
         }
         return null;
-    }
-
-    public static void main(String[] args)
-    {
-        PomResolver res = INSTANCE.memoizing();
-        String what = "util-preconditions";
-
-        ThrowingOptional<Pom> opt = INSTANCE.get("com.mastfrog", what, "2.8.1");
-
-        System.out.println("FOUND? " + opt.isPresent());
-        if (opt.isPresent())
-        {
-            System.out.println("  got " + opt.get());
-        }
-
-        opt = INSTANCE.get("com.mastfrog", what);
-        System.out.println("FOUND NO VER? " + opt.isPresent());
-        if (opt.isPresent())
-        {
-            System.out.println("  got " + opt.get());
-        }
-
-        opt = INSTANCE.get("com.mastfrog", what, "2.8.1");
-
-        System.out.println("FOUND? " + opt.isPresent());
-        if (opt.isPresent())
-        {
-            System.out.println("  got " + opt.get());
-        }
-
     }
 }

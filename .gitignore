@@ -32,3 +32,4 @@ cactus-metadata/cactus/
 cactus-cli/cactus/
 cactus-git/cactus/
 cactus-maven-log/cactus/
+/cactus-maven-model/nbproject/

@@ -1,8 +1,11 @@
 package com.telenav.cactus.maven.model;
 
-import java.util.HashMap;
+import com.telenav.cactus.maven.model.internal.PomFile;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -12,37 +15,72 @@ abstract class AbstractPropertyResolver implements PropertyResolver
 {
 
     protected abstract String valueFor(String k);
-    
-    static class MapResolver extends AbstractPropertyResolver {
-        private final Map<String, String> map;
 
-        public MapResolver(Map<String, String> map)
+    @Override
+    public PropertyResolver or(PropertyResolver other)
+    {
+        if (other instanceof AbstractPropertyResolver)
         {
-            this.map = map;
+            return new ComboPropertyResolver(this,
+                    (AbstractPropertyResolver) other);
+        }
+        return PropertyResolver.super.or(other);
+    }
+
+    static final class ComboPropertyResolver extends AbstractPropertyResolver
+    {
+        private final AbstractPropertyResolver a;
+        private final AbstractPropertyResolver b;
+
+        public ComboPropertyResolver(AbstractPropertyResolver a,
+                AbstractPropertyResolver b)
+        {
+            this.a = a;
+            this.b = b;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "or(" + a + ", " + b + ")";
         }
 
         @Override
         protected String valueFor(String k)
         {
-            System.out.println("tryget " + k + " with " + map.get(k));
-            return map.get(k);
+            String result = a.valueFor(k);
+            if (result == null)
+            {
+                result = b.valueFor(k);
+            }
+            else
+                if (!PropertyResolver.isResolved(result))
+                {
+                    result = a.valueFor(result);
+                }
+            return result;
         }
 
         @Override
         public Iterator<String> iterator()
         {
-            return map.keySet().iterator();
+            Set<String> result = new TreeSet<>();
+            a.forEach(result::add);
+            b.forEach(result::add);
+            return result.iterator();
         }
+
     }
 
     @Override
     public String resolve(String what)
     {
-        String val = valueFor(what);
-        System.out.println("Resolve '" + what + "' to " + val);
-        if (val == null) {
-            val = what;
-        }
+//        String val = valueFor(what);
+//        if (val == null)
+//        {
+//            val = what;
+//        }
+        String val = what;
         if (val != null && !PropertyResolver.isResolved(what))
         {
             StringBuilder result = new StringBuilder();
@@ -54,9 +92,14 @@ abstract class AbstractPropertyResolver implements PropertyResolver
                 }
                 else
                 {
-                    String res = resolve(part);
+                    String res = valueFor(part);
                     if (res != null)
                     {
+                        if (res.length() > 3 && res.equals(part))
+                        {
+                            throw new IllegalStateException(
+                                    "In " + what + " resolved '" + part + "' to itself by " + this);
+                        }
                         result.append(res);
                     }
                     else
@@ -66,6 +109,10 @@ abstract class AbstractPropertyResolver implements PropertyResolver
                 }
             });
             return result.toString();
+        }
+        if (what.equals(val))
+        {
+            return null;
         }
         return val;
     }
@@ -83,7 +130,7 @@ abstract class AbstractPropertyResolver implements PropertyResolver
         for (int i = 0; i < what.length(); i++)
         {
             char c = what.charAt(i);
-            if (c == '$' && c < what.length() - 1 && what.charAt(i + 1) == '{')
+            if (c == '$' && i < what.length() - 1 && what.charAt(i + 1) == '{')
             {
                 if (inProperty)
                 {
@@ -129,30 +176,29 @@ abstract class AbstractPropertyResolver implements PropertyResolver
             v.visit(output.toString(), false);
         }
     }
-
-    /*
-    public static void main(String[] args)
+    
+    public static void main(String[] args) throws Exception
     {
-        String thing = "some-${first}-with-${second}-and-some-${messed${up}stuff";
-        visitSegments(thing, (part, needRes) ->
-        {
-            if (needRes)
-            {
-                System.out.println("RESOLVE " + part);
-            }
-            else
-            {
-                System.out.println("   HAVE " + part);
-            }
-        });
-        System.out.println(thing);
-        Map<String, String> m = new HashMap<>();
-        m.put("first", "one");
-        m.put("second", "two");
-        m.put("up", "-down-");
+        Path p = Paths.get("/Users/timb/work/telenav/jonstuff/cactus/pom.xml");
+        PomFile pf = new PomFile(p);
         
-        MapResolver mr = new MapResolver(m);
-        System.out.println(mr.resolve(thing));
+        pf.visitProperties((k, v) -> {
+            System.out.println(k + " = " + v);
+        });
+        
+        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff/"));
+        Pom pom = poms.get("com.telenav.cactus", "cactus-maven-model").get();
+        PomResolver pomRes = poms.or(LocalRepoResolver.INSTANCE);
+        ParentsPropertyResolver pp = new ParentsPropertyResolver(pom, pomRes);
+        CoordinatesPropertyResolver coords = new CoordinatesPropertyResolver(pom);
+        
+        Pom parent = poms.get("com.telenav.cactus", "cactus").get();
+        
+        MapPropertyResolver mpr = pp.resolverFor(parent);
+        System.out.println("MPR " + mpr.resolve("${mastfrog.version}"));
+        
+        PropertyResolver propRes = pp.or(coords);
+        
+        System.out.println("MF " + propRes.resolve("${mastfrog.version}"));
     }
-*/
 }

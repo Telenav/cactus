@@ -23,8 +23,9 @@ public interface PropertyResolver extends Iterable<String>
         int hix = what.indexOf("${");
         int tix = hix < 0
                   ? -1
-                  : what.lastIndexOf("}", hix);
-        return hix > 0 && tix > hix;
+                  : what.lastIndexOf("}");
+        boolean result = !(hix >= 0 && tix > hix);
+        return result;
     }
     
     static PropertyResolver coords(MavenCoordinates self, MavenCoordinates parent) {
@@ -36,7 +37,7 @@ public interface PropertyResolver extends Iterable<String>
             @Override
             public String resolve(String what)
             {
-                String result = other.resolve(what);
+                String result = PropertyResolver.this.resolve(what);
                 if (result != null) {
                     what = result;
                 }
@@ -73,6 +74,9 @@ public interface PropertyResolver extends Iterable<String>
     String resolve(String what);
     
     default PropertyResolver memoizing() {
+        if (true) {
+            return this;
+        }
         return new PropertyResolver() {
             private final Map<String, Optional<String>> cache = new HashMap<>();
             @Override
