@@ -18,13 +18,12 @@
 package com.telenav.cactus.maven.model;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 import com.telenav.cactus.maven.model.resolver.PomResolver;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import org.w3c.dom.Node;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -32,11 +31,24 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 /**
  * @author Tim Boudreau
  */
-public class MavenCoordinates extends MavenId implements
+public class MavenCoordinates extends ArtifactIdentifiers implements
         Comparable<MavenCoordinates>,
         MavenIdentified, MavenVersioned
 {
-    static final String PLACEHOLDER = "---";
+    public final PomVersion version;
+
+    public MavenCoordinates(Node groupId, Node artifactId, Node version)
+    {
+        this(GroupId.of(groupId), ArtifactId.of(artifactId),
+                PomVersion.of(version));
+    }
+
+    public MavenCoordinates(GroupId groupId, ArtifactId artifactId,
+            PomVersion version)
+    {
+        super(notNull("groupId", groupId), notNull("artifactId", artifactId));
+        this.version = notNull("version", version);
+    }
 
     public static Optional<MavenCoordinates> from(Path pomFile)
     {
@@ -51,30 +63,35 @@ public class MavenCoordinates extends MavenId implements
         }
     }
 
-    public final String version;
-
-    public MavenCoordinates(Node groupId, Node artifactId, Node version)
-    {
-        this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId),
-                textOrPlaceholder(version));
-    }
-
-    public MavenCoordinates(String groupId, String artifactId, String version)
-    {
-        super(notNull("groupId", groupId), notNull("artifactId", artifactId));
-        this.version = version == null
-                       ? PLACEHOLDER
-                       : version;
-        if ("mastfrog.version".equals(version))
-        {
-            throw new IllegalArgumentException(
-                    "Creating with a property: " + version + " for " + groupId + ":" + artifactId);
-        }
-    }
-
+    /**
+     * Apply a new version returning a new instance if it differs.
+     * 
+     * @param newVersion The new version
+     * @return A maven coordinates
+     */
     public MavenCoordinates withVersion(String newVersion)
     {
-        if (newVersion.equals(version))
+        if (version.is(newVersion))
+        {
+            return this;
+        }
+        return new MavenCoordinates(groupId, artifactId, PomVersion.of(
+                newVersion));
+    }
+    
+    public PomVersion rawVersion() {
+        return version;
+    }
+
+    /**
+     * Apply a new version returning a new instance if it differs.
+     * 
+     * @param newVersion The new version
+     * @return A maven coordinates
+     */
+    public MavenCoordinates withVersion(PomVersion newVersion)
+    {
+        if (version.equals(newVersion))
         {
             return this;
         }
@@ -83,26 +100,27 @@ public class MavenCoordinates extends MavenId implements
 
     public MavenCoordinates withGroupId(String newGroupId)
     {
-        if (groupId.equals(newGroupId))
+        if (groupId.is(newGroupId))
         {
             return this;
         }
-        return new MavenCoordinates(newGroupId, artifactId, version);
+        return new MavenCoordinates(GroupId.of(newGroupId), artifactId,
+                version);
     }
 
-    public MavenId toMavenId()
+    public ArtifactIdentifiers toMavenId()
     {
-        return new MavenId(groupId(), artifactId());
+        return new ArtifactIdentifiers(groupId(), artifactId());
     }
 
     @Override
-    public String groupId()
+    public GroupId groupId()
     {
         return groupId;
     }
 
     @Override
-    public String artifactId()
+    public ArtifactId artifactId()
     {
         return artifactId;
     }
@@ -115,116 +133,52 @@ public class MavenCoordinates extends MavenId implements
     @Override
     public boolean isResolved()
     {
-        return isVersionResolved() && PropertyResolver.isResolved(groupId)
-                && PropertyResolver.isResolved(artifactId);
+        return version.isResolved() && groupId.isResolved() && artifactId
+                .isResolved();
     }
 
-    boolean isVersionResolved()
+    public MavenCoordinates resolve(Function<String, String> res)
     {
-        return !PLACEHOLDER.equals(version) && version != null
-                && PropertyResolver.isResolved(version);
-    }
-
-    private MavenCoordinates resolveGidAid(PropertyResolver res)
-    {
-        if (!PropertyResolver.isResolved(groupId) || !PropertyResolver
-                .isResolved(artifactId))
+        GroupId gid = groupId.resolve(res);
+        ArtifactId aid = artifactId.resolve(res);
+        PomVersion ver = version.resolve(res);
+        if (gid != groupId || aid != artifactId || ver != version)
         {
-            String gid = res.resolve(groupId);
-            if ("project.groupId".equals(gid))
-            {
-                throw new IllegalStateException(
-                        "Resolved raw prop from " + groupId + " by " + res);
-            }
-
-            String aid = res.resolve(artifactId);
-            if (aid == null)
-            {
-                aid = artifactId;
-            }
-            if (gid == null)
-            {
-                gid = groupId;
-            }
-            if (!aid.equals(artifactId) || !gid.equals(groupId))
-            {
-                return new MavenCoordinates(gid, aid, version);
-            }
+            MavenCoordinates nue = new MavenCoordinates(gid, aid, ver);
+            return nue;
         }
         return this;
     }
 
     public MavenCoordinates resolve(PropertyResolver res, PomResolver poms)
     {
-        if (PLACEHOLDER.equals(version))
+        PomVersion ver = version;
+        if (ver.isPlaceholder())
         {
-            ThrowingOptional<Pom> pom = poms.get(groupId, artifactId);
-            if (pom.isPresent())
-            {
-                MavenCoordinates cds = pom.get().coords.resolveGidAid(res);
-                if (cds != this)
-                {
-                    return cds.resolve(res, poms).resolveGidAid(res);
-                }
-            }
+            ver = poms.get(groupId.value(), artifactId.value())
+                    .map(pom ->
+                    {
+                        return pom.coords.version;
+                    }).orElse(version);
         }
-        else
-            if (!PropertyResolver.isResolved(version))
-            {
-                String v = res.resolve(version);
-                return resolveGidAid(res).withResolvedVersion(() -> v);
-            }
-        return resolveGidAid(res);
+        MavenCoordinates nue = ver == version
+                               ? this
+                               : new MavenCoordinates(groupId, artifactId, ver);
+        return nue.resolve(res);
     }
 
     @Override
     public ThrowingOptional<String> version()
     {
-        return isVersionResolved()
-               ? ThrowingOptional.of(version)
-               : ThrowingOptional.empty();
-    }
-
-    public MavenCoordinates withResolvedVersion(Supplier<String> versionResolver)
-    {
-        if (!isVersionResolved())
-        {
-            String newVersion = versionResolver.get();
-            if (newVersion != null)
-            {
-                return withVersion(newVersion);
-            }
-        }
-        return this;
-    }
-
-    public MavenCoordinates withResolvedVersionThrowing(
-            ThrowingSupplier<String> versionResolver) throws Exception
-    {
-        if (!isVersionResolved())
-        {
-            String newVersion = versionResolver.get();
-            if (newVersion != null)
-            {
-                return withVersion(newVersion);
-            }
-        }
-        return this;
+        return version.ifResolved();
     }
 
     @Override
     public int compareTo(MavenCoordinates o)
     {
-        int result = groupId.compareTo(o.groupId);
-        if (result == 0)
-        {
-            result = artifactId.compareTo(o.artifactId);
-        }
-        if (result == 0)
-        {
-            result = version.compareTo(o.version);
-        }
-        return result;
+        return groupId.compare(o.groupId,
+                () -> artifactId.compare(o.artifactId,
+                        () -> version.compareTo(o.version)));
     }
 
     @Override

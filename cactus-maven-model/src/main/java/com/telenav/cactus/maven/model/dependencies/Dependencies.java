@@ -23,7 +23,9 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 
 /**
- * The set of dependencies of one POM.
+ * The set of dependencies of one POM. Can be obtained from a Poms instance,
+ * which will maintain the cache of resolved dependencies for transitive
+ * libraries so thay are not parsed more than once.
  *
  * @author Tim Boudreau
  */

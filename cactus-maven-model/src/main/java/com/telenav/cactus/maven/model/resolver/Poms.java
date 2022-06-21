@@ -18,18 +18,15 @@
 package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.maven.model.Dependency;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.dependencies.Dependencies;
-import com.telenav.cactus.maven.model.dependencies.DependencyScope;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
-import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
+import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,7 +45,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Tim Boudreau
  */
-public class Poms implements PomResolver
+public final class Poms implements PomResolver
 {
     private final List<Pom> sorted;
     private final Map<String, Map<String, Pom>> poms = new HashMap<>();
@@ -61,9 +58,9 @@ public class Poms implements PomResolver
         for (Pom pom : sorted)
         {
             Map<String, Pom> kids
-                    = poms.computeIfAbsent(pom.coords.groupId,
+                    = poms.computeIfAbsent(pom.coords.groupId().value(),
                             gid -> new HashMap<>());
-            kids.put(pom.coords.artifactId, pom);
+            kids.put(pom.coords.artifactId.value(), pom);
         }
     }
 
@@ -71,10 +68,7 @@ public class Poms implements PomResolver
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Pom pom : sorted)
-        {
-            sb.append(pom.coords).append(", ");
-        }
+        sorted.forEach(pom -> sb.append(pom.coords).append(", "));
         return sb.toString();
     }
 
@@ -118,12 +112,30 @@ public class Poms implements PomResolver
         if ("---".equals(version))
         {
             throw new IllegalStateException(
-                    "Wrong get: " + groupId + ":" + artifactId);
+                    "Wrong get method " + groupId + ":" + artifactId + ":" + version
+                    + " should use the two-arg overload");
         }
         return get(groupId, artifactId).flatMap(pom
-                -> version.equals(pom.coords.version)
+                -> pom.coords.version.is(version)
                    ? Optional.of(pom)
-                   : Optional.empty());
+                   : Optional.empty()).or(() ->
+        {
+            Map<String, Pom> map = poms.get(groupId);
+            if (map == null)
+            {
+                return Optional.empty();
+            }
+            Pom result = map.get(artifactId);
+            if (result == null || !result.version().isPresent())
+            {
+                return Optional.empty();
+            }
+            if (VersionMatchers.matcher(version).test(result.version().get()))
+            {
+                return Optional.of(result);
+            }
+            return Optional.empty();
+        });
     }
 
     @Override
@@ -155,41 +167,5 @@ public class Poms implements PomResolver
             throw new IOException("No poms in " + dir);
         }
         return new Poms(list);
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-//        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
-        Poms poms = Poms.in(Paths.get(
-                "/Users/timb/work/personal/mastfrog-parent"));
-//        Pom p = poms.get("com.telenav.cactus", "cactus-maven-plugin").get();
-//        Pom p = poms.get("com.telenav.mesakit", "mesakit-geocoding").get();
-        Pom p = poms.get("com.mastfrog", "acteur-resources").get();
-
-        PomFile.of(p).visitDependencies(false, dep ->
-        {
-            System.out.println(" * " + dep + (dep.isResolved()
-                                              ? " RESOLVED"
-                                              : ""));
-        });
-
-        DependencySet set = new DependencySet(p, poms.withLocalRepository()
-                .memoizing());
-
-        System.out.println("DDs");
-        for (Dependency d : set.directDependencies(false,
-                DependencyScope.Compile
-                        .asSet()))
-        {
-            System.out.println(" * " + d);
-        }
-
-        System.out.println("\nFULL");
-        for (Dependency d : set
-                .dependencyClosure(false, DependencyScope.Compile))
-        {
-            System.out.println(" * " + d);
-        }
-
     }
 }

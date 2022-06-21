@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Memoizing wrapper for PomResolver.
  *
  * @author Tim Boudreau
  */
@@ -40,9 +41,10 @@ final class MemoizingPomResolver implements PomResolver
     {
         this.delegate = delegate;
     }
-    
+
     @Override
-    public PropertyResolver propertyResolver(Pom pom) {
+    public PropertyResolver propertyResolver(Pom pom)
+    {
         ThrowingFunction<Pom, PropertyResolver> sup = PomResolver.super::propertyResolver;
         return resolvers.computeIfAbsent(pom, sup.toNonThrowing());
     }
@@ -74,7 +76,8 @@ final class MemoizingPomResolver implements PomResolver
     }
 
     @Override
-    public ThrowingOptional<Pom> get(String groupId, String artifactId, String version)
+    public ThrowingOptional<Pom> get(String groupId, String artifactId,
+            String version)
     {
         String key = groupId + ":" + artifactId + ":" + version;
         return withVersion.computeIfAbsent(key, k ->
@@ -88,8 +91,10 @@ final class MemoizingPomResolver implements PomResolver
     {
         return this;
     }
-    
-    public String toString() {
+
+    @Override
+    public String toString()
+    {
         return "memo(" + delegate + ")";
     }
 }

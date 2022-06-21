@@ -19,47 +19,40 @@ package com.telenav.cactus.maven.model;
 
 import org.w3c.dom.Node;
 
-import static com.telenav.cactus.maven.model.MavenCoordinates.PLACEHOLDER;
+import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
+ * Aggregates a group id and artifact id to make an object which identifies a
+ * maven library, but not its version - often used for mapping references with
+ * unknown versions to ones that have them.
  *
  * @author Tim Boudreau
  */
-public class MavenId implements MavenIdentified
+public class ArtifactIdentifiers implements MavenIdentified
 {
-    public final String groupId;
+    public final GroupId groupId;
 
-    public final String artifactId;
+    public final ArtifactId artifactId;
 
-    public MavenId(String groupId, String artifactId)
+    public ArtifactIdentifiers(GroupId groupId, ArtifactId artifactId)
     {
-        if ("project.groupId".equals(groupId)) {
-            throw new IllegalArgumentException("Using raw prop for " + artifactId);
-        }
-        this.groupId = groupId;
-        this.artifactId = artifactId;
+        this.groupId = notNull("groupId", groupId);
+        this.artifactId = notNull("artifactId", artifactId);
     }
 
-    public MavenId(Node groupId, Node artifactId)
+    public ArtifactIdentifiers(Node groupId, Node artifactId)
     {
-        this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId));
-    }
-
-    static String textOrPlaceholder(Node node)
-    {
-        return node == null
-               ? PLACEHOLDER
-               : node.getTextContent().trim();
+        this(GroupId.of(groupId), ArtifactId.of(artifactId));
     }
 
     @Override
-    public String groupId()
+    public GroupId groupId()
     {
         return groupId;
     }
 
     @Override
-    public String artifactId()
+    public ArtifactId artifactId()
     {
         return artifactId;
     }
@@ -84,11 +77,11 @@ public class MavenId implements MavenIdentified
             return true;
         }
         else
-            if (o == null || !(o instanceof MavenId))
+            if (o == null || !(o instanceof ArtifactIdentifiers))
             {
                 return false;
             }
-        MavenId m = (MavenId) o;
+        ArtifactIdentifiers m = (ArtifactIdentifiers) o;
         return is(m);
     }
 }

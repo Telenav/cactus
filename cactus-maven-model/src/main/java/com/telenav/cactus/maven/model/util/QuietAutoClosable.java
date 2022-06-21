@@ -18,11 +18,14 @@
 package com.telenav.cactus.maven.model.util;
 
 /**
+ * An AutoCloseable which does not throw in its close method.
  *
  * @author Tim Boudreau
  */
 public interface QuietAutoClosable extends AutoCloseable
 {
+    // Pending - I have a version of this in mastfrog.util.thread, but
+    // am reluctant to pull in the dependency for something so trivial
     static QuietAutoClosable NO_OP = () ->
     {
     };

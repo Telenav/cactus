@@ -17,8 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.model;
 
-import com.mastfrog.function.optional.ThrowingOptional;
-import java.nio.file.Path;
 import org.w3c.dom.Node;
 
 /**
@@ -29,51 +27,34 @@ import org.w3c.dom.Node;
  */
 public final class ParentMavenCoordinates extends MavenCoordinates
 {
-    public final ThrowingOptional<String> relativePath;
+    public final ParentRelativePath relativePath;
 
     public ParentMavenCoordinates(Node groupId, Node artifactId, Node version,
             Node rp)
     {
-        this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId),
-                textOrPlaceholder(version), relativePathFrom(rp));
+        this(GroupId.of(groupId), ArtifactId.of(artifactId),
+                PomVersion.of(version), ParentRelativePath.of(rp));
     }
 
-    public ParentMavenCoordinates(String groupId, String artifactId,
-            String version, String relativePath)
+    public ParentMavenCoordinates(GroupId groupId,
+            ArtifactId artifactId,
+            PomVersion version, ParentRelativePath relativePath)
     {
         super(groupId, artifactId, version);
-        this.relativePath = ThrowingOptional.ofNullable(relativePath);
-    }
-    
-    public MavenCoordinates toPlainMavenCoordinates() {
-        return new MavenCoordinates(groupId(), artifactId(), version);
+        this.relativePath = relativePath;
     }
 
-    public ThrowingOptional<Path> relativePath(Path to)
+    @Override
+    public MavenCoordinates toPlainMavenCoordinates()
     {
-        return relativePath.map(p -> to.resolve(p));
+        return new MavenCoordinates(groupId(), artifactId(), version);
     }
 
     @Override
     public ParentMavenCoordinates withVersion(String newVersion)
     {
-        return new ParentMavenCoordinates(groupId, artifactId, newVersion,
-                relativePath.isPresent()
-                ? relativePath.get()
-                : null);
+        return new ParentMavenCoordinates(groupId, artifactId,
+                PomVersion.of(newVersion),
+                relativePath);
     }
-
-    private static String relativePathFrom(Node n)
-    {
-        if (n == null)
-        {
-            return "..";
-        }
-        if (n.getTextContent() == null || n.getTextContent().isBlank())
-        {
-            return null;
-        }
-        return n.getTextContent().trim();
-    }
-
 }

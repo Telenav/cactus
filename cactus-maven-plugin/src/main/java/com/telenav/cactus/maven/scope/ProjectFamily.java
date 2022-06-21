@@ -15,13 +15,13 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.scope;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.cli.PathUtils;
+import com.telenav.cactus.maven.model.GroupId;
 import org.apache.maven.project.MavenProject;
 
 import java.nio.file.Path;
@@ -38,6 +38,18 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  */
 public final class ProjectFamily implements Comparable<ProjectFamily>
 {
+
+    /**
+     * Get the project family for a maven group-id.
+     *
+     * @param groupId A group id
+     * @return A family
+     */
+    public static ProjectFamily fromGroupId(GroupId groupId)
+    {
+        return fromGroupId(groupId.value());
+    }
+
     /**
      * Get the project family for a maven group-id string.
      *
@@ -241,6 +253,11 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     public boolean isParentFamilyOf(MavenProject prj)
     {
         return isParentFamilyOf(notNull("prj", prj).getGroupId());
+    }
+
+    public boolean isParentFamilyOf(GroupId gid)
+    {
+        return isParentFamilyOf(gid.value());
     }
 
     public boolean isParentFamilyOf(String gid)

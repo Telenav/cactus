@@ -20,15 +20,16 @@ package com.telenav.cactus.maven.model;
 import java.util.Objects;
 
 /**
+ * A thing which has a maven group id and artifact id.
  *
  * @author Tim Boudreau
  */
 public interface MavenIdentified
 {
 
-    String groupId();
+    GroupId groupId();
 
-    String artifactId();
+    ArtifactId artifactId();
 
     default boolean is(MavenIdentified other)
     {
