@@ -15,31 +15,32 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
+package com.telenav.cactus.maven.model.resolver.versions;
 
 import org.junit.jupiter.api.Test;
 
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.telenav.cactus.maven.model.resolver.versions.VersionMatchersTest.assertAccepts;
+import static com.telenav.cactus.maven.model.resolver.versions.VersionMatchersTest.assertRejects;
 
 /**
  *
  * @author timb
  */
-public class PropertyResolverTest
+public class PrefixMatcherTest
 {
 
     @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
+    public void testPrefixen() {
+        PrefixMatcher pm = new PrefixMatcher("1.0");
+        assertAccepts(pm, "1.0.1");
+        assertAccepts(pm, "1.0.1.1.1");
+        assertAccepts(pm, "1.0.1.1.");
+        assertAccepts(pm, "1.0");
+        assertRejects(pm, "1.2");
+        assertRejects(pm, "0.9");
+        assertRejects(pm, ".");
+        assertRejects(pm, "blah");
+        assertRejects(pm, "");
     }
+    
 }

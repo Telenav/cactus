@@ -1,8 +1,22 @@
-package com.telenav.cactus.maven.model;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.maven.model.property;
 
-import com.telenav.cactus.maven.model.internal.PomFile;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,7 +46,7 @@ abstract class AbstractPropertyResolver implements PropertyResolver
         private final AbstractPropertyResolver a;
         private final AbstractPropertyResolver b;
 
-        public ComboPropertyResolver(AbstractPropertyResolver a,
+        ComboPropertyResolver(AbstractPropertyResolver a,
                 AbstractPropertyResolver b)
         {
             this.a = a;
@@ -145,7 +159,6 @@ abstract class AbstractPropertyResolver implements PropertyResolver
                     }
                 i++;
                 inProperty = true;
-                continue;
             }
             else
                 if (inProperty && c == '}')
@@ -153,7 +166,6 @@ abstract class AbstractPropertyResolver implements PropertyResolver
                     inProperty = false;
                     v.visit(curr.toString(), true);
                     curr.setLength(0);
-                    continue;
                 }
                 else
                 {
@@ -175,30 +187,5 @@ abstract class AbstractPropertyResolver implements PropertyResolver
         {
             v.visit(output.toString(), false);
         }
-    }
-    
-    public static void main(String[] args) throws Exception
-    {
-        Path p = Paths.get("/Users/timb/work/telenav/jonstuff/cactus/pom.xml");
-        PomFile pf = new PomFile(p);
-        
-        pf.visitProperties((k, v) -> {
-            System.out.println(k + " = " + v);
-        });
-        
-        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff/"));
-        Pom pom = poms.get("com.telenav.cactus", "cactus-maven-model").get();
-        PomResolver pomRes = poms.or(LocalRepoResolver.INSTANCE);
-        ParentsPropertyResolver pp = new ParentsPropertyResolver(pom, pomRes);
-        CoordinatesPropertyResolver coords = new CoordinatesPropertyResolver(pom);
-        
-        Pom parent = poms.get("com.telenav.cactus", "cactus").get();
-        
-        MapPropertyResolver mpr = pp.resolverFor(parent);
-        System.out.println("MPR " + mpr.resolve("${mastfrog.version}"));
-        
-        PropertyResolver propRes = pp.or(coords);
-        
-        System.out.println("MF " + propRes.resolve("${mastfrog.version}"));
     }
 }

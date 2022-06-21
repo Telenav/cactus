@@ -15,31 +15,32 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
-
-import org.junit.jupiter.api.Test;
-
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+package com.telenav.cactus.maven.model.resolver.versions;
 
 /**
+ * Just a string equality predicate with a reasonable toString() implementation.
+ * Used for -SNAPSHOT dependencies and similar which must be matched exactly.
  *
- * @author timb
+ * @author Tim Boudreau
  */
-public class PropertyResolverTest
+final class ExactMatcher implements VersionPredicate<String>
 {
+    private final String spec;
 
-    @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
+    ExactMatcher(String spec)
+    {
+        this.spec = spec;
+    }
+
+    @Override
+    public boolean test(String t)
+    {
+        return spec.equals(t);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "==" + spec;
     }
 }

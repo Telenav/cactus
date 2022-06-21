@@ -15,31 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
-
-import org.junit.jupiter.api.Test;
-
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+package com.telenav.cactus.maven.model.util;
 
 /**
  *
- * @author timb
+ * @author Tim Boudreau
  */
-public class PropertyResolverTest
+public interface QuietAutoClosable extends AutoCloseable
 {
+    static QuietAutoClosable NO_OP = () ->
+    {
+    };
 
-    @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
-    }
+    @Override
+    public void close();
 }

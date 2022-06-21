@@ -5,32 +5,38 @@ import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.graph.IntGraph;
 import com.mastfrog.graph.IntGraphBuilder;
 import com.mastfrog.graph.ObjectGraph;
+import com.mastfrog.graph.algorithm.Score;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.Dependency;
-import com.telenav.cactus.maven.model.DependencyScope;
-import com.telenav.cactus.maven.model.DependencySet;
+import com.telenav.cactus.maven.model.dependencies.DependencyScope;
+import com.telenav.cactus.maven.model.dependencies.DependencySet;
 import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
-import com.telenav.cactus.maven.model.PomResolver;
-import com.telenav.cactus.maven.model.Poms;
+import com.telenav.cactus.maven.model.resolver.PomResolver;
+import com.telenav.cactus.maven.model.resolver.Poms;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 import static com.mastfrog.util.preconditions.Checks.greaterThanZero;
-import static com.telenav.cactus.maven.model.DependencyScope.Compile;
+import static com.telenav.cactus.maven.model.dependencies.DependencyScope.Compile;
+import static java.util.Collections.singleton;
 import static java.util.Collections.unmodifiableList;
 
 /**
+ * Factory for dependency graphs from maven poms.
  *
  * @author Tim Boudreau
  */
@@ -47,7 +53,7 @@ public class DependencyGraphs implements Iterable<Pom>
         this.poms = new Poms(poms);
         targets = new ArrayList<>(poms);
         Collections.sort(targets);
-        resolver = this.poms.or(PomResolver.local()).memoizing();
+        resolver = this.poms.withLocalRepository().memoizing();
     }
 
     public ThrowingOptional<Pom> get(String groupId, String artifactId)
@@ -61,36 +67,150 @@ public class DependencyGraphs implements Iterable<Pom>
         return poms.get(groupId, artifactId);
     }
 
-    public ThrowingOptional<ObjectGraph<MavenCoordinates>> dependencies(
+    public ThrowingOptional<ObjectGraph<MavenCoordinates>> dependencyGraph(
             String groupId, String artifactId, DependencyScope... scopes)
     {
         greaterThanZero("scopes.length", scopes.length);
         return get(groupId, artifactId).map(pom ->
         {
-            return new DepsTraverser(DependencyScope.set(scopes)).go(pom);
+            return new DT(DependencyScope.setOf(scopes), false).go(pom);
         });
     }
 
-    class DepsTraverser
+    public ObjectGraph<MavenCoordinates> dependencyGraph(
+            Set<DependencyScope> scopes,
+            Predicate<MavenCoordinates> postFilter, Pom first, Pom... anyMore)
     {
-        private final Map<MavenCoordinates, Set<MavenCoordinates>> deps = new HashMap<>();
-        private final Set<MavenCoordinates> all = new HashSet<>();
-        private final Set<DependencyScope> scopes;
-        private final Set<DependencyScope> transitiveScopes = EnumSet.noneOf(
-                DependencyScope.class);
+        Set<Pom> poms = new LinkedHashSet<>();
+        poms.add(first);
+        poms.addAll(Arrays.asList(anyMore));
+        return dependencyGraph(scopes, false, postFilter, poms);
+    }
 
-        public DepsTraverser(Set<DependencyScope> scopes)
+    public ObjectGraph<MavenCoordinates> dependencyGraph(
+            Set<DependencyScope> scopes, boolean includeOptionalDependencies,
+            Predicate<MavenCoordinates> postFilter,
+            Collection<? extends Pom> poms)
+    {
+        if (scopes.isEmpty())
         {
-            this.scopes = scopes;
-            for (DependencyScope d : scopes)
+            scopes = DependencyScope.all();
+        }
+        return new DT(scopes, includeOptionalDependencies, postFilter).go(poms);
+    }
+
+    class DT implements BiPredicate<Pom, Dependency>
+    {
+
+        private final Map<MavenCoordinates, Set<MavenCoordinates>> deps = new HashMap<>();
+        private final Set<DependencyScope> scopes;
+        private final Set<MavenCoordinates> all = new HashSet<>();
+        private final Set<Pom> traversedPoms = new HashSet<>();
+        private final boolean includeOptionalDependencies;
+        private final Predicate<MavenCoordinates> postFilter;
+
+        public DT(Set<DependencyScope> scopes,
+                boolean includeOptionalDependencies)
+        {
+            this(scopes, false, null);
+        }
+
+        private void postFilter()
+        {
+            if (postFilter != null)
             {
-                transitiveScopes.addAll(d.transitivity());
+                Map<MavenCoordinates, Set<MavenCoordinates>> filtered = new HashMap<>();
+                deps.forEach((coord, deps) ->
+                {
+                    if (postFilter.test(coord))
+                    {
+                        Set<MavenCoordinates> nue = new LinkedHashSet<>();
+                        for (MavenCoordinates dep : deps)
+                        {
+                            if (postFilter.test(dep))
+                            {
+                                nue.add(dep);
+                            }
+                            else
+                            {
+                                all.remove(dep);
+                            }
+                        }
+                        if (!nue.isEmpty())
+                        {
+                            filtered.put(coord, nue);
+                        }
+                    }
+                    else
+                    {
+                        all.remove(coord);
+                    }
+                });
+                // Orphans will still exist, if they had no dependencies - 
+                // remove them
+                List<MavenCoordinates> newAll = new ArrayList<>();
+                for (MavenCoordinates mc : all)
+                {
+                    if (postFilter.test(mc))
+                    {
+                        newAll.add(mc);
+                    }
+                }
+                all.clear();
+                all.addAll(newAll);
+                deps.clear();
+                deps.putAll(filtered);
             }
         }
 
-        public ObjectGraph<MavenCoordinates> go(Pom target)
+        public DT(Set<DependencyScope> scopes,
+                boolean includeOptionalDependencies,
+                Predicate<MavenCoordinates> postFilter)
         {
-            go(0, target);
+            this.scopes = scopes;
+            this.includeOptionalDependencies = includeOptionalDependencies;
+            this.postFilter = postFilter;
+        }
+
+        @Override
+        public boolean test(Pom t, Dependency u)
+        {
+            traversedPoms.add(t);
+            deps.compute(t.coords, (cds, set) ->
+            {
+                if (set == null)
+                {
+                    set = new TreeSet<>();
+                }
+                set.add(u.coords);
+                return set;
+            });
+            all.add(t.coords);
+            all.add(u.coords);
+            return true;
+        }
+
+        public ObjectGraph<MavenCoordinates> go(Pom thePom)
+        {
+            return go(singleton(thePom));
+        }
+
+        public ObjectGraph<MavenCoordinates> go(
+                Collection<? extends Pom> thePoms)
+        {
+            for (Pom other : thePoms)
+            {
+                // We may have already indirectly traversed a pom, in
+                // which case we (probably - modulo test dependencies)
+                // don't need to again
+                if (!traversedPoms.contains(other))
+                {
+                    poms.dependencies(other)
+                            .visitDependencyClosure(scopes,
+                                    includeOptionalDependencies, this);
+                }
+            }
+            postFilter();
             List<MavenCoordinates> sorted = new ArrayList<>(all);
             Collections.sort(sorted);
             IntGraphBuilder ib = IntGraph.builder(sorted.size());
@@ -104,53 +224,6 @@ public class DependencyGraphs implements Iterable<Pom>
                 });
             });
             return ib.build().toObjectGraph(sorted);
-        }
-
-        private Set<DependencyScope> scopes(int depth)
-        {
-            return depth == 0
-                   ? scopes
-                   : transitiveScopes;
-        }
-
-        private void go(int depth, Pom target)
-        {
-            MavenCoordinates targetCoords = target.coords
-                    .toPlainMavenCoordinates();
-            if (deps.containsKey(targetCoords))
-            {
-                return;
-            }
-            all.add(targetCoords);
-            DependencySet set = dependencySet(target);
-            Set<Dependency> directDeps = set.directDependencies(scopes(depth));
-            Set<MavenCoordinates> coordinateSet = toCoordinates(directDeps);
-            all.addAll(coordinateSet);
-            this.deps.put(targetCoords.toPlainMavenCoordinates(),
-                    coordinateSet);
-
-            for (Dependency d : directDeps)
-            {
-                if (!d.isResolved())
-                {
-                    System.out.println(
-                            " HAVE UNRESOLVED FOR " + target + ": " + d);
-                }
-                MavenCoordinates depCoords = d.coords.toPlainMavenCoordinates();
-                if (this.deps.containsKey(depCoords))
-                {
-                    continue;
-                }
-                resolver.get(d).ifPresent(child -> go(depth + 1, child));
-            }
-        }
-
-        private Set<MavenCoordinates> toCoordinates(
-                Collection<? extends Dependency> dep)
-        {
-            Set<MavenCoordinates> result = new HashSet<>();
-            dep.forEach(d -> result.add(d.coords.toPlainMavenCoordinates()));
-            return result;
         }
     }
 
@@ -244,29 +317,60 @@ public class DependencyGraphs implements Iterable<Pom>
 
     public static void main(String[] args) throws Exception
     {
+//        String aid = "acteur-resources";
+//        String gid = "com.mastfrog";
+//        Poms poms = Poms.in(Paths.get(
+//                "/Users/timb/work/personal/mastfrog-parent"));
+        String aid = "mesakit-tools-applications-graph-analyzer";
+        String gid = "com.telenav.mesakit";
         Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
+
         DependencyGraphs dg = new DependencyGraphs(poms.poms());
 
-        ThrowingOptional<ObjectGraph<MavenCoordinates>> to = dg.dependencies(
-                "com.telenav.cactus", "cactus-maven-plugin", Compile);
-        to.ifPresent(graph ->
-        {
-            System.out.println("GRAPH WITH " + graph.size());
-            System.out.println(graph);
-        });
-        /*
-        ObjectGraph<MavenCoordinates> parentage = dg.parentage();
-        List<Score<MavenCoordinates>> scores = parentage.eigenvectorCentrality();
-        System.out.println("GRAPH:\n" + parentage);
-        System.out.println("\nEigenvector Centrality:");
-        scores.forEach(sc ->
-        {
-        if (sc.score() > 0.0000001)
-        {
-        System.out.println("  * " + sc.score() + "\t" + sc.node());
-        }
-        });
-         */
+        Pom p = poms.get(gid, aid).get();
 
+        Predicate<MavenCoordinates> filter = coords ->
+        {
+//            return coords.groupId().equals(gid);
+            return true;
+        };
+
+        ObjectGraph<MavenCoordinates> graph = dg
+                .dependencyGraph(Compile.asSet(), false,
+                        filter, singleton(p));
+//        ObjectGraph<MavenCoordinates> graph = dg
+//                .dependencyGraph(Compile.asSet(), false,
+//                        filter, singleton(p));
+
+        System.out.println("\nGRAPH WITH " + graph.size() + " members");
+        System.out.println(
+                "  (members are traversed only once each to generate the string representation)");
+        System.out.println(graph);
+
+//        List<Score<MavenCoordinates>> scores = graph.pageRank();
+        List<Score<MavenCoordinates>> scores = graph.eigenvectorCentrality();
+
+        System.out.println("\nCENTRALITY: ");
+        for (int i = 0; i < scores.size(); i++)
+        {
+            if (scores.get(i).score() > 0.0000001)
+            {
+                System.out.println("  * " + scores.get(i));
+            }
+        }
+
+        System.out.println("\n");
+        ObjectGraph<MavenCoordinates> parentage = dg.parentage();
+        List<Score<MavenCoordinates>> pscores = parentage
+                .eigenvectorCentrality();
+        System.out.println("PARENTS GRAPH:\n" + parentage);
+        System.out.println("\nEigenvector Centrality:");
+        pscores.forEach(sc ->
+        {
+            if (sc.score() > 0.0000001)
+            {
+                System.out.println("  * " + sc.score() + "\t" + sc.node());
+            }
+        });
     }
 }

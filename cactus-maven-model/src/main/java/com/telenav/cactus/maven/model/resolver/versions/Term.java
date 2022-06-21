@@ -15,31 +15,37 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
+package com.telenav.cactus.maven.model.resolver.versions;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Function;
 
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
  *
- * @author timb
+ * @author Tim Boudreau
  */
-public class PropertyResolverTest
-{
+final class Term implements Function<String, ComparisonRelation> {
+    private final String value;
 
-    @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
+    Term(String value)
+    {
+        this.value = value;
+    }
+    
+    boolean isValid() {
+        return !value.isEmpty();
+    }
+
+    @Override
+    public ComparisonRelation apply(String t)
+    {
+        return ComparisonRelation.of(notNull("t", t).compareTo(value));
+    }
+
+    @Override
+    public String toString()
+    {
+        return value;
     }
 }

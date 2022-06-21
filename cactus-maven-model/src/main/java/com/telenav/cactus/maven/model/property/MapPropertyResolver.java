@@ -15,31 +15,47 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
+package com.telenav.cactus.maven.model.property;
 
-import org.junit.jupiter.api.Test;
-
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
+ * A PropertyResolver over a map.
  *
- * @author timb
+ * @author Tim Boudreau
  */
-public class PropertyResolverTest
+public final class MapPropertyResolver extends AbstractPropertyResolver
 {
 
-    @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
+    private final Map<String, String> map;
+
+    public MapPropertyResolver(Map<String, String> map)
+    {
+        this.map = map;
+    }
+
+    @Override
+    protected String valueFor(String k)
+    {
+        return map.get(k);
+    }
+
+    @Override
+    public Iterator<String> iterator()
+    {
+        return map.keySet().iterator();
+    }
+
+    Set<String> keys()
+    {
+        return map.keySet();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Map(" + map.keySet() + ")";
     }
 }

@@ -1,18 +1,36 @@
-package com.telenav.cactus.maven.model;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.telenav.cactus.maven.model.Pom.from;
 
 /**
  *
@@ -24,7 +42,8 @@ final class LocalRepoResolver implements PomResolver
     static LocalRepoResolver INSTANCE = new LocalRepoResolver();
 
     @Override
-    public ThrowingOptional<Pom> get(String groupId, String artifactId, String version)
+    public ThrowingOptional<Pom> get(String groupId, String artifactId,
+            String version)
     {
         return inLocalRepository(groupId, artifactId, version);
     }
@@ -92,17 +111,56 @@ final class LocalRepoResolver implements PomResolver
     }
 
     private static ThrowingOptional<Pom> inLocalRepository(String groupId,
-            String artfactId, String version)
+            String artifactId, String version)
     {
-        return from(localRepository().resolve(
-                localRepositoryFolderPath(groupId, artfactId, version))
-                .resolve(pomName(artfactId, version)));
+        if (VersionMatchers.looksLikeRange(version))
+        {
+            ThrowingOptional<Pom> result = inLocalRepository(groupId, artifactId,
+                    VersionMatchers.matcher(version));
+            if (result.isPresent())
+            {
+                return result;
+            }
+        }
+        return firstExistingPom(groupId, artifactId, version);
+    }
+
+    private static ThrowingOptional<Pom> firstExistingPom(String groupId,
+            String artifactId, String version)
+    {
+        Path result = firstExisting(() -> localRepository().resolve(
+                localRepositoryFolderPath(groupId,
+                        artifactId, version).resolve(
+                                pomName(artifactId, version))),
+                () -> localRepository().resolve(altLocalRepositoryFolderPath(
+                        groupId, artifactId, version)
+                        .resolve(pomName(artifactId, version))));
+        if (result == null)
+        {
+//            System.out.println("DID NOT FIND: ");
+//            System.out.println("  " + localRepository().resolve(
+//                    localRepositoryFolderPath(groupId,
+//                            artifactId, version).resolve(
+//                                    pomName(artifactId, version))) + " or");
+//            System.out.println("  " + localRepository().resolve(
+//                    altLocalRepositoryFolderPath(groupId,
+//                            artifactId, version).resolve(
+//                                    pomName(artifactId, version))) + " or");
+//  
+            return inLocalRepository(groupId, artifactId,
+                    VersionMatchers.matcher(version));
+        }
+        return Pom.from(result);
     }
 
     private static ThrowingOptional<Pom> inLocalRepository(String groupId,
             String artifactId, Predicate<String> versionAccepter)
     {
         Path par = localRepositoryParent(groupId, artifactId);
+        if (!Files.exists(par))
+        {
+            par = altLocalRepositoryParent(groupId, artifactId);
+        }
         if (!Files.exists(par))
         {
             return ThrowingOptional.empty();
@@ -126,13 +184,17 @@ final class LocalRepoResolver implements PomResolver
         }
         Collections.sort(result);
         String ver = result.getLast();
-        if ("3.0.0-dev".equals(ver)) {
-            throw new IllegalStateException("Gotcha: " + groupId + ":" + artifactId);
-        }
         return inLocalRepository(groupId, artifactId, ver);
     }
 
     private static Path localRepositoryParent(String groupId,
+            String artifactId)
+    {
+        return localRepository().resolve(pathify(groupId))
+                .resolve(pathify(artifactId));
+    }
+
+    private static Path altLocalRepositoryParent(String groupId,
             String artifactId)
     {
         return localRepository().resolve(pathify(groupId))
@@ -157,6 +219,40 @@ final class LocalRepoResolver implements PomResolver
                 .resolve(version);
     }
 
+    private static Path altLocalRepositoryFolderPath(String groupId,
+            String artifactId, String version)
+    {
+        // For some reason, javax.inject winds up in a folder named
+        // javax.inject instead of javax/inject.  Maybe an artifact of its
+        // version being "1"?
+        return pathify(groupId).resolve(artifactId)
+                .resolve(version);
+    }
+
+    private static Path versionReducedFolderPath(String groupId,
+            String artifactId, String version)
+    {
+        return localRepositoryFolderPath(groupId, artifactId, reducedVersion(
+                version));
+    }
+
+    private static Path altVersionReducedFolderPath(String groupId,
+            String artifactId, String version)
+    {
+        return altLocalRepositoryFolderPath(groupId, artifactId, reducedVersion(
+                version));
+    }
+
+    private static String reducedVersion(String version)
+    {
+        int ix = version.lastIndexOf('.');
+        if (ix > 0)
+        {
+            return version.substring(0, ix);
+        }
+        return version;
+    }
+
     private static Path pathify(String mavenCoordinatesPart)
     {
         String[] parts = mavenCoordinatesPart.split("[\\./]");
@@ -178,12 +274,16 @@ final class LocalRepoResolver implements PomResolver
     @SafeVarargs
     private static Path firstExisting(Supplier<Path>... suppliers)
     {
+        Set<Path> seen = new HashSet<>();
         for (Supplier<Path> s : suppliers)
         {
             Path result = s.get();
-            if (result != null && Files.exists(result))
+            if (seen.add(result))
             {
-                return result;
+                if (result != null && Files.exists(result))
+                {
+                    return result;
+                }
             }
         }
         return null;

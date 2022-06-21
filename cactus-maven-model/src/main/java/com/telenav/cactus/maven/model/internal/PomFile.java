@@ -30,7 +30,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,7 +58,7 @@ public final class PomFile
             new WeakHashMap<>());
     private static final XPathFactory XPATH_FACTORY = XPathFactory
             .newDefaultInstance();
-    private static ThreadLocal<XPath> XPATH = ThreadLocal.withInitial(
+    private static final ThreadLocal<XPath> XPATH = ThreadLocal.withInitial(
             () -> XPATH_FACTORY.newXPath());
     private final ThreadLocal<Document> docContext = new ThreadLocal<>();
     public final Path path;
@@ -103,6 +102,13 @@ public final class PomFile
                 }
             }
         });
+    }
+
+    public List<Dependency> dependencies(boolean depManagement) throws Exception
+    {
+        List<Dependency> result = new ArrayList<>();
+        visitDependencies(depManagement, result::add);
+        return result;
     }
 
     public void visitDependencies(boolean depManagement, Consumer<Dependency> dc)
@@ -301,14 +307,6 @@ public final class PomFile
         ThrowingOptional<Node> ver = nodeQuery("/project/version")
                 .or(nodeQuery("/project/parent/version"));
         return new MavenCoordinates(gid.get(), aid.get(), ver.get());
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        PomFile pf = new PomFile(Paths.get(
-                "/Users/timb/work/telenav/jonstuff/cactus/pom.xml"));
-
-        System.out.println("COORDS " + pf.coordinates());
     }
 
     public MavenCoordinates xcoordinates()

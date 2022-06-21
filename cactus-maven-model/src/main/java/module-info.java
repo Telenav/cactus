@@ -1,4 +1,4 @@
-module cactus.maven.model
+open module cactus.maven.model
 {
     requires jdk.xml.dom;
     requires java.logging;
@@ -6,7 +6,6 @@ module cactus.maven.model
     requires com.mastfrog.preconditions;
 
     exports com.telenav.cactus.maven.model;
-    opens com.telenav.cactus.maven.model;
-    
-    opens com.telenav.cactus.maven.model.internal to cactus.maven.graph;
+    exports com.telenav.cactus.maven.model.dependencies;
+    exports com.telenav.cactus.maven.model.resolver;
 }

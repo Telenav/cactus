@@ -1,13 +1,34 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.model;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.maven.model.dependencies.DependencyScope;
+import com.telenav.cactus.maven.model.property.PropertyResolver;
+import com.telenav.cactus.maven.model.resolver.PomResolver;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.model.MavenCoordinates.PLACEHOLDER;
 
 /**
  *
@@ -50,74 +71,114 @@ public class Dependency implements MavenIdentified, MavenVersioned
                         new HashSet<>(exclusions));
     }
 
-    public MavenId toMavenId()
+    public Set<MavenId> exclusions()
     {
-        return coords.toMavenId();
+        return Collections.unmodifiableSet(exclusions);
     }
 
-    public Optional<Dependency> merge(Dependency other)
+    public boolean isImplictScope()
     {
-        if (!other.coords.toMavenId().equals(other.toMavenId()))
-        {
-            return Optional.empty();
-        }
-        if (other.version().isPresent() && version().isPresent() && !version()
-                .get().equals(other.version().get()))
-        {
-            return Optional.empty();
-        }
-        String type = this.type;
-        if (implicitType && !other.implicitType)
-        {
-            type = other.type;
-        }
-        if (!other.type.equals(type))
-        {
-            return Optional.empty();
-        }
-        Set<MavenId> isect = new HashSet<>(other.exclusions);
-        isect.retainAll(exclusions);
-        boolean opt = optional && other.optional;
-        DependencyScope sc;
-        if (implicitScope && !other.implicitScope)
-        {
-            sc = other.scope;
-        }
-        else
-            if (!implicitScope && other.implicitScope)
-            {
-                sc = scope;
-            }
-            else
-            {
-                sc = scope.coalesce(other.scope);
-            }
-        Dependency result = new Dependency(coords, type, sc, opt, isect);
-        if (result.equals(this))
-        {
-            return Optional.empty();
-        }
-        return Optional.of(result);
+        return implicitScope;
     }
 
-    public boolean excludes(MavenIdentified id)
+    public boolean isImplicitType()
     {
-        if (exclusions.isEmpty())
+        return implicitType;
+    }
+
+    public boolean isPlaceholderVersion()
+    {
+        return PLACEHOLDER.equals(coords.version);
+    }
+
+    public Dependency withVersion(String version)
+    {
+        if (this.coords.version.equals(version))
+        {
+            return this;
+        }
+        MavenCoordinates newCoords = this.coords.withVersion(version);
+        return new Dependency(newCoords, implicitType
+                                         ? null
+                                         : type, implicitScope
+                                                 ? null
+                                                 : scope, optional, exclusions);
+    }
+
+    public Dependency withType(String type)
+    {
+        if (this.type.equals(type))
+        {
+            return this;
+        }
+        return new Dependency(coords,
+                type, implicitScope
+                      ? null
+                      : scope, optional, exclusions);
+    }
+
+    public Dependency withScope(DependencyScope scope)
+    {
+        if (scope == this.scope)
+        {
+            return this;
+        }
+        return new Dependency(coords, implicitType
+                                      ? null
+                                      : type, scope, optional, exclusions);
+    }
+
+    public Dependency withExclusions(Collection<? extends MavenId> excl)
+    {
+        if (exclusions.equals(this.exclusions))
+        {
+            return this;
+        }
+        return new Dependency(coords, implicitType
+                                      ? null
+                                      : type, implicitScope
+                                              ? null
+                                              : scope,
+                optional, new HashSet<>(exclusions));
+    }
+
+    public Dependency withCombinedExclusions(
+            Collection<? extends MavenId> exclusions)
+    {
+        if (exclusions == this.exclusions || exclusions.equals(this.exclusions))
+        {
+            return this;
+        }
+        Set<MavenId> result = new HashSet<>(exclusions);
+        result.addAll(this.exclusions);
+        return new Dependency(coords, implicitType
+                                      ? null
+                                      : type, implicitScope
+                                              ? null
+                                              : scope,
+                optional, result);
+    }
+
+    public boolean isCompletionOf(Dependency other)
+    {
+        if (!isResolved())
         {
             return false;
         }
-        if (id instanceof MavenId)
+        if (artifactId().equals(other.artifactId()) && groupId().equals(other
+                .groupId()))
         {
-            return exclusions.contains(id);
-        }
-        for (MavenId mid : exclusions)
-        {
-            if (mid.is(id))
+            if (type.equals(other.type) || other.implicitType)
             {
                 return true;
             }
         }
         return false;
+    }
+
+    public MavenId toMavenId()
+    {
+        return coords.toMavenId();
     }
 
     @Override
@@ -142,6 +203,43 @@ public class Dependency implements MavenIdentified, MavenVersioned
     public boolean isResolved()
     {
         return coords.isResolved();
+    }
+
+    public boolean isOptional()
+    {
+        return optional;
+    }
+
+    public Dependency resolve(PropertyResolver res)
+    {
+        Dependency result = this;
+        MavenCoordinates cds = coords;
+        if (!PropertyResolver.isResolved(coords.groupId))
+        {
+            String gid = res.resolve(coords.groupId);
+            if (gid != null && !gid.equals(coords.groupId))
+            {
+                cds = cds.withGroupId(gid);
+            }
+        }
+        if (!PropertyResolver.isResolved(coords.version))
+        {
+            String ver = res.resolve(coords.version);
+            if (ver != null && !ver.equals(coords.version))
+            {
+                cds = cds.withVersion(ver);
+            }
+        }
+        if (cds != coords)
+        {
+            result = new Dependency(cds, implicitType
+                                         ? null
+                                         : type,
+                    implicitScope
+                    ? null
+                    : scope, optional, exclusions);
+        }
+        return result;
     }
 
     public Dependency resolve(PropertyResolver res, PomResolver poms)
@@ -170,28 +268,35 @@ public class Dependency implements MavenIdentified, MavenVersioned
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         final Dependency other = (Dependency) obj;
-        if (this.optional != other.optional)
+        if (this.optional != other.optional) {
             return false;
-        if (!Objects.equals(this.type, other.type))
+        }
+        if (!Objects.equals(this.type, other.type)) {
             return false;
-        if (!Objects.equals(this.scope, other.scope))
+        }
+        if (!Objects.equals(this.scope, other.scope)) {
             return false;
+        }
         return Objects.equals(this.coords, other.coords);
     }
 
     @Override
     public String toString()
     {
-        return type + "(" + coords + "=" + scope + (exclusions.isEmpty()
-                                                    ? ""
-                                                    : " excluding="
+        return type + "(" + coords + "=" + scope
+                + (exclusions.isEmpty()
+                   ? ""
+                   : " excluding="
                 + exclusions.toString()
                 + (optional
                    ? " optional"

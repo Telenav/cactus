@@ -52,7 +52,7 @@
         <module>cactus-maven-log</module>
         <module>cactus-git</module>
         <module>cactus-cli</module>
-        <module>graph</module>
+        <module>cactus-graph</module>
     </modules>
 
     <!-- Properties -->

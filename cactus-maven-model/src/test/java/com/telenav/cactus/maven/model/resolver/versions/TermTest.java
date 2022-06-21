@@ -15,31 +15,37 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
+package com.telenav.cactus.maven.model.resolver.versions;
 
 import org.junit.jupiter.api.Test;
 
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
  * @author timb
  */
-public class PropertyResolverTest
+public class TermTest
 {
 
     @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
+    public void testToString()
+    {
+        Term term = new Term("1.0.1");
+        assertRelation(term, ComparisonRelation.EQUAL, "1.0.1");
+        assertRelation(term, ComparisonRelation.BELOW, "1.0.0");
+        assertRelation(term, ComparisonRelation.ABOVE, "1.0.2");
+        assertRelation(term, ComparisonRelation.ABOVE, "1.0.1.1");
+        assertRelation(term, ComparisonRelation.BELOW, "1.0.0.1");
     }
+
+    private static void assertRelation(Term term, ComparisonRelation rel,
+            String with)
+    {
+        ComparisonRelation r = term.apply(with);
+        assertEquals(rel, r,
+                "Relation should be " + rel.name() + " for " + term + " with " + with
+                + " but got " + r.name());
+    }
+
 }

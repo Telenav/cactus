@@ -1,24 +1,47 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.model;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.maven.model.dependencies.DependencyScope;
 import com.telenav.cactus.maven.model.internal.PomFile;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
+import com.telenav.cactus.maven.model.property.MapPropertyResolver;
+import com.telenav.cactus.maven.model.property.PropertyResolver;
+import com.telenav.cactus.maven.model.resolver.PomResolver;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import org.xml.sax.SAXException;
 
 /**
  * @author Tim Boudreau
@@ -37,11 +60,17 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         }
     }
 
+    public static Optional<Pom> fromOpt(Path pomFile)
+    {
+        return from(pomFile).toOptional();
+    }
+
     public static ThrowingOptional<Pom> from(Path pomFile)
     {
         if (!Files.exists(pomFile) || Files.isDirectory(pomFile) || !Files
                 .isReadable(pomFile))
         {
+            System.out.println("NOT IN LOCAL REPO: " + pomFile);
             return ThrowingOptional.empty();
         }
         PomFile pom = new PomFile(pomFile);
@@ -96,14 +125,26 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         return PomFile.of(this);
     }
 
-    public Map<String, String> properties() throws Exception
+    public PropertyResolver localPropertyResolver()
     {
-        Map<String, String> result = new LinkedHashMap<>();
-        toPomFile().visitProperties((key, val) ->
+        return new MapPropertyResolver(properties());
+    }
+
+    public Map<String, String> properties()
+    {
+        try
         {
-            result.put(key, val);
-        });
-        return result;
+            Map<String, String> result = new LinkedHashMap<>();
+            toPomFile().visitProperties((key, val) ->
+            {
+                result.put(key, val);
+            });
+            return result;
+        }
+        catch (Exception | Error e)
+        {
+            return Exceptions.chuck(e);
+        }
     }
 
     public ThrowingOptional<ParentMavenCoordinates> parent()
@@ -122,6 +163,27 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     {
         return parent().flatMapThrowing(par -> resolver.get(par.groupId(), par
                 .artifactId(), par.version().get()));
+    }
+
+    public Dependency toDependency(String type, DependencyScope scope,
+            boolean optional)
+    {
+        return new Dependency(coords, type, scope, optional, Collections
+                .emptySet());
+    }
+
+    public List<Pom> hierarchyDescending(PomResolver res)
+    {
+        List<Pom> result = parents(res);
+        result.add(0, this);
+        return result;
+    }
+
+    public List<Pom> parents(PomResolver res)
+    {
+        List<Pom> result = new ArrayList<>();
+        visitParents(res, result::add);
+        return result;
     }
 
     public int visitParents(PomResolver resolver, ThrowingConsumer<Pom> coords)

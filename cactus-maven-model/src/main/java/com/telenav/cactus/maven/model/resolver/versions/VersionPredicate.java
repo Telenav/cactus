@@ -15,31 +15,20 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
+package com.telenav.cactus.maven.model.resolver.versions;
 
-import org.junit.jupiter.api.Test;
-
-import static com.telenav.cactus.maven.model.property.PropertyResolver.isResolved;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.function.Predicate;
 
 /**
+ * A predicate which can report if the input it was constructed from was valid.
  *
- * @author timb
+ * @author Tim Boudreau
  */
-public class PropertyResolverTest
+public interface VersionPredicate<T> extends Predicate<T>
 {
 
-    @Test
-    public void testIsResolved() {
-        assertTrue(isResolved("abcd"));
-        assertTrue(isResolved("1.2.3"));
-        assertFalse(isResolved("some-${templated}-thing"));
-        assertFalse(isResolved("${mastfrog.parent}"));
-        assertTrue(isResolved("${blah${"));
-        assertTrue(isResolved("}backwards${blee"));
-        assertTrue(isResolved("${"));
-        assertFalse(isResolved("${}"));
-        assertFalse(isResolved("prefixed-${thing}"));
+    default boolean isValid()
+    {
+        return true;
     }
 }
