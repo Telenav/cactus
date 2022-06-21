@@ -31,6 +31,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.model.MavenCoordinates.PLACEHOLDER;
 
 /**
+ * A single maven dependency.
  *
  * @author Tim Boudreau
  */
@@ -268,23 +269,25 @@ public class Dependency implements MavenIdentified, MavenVersioned
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj) {
+        if (this == obj)
+        {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (obj == null || obj.getClass() != Dependency.class)
+        {
             return false;
         }
         final Dependency other = (Dependency) obj;
-        if (this.optional != other.optional) {
+        if (this.optional != other.optional)
+        {
             return false;
         }
-        if (!Objects.equals(this.type, other.type)) {
+        if (!Objects.equals(this.type, other.type))
+        {
             return false;
         }
-        if (!Objects.equals(this.scope, other.scope)) {
+        if (!Objects.equals(this.scope, other.scope))
+        {
             return false;
         }
         return Objects.equals(this.coords, other.coords);

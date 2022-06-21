@@ -36,13 +36,11 @@ import java.util.TreeSet;
 public final class ParentsPropertyResolver extends AbstractPropertyResolver
 {
 
-    private final PomResolver pomResolver;
     private final List<Pom> allPoms;
     private final Map<Pom, MapPropertyResolver> resolverForPom = new HashMap<>();
 
     public ParentsPropertyResolver(Pom pom, PomResolver pomResolver)
     {
-        this.pomResolver = pomResolver;
         allPoms = pom.hierarchyDescending(pomResolver);
     }
 

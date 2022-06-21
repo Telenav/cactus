@@ -332,7 +332,7 @@ public class DependencySet implements Dependencies
         // Called the first time this instance is used for something that
         // requires dependency resolution.
         //
-        // We populate and fully resolve direct dependencies here.
+        // We populate and fully resolve direct dependencies here, on first use.
 
         // We can already be added because we are collecting full dependencies,
         // so don't show up twice in the path
@@ -377,94 +377,9 @@ public class DependencySet implements Dependencies
             collectDirectDependenciesDefinedInParents(parentsList,
                     inheritedById);
 
-            // Now, finally, we can resolve our direct dependencies
-            for (Dependency dep : rawDependencies)
-            {
-                // Save the original entry for diagnostic error messages if
-                // we fail to resolve it fully
-                Dependency orig = dep;
-                // If we are clobbering a direct dependency declared in a parent,
-                // remove it from the set we're going to append to the end of
-                // our local direct dependencies list.
-                Dependency existing = inheritedById.remove(dep.coords
-                        .toMavenId());
-                // Update the dependency replacing any ${project.groupId},
-                // ${project.version} or local properties
-                if (!dep.isResolved())
-                {
-                    dep = dep.resolve(localResolver);
-                }
-
-                Dependency checkpoint = dep;
-                Dependency managementEntry = this.depManagementEntry(dep);
-                // We need this even if resolved, to augment the dependency
-                // with anything defined there (or clobber it, because maven
-                // does that)
-                if (managementEntry != null)
-                {
-                    dep = applyDependencyManagementPropertiesToDependency(
-                            managementEntry, dep);
-                }
-
-                if (!dep.isResolved())
-                {
-                    dep = resolveViaParents(dep, localResolver, parentsList);
-                }
-                // Fudge it if we have a resolved dependency from a parent and
-                // the child one is unresolvable
-                if (existing != null && existing.isResolved() && !dep
-                        .isResolved())
-                {
-                    dep = existing.withCombinedExclusions(dep.exclusions());
-                }
-
-                if (checkpoint != dep && checkpoint.isResolved() && !dep
-                        .isResolved())
-                {
-                    throw new Error(
-                            "Resolution info lost between " + checkpoint + " and " + dep);
-                }
-
-                if (!dep.isResolved())
-                {
-                    dep = dep.resolve(this.fromParentsResolver, resolver);
-                }
-
-                if (!dep.isResolved())
-                {
-                    // We may have not had sufficent properties resolved before,
-                    // so give it another try
-                    managementEntry = this.depManagementEntry(dep);
-                    // We need this even if resolved, to augment the dependency
-                    // with anything defined there (or clobber it, because maven
-                    // does that)
-                    if (managementEntry != null)
-                    {
-                        dep = applyDependencyManagementPropertiesToDependency(
-                                managementEntry, dep);
-                    }
-                }
-
-                if (!dep.isResolved())
-                {
-                    onResolutionFailure(dep, "dependencies", orig);
-                }
-
-                Dependency imported = managementEntriesFromImports.get(dep
-                        .toMavenId());
-                // XXX if it DOESN'T define exclusions, can you still have your own?
-                if (imported != null && !imported.exclusions().isEmpty())
-                {
-                    if (!dep.exclusions().isEmpty())
-                    {
-                        log(true, "Import exclusions in " + imported
-                                + " will clobber exclusions in " + dep + " for "
-                                + owner.coords);
-                    }
-                    dep = dep.withExclusions(imported.exclusions());
-                }
-                dependenciesLocal.add(dep);
-            }
+            resolveDirectDependencies(rawDependencies, inheritedById,
+                    localResolver, parentsList, managementEntriesFromImports,
+                    dependenciesLocal);
             // Add any imported dependencies that were not overridden to
             // the end of the colllection
             dependenciesLocal.addAll(inheritedById.values());
@@ -475,6 +390,94 @@ public class DependencySet implements Dependencies
                     + dependencyManagement.size() + " depManagement entries");
         });
 
+    }
+
+    private void resolveDirectDependencies(List<Dependency> rawDependencies,
+            Map<MavenId, Dependency> inheritedById,
+            PropertyResolver localResolver, List<Pom> parentsList,
+            Map<MavenId, Dependency> managementEntriesFromImports,
+            Set<Dependency> dependenciesLocal)
+    {
+        // Now, finally, we can resolve our direct dependencies
+        for (Dependency dep : rawDependencies)
+        {
+            // Save the original entry for diagnostic error messages if
+            // we fail to resolve it fully
+            Dependency orig = dep;
+            // If we are clobbering a direct dependency declared in a parent,
+            // remove it from the set we're going to append to the end of
+            // our local direct dependencies list.
+            Dependency existing = inheritedById.remove(dep.coords
+                    .toMavenId());
+            // Update the dependency replacing any ${project.groupId},
+            // ${project.version} or local properties
+            if (!dep.isResolved())
+            {
+                dep = dep.resolve(localResolver);
+            }
+
+            Dependency managementEntry = this.depManagementEntry(dep);
+            // We need this even if resolved, to augment the dependency
+            // with anything defined there (or clobber it, because maven
+            // does that)
+            if (managementEntry != null)
+            {
+                dep = applyDependencyManagementPropertiesToDependency(
+                        managementEntry, dep);
+            }
+
+            if (!dep.isResolved())
+            {
+                dep = resolveViaParents(dep, localResolver, parentsList);
+            }
+            // Fudge it if we have a resolved dependency from a parent and
+            // the child one is unresolvable
+            if (existing != null && existing.isResolved() && !dep
+                    .isResolved())
+            {
+                dep = existing.withCombinedExclusions(dep.exclusions());
+            }
+
+            if (!dep.isResolved())
+            {
+                dep = dep.resolve(this.fromParentsResolver, resolver);
+            }
+
+            if (!dep.isResolved())
+            {
+                // We may have not had sufficent properties resolved before,
+                // so give it another try
+                managementEntry = this.depManagementEntry(dep);
+                // We need this even if resolved, to augment the dependency
+                // with anything defined there (or clobber it, because maven
+                // does that)
+                if (managementEntry != null)
+                {
+                    dep = applyDependencyManagementPropertiesToDependency(
+                            managementEntry, dep);
+                }
+            }
+
+            if (!dep.isResolved())
+            {
+                onResolutionFailure(dep, "dependencies", orig);
+            }
+
+            Dependency imported = managementEntriesFromImports.get(dep
+                    .toMavenId());
+            // XXX if it DOESN'T define exclusions, can you still have your own?
+            if (imported != null && !imported.exclusions().isEmpty())
+            {
+                if (!dep.exclusions().isEmpty())
+                {
+                    log(true, "Import exclusions in " + imported
+                            + " will clobber exclusions in " + dep + " for "
+                            + owner.coords);
+                }
+                dep = dep.withExclusions(imported.exclusions());
+            }
+            dependenciesLocal.add(dep);
+        }
     }
 
     private void collectDirectDependenciesDefinedInParents(List<Pom> parentsList,

@@ -25,7 +25,7 @@ import com.telenav.cactus.maven.model.property.ParentsPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 
 /**
- * A thing that can resolve pom files somehow, such aas from among a collection
+ * A thing that can resolve pom files somehow, such as from among a collection
  * of known poms on disk, or from the local repository.
  *
  * @author Tim Boudreau

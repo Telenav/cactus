@@ -33,6 +33,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Resolves against the local maven repository.
+ *
+ * PENDING: Add a way to supply a function that will download not-found
+ * dependencies.
  *
  * @author Tim Boudreau
  */
