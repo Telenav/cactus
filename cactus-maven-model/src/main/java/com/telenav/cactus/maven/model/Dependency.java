@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
-import static com.telenav.cactus.maven.model.MavenCoordinates.PLACEHOLDER;
 
 /**
  * A single maven dependency.
@@ -42,19 +41,19 @@ public class Dependency implements MavenIdentified, MavenVersioned
     public final String type;
     public final DependencyScope scope;
     public final boolean optional;
-    public final Set<MavenId> exclusions;
+    public final Set<ArtifactIdentifiers> exclusions;
     public final boolean implicitScope;
     public final boolean implicitType;
 
     public Dependency(MavenCoordinates coords, String type, String scope,
-            boolean optional, Set<MavenId> exclusions)
+            boolean optional, Set<ArtifactIdentifiers> exclusions)
     {
         this(coords, type, DependencyScope.of(scope), optional, exclusions);
     }
 
     public Dependency(MavenCoordinates coords, String type,
             DependencyScope scope,
-            boolean optional, Set<MavenId> exclusions)
+            boolean optional, Set<ArtifactIdentifiers> exclusions)
     {
         this.coords = notNull("coords", coords);
         this.type = type == null
@@ -72,7 +71,7 @@ public class Dependency implements MavenIdentified, MavenVersioned
                         new HashSet<>(exclusions));
     }
 
-    public Set<MavenId> exclusions()
+    public Set<ArtifactIdentifiers> exclusions()
     {
         return Collections.unmodifiableSet(exclusions);
     }
@@ -89,12 +88,26 @@ public class Dependency implements MavenIdentified, MavenVersioned
 
     public boolean isPlaceholderVersion()
     {
-        return PLACEHOLDER.equals(coords.version);
+        return coords.version.isPlaceholder();
+    }
+    
+    public Dependency withVersion(PomVersion version)
+    {
+        if (this.coords.version.equals(version))
+        {
+            return this;
+        }
+        MavenCoordinates newCoords = this.coords.withVersion(version);
+        return new Dependency(newCoords, implicitType
+                                         ? null
+                                         : type, implicitScope
+                                                 ? null
+                                                 : scope, optional, exclusions);
     }
 
     public Dependency withVersion(String version)
     {
-        if (this.coords.version.equals(version))
+        if (this.coords.version.is(version))
         {
             return this;
         }
@@ -129,7 +142,7 @@ public class Dependency implements MavenIdentified, MavenVersioned
                                       : type, scope, optional, exclusions);
     }
 
-    public Dependency withExclusions(Collection<? extends MavenId> excl)
+    public Dependency withExclusions(Collection<? extends ArtifactIdentifiers> excl)
     {
         if (exclusions.equals(this.exclusions))
         {
@@ -144,13 +157,13 @@ public class Dependency implements MavenIdentified, MavenVersioned
     }
 
     public Dependency withCombinedExclusions(
-            Collection<? extends MavenId> exclusions)
+            Collection<? extends ArtifactIdentifiers> exclusions)
     {
         if (exclusions == this.exclusions || exclusions.equals(this.exclusions))
         {
             return this;
         }
-        Set<MavenId> result = new HashSet<>(exclusions);
+        Set<ArtifactIdentifiers> result = new HashSet<>(exclusions);
         result.addAll(this.exclusions);
         return new Dependency(coords, implicitType
                                       ? null
@@ -177,23 +190,29 @@ public class Dependency implements MavenIdentified, MavenVersioned
         return false;
     }
 
-    public MavenId toMavenId()
+    public ArtifactIdentifiers toMavenId()
     {
         return coords.toMavenId();
     }
 
     @Override
-    public String groupId()
+    public GroupId groupId()
     {
-        return coords.groupId;
+        return coords.groupId();
     }
 
     @Override
-    public String artifactId()
+    public ArtifactId artifactId()
     {
-        return coords.artifactId;
+        return coords.artifactId();
     }
 
+    @Override
+    public PomVersion rawVersion()
+    {
+        return coords.rawVersion();
+    }
+    
     @Override
     public ThrowingOptional<String> version()
     {
@@ -214,23 +233,7 @@ public class Dependency implements MavenIdentified, MavenVersioned
     public Dependency resolve(PropertyResolver res)
     {
         Dependency result = this;
-        MavenCoordinates cds = coords;
-        if (!PropertyResolver.isResolved(coords.groupId))
-        {
-            String gid = res.resolve(coords.groupId);
-            if (gid != null && !gid.equals(coords.groupId))
-            {
-                cds = cds.withGroupId(gid);
-            }
-        }
-        if (!PropertyResolver.isResolved(coords.version))
-        {
-            String ver = res.resolve(coords.version);
-            if (ver != null && !ver.equals(coords.version))
-            {
-                cds = cds.withVersion(ver);
-            }
-        }
+        MavenCoordinates cds = coords.resolve(res);
         if (cds != coords)
         {
             result = new Dependency(cds, implicitType

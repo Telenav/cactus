@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.model.dependencies;
 
-import com.telenav.cactus.maven.model.Dependency;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -67,10 +66,7 @@ public enum DependencyScope
             return scopes.iterator().next().transitivity();
         }
         Set<DependencyScope> result = EnumSet.noneOf(DependencyScope.class);
-        for (DependencyScope scope : scopes)
-        {
-            result.addAll(scope.transitivity());
-        }
+        scopes.forEach(sc -> result.addAll(sc.transitivity()));
         return result;
     }
 

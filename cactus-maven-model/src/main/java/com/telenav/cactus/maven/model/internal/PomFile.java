@@ -1,33 +1,23 @@
 package com.telenav.cactus.maven.model.internal;
 
-import com.telenav.cactus.maven.model.MavenCoordinates;
-import com.telenav.cactus.maven.model.ParentMavenCoordinates;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingBiFunction;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
-import com.mastfrog.function.throwing.ThrowingSupplier;
+import com.mastfrog.function.throwing.ThrowingQuadFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.function.throwing.ThrowingTriConsumer;
 import com.mastfrog.function.throwing.ThrowingTriFunction;
-import com.mastfrog.function.throwing.ThrowingQuadFunction;
+import com.telenav.cactus.maven.model.ArtifactId;
+import com.telenav.cactus.maven.model.ArtifactIdentifiers;
 import com.telenav.cactus.maven.model.Dependency;
-import com.telenav.cactus.maven.model.MavenId;
+import com.telenav.cactus.maven.model.GroupId;
+import com.telenav.cactus.maven.model.MavenCoordinates;
+import com.telenav.cactus.maven.model.ParentMavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import com.telenav.cactus.maven.model.PomVersion;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,7 +32,19 @@ import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * We may be looking outside the build reactor, so avoid instantiating a full
@@ -162,9 +164,9 @@ public final class PomFile
 
     private Dependency toDependency(Map<String, Node> nodes)
     {
-        String aid = nodeText("artifactId", nodes);
-        String gid = nodeText("groupId", nodes);
-        String ver = nodeText("version", nodes);
+        ArtifactId aid = ArtifactId.of(nodes.get("artifactId"));
+        GroupId gid = GroupId.of(nodes.get("groupId"));
+        PomVersion ver = PomVersion.of(nodes.get("version"));
         if (aid == null || gid == null)
         {
             throw new IllegalStateException("Null aid or gid in " + toStringMap(
@@ -174,18 +176,17 @@ public final class PomFile
         boolean optional = "true".equals(nodeText("optional", nodes));
         String scope = nodeText("scope", nodes);
         String type = nodeText("type", nodes);
-        Node excl = nodes.get("exclusions");
-        Set<MavenId> exclusions = exclusionSet(nodes.get("exclusions"));
+        Set<ArtifactIdentifiers> exclusions = exclusionSet(nodes.get("exclusions"));
         return new Dependency(coords, type, scope, optional, exclusions);
     }
 
-    private static Set<MavenId> exclusionSet(Node nd)
+    private static Set<ArtifactIdentifiers> exclusionSet(Node nd)
     {
         if (nd == null)
         {
             return Collections.emptySet();
         }
-        Set<MavenId> ids = new HashSet<>();
+        Set<ArtifactIdentifiers> ids = new HashSet<>();
         NodeList kids = nd.getChildNodes();
         for (int i = 0; i < kids.getLength(); i++)
         {
@@ -193,11 +194,11 @@ public final class PomFile
             if (n instanceof Element && "exclusion".equals(n.getNodeName()))
             {
                 Map<String, Node> elems = extractElements(n.getChildNodes());
-                String aid = nodeText("artifactId", elems);
-                String gid = nodeText("groupId", elems);
+                Node aid = elems.get("artifactId");
+                Node gid = elems.get("groupId");
                 if (aid != null && gid != null)
                 {
-                    ids.add(new MavenId(gid, aid));
+                    ids.add(new ArtifactIdentifiers(gid, aid));
                 }
             }
         }

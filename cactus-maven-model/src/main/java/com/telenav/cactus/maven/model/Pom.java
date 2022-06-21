@@ -70,7 +70,6 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         if (!Files.exists(pomFile) || Files.isDirectory(pomFile) || !Files
                 .isReadable(pomFile))
         {
-            System.out.println("NOT IN LOCAL REPO: " + pomFile);
             return ThrowingOptional.empty();
         }
         PomFile pom = new PomFile(pomFile);
@@ -130,6 +129,12 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         return new MapPropertyResolver(properties());
     }
 
+    @Override
+    public PomVersion rawVersion()
+    {
+        return coords.rawVersion();
+    }
+
     public Map<String, String> properties()
     {
         try
@@ -162,7 +167,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     public ThrowingOptional<Pom> resolveParent(PomResolver resolver)
     {
         return parent().flatMapThrowing(par -> resolver.get(par.groupId(), par
-                .artifactId(), par.version().get()));
+                .artifactId(), par.rawVersion()));
     }
 
     public Dependency toDependency(String type, DependencyScope scope,
@@ -194,8 +199,8 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         {
             ParentMavenCoordinates pmc = opt.get();
 
-            ThrowingOptional<Pom> resolved = resolver.get(pmc.groupId,
-                    pmc.artifactId, pmc.version);
+            ThrowingOptional<Pom> resolved = resolver.get(pmc.groupId(),
+                    pmc.artifactId(), pmc.rawVersion());
             if (resolved.isPresent())
             {
                 try
@@ -218,13 +223,13 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     }
 
     @Override
-    public String groupId()
+    public GroupId groupId()
     {
         return coords.groupId;
     }
 
     @Override
-    public String artifactId()
+    public ArtifactId artifactId()
     {
         return coords.artifactId;
     }

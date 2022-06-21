@@ -21,6 +21,7 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 
 /**
+ * A thing which has a PomVersion.
  *
  * @author Tim Boudreau
  */
@@ -33,4 +34,6 @@ public interface MavenVersioned
         return version().isPresent()
                 && PropertyResolver.isResolved(version().get());
     }
+
+    PomVersion rawVersion();
 }

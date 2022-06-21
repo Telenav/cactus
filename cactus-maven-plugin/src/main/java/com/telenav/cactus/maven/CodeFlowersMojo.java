@@ -110,7 +110,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
                 if (!"pom".equals(pom.packaging))
                 {
                     Set<Pom> poms = result.computeIfAbsent(ProjectFamily
-                                    .fromGroupId(pom.coords.groupId),
+                                    .fromGroupId(pom.coords.groupId.value()),
                             f -> new HashSet<>());
                     poms.add(pom);
                 }
@@ -123,7 +123,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             throws Exception
     {
         Set<String> versions = new HashSet<>();
-        poms.forEach(pom -> versions.add(pom.coords.version));
+        poms.forEach(pom -> versions.add(pom.coords.version.value()));
         if (versions.size() > 1)
         {
             throw new MojoExecutionException(

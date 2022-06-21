@@ -69,7 +69,7 @@ public final class CodeflowersJsonGenerator implements ProjectScanConsumer
     @Override
     public void onProjectScanned(Pom pom, Map<Path, Integer> scores) throws IOException
     {
-        artifactIds.add(pom.coords.artifactId);
+        artifactIds.add(pom.artifactId().value());
         HFolder root = new HFolder();
         scores.forEach((path, score) ->
         {
@@ -81,7 +81,7 @@ public final class CodeflowersJsonGenerator implements ProjectScanConsumer
             root.findChildFolder(path.getParent(), 0).addFile(path.getFileName()
                     .toString(), score);
         });
-        String fnBase = pom.coords.artifactId;
+        String fnBase = pom.artifactId().value();
         if (!Files.exists(outputDir))
         {
             synchronized (CodeflowersJsonGenerator.class)

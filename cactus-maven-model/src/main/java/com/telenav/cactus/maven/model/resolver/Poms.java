@@ -18,19 +18,15 @@
 package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.maven.model.Dependency;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.dependencies.Dependencies;
-import com.telenav.cactus.maven.model.dependencies.DependencyScope;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
-import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -62,9 +58,9 @@ public final class Poms implements PomResolver
         for (Pom pom : sorted)
         {
             Map<String, Pom> kids
-                    = poms.computeIfAbsent(pom.coords.groupId,
+                    = poms.computeIfAbsent(pom.coords.groupId().value(),
                             gid -> new HashMap<>());
-            kids.put(pom.coords.artifactId, pom);
+            kids.put(pom.coords.artifactId.value(), pom);
         }
     }
 
@@ -72,10 +68,7 @@ public final class Poms implements PomResolver
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Pom pom : sorted)
-        {
-            sb.append(pom.coords).append(", ");
-        }
+        sorted.forEach(pom -> sb.append(pom.coords).append(", "));
         return sb.toString();
     }
 
@@ -123,7 +116,7 @@ public final class Poms implements PomResolver
                     + " should use the two-arg overload");
         }
         return get(groupId, artifactId).flatMap(pom
-                -> version.equals(pom.coords.version)
+                -> pom.coords.version.is(version)
                    ? Optional.of(pom)
                    : Optional.empty()).or(() ->
         {

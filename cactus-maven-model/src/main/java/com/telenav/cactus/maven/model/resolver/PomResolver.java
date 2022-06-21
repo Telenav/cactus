@@ -18,9 +18,12 @@
 package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.maven.model.ArtifactId;
+import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.maven.model.MavenVersioned;
 import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.property.ParentsPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 
@@ -89,19 +92,35 @@ public interface PomResolver
         ThrowingOptional<String> ver = obj.version();
         if (ver.isPresent())
         {
-            return get(obj.groupId(), obj.artifactId(), ver.get());
+            return get(obj.groupId(), obj.artifactId(),
+                    obj.rawVersion());
         }
         else
         {
-            return get(obj.groupId(), obj.artifactId());
+            return get(obj.groupId().value(), obj.artifactId().value());
         }
+    }
+
+    default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId)
+    {
+        return get(groupId.value(), artifactId.value());
+    }
+
+    default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId,
+            PomVersion version)
+    {
+        if (version.isPlaceholder())
+        {
+            return get(groupId.value(), artifactId.value());
+        }
+        return get(groupId.value(), artifactId.value(), version.value());
     }
 
     default ThrowingOptional<Pom> get(String groupId, String artifactId,
             String version)
     {
         return get(groupId, artifactId).flatMapThrowing(pom
-                -> version.equals(pom.coords.version)
+                -> version.equals(pom.coords.version.value())
                    ? ThrowingOptional.of(pom)
                    : ThrowingOptional.empty());
     }

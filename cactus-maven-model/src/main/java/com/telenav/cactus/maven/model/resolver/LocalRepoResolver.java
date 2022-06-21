@@ -19,6 +19,7 @@ package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.model.resolver.versions.VersionComparator;
 import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -186,7 +187,7 @@ final class LocalRepoResolver implements PomResolver
         {
             return ThrowingOptional.empty();
         }
-        Collections.sort(result);
+        Collections.sort(result, VersionComparator.INSTANCE);
         String ver = result.getLast();
         return inLocalRepository(groupId, artifactId, ver);
     }
@@ -233,20 +234,6 @@ final class LocalRepoResolver implements PomResolver
                 .resolve(version);
     }
 
-    private static Path versionReducedFolderPath(String groupId,
-            String artifactId, String version)
-    {
-        return localRepositoryFolderPath(groupId, artifactId, reducedVersion(
-                version));
-    }
-
-    private static Path altVersionReducedFolderPath(String groupId,
-            String artifactId, String version)
-    {
-        return altLocalRepositoryFolderPath(groupId, artifactId, reducedVersion(
-                version));
-    }
-
     private static String reducedVersion(String version)
     {
         int ix = version.lastIndexOf('.');
@@ -269,7 +256,14 @@ final class LocalRepoResolver implements PomResolver
                     result = Paths.get(parts[i]);
                     break;
                 default:
-                    result = result.resolve(parts[i]);
+                    if (result != null)
+                    {
+                        result = result.resolve(parts[i]);
+                    }
+                    else
+                    {
+                        result = Paths.get(parts[i]);
+                    }
             }
         }
         return result;

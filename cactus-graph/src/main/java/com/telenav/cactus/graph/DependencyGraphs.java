@@ -10,7 +10,10 @@ import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.Dependency;
 import com.telenav.cactus.maven.model.dependencies.DependencyScope;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
+import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.MavenCoordinates;
+import com.telenav.cactus.maven.model.GroupId;
+import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.PomResolver;
 import com.telenav.cactus.maven.model.resolver.Poms;
@@ -58,13 +61,14 @@ public class DependencyGraphs implements Iterable<Pom>
 
     public ThrowingOptional<Pom> get(String groupId, String artifactId)
     {
-        return poms.get(groupId, artifactId);
+        return poms
+                .get(groupId, artifactId);
     }
 
     public ThrowingOptional<Pom> get(String groupId, String artifactId,
             String version)
     {
-        return poms.get(groupId, artifactId);
+        return poms.get(groupId, artifactId, version);
     }
 
     public ThrowingOptional<ObjectGraph<MavenCoordinates>> dependencyGraph(

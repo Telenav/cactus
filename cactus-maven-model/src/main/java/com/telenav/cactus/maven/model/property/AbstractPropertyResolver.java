@@ -22,6 +22,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
+ * Base class for property resolvers that perform a transform (say, looking up a
+ * property value in a map), with common logic for traversing all property
+ * elements in a string.
  *
  * @author Tim Boudreau
  */

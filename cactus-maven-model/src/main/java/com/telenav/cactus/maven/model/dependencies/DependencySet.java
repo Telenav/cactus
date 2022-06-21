@@ -1,17 +1,17 @@
 package com.telenav.cactus.maven.model.dependencies;
 
-import com.telenav.cactus.maven.model.resolver.PomResolver;
-import com.telenav.cactus.maven.model.property.PropertyResolver;
-import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
-import com.telenav.cactus.maven.model.property.ParentsPropertyResolver;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.maven.model.ArtifactIdentifiers;
 import com.telenav.cactus.maven.model.Dependency;
-import com.telenav.cactus.maven.model.MavenId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.internal.PomFile;
+import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
+import com.telenav.cactus.maven.model.property.ParentsPropertyResolver;
+import com.telenav.cactus.maven.model.property.PropertyResolver;
+import com.telenav.cactus.maven.model.resolver.PomResolver;
 import com.telenav.cactus.maven.model.util.ThreadLocalStack;
 import com.telenav.cactus.maven.model.util.ThreadLocalValue;
 import java.util.ArrayList;
@@ -35,11 +35,15 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 
 /**
+ * Implementation of Dependencies.
  *
  * @author Tim Boudreau
  */
 public class DependencySet implements Dependencies
 {
+    // Pending - make this non-API - do need a way to pass in a cache map,
+    // because you really don't want to traverse closures more than necessary.
+
     // For debugging, gives us the ability to log the provenance of a resolution failure
     private static final ThreadLocalStack<Pom> INIT_PATH
             = ThreadLocalStack.create();
@@ -361,7 +365,7 @@ public class DependencySet implements Dependencies
             // https://developer.jboss.org/docs/DOC-15811#:~:text=Maven%20includes%20a%20dependency%20scope,from%20a%20remote%20POM%20file.&text=This%20page%20is%20meant%20to,caveats%20of%20the%20import%20scope.
             // Import scope's exclusions override local exclusions, including wiping
             // them out.  So keep a map of these.
-            Map<MavenId, Dependency> managementEntriesFromImports = new HashMap<>();
+            Map<ArtifactIdentifiers, Dependency> managementEntriesFromImports = new HashMap<>();
             collectDependencyManagementItemsFromImportScopeDependencies(
                     rawDependencies,
                     localResolver, parentsList, managementEntriesFromImports);
@@ -373,7 +377,7 @@ public class DependencySet implements Dependencies
             // the dependency.
             //
             // And we need them in source order because classpath order is a thing.
-            Map<MavenId, Dependency> inheritedById = new LinkedHashMap<>();
+            Map<ArtifactIdentifiers, Dependency> inheritedById = new LinkedHashMap<>();
             collectDirectDependenciesDefinedInParents(parentsList,
                     inheritedById);
 
@@ -393,9 +397,9 @@ public class DependencySet implements Dependencies
     }
 
     private void resolveDirectDependencies(List<Dependency> rawDependencies,
-            Map<MavenId, Dependency> inheritedById,
+            Map<ArtifactIdentifiers, Dependency> inheritedById,
             PropertyResolver localResolver, List<Pom> parentsList,
-            Map<MavenId, Dependency> managementEntriesFromImports,
+            Map<ArtifactIdentifiers, Dependency> managementEntriesFromImports,
             Set<Dependency> dependenciesLocal)
     {
         // Now, finally, we can resolve our direct dependencies
@@ -453,6 +457,7 @@ public class DependencySet implements Dependencies
                 // does that)
                 if (managementEntry != null)
                 {
+                    // Hail mary
                     dep = applyDependencyManagementPropertiesToDependency(
                             managementEntry, dep);
                 }
@@ -481,7 +486,7 @@ public class DependencySet implements Dependencies
     }
 
     private void collectDirectDependenciesDefinedInParents(List<Pom> parentsList,
-            Map<MavenId, Dependency> inheritedById)
+            Map<ArtifactIdentifiers, Dependency> inheritedById)
     {
         for (Pom oneParent : parentsList)
         {
@@ -490,7 +495,7 @@ public class DependencySet implements Dependencies
                     DependencyScope.all());
             for (Dependency dep : direct)
             {
-                MavenId id = dep.coords.toMavenId();
+                ArtifactIdentifiers id = dep.coords.toMavenId();
                 // A child can also be replacing the dependency.
                 if (!inheritedById.containsKey(id))
                 {
@@ -503,7 +508,7 @@ public class DependencySet implements Dependencies
     private void collectDependencyManagementItemsFromImportScopeDependencies(
             List<Dependency> rawDependencies, PropertyResolver localResolver,
             List<Pom> parentsList,
-            Map<MavenId, Dependency> managementEntriesFromImports)
+            Map<ArtifactIdentifiers, Dependency> managementEntriesFromImports)
     {
         // Now pull in any import scope dependencies and add their entries
         // to ours, as they determine what else is resolvable
@@ -689,7 +694,7 @@ public class DependencySet implements Dependencies
     }
 
     private Set<Dependency> dependencyClosure(Set<DependencyScope> scopes,
-            boolean includeOptional, Set<MavenId> exclude,
+            boolean includeOptional, Set<ArtifactIdentifiers> exclude,
             Set<Object> traversed)
     {
         // Put our direct dependencies first (should this really be depth first
@@ -714,7 +719,7 @@ public class DependencySet implements Dependencies
      * @param into The collection to collect into
      */
     private void collectDependencyClosure(Set<DependencyScope> scopes,
-            boolean includeOptional, Set<MavenId> exclude,
+            boolean includeOptional, Set<ArtifactIdentifiers> exclude,
             Set<Object> traversed, Set<? super Dependency> into)
     {
         visitDependencyClosure(scopes, includeOptional, exclude, traversed,
@@ -741,7 +746,7 @@ public class DependencySet implements Dependencies
      * you find what you're looking for).
      */
     private boolean visitDependencyClosure(Set<DependencyScope> scopes,
-            boolean includeOptional, Set<MavenId> exclude,
+            boolean includeOptional, Set<ArtifactIdentifiers> exclude,
             Set<Object> traversed, BiPredicate<Pom, Dependency> into)
     {
         // Add our owner to the thread-local path, for logging
@@ -792,7 +797,8 @@ public class DependencySet implements Dependencies
                 }
                 // Generate the superset of the exclusions we were passed any any
                 // applied by this dependency
-                Set<MavenId> combinedExclusions = combineExcludes(exclude, dep);
+                Set<ArtifactIdentifiers> combinedExclusions = combineExcludes(
+                        exclude, dep);
 
                 ThrowingOptional<Pom> depsPom = resolver.get(dep);
                 if (depsPom.isPresent())
@@ -800,6 +806,8 @@ public class DependencySet implements Dependencies
                     Pom dp = depsPom.get();
                     // Get the dependencies of this depenedency
                     DependencySet set = dependenciesOf(dp);
+                    // Use AutoClosable, as a lambda would not be able to
+                    // access mutated variables
                     try ( var _ignored = INIT_PATH.push(dp))
                     {
                         // Means the POMs are badly broken, but we don't want to endlessly
@@ -849,11 +857,12 @@ public class DependencySet implements Dependencies
      * @param dep A dependency that may have its own excludes
      * @return A set that combines them
      */
-    private static Set<MavenId> combineExcludes(Set<MavenId> existing,
+    private static Set<ArtifactIdentifiers> combineExcludes(
+            Set<ArtifactIdentifiers> existing,
             Dependency dep)
     {
         // Avoid copying the set if we don't need to
-        Set<MavenId> depExcludes = dep.exclusions();
+        Set<ArtifactIdentifiers> depExcludes = dep.exclusions();
         if (depExcludes.isEmpty())
         {
             return existing;
@@ -865,7 +874,7 @@ public class DependencySet implements Dependencies
             }
             else
             {
-                Set<MavenId> result = new HashSet<>(depExcludes);
+                Set<ArtifactIdentifiers> result = new HashSet<>(depExcludes);
                 result.addAll(existing);
                 return result;
             }
