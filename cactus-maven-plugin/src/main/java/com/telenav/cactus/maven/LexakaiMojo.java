@@ -62,9 +62,9 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * <ol>
  * <li>If the <code>output-folder</code> parameter is passed with
  * <code>-Doutput-folder=path/to/output</code> or set in the
- * <code>&lt;configuration&rt;</code>, section of the invoking
+ * <code>&lt;configuration&gt;</code>, section of the invoking
  * <code>pom.xml</code> or its parents, that path will be used unmodified.</li>
- * <li>If an assets-home environment variable is set, used that. The environment
+ * <li>If an assets-home environment variable is set, use that. The environment
  * variable is computed as follows:
  * <ol>
  * <li>Take the suffix of the project's group-id</li>
@@ -90,6 +90,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.SITE,
         requiresDependencyResolution = ResolutionScope.COMPILE,
@@ -102,7 +103,6 @@ public class LexakaiMojo extends BaseMojo
 
     class LexakaiRunner implements ThrowingRunnable
     {
-
         private final Path jarFile;
 
         private final List<String> args;
@@ -125,7 +125,7 @@ public class LexakaiMojo extends BaseMojo
                         {
                                 new URL("jar:" + jarFile.toUri().toURL() + "!/")
                         };
-                runLog.warn("Invoke lexakai reflectivly from " + url[0]);
+                runLog.warn("Invoke lexakai reflectively from " + url[0]);
                 try (URLClassLoader jarLoader = new URLClassLoader("lexakai",
                         url, ldr))
                 {
@@ -145,7 +145,8 @@ public class LexakaiMojo extends BaseMojo
                 Path dir = output(project());
                 // If we're on a project that generated nothing (some poms),
                 // don't leave behind an empty directory for it
-                if (Files.exists(dir) && Files.list(dir).count() == 0)
+                //noinspection resource
+                if (Files.exists(dir) && Files.list(dir).findAny().isEmpty())
                 {
                     Files.delete(dir);
                 }
@@ -196,6 +197,7 @@ public class LexakaiMojo extends BaseMojo
     /**
      * The destination folder for generated documentation - if unset, it is computed as described above.
      */
+    @SuppressWarnings({ "FieldCanBeLocal", "FieldMayBeFinal" })
     @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
 
@@ -215,7 +217,7 @@ public class LexakaiMojo extends BaseMojo
     private boolean noMinimize;
 
     /**
-     * Lexakai pribts vast and voluminous output which we suppress by default.
+     * Lexakai prints voluminous output which we suppress by default.
      */
     @Parameter(property = "cactus.show-lexakai-output", defaultValue = "false")
     private boolean showLexakaiOutput;
@@ -225,6 +227,7 @@ public class LexakaiMojo extends BaseMojo
      */
     @Parameter(property = "cactus.lexakai-repository",
                defaultValue = MAVEN_CENTRAL_REPO)
+    @SuppressWarnings({ "FieldCanBeLocal", "FieldMayBeFinal" })
     private String lexakaiRepository = MAVEN_CENTRAL_REPO;
 
     public LexakaiMojo()
@@ -262,22 +265,22 @@ public class LexakaiMojo extends BaseMojo
                                 .resolve("lexakai"));
     }
 
-    Path outputFolder(MavenProject prj, GitCheckout checkout)
+    Path outputFolder(MavenProject project, GitCheckout checkout)
     {
         // If the output folder was explicitly specified, use it.
         if (outputFolder != null)
         {
-            appendProjectLexakaiDocPath(Paths.get(outputFolder), prj,
+            appendProjectLexakaiDocPath(Paths.get(outputFolder), project,
                     checkout);
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
-        return ProjectFamily.of(prj).assetsPath(checkout).map(assetsPath
-                -> appendProjectLexakaiDocPath(assetsPath, prj, checkout)
+        return ProjectFamily.of(project).assetsPath(checkout).map(assetsPath
+                -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
         ).orElseGet(()
-                -> appendProjectLexakaiDocPath(prj.getBasedir().toPath()
+                -> appendProjectLexakaiDocPath(project.getBasedir().toPath()
                 .resolve("target").resolve(
-                        "lexakai"), prj, checkout));
+                        "lexakai"), project, checkout));
     }
 
     private Path appendProjectLexakaiDocPath(Path path, MavenProject prj,
@@ -331,10 +334,10 @@ public class LexakaiMojo extends BaseMojo
         return needingCommit;
     }
 
-    private Set<GitCheckout> collectedChangedRepos(MavenProject prj,
+    private Set<GitCheckout> collectedChangedRepos(MavenProject project,
                                                    ThrowingRunnable toRun)
     {
-        return ProjectTree.from(prj).map(tree ->
+        return ProjectTree.from(project).map(tree ->
         {
             Set<GitCheckout> needingCommitBefore = collectModifiedCheckouts(tree);
             toRun.run();
@@ -376,13 +379,13 @@ public class LexakaiMojo extends BaseMojo
 
     private Path lexakaiJar() throws MojoFailureException
     {
-        return downloadArtifact("com.telenav.lexakai", "Lexakai", lexakaiVersion)
+        return downloadArtifact("com.telenav.lexakai", "lexakai", lexakaiVersion)
                 .get();
     }
 
-    private ThrowingRunnable lexakaiRunner(List<String> args) throws Exception
+    private ThrowingRunnable lexakaiRunner(List<String> arguments) throws Exception
     {
-        ThrowingRunnable result = new LexakaiRunner(lexakaiJar(), args);
+        ThrowingRunnable result = new LexakaiRunner(lexakaiJar(), arguments);
         if (!showLexakaiOutput)
         {
             return () -> ThreadMappedStdIO.blackhole(result);
@@ -390,25 +393,22 @@ public class LexakaiMojo extends BaseMojo
         return result;
     }
 
-    private void minimizeSVG(Path dirOrFile) throws IOException
+    private void minimizeSVG(Path folderOrFile) throws IOException
     {
-        if (Files.isDirectory(dirOrFile))
+        if (Files.isDirectory(folderOrFile))
         {
-            try (Stream<Path> str = Files.walk(dirOrFile, 512).filter(
+            try (Stream<Path> str = Files.walk(folderOrFile, 512).filter(
                     pth -> !Files.isDirectory(pth) && pth.getFileName()
                             .toString().endsWith(".svg")))
             {
-                str.forEach(path ->
-                {
-                    quietly(() -> minimizeSVG(path));
-                });
+                str.forEach(path -> quietly(() -> minimizeSVG(path)));
             }
         }
         else
         {
-            String text = new String(Files.readAllBytes(dirOrFile), UTF_8);
+            String text = Files.readString(folderOrFile);
             String revised = XML_COMMENT.matcher(text).replaceAll("") + '\n';
-            Files.write(dirOrFile, revised.getBytes(UTF_8), WRITE,
+            Files.write(folderOrFile, revised.getBytes(UTF_8), WRITE,
                     TRUNCATE_EXISTING);
         }
     }

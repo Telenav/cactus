@@ -17,9 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.mojobase;
 
-import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.telenav.cactus.maven.trigger.RunPolicies;
-import com.telenav.cactus.maven.trigger.RunPolicy;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
@@ -27,11 +24,10 @@ import com.mastfrog.function.throwing.ThrowingFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.util.Collections;
+import com.telenav.cactus.maven.trigger.RunPolicies;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,19 +41,132 @@ import org.eclipse.aether.repository.LocalArtifactRequest;
 import org.eclipse.aether.repository.LocalArtifactResult;
 import org.eclipse.aether.repository.RemoteRepository;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.Collections;
+
 import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
- * A base class for our mojos, which sets up a build logger and provides a way
- * to access some commonly needed types.
+ * A base class for our mojos, which sets up a build logger and provides a way to access some commonly needed types.
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings({ "unused", "UnusedReturnValue" })
 public abstract class BaseMojo extends AbstractMojo
 {
-
     protected static final String MAVEN_CENTRAL_REPO
             = "https://repo1.maven.org/maven2";
+
+    /**
+     * Run some code which throws an exception in a context such as
+     * <code>Stream.forEach()</code> where you cannot throw checked exceptions.
+     *
+     * @param code Something to run
+     */
+    protected static void quietly(ThrowingRunnable code)
+    {
+        code.toNonThrowing().run();
+    }
+
+    protected static final class ArtifactFetcher
+    {
+        private String type = "jar";
+
+        private String repositoryUrl = MAVEN_CENTRAL_REPO;
+
+        private final String groupId;
+
+        private final String artifactId;
+
+        private final String version;
+
+        private final BuildLog log;
+
+        private final MavenSession session;
+
+        private ArtifactFetcher(String groupId, String artifactId,
+                                String version, MavenSession session)
+        {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+            this.version = version;
+            this.log = BuildLog.get().child("fetch").child(groupId).child(
+                    artifactId).child(version);
+            this.session = session;
+        }
+
+        /**
+         * Download the artifact if needed, returning a Path to it in the local repository.
+         *
+         * @return A path
+         */
+        public Path get() throws MojoFailureException
+        {
+            Artifact artifact = new DefaultArtifact(
+                    notNull("groupId", groupId),
+                    notNull("artifactId", artifactId),
+                    notNull("type", type),
+                    notNull("version", version));
+
+            LocalArtifactRequest request = new LocalArtifactRequest();
+            request.setArtifact(artifact);
+            RemoteRepository remoteRepo = new RemoteRepository.Builder("central",
+                    "x", repositoryUrl).build();
+
+            request.setRepositories(Collections.singletonList(remoteRepo));
+            RepositorySystemSession session = this.session.getRepositorySession();
+            LocalArtifactResult result = session.getLocalRepositoryManager()
+                    .find(session, request);
+
+            log.info("Download result for " + artifact + ": " + result);
+            if (result != null && result.getFile() != null)
+            {
+                log.info("Have local " + artifactId + " " + type + " "
+                        + result.getFile());
+                return result.getFile().toPath();
+            }
+            throw new MojoFailureException("Could not download " + artifact + " from "
+                    + remoteRepo.getUrl());
+        }
+
+        /**
+         * Change the repository URL used (the default is Maven Central).
+         *
+         * @param repositoryUrl A repository URL
+         * @return this
+         */
+        @SuppressWarnings("ResultOfObjectAllocationIgnored")
+        public ArtifactFetcher withRepositoryURL(String repositoryUrl)
+        {
+            try
+            {
+                new URL(notNull("repoUrl", repositoryUrl));
+            }
+            catch (MalformedURLException ex)
+            {
+                log.error("Invalid repository URL '" + repositoryUrl);
+                return Exceptions.chuck(new MojoExecutionException(
+                        "Invalid repository URL '" + repositoryUrl + '\''));
+            }
+            this.repositoryUrl = repositoryUrl;
+            return this;
+        }
+
+        /**
+         * Set the artifact type, if you want something other than the default of "jar".
+         *
+         * @param type A type
+         * @return this
+         */
+        public ArtifactFetcher withType(String type)
+        {
+            this.type = notNull("type", type);
+            return this;
+        }
+    }
+
     // These are magically injected by Maven:
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
@@ -68,6 +177,7 @@ public abstract class BaseMojo extends AbstractMojo
     protected BuildLog log;
 
     ThrowingOptional<ProjectTree> tree;
+
     private final RunPolicy policy;
 
     protected BaseMojo(RunPolicy policy)
@@ -83,13 +193,109 @@ public abstract class BaseMojo extends AbstractMojo
     protected BaseMojo(boolean oncePerSession)
     {
         this(oncePerSession
-             ? RunPolicies.LAST
-             : RunPolicies.FIRST);
+                ? RunPolicies.LAST
+                : RunPolicies.FIRST);
     }
 
     /**
-     * Get the project family for the project the mojo is being run against. The
-     * result can be overridden by returning a valid famiily string from
+     * Implementation of <code>Mojo.execute()</code>, which delegates to
+     * <code>performTasks()</code> after validating the parameters.
+     *
+     * @throws MojoExecutionException If mojo execution fails
+     * @throws MojoFailureException If the mojo could not be executed
+     */
+    @Override
+    public final void execute() throws MojoExecutionException, MojoFailureException
+    {
+        if (policy.shouldRun(project, mavenSession))
+        {
+            run(this::performTasks);
+        }
+        else
+        {
+            new BuildLog(getClass()).info("Skipping " + getClass()
+                    .getSimpleName() + " mojo "
+                    + " per policy " + policy);
+        }
+    }
+
+    /**
+     * Simplified way to throw a MojoExecutionException.
+     *
+     * @param <T> A type
+     * @param message A message
+     * @return Nothing, but parameterized so that this method can be an exit point of any method that returns something
+     * @throws MojoExecutionException always, using the passed message
+     */
+    public <T> T fail(String message) throws MojoExecutionException
+    {
+        throw new MojoExecutionException(this, message, message);
+    }
+
+    /**
+     * Downloads or finds in the local repo an artifact from maven central (overridable) independent of what the
+     * dependencies of the project are.
+     *
+     * @param groupId A group id
+     * @param artifactId An artifact id
+     * @param version A version
+     * @return An ArtifactFetcher which can be used to configure the artifact type and repository if needed, and then
+     * fetch the artifact.
+     */
+    @SuppressWarnings("SameParameterValue")
+    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
+                                               String version)
+    {
+        return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
+    }
+
+    /**
+     * Get the build log for this mojo.
+     *
+     * @return a logger
+     */
+    protected final BuildLog log()
+    {
+        if (log == null)
+        {
+            log = new BuildLog(getClass());
+        }
+        return log;
+    }
+
+    /**
+     * If this mojo allows the project family to be replaced by a parameter, it can provide that here.
+     *
+     * @return null by default
+     */
+    protected String overrideProjectFamily()
+    {
+        return null;
+    }
+
+    /**
+     * Override to do the work of this mojo.
+     *
+     * @param log A log
+     * @param project The project
+     * @throws Exception If something goes wrong
+     */
+    protected abstract void performTasks(BuildLog log, MavenProject project)
+            throws Exception;
+
+    /**
+     * Get the project this mojo is invoked against.
+     *
+     * @return A project
+     */
+    protected final MavenProject project()
+    {
+        return project;
+    }
+
+    /**
+     * Get the project family for the project the mojo is being run against. The result can be overridden by returning a
+     * valid famiily string from
      * <code>overrideProjectFamily()</code> if necessary.
      *
      * @return A project family
@@ -104,21 +310,25 @@ public abstract class BaseMojo extends AbstractMojo
         return ProjectFamily.named(overriddenFamily);
     }
 
-    /**
-     * If this mojo allows the project family to be replaced by a parameter, it
-     * can provide that here.
-     *
-     * @return null by default
-     */
-    protected String overrideProjectFamily()
+    protected final ThrowingOptional<ProjectTree> projectTree(
+            boolean invalidateCache)
     {
-        return null;
+        return projectTreeInternal(invalidateCache);
     }
 
     /**
-     * Override to return true if the mojo is intended to run exactly one time
-     * for *all* repositories in the checkout, and should not do its work once
-     * for every sub-project when called from a multi-module pom.
+     * Get a project tree for the project this mojo is run on. Note this is an expensive operation.
+     *
+     * @return An optional
+     */
+    protected final ThrowingOptional<ProjectTree> projectTree()
+    {
+        return projectTree(true);
+    }
+
+    /**
+     * Override to return true if the mojo is intended to run exactly one time for *all* repositories in the checkout,
+     * and should not do its work once for every sub-project when called from a multi-module pom.
      *
      * @return true if the mojo should only be run once, on the last project
      */
@@ -128,54 +338,52 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Run some code which throws an exception in a context such as
-     * <code>Stream.forEach()</code> where you cannot throw checked exceptions.
+     * Get the maven session associated with this mojo.
      *
-     * @param r Something to run
+     * @return A session
      */
-    protected static void quietly(ThrowingRunnable r)
+    protected final MavenSession session()
     {
-        r.toNonThrowing().run();
+        return mavenSession;
     }
 
     /**
-     * Create the project try; package private so that SharedProjectTreeMojo can
-     * use the shared data to cache the instance.
+     * Throws an exception if a branch name passed in is invalid.
      *
-     * @param invalidateCache Whether or not to invalidate the cache.
-     * @return A project tree, if one can be constructed.
+     * @param branchName A branch name
+     * @param nullOk IF true and the branch is null, simply returns
+     * @throws MojoExecutionException if the branch is invalid by these criteria
      */
-    ThrowingOptional<ProjectTree> projectTreeInternal(boolean invalidateCache)
+    protected void validateBranchName(String branchName, boolean nullOk)
+            throws MojoExecutionException
     {
-        if (tree == null)
+        if (branchName == null)
         {
-            tree = ProjectTree.from(project());
-        }
-        else
-        {
-            if (invalidateCache)
+            if (nullOk)
             {
-                tree.ifPresent(ProjectTree::invalidateCache);
+                return;
             }
+            fail("Branch name unset");
         }
-        return tree;
-    }
-
-    protected final ThrowingOptional<ProjectTree> projectTree(
-            boolean invalidateCache)
-    {
-        return projectTreeInternal(invalidateCache);
+        //noinspection ConstantConditions
+        if (branchName.isBlank() || !branchName.startsWith("-") && branchName
+                .contains(" ")
+                && !branchName.contains("\"") && !branchName.contains("'"))
+        {
+            fail("Illegal branch name format: '" + branchName + "'");
+        }
     }
 
     /**
-     * Get a project tree for the project this mojo is run on. Note this is an
-     * expensive operation.
+     * Perform any fail-fast validation here; a super call is not needed.
      *
-     * @return An optional
+     * @param log The log
+     * @param project A project
+     * @throws Exception if something goes wrong
      */
-    protected final ThrowingOptional<ProjectTree> projectTree()
+    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
-        return projectTree(true);
+        // do nothing - for subclassers
     }
 
     /**
@@ -206,8 +414,8 @@ public abstract class BaseMojo extends AbstractMojo
      * Run something against the project tree if one can be constructed.
      *
      * @param <T> The return value type
-     * @param invalidateCache Whether or not the tree's cache should be cleared
-     * before returning the instance if it already existed
+     * @param invalidateCache Whether or not the tree's cache should be cleared before returning the instance if it
+     * already existed
      * @param func A function applied to the project tree
      * @return An optional result
      */
@@ -221,39 +429,44 @@ public abstract class BaseMojo extends AbstractMojo
     /**
      * Run something against the project tree.
      *
-     * @param invalidateCache Whether or not the tree's cache should be cleared
-     * before returning the instance if it already existed
+     * @param invalidateCache Whether or not the tree's cache should be cleared before returning the instance if it
+     * already existed
      * @param cons A consumer
      * @return true if the code was run
      */
     protected final boolean withProjectTree(boolean invalidateCache,
-            ThrowingConsumer<ProjectTree> cons)
+                                            ThrowingConsumer<ProjectTree> cons)
     {
         return projectTree(invalidateCache).ifPresent(cons);
     }
 
-    /**
-     * Get the build log for this mojo.
-     *
-     * @return a logger
-     */
-    protected final BuildLog log()
+    void internalSubclassValidateParameters(BuildLog log, MavenProject project)
+            throws Exception
     {
-        if (log == null)
-        {
-            log = new BuildLog(getClass());
-        }
-        return log;
+
     }
 
     /**
-     * Get the project this mojo is invoked against.
+     * Create the project try; package private so that SharedProjectTreeMojo can use the shared data to cache the
+     * instance.
      *
-     * @return A project
+     * @param invalidateCache Whether or not to invalidate the cache.
+     * @return A project tree, if one can be constructed.
      */
-    protected final MavenProject project()
+    ThrowingOptional<ProjectTree> projectTreeInternal(boolean invalidateCache)
     {
-        return project;
+        if (tree == null)
+        {
+            tree = ProjectTree.from(project());
+        }
+        else
+        {
+            if (invalidateCache)
+            {
+                tree.ifPresent(ProjectTree::invalidateCache);
+            }
+        }
+        return tree;
     }
 
     private void internalValidateParameters(BuildLog log, MavenProject project)
@@ -270,66 +483,6 @@ public abstract class BaseMojo extends AbstractMojo
         internalSubclassValidateParameters(log, project);
         validateParameters(log, project);
     }
-
-    void internalSubclassValidateParameters(BuildLog log, MavenProject project)
-            throws Exception
-    {
-
-    }
-
-    /**
-     * Perform any fail-fast validation here; a super call is not needed.
-     *
-     * @param log The log
-     * @param project A project
-     * @throws Exception if something goes wrong
-     */
-    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
-    {
-        // do nothing - for subclassers
-    }
-
-    /**
-     * Implementation of <code>Mojo.execute()</code>, which delegates to
-     * <code>performTasks()</code> after validating the parameters.
-     *
-     * @throws MojoExecutionException If mojo execution fails
-     * @throws MojoFailureException If the mojo could not be executed
-     */
-    @Override
-    public final void execute() throws MojoExecutionException, MojoFailureException
-    {
-        if (policy.shouldRun(project, mavenSession))
-        {
-            run(this::performTasks);
-        }
-        else
-        {
-            new BuildLog(getClass()).info("Skipping " + getClass()
-                    .getSimpleName() + " mojo "
-                    + " per policy " + policy);
-        }
-    }
-
-    /**
-     * Get the maven session associated with this mojo.
-     *
-     * @return A session
-     */
-    protected final MavenSession session()
-    {
-        return mavenSession;
-    }
-
-    /**
-     * Override to do the work of this mojo.
-     *
-     * @param log A log
-     * @param project The project
-     * @throws Exception If something goes wrong
-     */
-    protected abstract void performTasks(BuildLog log, MavenProject project)
-            throws Exception;
 
     private void run(ThrowingBiConsumer<BuildLog, MavenProject> run)
             throws MojoExecutionException, MojoFailureException
@@ -361,158 +514,6 @@ public abstract class BaseMojo extends AbstractMojo
                 t = e.getCause();
             }
             throw new MojoFailureException(t);
-        }
-    }
-
-    /**
-     * Throws an exception if a branch name passed in is invalid.
-     *
-     * @param branchName A branch name
-     * @param nullOk IF true and the branch is null, simply returns
-     * @throws MojoExecutionException if the branch is invalid by these criteria
-     */
-    protected void validateBranchName(String branchName, boolean nullOk)
-            throws MojoExecutionException
-    {
-        if (branchName == null)
-        {
-            if (nullOk)
-            {
-                return;
-            }
-            fail("Branch name unset");
-        }
-        if (branchName.isBlank() || !branchName.startsWith("-") && branchName
-                .contains(" ")
-                && !branchName.contains("\"") && !branchName.contains("'"))
-        {
-            fail("Illegal branch name format: '" + branchName + "'");
-        }
-    }
-
-    /**
-     * Simplified way to throw a MojoExecutionException.
-     *
-     * @param <T> A type
-     * @param msg A message
-     * @return Nothing, but parameterized so that this method can be an exit
-     * point of any method that returns something
-     * @throws MojoExecutionException always, using the passed message
-     */
-    public <T> T fail(String msg) throws MojoExecutionException
-    {
-        throw new MojoExecutionException(this, msg, msg);
-    }
-
-    /**
-     * Downloads or finds in the local repo an artifact from maven central
-     * (overridable) independent of what the dependencies of the project are.
-     *
-     * @param groupId A group id
-     * @param artifactId An artifact id
-     * @param version A version
-     * @return An ArtifactFetcher which can be used to configure the artifact
-     * type and repository if needed, and then fetch the artifact.
-     */
-    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
-            String version)
-    {
-        return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
-    }
-
-    protected static final class ArtifactFetcher
-    {
-
-        private String type = "jar";
-        private String repoUrl = MAVEN_CENTRAL_REPO;
-        private final String groupId;
-        private final String artifactId;
-        private final String version;
-        private final BuildLog log;
-        private final MavenSession session;
-
-        private ArtifactFetcher(String groupId, String artifactId,
-                String version, MavenSession session)
-        {
-            this.groupId = groupId;
-            this.artifactId = artifactId;
-            this.version = version;
-            this.log = BuildLog.get().child("fetch").child(groupId).child(
-                    artifactId).child(version);
-            this.session = session;
-        }
-
-        /**
-         * Set the artifact type, if you want something other than the default
-         * of "jar".
-         *
-         * @param type A type
-         * @return this
-         */
-        public ArtifactFetcher withType(String type)
-        {
-            this.type = notNull("type", type);
-            return this;
-        }
-
-        /**
-         * Change the repository URL used (the default is Maven Central).
-         *
-         * @param repoUrl A repository URL
-         * @return this
-         * @throws MalformedURLException if the URL is invalid
-         */
-        @SuppressWarnings("ResultOfObjectAllocationIgnored")
-        public ArtifactFetcher withRepositoryURL(String repoUrl)
-        {
-            try
-            {
-                new URL(notNull("repoUrl", repoUrl));
-            }
-            catch (MalformedURLException ex)
-            {
-                log.error("Invalid repository URL '" + repoUrl);
-                return Exceptions.chuck(new MojoExecutionException(
-                        "Invalid repository URL '" + repoUrl + '\''));
-            }
-            this.repoUrl = repoUrl;
-            return this;
-        }
-
-        /**
-         * Download the artifact if needed, returning a Path to it in the local
-         * repository.
-         *
-         * @return A path
-         * @throws MojoFailureException
-         */
-        public Path get() throws MojoFailureException
-        {
-            Artifact af = new DefaultArtifact(
-                    notNull("groupId", groupId),
-                    notNull("artifactId", artifactId),
-                    notNull("type", type),
-                    notNull("version", version));
-
-            LocalArtifactRequest locArtifact = new LocalArtifactRequest();
-            locArtifact.setArtifact(af);
-            RemoteRepository remoteRepo = new RemoteRepository.Builder("central",
-                    "x", repoUrl).build();
-
-            locArtifact.setRepositories(Collections.singletonList(remoteRepo));
-            RepositorySystemSession sess = session.getRepositorySession();
-            LocalArtifactResult res = sess.getLocalRepositoryManager()
-                    .find(sess, locArtifact);
-
-            log.info("Download result for " + af + ": " + res);
-            if (res != null && res.getFile() != null)
-            {
-                log.info("Have local " + artifactId + " " + type + " "
-                        + res.getFile());
-                return res.getFile().toPath();
-            }
-            throw new MojoFailureException("Could not download " + af + " from "
-                    + remoteRepo.getUrl());
         }
     }
 }
