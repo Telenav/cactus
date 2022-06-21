@@ -55,12 +55,10 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         name = "commit", threadSafe = true)
 public class CommitMojo extends ScopedCheckoutsMojo
 {
-
     /**
      * The commit message.
      */
-    @Parameter(property = "cactus.commit-message", required = true,
-               name = "commitMessage")
+    @Parameter(property = "cactus.commit-message", required = true)
     private String commitMessage;
 
     /**

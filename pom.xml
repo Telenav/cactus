@@ -22,7 +22,7 @@
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
     <name>cactus</name>
-    <version>1.4.11</version>
+    <version>1.4.12</version>
 
     <packaging>pom</packaging>
 
@@ -60,7 +60,7 @@
     <properties>
         <!-- Cactus -->
 
-        <cactus.version>1.4.11</cactus.version>
+        <cactus.version>1.4.12</cactus.version>
         <!-- Previous version, so we can run cactus against cactus -->
         <cactus.previous.version>1.4.11</cactus.previous.version>
 
