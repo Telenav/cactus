@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -174,6 +175,8 @@ public class LexakaiMojo extends BaseMojo
     // Please LEAVE this as DOT skip, so we are consistent with maven.test.skip,
     // maven.javadoc.skip, etc.  It's what will be intuitive for maven users.
     private static final String SKIP_PROPERTY = "cactus.lexakai.skip";
+    private static final String JAVADOC_SKIP_PROPERTY = "maven.javadoc.skip";
+    private static final String DO_NOT_PUBLISH_PROPERTY = "do.not.publish";
 
     /**
      * If true, instruct lexakai to overwrite resources.
@@ -312,17 +315,32 @@ public class LexakaiMojo extends BaseMojo
         Set<String> result = new TreeSet<>();
         session().getAllProjects().forEach(childProject ->
         {
-            if ("true".equals(
-                    childProject.getProperties().getProperty(SKIP_PROPERTY)))
+            if (anyTrueIn(childProject.getProperties(),
+                    SKIP_PROPERTY, JAVADOC_SKIP_PROPERTY,
+                    DO_NOT_PUBLISH_PROPERTY))
             {
                 skippedConsumer.accept(childProject);
-                if (verbose) {
+                if (verbose)
+                {
                     log.warn(childProject.getArtifactId() + " marks itself as "
                             + "skipped for lexakai");
                 }
             }
         });
         return result;
+    }
+
+    private static boolean anyTrueIn(Properties projectProperties,
+            String... propertyNames)
+    {
+        for (String prop : propertyNames)
+        {
+            if ("true".equals(projectProperties.get(prop)))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     Path output(MavenProject project)
