@@ -53,17 +53,14 @@
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>concurrent</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>function</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
 
         <!-- Maven -->
