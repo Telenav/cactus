@@ -19,6 +19,8 @@ package com.telenav.cactus.maven.model.util;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +62,9 @@ public final class ThreadLocalStack<T> implements Iterable<T>
      */
     public List<T> copy()
     {
-        return new LinkedList<>(value.get());
+        List<T> result = new ArrayList<>(value.get());
+        Collections.reverse(result);
+        return result;
     }
 
     /**

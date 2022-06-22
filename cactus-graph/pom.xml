@@ -16,6 +16,16 @@
             <groupId>com.mastfrog</groupId>
             <artifactId>graph</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>util-fileformat</artifactId>
+            <version>${mastfrog.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>util-streams</artifactId>
+            <version>${mastfrog.version}</version>
+        </dependency>
     </dependencies>
     <name>cactus-graph</name>
 </project>

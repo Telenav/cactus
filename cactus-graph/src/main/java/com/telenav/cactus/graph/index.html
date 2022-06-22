@@ -1,0 +1,360 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        background-color: #222222;
+    }
+
+    .links line {
+        stroke: #666;
+        stroke-opacity: 1;
+        stroke-width: 0.5px;
+    }
+
+    .nodes circle {
+        stroke: #999999;
+        stroke-width: 1.5px;
+    }
+
+    .node text {
+        font: 9px helvetica;
+        color: white;
+    }
+
+    .labels {
+        color: white;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 2px;
+        font: 1.25em helvetica;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+
+</style>
+<div style="overflow: scroll">
+    <svg width="1400" height="1000"></svg>
+</div>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<!-- <script type='text/javascript' src="https://bost.ocks.org/mike/fisheye/fisheye.js"> </script> -->
+<script>
+// var factor = 2500;
+// var factor = 4000;
+    var factor = 7;
+
+    var svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height");
+
+
+    var div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    var simulation = d3.forceSimulation()
+            // .alpha(0.9)
+            // .alphaDecay(0.00005)
+            .alpha(0.9999)
+            .alphaDecay(0.00001)
+            .velocityDecay(0.725)
+            .force("link", d3.forceLink().id(function (d) {
+                return d.id;
+            }))
+            .force("charge", d3.forceManyBody().strength(-203).distanceMax(8200).theta(1.125))
+            .force("collide", d3.forceCollide().strength(-203).radius(function(d) { return d.r * 5.5; }).iterations(122))
+            .force("center", d3.forceCenter(width / 2.5, height / 2.5));
+//    var simulation = d3.forceSimulation()
+//            // .alpha(0.9)
+//            // .alphaDecay(0.00005)
+//            .alpha(0.9)
+//            .alphaDecay(0.00004)
+//            .velocityDecay(0.725)
+//            .force("link", d3.forceLink().id(function (d) {
+//                return d.id;
+//            }))
+//            .force("charge", d3.forceManyBody(-20300).distanceMax(5200).theta(0.125))
+//            .force("collide", d3.forceCollide().radius(function(d) { return d.r * 1.5; }).iterations(12))
+//            .force("center", d3.forceCenter(width / 2.5, height / 2.5));
+
+    d3.json("__FILE__", function (error, graph) {
+        if (error)
+            throw error;
+
+        linkedFrom = {};
+        linkedTo = {};
+        indirects = {};
+
+// leaving this here as a reminder of how to prune
+        remove = {
+            'org.openide.util.Lookup': true
+        }
+
+        function shouldRemove(id) {
+            return false;
+//    return /org\.openide\.util\.*/.test(id) || /org\.openide\.filesystems/.test(id);
+            // return remove[id] || /org\.openide\..*/.test(id);
+            // return !/org\.openide\..*/.test(id) && !/org\.netbeans\.api\..*/.test(id)
+            //   !/org\.netbeans\.spi\..*/.test(id) && !/org\.netbeans\.core\..*/.test(id)
+            //   && !/org\.netbeans\..*\.spi$/.test(id) && !/org\.netbeans\..*\.api$/.test(id)
+            //   && !/.*?project.*/.test(id);
+        }
+
+        for (var i = 0; i < graph.nodes.length; i++) {
+            if (shouldRemove(graph.nodes[i].id)) {
+                var removed = graph.nodes.splice(i, 1);
+                // break;
+            } else {
+                indirects[graph.nodes[i].id] = {};
+                linkedFrom[graph.nodes[i].id] = {};
+                linkedTo[graph.nodes[i].id] = {};
+            }
+        }
+        var toRemove = [];
+        for (var i = 0; i < graph.links.length; i++) {
+            if (shouldRemove(graph.links[i].source) || shouldRemove(graph.links[i].target)) {
+                toRemove.push(i);
+            }
+            if (typeof linkedFrom[graph.links[i].target] === 'undefined') {
+                linkedFrom[graph.links[i].target] = {};
+            }
+            if (typeof linkedTo[graph.links[i].source] === 'undefined') {
+                linkedTo[graph.links[i].source] = {};
+            }
+            linkedFrom[graph.links[i].target][graph.links[i].source] = true;
+            linkedTo[graph.links[i].source][graph.links[i].target] = true;
+        }
+//  for (var i=toRemove.length-1; i >= 0; i--) {
+//    var removed = graph.links.splice(toRemove[i], 1);
+//
+//  }
+        function addIndirects(key, hsh) {
+            if (typeof hsh === 'undefined') {
+                return;
+            }
+            if (typeof indirects[key] == 'undefined') {
+                return;
+            }
+            for (var key2 in hsh) {
+                if (key2 === key) {
+                    continue;
+                }
+                for (var key3 in linkedFrom[key2]) {
+                    if (key3 == key) {
+                        continue;
+                    }
+                    indirects[key][key3] = true;
+                }
+                for (var key3 in linkedTo[key2]) {
+                    if (key3 == key || hsh[key3]) {
+                        continue;
+                    }
+                    indirects[key][key3] = true;
+                }
+            }
+        }
+        for (var i = 0; i < graph.nodes.length; i++) {
+            var key = graph.nodes[i].id;
+            addIndirects(key, linkedFrom[key]);
+            addIndirects(key, linkedTo[key]);
+        }
+
+        var groups = {};
+        var PAT = /(.*)\.(.*?)\.(.*?)/;
+        var groupCount = 0;
+        for (var i = 0; i < graph.nodes.length; i++) {
+            if (PAT.test(graph.nodes[i].id)) {
+                var x = PAT.exec(graph.nodes[i].id);
+                var pkg = x[1];
+                if (typeof groups[pkg] == 'undefined') {
+                    groups[pkg] = groupCount++;
+                }
+                graph.nodes[i].group = groups[pkg];
+            }
+        }
+
+
+        rect = svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .style("fill", "transparent")
+                .style("cursor", "move")
+                .call(d3.zoom()
+                        .scaleExtent([1 / 16, 4])
+                        .on("zoom", zoomed));
+
+        function zoomed() {
+            g.attr("transform", d3.event.transform);
+            g1.attr("transform", d3.event.transform);
+        }
+
+        var g2 = svg.append("g");
+        var g1 = svg.append("g");
+        var g = svg.append("g");
+
+        var node = g
+                .attr("class", "nodes")
+                .selectAll("circle")
+                .data(graph.nodes)
+                .enter().append("circle")
+                .attr("r", function (d) {
+                    var rf = factor * d.pagerank;
+
+                    return 5 + (rf == NaN ? 0 : rf)
+                })
+                .attr("fill", function (d) {
+                    return color(d.group);
+                })
+                .on("mouseover", function (d) {
+                    div.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                    div.html(d.id + "<br/>")
+                            .style("left", (d3.event.pageX) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                })
+                .on("mouseout", function (d) {
+                    div.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                }).call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        node.on('click', function (d) {
+            link.style('opacity', function (l) {
+                if (d === l.source || d === l.target) {
+                    return 1;
+                } else if (
+                        (linkedFrom[d.id][l.source.id] || linkedFrom[d.id][l.target.id])
+                        || (linkedTo[d.id][l.source.id] || linkedTo[d.id][l.target.id])) {
+                    return 0.75;
+                } else {
+                    if (indirects[d.id][l.source.id] || indirects[d.id][l.target.id]) {
+                        return 0.3;
+                    }
+                }
+                return 0.1;
+            });
+            node.style('opacity', function (n) {
+                if (n === d) {
+                    return 1;
+                } else if ((linkedFrom[d.id][n.id]) || (linkedTo[d.id][n.id])) {
+                    return 0.75;
+                    // } else if (check(linkedFrom[d.id], linkedTo[n.id]) || check(linkedTo[d.id], linkedFrom[n.id])) {
+                } else if (indirects[d.id][n.id]) {
+                    return 0.3;
+                }
+                return 0.1;
+            });
+        });
+        node.on('mouseout', function () {
+            link.style('stroke-width', 1);
+            div.transition()
+                    .duration(1200)
+                    .style("opacity", 0);
+        });
+        rect.on('click', function () {
+            node.style('opacity', 1.0);
+            link.style('opacity', 1.0);
+        });
+
+        var link = g1
+                .attr("class", "links")
+                .selectAll("line")
+                .data(graph.links)
+                .enter().append("line")
+                .style("marker-end", "url(#suit)")
+                .attr("stroke-width", 1);
+
+        simulation
+                .nodes(graph.nodes)
+                .on("tick", ticked);
+
+        force = simulation.force("link")
+                .links(graph.links);
+        /*
+         
+         var fisheye = d3.fisheye.circular()
+         .radius(220);
+         
+         rect.on("mousemove", function() {
+         // force.stop();
+         fisheye.focus(d3.mouse(this));
+         d3.selectAll("circle").each(function(d) { d.fisheye = fisheye(d); })
+         .attr("cx", function(d) { return d.fisheye.x; })
+         .attr("cy", function(d) { return d.fisheye.y; })
+         .attr("r", function(d) { return d.fisheye.z * 8 + (factor * d.pagerank); });
+         link.attr("x1", function(d) { return d.source.fisheye.x; })
+         .attr("y1", function(d) { return d.source.fisheye.y; })
+         .attr("x2", function(d) { return d.target.fisheye.x; })
+         .attr("y2", function(d) { return d.target.fisheye.y; });
+         });
+         */
+
+        setTimeout(function () {
+            force.start();
+            for (var i = 200000; i > 0; --i)
+                force.tick();
+            // force.stop();
+        }, 5);
+
+
+        function ticked() {
+            link
+                    .attr("x1", function (d) {
+                        return d.source.x;
+                    })
+                    .attr("y1", function (d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function (d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function (d) {
+                        return d.target.y;
+                    });
+
+            node
+                    .attr("cx", function (d) {
+                        return d.x;
+                    })
+                    .attr("cy", function (d) {
+                        return d.y;
+                    });
+        }
+    });
+
+    function dragstarted(d) {
+        if (!d3.event.active)
+            simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active)
+            simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+</script>
+</html>
+

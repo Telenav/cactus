@@ -49,7 +49,8 @@ public class DependencySet implements Dependencies
             = ThreadLocalStack.create();
     // Use a listener in a thread local for contextual logging
     private static final ThreadLocalValue<ResolutionListener> LISTENER
-            = ThreadLocalValue.create(DefaultResolutionListener::new);
+            = ThreadLocalValue.create(() -> new DefaultResolutionListener()
+            .nonRepeating());
 
 
     /*
@@ -941,7 +942,7 @@ public class DependencySet implements Dependencies
                 into.append(it.next().coords);
                 if (it.hasNext())
                 {
-                    into.append(" <-- ");
+                    into.append("-> ");
                 }
             }
             return into;
@@ -1057,6 +1058,68 @@ public class DependencySet implements Dependencies
          */
         void onPomLookupFailure(ResolutionPath path, Dependency of, String phase,
                 Dependency raw);
+
+        /**
+         * If many things depend on something that is not resolvable, the same
+         * failure can be logged many times for different dependency paths. Use
+         * this method to wrap a listener in one which only logs a particular
+         * failure or message the first time it occurs.
+         *
+         * @return A wrapper around this ResolutionListenerF
+         */
+        default ResolutionListener nonRepeating()
+        {
+            return new NonRepeatingResolutionListener(this);
+        }
+    }
+
+    private static final class NonRepeatingResolutionListener implements
+            ResolutionListener
+    {
+        private Set<Dependency> resFailures = new HashSet<>();
+        private Set<Dependency> lkpFailures = new HashSet<>();
+        private final Set<String> messages = new HashSet<>();
+        private final ResolutionListener delegate;
+
+        public NonRepeatingResolutionListener(ResolutionListener delegate)
+        {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void log(boolean important, ResolutionPath path, String what)
+        {
+            if (messages.add(what))
+            {
+                delegate.log(important, path, what);
+            }
+        }
+
+        @Override
+        public void onResolutionFailure(ResolutionPath path, Dependency of,
+                String phase, Dependency raw)
+        {
+            if (resFailures.add(of))
+            {
+                delegate.onResolutionFailure(path, of, phase, raw);
+            }
+        }
+
+        @Override
+        public void onPomLookupFailure(ResolutionPath path, Dependency of,
+                String phase, Dependency raw)
+        {
+            if (lkpFailures.add(of))
+            {
+                delegate.onPomLookupFailure(path, of, phase, raw);
+            }
+        }
+
+        @Override
+        public ResolutionListener nonRepeating()
+        {
+            return this;
+        }
     }
 
     /**
@@ -1072,7 +1135,7 @@ public class DependencySet implements Dependencies
             {
                 System.err.println((important
                                     ? "!!"
-                                    : "") + path + ": " + what);
+                                    : "") + ": " + what + " @ " + path);
             }
         }
 
@@ -1080,13 +1143,14 @@ public class DependencySet implements Dependencies
         public void onResolutionFailure(ResolutionPath path, Dependency of,
                 String phase, Dependency raw)
         {
-            StringBuilder sb = new StringBuilder().append(path).append(' ');
+            StringBuilder sb = new StringBuilder();
             sb.append(phase).append(": Failure resolving ").append(of).append(
                     ' ');
             if (raw != of && !raw.equals(of))
             {
-                sb.append(" Raw dependency: ").append(raw);
+                sb.append(" (raw=").append(raw).append(") ");
             }
+            sb.append(path);
             System.err.println(sb);
         }
 
@@ -1094,14 +1158,14 @@ public class DependencySet implements Dependencies
         public void onPomLookupFailure(ResolutionPath path, Dependency of,
                 String phase, Dependency raw)
         {
-            StringBuilder sb = new StringBuilder().append(path).append(' ');
-            sb.append(phase).append(": Could not look up POM file for ").append(
-                    of)
-                    .append(' ');
+            StringBuilder sb = new StringBuilder();
+            sb.append(phase).append(": POM lookup failure ").append(of).append(
+                    ' ');
             if (raw != of && !raw.equals(of))
             {
-                sb.append(" Raw dependency: ").append(raw);
+                sb.append(" (raw=").append(raw).append(") ");
             }
+            sb.append(path);
             System.err.println(sb);
         }
     }

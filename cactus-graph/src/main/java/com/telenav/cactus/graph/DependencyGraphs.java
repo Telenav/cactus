@@ -10,10 +10,7 @@ import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.Dependency;
 import com.telenav.cactus.maven.model.dependencies.DependencyScope;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
-import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.MavenCoordinates;
-import com.telenav.cactus.maven.model.GroupId;
-import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.PomResolver;
 import com.telenav.cactus.maven.model.resolver.Poms;
@@ -327,7 +324,7 @@ public class DependencyGraphs implements Iterable<Pom>
 //                "/Users/timb/work/personal/mastfrog-parent"));
         String aid = "mesakit-tools-applications-graph-analyzer";
         String gid = "com.telenav.mesakit";
-        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
+        Poms poms = Poms.in(Paths.get("/home/tim/work/telenav/jonstuff"));
 
         DependencyGraphs dg = new DependencyGraphs(poms.poms());
 
@@ -335,13 +332,15 @@ public class DependencyGraphs implements Iterable<Pom>
 
         Predicate<MavenCoordinates> filter = coords ->
         {
-//            return coords.groupId().equals(gid);
+//            return coords.groupId().value().contains("telenav");
             return true;
         };
 
         ObjectGraph<MavenCoordinates> graph = dg
                 .dependencyGraph(Compile.asSet(), false,
-                        filter, singleton(p));
+                        filter, poms.javaProjects());
+        
+        new D3DataGenerator(graph).generate(Paths.get("/home/tim/work/telenav/web/" + p.artifactId() + ".json"));
 //        ObjectGraph<MavenCoordinates> graph = dg
 //                .dependencyGraph(Compile.asSet(), false,
 //                        filter, singleton(p));

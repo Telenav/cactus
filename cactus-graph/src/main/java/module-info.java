@@ -4,4 +4,6 @@ open module cactus.maven.graph {
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
     requires com.mastfrog.bits;
+    requires com.mastfrog.fileformat;
+    requires com.mastfrog.streams;
 }
