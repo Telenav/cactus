@@ -135,7 +135,11 @@ public class LexakaiMojo extends BaseMojo
                     Method mth = what.getMethod("embeddedMain", String[].class);
                     runLog.info("Invoking lexakai " + mth + " on " + what
                             .getName());
-                    mth.invoke(null, (Object) args.toArray(String[]::new));
+                    String problems = (String) mth.invoke(null, (Object) args.toArray(String[]::new));
+                    if (problems != null) {
+                        runLog.error(problems);
+                        fail("Lexakai encountered problems:\n" + problems);
+                    }
                     runLog.info("Lexakai done.");
                 }
             }
