@@ -250,6 +250,12 @@ public class LexakaiMojo extends BaseMojo
      */
     @Parameter(property = "cactus.show-lexakai-output", defaultValue = "true")
     private boolean showLexakaiOutput;
+    
+    /**
+     * Lexakai prints voluminous output which we suppress by default.
+     */
+    @Parameter(property = "cactus.lexakai.also-skip", required = false)
+    private String alsoSkip;
 
     /**
      * The repository to download lexakai from (central by default).
@@ -327,6 +333,14 @@ public class LexakaiMojo extends BaseMojo
                 }
             }
         });
+        if (alsoSkip != null) {
+            for (String skip : alsoSkip.split(",")) {
+                skip = skip.trim();
+                if (!skip.isEmpty()) {
+                    result.add(skip);
+                }
+            }
+        }
         return result;
     }
 

@@ -69,6 +69,8 @@ public enum Scope
     SAME_GROUP_ID,
     /**
      * Operate on all checkouts which contain at least one pom.xml file.
+     * 
+     * @see ProjectFamily
      */
     ALL_PROJECT_FAMILIES,
     /**
