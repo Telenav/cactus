@@ -318,13 +318,16 @@ public class DependencyGraphs implements Iterable<Pom>
 
     public static void main(String[] args) throws Exception
     {
-//        String aid = "acteur-resources";
-//        String gid = "com.mastfrog";
+        String aid = "tiny-maven-proxy";
+        String gid = "com.mastfrog";
 //        Poms poms = Poms.in(Paths.get(
 //                "/Users/timb/work/personal/mastfrog-parent"));
-        String aid = "mesakit-tools-applications-graph-analyzer";
-        String gid = "com.telenav.mesakit";
-        Poms poms = Poms.in(Paths.get("/home/tim/work/telenav/jonstuff"));
+//        String aid = "mesakit-tools-applications-graph-analyzer";
+//        String gid = "com.telenav.mesakit";
+//        Poms poms = Poms.in(Paths.get("/home/tim/work/telenav/jonstuff"));
+        Poms poms = Poms.in(Paths.get("/home/tim/work/personal/mastfrog-parent"),
+                Paths.get("/home/tim/work/personal/meta-update-center"),
+                Paths.get("/home/tim/work/personal/tiny-maven-proxy"));
 
         DependencyGraphs dg = new DependencyGraphs(poms.poms());
 
@@ -334,13 +337,15 @@ public class DependencyGraphs implements Iterable<Pom>
         {
 //            return coords.groupId().value().contains("telenav");
             return true;
+//            return coords.groupId().is(gid);
         };
 
         ObjectGraph<MavenCoordinates> graph = dg
-                .dependencyGraph(Compile.asSet(), false,
-                        filter, poms.javaProjects());
+                .dependencyGraph(DependencyScope.Compile.asSet(), false,
+//                        filter, poms.javaProjects());
+                        filter, singleton(p));
         
-        new D3DataGenerator(graph).generate(Paths.get("/home/tim/work/telenav/web/" + p.artifactId() + ".json"));
+        new D3DataGenerator(graph).generate(Paths.get("/home/tim/work/telenav/mf/" + p.artifactId() + ".json"));
 //        ObjectGraph<MavenCoordinates> graph = dg
 //                .dependencyGraph(Compile.asSet(), false,
 //                        filter, singleton(p));

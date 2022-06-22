@@ -31,13 +31,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 /**
@@ -150,21 +153,32 @@ public final class Poms implements PomResolver
         return ThrowingOptional.ofNullable(result);
     }
 
-    public static Poms in(Path dir) throws IOException
+    public static Poms in(Path first, Path... more) throws IOException
     {
+        List<Path> paths = new ArrayList<>();
+        paths.add(first);
+        paths.addAll(asList(more));
         List<Pom> list = new ArrayList<>();
-        try ( Stream<Path> all = Files.walk(dir).filter(file -> !Files
-                .isDirectory(file) && "pom.xml".equals(file.getFileName()
-                .toString())))
+        Set<Path> seen = new HashSet<>();
+        for (Path dir : paths)
         {
-            for (Path p : all.collect(Collectors.toCollection(ArrayList::new)))
+            try ( Stream<Path> all = Files.walk(dir).filter(file -> !Files
+                    .isDirectory(file) && "pom.xml".equals(file.getFileName()
+                    .toString())))
             {
-                Pom.from(p).ifPresent(list::add);
+                for (Path p : all.collect(Collectors
+                        .toCollection(ArrayList::new)))
+                {
+                    if (seen.add(p))
+                    {
+                        Pom.from(p).ifPresent(list::add);
+                    }
+                }
             }
         }
         if (list.isEmpty())
         {
-            throw new IOException("No poms in " + dir);
+            throw new IOException("No poms in " + first);
         }
         return new Poms(list);
     }
