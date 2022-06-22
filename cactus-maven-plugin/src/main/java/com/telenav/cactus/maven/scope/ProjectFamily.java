@@ -47,7 +47,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      */
     public static ProjectFamily fromGroupId(GroupId groupId)
     {
-        return fromGroupId(groupId.value());
+        return fromGroupId(groupId.text());
     }
 
     /**
@@ -257,7 +257,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
 
     public boolean isParentFamilyOf(GroupId gid)
     {
-        return isParentFamilyOf(gid.value());
+        return isParentFamilyOf(gid.text());
     }
 
     public boolean isParentFamilyOf(String gid)

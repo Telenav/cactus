@@ -50,7 +50,7 @@ public class D3DataGenerator
                 MavenCoordinates coords = graph.toNode(i);
                 Map<String, Object> map = new TreeMap<>();
                 map.put("id", family(coords.groupId()) + ":" + coords
-                        .artifactId().value());
+                        .artifactId().text());
                 map.put("pagerank", scores.get(coords));
                 map.put("group", groups.get(coords));
                 nodes.add(map);
@@ -129,7 +129,7 @@ public class D3DataGenerator
 
     private static String family(GroupId groupId)
     {
-        String gid = groupId.value();
+        String gid = groupId.text();
         int ix = gid.lastIndexOf('.');
         return gid.substring(ix + 1);
     }

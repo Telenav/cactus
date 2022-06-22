@@ -61,9 +61,9 @@ public final class Poms implements PomResolver
         for (Pom pom : sorted)
         {
             Map<String, Pom> kids
-                    = poms.computeIfAbsent(pom.coords.groupId().value(),
+                    = poms.computeIfAbsent(pom.coords.groupId().text(),
                             gid -> new HashMap<>());
-            kids.put(pom.coords.artifactId.value(), pom);
+            kids.put(pom.coords.artifactId.text(), pom);
         }
     }
 

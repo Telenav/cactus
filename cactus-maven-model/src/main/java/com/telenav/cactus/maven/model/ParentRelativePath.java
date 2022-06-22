@@ -40,7 +40,7 @@ public final class ParentRelativePath extends ResolvablePomElement<ParentRelativ
 
     public boolean isNone()
     {
-        return "".equals(value());
+        return "".equals(text());
     }
 
     @Override

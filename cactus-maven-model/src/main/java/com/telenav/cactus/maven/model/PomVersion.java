@@ -58,7 +58,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         {
             return 0;
         }
-        return VersionComparator.INSTANCE.compare(this.value(), o.value());
+        return VersionComparator.INSTANCE.compare(this.text(), o.text());
     }
 
 }

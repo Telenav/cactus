@@ -136,7 +136,7 @@ public class ProjectTree
         Set<String> result = new HashSet<>();
         allProjects().forEach(pom ->
         {
-            result.add(pom.rawVersion().value());
+            result.add(pom.rawVersion().text());
         });
         return result;
     }
@@ -148,7 +148,7 @@ public class ProjectTree
         {
             if (test.test(pom))
             {
-                result.add(pom.rawVersion().value());
+                result.add(pom.rawVersion().text());
             }
         });
         return result;
@@ -177,7 +177,7 @@ public class ProjectTree
         Set<Pom> result = new TreeSet<>();
         allProjects().forEach(project ->
         {
-            if (fam.equals(ProjectFamily.fromGroupId(project.groupId().value())))
+            if (fam.equals(ProjectFamily.fromGroupId(project.groupId().text())))
             {
                 result.add(project);
             }
@@ -196,7 +196,7 @@ public class ProjectTree
                 GitCheckout.repository(pom.pom).ifPresent(checkout ->
                 {
                     Set<String> branches = result.computeIfAbsent(
-                            pom.groupId().value(), g -> new TreeSet<>());
+                            pom.groupId().text(), g -> new TreeSet<>());
                     checkout.branches().localBranches().forEach(br ->
                     {
                         branches.add(br.trackingName());
@@ -224,7 +224,7 @@ public class ProjectTree
                     continue;
                 }
                 Map<String, Set<Pom>> infosByBranch = result.computeIfAbsent(
-                        pom.groupId().value(), id -> new TreeMap<>());
+                        pom.groupId().text(), id -> new TreeMap<>());
                 GitCheckout.repository(pom.pom).ifPresent(checkout ->
                 {
                     c.branchFor(checkout).ifPresent(branch ->
@@ -249,7 +249,7 @@ public class ProjectTree
             for (Pom info : poms)
             {
                 Set<Pom> pomSet = subMap.computeIfAbsent(info.rawVersion()
-                        .value(),
+                        .text(),
                         v -> new TreeSet<>());
                 pomSet.add(info);
             }
@@ -272,7 +272,7 @@ public class ProjectTree
         Map<String, Set<Pom>> result = new TreeMap<>();
         allProjects().forEach(pom ->
         {
-            Set<Pom> set = result.computeIfAbsent(pom.groupId().value(),
+            Set<Pom> set = result.computeIfAbsent(pom.groupId().text(),
                     x -> new TreeSet<>());
             set.add(pom);
         });
@@ -299,7 +299,7 @@ public class ProjectTree
                 if (filter.test(pom))
                 {
                     Set<Pom> infos = result.computeIfAbsent(pom.rawVersion()
-                            .value(),
+                            .text(),
                             v -> new TreeSet<>());
                     infos.add(pom);
                 }
@@ -459,7 +459,7 @@ public class ProjectTree
                 for (Pom project : projectSet)
                 {
                     if (family.equals(ProjectFamily.fromGroupId(
-                            project.groupId().value())))
+                            project.groupId().text())))
                     {
                         all.add(repo);
                         break;
@@ -660,9 +660,9 @@ public class ProjectTree
             {
                 Map<String, Pom> subcache
                         = infoForGroupAndArtifact.computeIfAbsent(
-                                info.groupId().value(),
+                                info.groupId().text(),
                                 id -> new HashMap<>());
-                subcache.put(info.coords.artifactId.value(), info);
+                subcache.put(info.coords.artifactId.text(), info);
                 GitCheckout.repository(info.pom).ifPresent(co ->
                 {
                     Set<Pom> poms = projectsByRepository.computeIfAbsent(co,

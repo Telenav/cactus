@@ -89,11 +89,11 @@ public final class CoordinatesPropertyResolver extends AbstractPropertyResolver
     {
         this.self = notNull("self", self);
         this.parent = parent; // can be null
-        if (PROJECT_GROUP_ID.equals(self.groupId().value()))
+        if (PROJECT_GROUP_ID.equals(self.groupId().text()))
         {
             throw new IllegalStateException(self + "");
         }
-        if (parent != null && PROJECT_GROUP_ID.equals(parent.groupId().value()))
+        if (parent != null && PROJECT_GROUP_ID.equals(parent.groupId().text()))
         {
             throw new IllegalStateException(parent + "");
         }
@@ -132,10 +132,10 @@ public final class CoordinatesPropertyResolver extends AbstractPropertyResolver
             {
                 case PROJECT_PARENT_GROUP_ID:
                 case PARENT_GROUP_ID:
-                    return parent.groupId().value();
+                    return parent.groupId().text();
                 case PROJECT_PARENT_ARTIFACT_ID:
                 case PARENT_ARTIFACT_ID:
-                    return parent.artifactId().value();
+                    return parent.artifactId().text();
                 case PROJECT_PARENT_VERSION:
                 case PARENT_VERSION:
                     if (parent.version().isPresent())
@@ -154,7 +154,7 @@ public final class CoordinatesPropertyResolver extends AbstractPropertyResolver
             case JAVA_VERSION:
                 return System.getProperty("java.version");
             case PROJECT_GROUP_ID:
-                return self.groupId().value();
+                return self.groupId().text();
             case PROJECT_VERSION:
                 if (self.version().isPresent())
                 {
@@ -162,7 +162,7 @@ public final class CoordinatesPropertyResolver extends AbstractPropertyResolver
                 }
                 break;
             case PROJECT_ARTIFACT_ID:
-                return self.artifactId().value();
+                return self.artifactId().text();
         }
         return null;
     }

@@ -97,13 +97,13 @@ public interface PomResolver
         }
         else
         {
-            return get(obj.groupId().value(), obj.artifactId().value());
+            return get(obj.groupId().text(), obj.artifactId().text());
         }
     }
 
     default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId)
     {
-        return get(groupId.value(), artifactId.value());
+        return get(groupId.text(), artifactId.text());
     }
 
     default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId,
@@ -111,16 +111,16 @@ public interface PomResolver
     {
         if (version.isPlaceholder())
         {
-            return get(groupId.value(), artifactId.value());
+            return get(groupId.text(), artifactId.text());
         }
-        return get(groupId.value(), artifactId.value(), version.value());
+        return get(groupId.text(), artifactId.text(), version.text());
     }
 
     default ThrowingOptional<Pom> get(String groupId, String artifactId,
             String version)
     {
         return get(groupId, artifactId).flatMapThrowing(pom
-                -> version.equals(pom.coords.version.value())
+                -> version.equals(pom.coords.version.text())
                    ? ThrowingOptional.of(pom)
                    : ThrowingOptional.empty());
     }

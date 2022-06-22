@@ -79,6 +79,12 @@ public class MavenCoordinates extends ArtifactIdentifiers implements
                 newVersion));
     }
     
+    /**
+     * Get the raw PomVersion object from this instance, which may or may
+     * not be a placeholder and may or may not be an unresolved property.
+     * 
+     * @return The version
+     */
     public PomVersion rawVersion() {
         return version;
     }
@@ -155,7 +161,7 @@ public class MavenCoordinates extends ArtifactIdentifiers implements
         PomVersion ver = version;
         if (ver.isPlaceholder())
         {
-            ver = poms.get(groupId.value(), artifactId.value())
+            ver = poms.get(groupId.text(), artifactId.text())
                     .map(pom ->
                     {
                         return pom.coords.version;

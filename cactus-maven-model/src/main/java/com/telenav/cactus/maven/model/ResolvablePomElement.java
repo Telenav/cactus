@@ -50,7 +50,7 @@ public abstract class ResolvablePomElement<E extends ResolvablePomElement<E>>
      *
      * @return A string
      */
-    public final String value()
+    public final String text()
     {
         return value;
     }
@@ -81,7 +81,7 @@ public abstract class ResolvablePomElement<E extends ResolvablePomElement<E>>
 
     public final boolean isUnresolvedProperty()
     {
-        return !PropertyResolver.isResolved(value());
+        return !PropertyResolver.isResolved(text());
     }
 
     public final boolean isPlaceholder()
@@ -158,7 +158,7 @@ public abstract class ResolvablePomElement<E extends ResolvablePomElement<E>>
     @Override
     public int compareTo(E o)
     {
-        return value.compareTo(o.value());
+        return value.compareTo(o.text());
     }
 
     public final int compare(E other, IntSupplier fallback)

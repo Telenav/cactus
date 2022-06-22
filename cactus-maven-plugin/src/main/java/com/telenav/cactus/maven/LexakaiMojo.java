@@ -130,6 +130,8 @@ public class LexakaiMojo extends BaseMojo
                         url, ldr))
                 {
                     Thread.currentThread().setContextClassLoader(jarLoader);
+                    // Just in case:
+                    System.setProperty("KIVAKIT_LOG_SYNCHRONOUS", "true");
                     Class<?> what = jarLoader.loadClass(
                             "com.telenav.lexakai.Lexakai");
                     Method mth = what.getMethod("embeddedMain", String[].class);
@@ -223,7 +225,7 @@ public class LexakaiMojo extends BaseMojo
     /**
      * Lexakai prints voluminous output which we suppress by default.
      */
-    @Parameter(property = "cactus.show-lexakai-output", defaultValue = "false")
+    @Parameter(property = "cactus.show-lexakai-output", defaultValue = "true")
     private boolean showLexakaiOutput;
 
     /**

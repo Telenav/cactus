@@ -155,7 +155,7 @@ public class PrintScopesMojo extends BaseMojo
                     tree.projectsWithin(gc).forEach(prj ->
                     {
                         if (ProjectFamily
-                                .fromGroupId(prj.coords.groupId.value())
+                                .fromGroupId(prj.coords.groupId.text())
                                 .equals(family))
                         {
                             System.out.println("    * " + prj.coords);
