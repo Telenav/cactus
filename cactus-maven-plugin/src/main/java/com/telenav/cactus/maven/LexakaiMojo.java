@@ -40,11 +40,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -54,8 +58,9 @@ import static java.nio.file.StandardOpenOption.WRITE;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Runs lexakai to generate documentation and diagrams for a project into some folder. This mojo is intended to be used
- * only on the root of a family of projects.
+ * Runs lexakai to generate documentation and diagrams for a project into some
+ * folder. This mojo is intended to be used only on the root of a family of
+ * projects.
  * <p>
  * The destination folder for documentation is computed as follows:
  * </p>
@@ -122,11 +127,11 @@ public class LexakaiMojo extends BaseMojo
             try
             {
                 URL[] url = new URL[]
-                        {
-                                new URL("jar:" + jarFile.toUri().toURL() + "!/")
-                        };
+                {
+                    new URL("jar:" + jarFile.toUri().toURL() + "!/")
+                };
                 runLog.warn("Invoke lexakai reflectively from " + url[0]);
-                try (URLClassLoader jarLoader = new URLClassLoader("lexakai",
+                try ( URLClassLoader jarLoader = new URLClassLoader("lexakai",
                         url, ldr))
                 {
                     Thread.currentThread().setContextClassLoader(jarLoader);
@@ -137,8 +142,10 @@ public class LexakaiMojo extends BaseMojo
                     Method mth = what.getMethod("embeddedMain", String[].class);
                     runLog.info("Invoking lexakai " + mth + " on " + what
                             .getName());
-                    String problems = (String) mth.invoke(null, (Object) args.toArray(String[]::new));
-                    if (problems != null) {
+                    String problems = (String) mth.invoke(null, (Object) args
+                            .toArray(String[]::new));
+                    if (problems != null)
+                    {
                         runLog.error(problems);
                         fail("Lexakai encountered problems:\n" + problems);
                     }
@@ -164,6 +171,10 @@ public class LexakaiMojo extends BaseMojo
         }
     }
 
+    // Please LEAVE this as DOT skip, so we are consistent with maven.test.skip,
+    // maven.javadoc.skip, etc.  It's what will be intuitive for maven users.
+    private static final String SKIP_PROPERTY = "cactus.lexakai.skip";
+
     /**
      * If true, instruct lexakai to overwrite resources.
      */
@@ -185,39 +196,48 @@ public class LexakaiMojo extends BaseMojo
     /**
      * If true, don't really run lexakai.
      */
-    @Parameter(property = "cactus.lexakai-skip", defaultValue = "false")
+    // PLEASE leave as DOT skip, so we are consistent with maven.test.skip,
+    // maven.javadoc.skip, etc.
+    @Parameter(property = SKIP_PROPERTY, defaultValue = "false")
     private boolean skip;
 
     /**
-     * The destination folder for generated documentation - if unset, it is computed as described above.
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
      */
     @Parameter(property = "cactus.output-folder")
     private String outputFolder;
 
     /**
-     * The destination folder for generated documentation - if unset, it is computed as described above.
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
      */
     @Parameter(property = "cactus.commit-changes", defaultValue = "false")
     private boolean commitChanges;
 
     /**
-     * The destination folder for generated documentation - if unset, it is computed as described above.
+     * The destination folder for generated documentation - if unset, it is
+     * computed as described above.
      */
-    @SuppressWarnings({ "FieldCanBeLocal", "FieldMayBeFinal" })
+    @SuppressWarnings(
+            {
+                "FieldCanBeLocal", "FieldMayBeFinal"
+            })
     @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.7")
     private String lexakaiVersion = "1.0.7";
 
     /**
-     * By default, code is generated into directories that match the relative directory structure from the
-     * project-family root; if true, the relative directories are omitted so all projects' documentation are immediately
+     * By default, code is generated into directories that match the relative
+     * directory structure from the project-family root; if true, the relative
+     * directories are omitted so all projects' documentation are immediately
      * below the output folder.
      */
     @Parameter(property = "cactus.flatten", defaultValue = "false")
     private boolean flatten;
 
     /**
-     * By default we strip XML comments from generated SVG, to minimize spurious diffs; if true that functionality is
-     * disabled.
+     * By default we strip XML comments from generated SVG, to minimize spurious
+     * diffs; if true that functionality is disabled.
      */
     @Parameter(property = "cactus.no-minimize", defaultValue = "false")
     private boolean noMinimize;
@@ -232,8 +252,11 @@ public class LexakaiMojo extends BaseMojo
      * The repository to download lexakai from (central by default).
      */
     @Parameter(property = "cactus.lexakai-repository",
-               defaultValue = MAVEN_CENTRAL_REPO)
-    @SuppressWarnings({ "FieldCanBeLocal", "FieldMayBeFinal" })
+            defaultValue = MAVEN_CENTRAL_REPO)
+    @SuppressWarnings(
+            {
+                "FieldCanBeLocal", "FieldMayBeFinal"
+            })
     private String lexakaiRepository = MAVEN_CENTRAL_REPO;
 
     public LexakaiMojo()
@@ -245,12 +268,16 @@ public class LexakaiMojo extends BaseMojo
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         Path outputDir = output(project);
-        List<String> args = Arrays.asList(
+        List<String> args = new ArrayList<>(Arrays.asList(
                 "-update-readme=" + updateReadme,
                 "-overwrite-resources=" + overwriteResources,
-                "-output-folder=" + outputDir,
-                project.getBasedir().toString()
-        );
+                "-output-folder=" + outputDir
+        ));
+        skippedProjects(project.getBasedir().toPath()).ifPresent(skips ->
+        {
+            args.add("-exclude-projects=" + skips);
+        });
+        args.add(project.getBasedir().toString());
         if (verbose)
         {
             log.info("Lexakai args:");
@@ -260,6 +287,42 @@ public class LexakaiMojo extends BaseMojo
         {
             runLexakai(args, project, log);
         }
+    }
+
+    private Optional<String> skippedProjects(Path familyParentBasedir)
+    {
+        StringBuilder sb = new StringBuilder();
+        collectSkippedProjects(log().child("collectSkipped"),
+                familyParentBasedir, prj ->
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(',');
+            }
+            sb.append(prj.getGroupId()).append(":").append(prj.getArtifactId());
+        });
+        return sb.length() == 0
+               ? Optional.empty()
+               : Optional.of(sb.toString());
+    }
+
+    private Set<String> collectSkippedProjects(BuildLog log, Path rootProjectDir,
+            Consumer<MavenProject> skippedConsumer)
+    {
+        Set<String> result = new TreeSet<>();
+        session().getAllProjects().forEach(childProject ->
+        {
+            if ("true".equals(
+                    childProject.getProperties().getProperty(SKIP_PROPERTY)))
+            {
+                skippedConsumer.accept(childProject);
+                if (verbose) {
+                    log.warn(childProject.getArtifactId() + " marks itself as "
+                            + "skipped for lexakai");
+                }
+            }
+        });
+        return result;
     }
 
     Path output(MavenProject project)
@@ -285,18 +348,18 @@ public class LexakaiMojo extends BaseMojo
                 -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
         ).orElseGet(()
                 -> appendProjectLexakaiDocPath(project.getBasedir().toPath()
-                .resolve("target").resolve(
+                        .resolve("target").resolve(
                         "lexakai"), project, checkout));
     }
 
     private Path appendProjectLexakaiDocPath(Path path, MavenProject prj,
-                                             GitCheckout checkout)
+            GitCheckout checkout)
     {
         if (checkout.name().isEmpty())
         {
             throw new IllegalArgumentException(
                     "Cannot use the root project " + checkout
-                            + " for a lexakai path for " + prj);
+                    + " for a lexakai path for " + prj);
         }
 
         Path result = path.resolve("docs")
@@ -341,7 +404,7 @@ public class LexakaiMojo extends BaseMojo
     }
 
     private Set<GitCheckout> collectedChangedRepos(MavenProject project,
-                                                   ThrowingRunnable toRun)
+            ThrowingRunnable toRun)
     {
         return ProjectTree.from(project).map(tree ->
         {
@@ -403,9 +466,9 @@ public class LexakaiMojo extends BaseMojo
     {
         if (Files.isDirectory(folderOrFile))
         {
-            try (Stream<Path> str = Files.walk(folderOrFile, 512).filter(
+            try ( Stream<Path> str = Files.walk(folderOrFile, 512).filter(
                     pth -> !Files.isDirectory(pth) && pth.getFileName()
-                            .toString().endsWith(".svg")))
+                    .toString().endsWith(".svg")))
             {
                 str.forEach(path -> quietly(() -> minimizeSVG(path)));
             }
@@ -420,7 +483,7 @@ public class LexakaiMojo extends BaseMojo
     }
 
     private void runLexakai(List<String> args, MavenProject project,
-                            BuildLog log1) throws Exception
+            BuildLog log1) throws Exception
     {
         ThrowingRunnable runner = lexakaiRunner(args);
         if (commitChanges)
@@ -450,7 +513,7 @@ public class LexakaiMojo extends BaseMojo
                 // we generate a final commit here so it points to our updates
                 GitCheckout.repository(project.getBasedir())
                         .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
-                                .toOptional())
+                        .toOptional())
                         .ifPresent(root ->
                         {
                             if (root.isDirty())
