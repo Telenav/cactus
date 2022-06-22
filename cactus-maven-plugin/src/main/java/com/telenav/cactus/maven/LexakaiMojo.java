@@ -132,7 +132,7 @@ public class LexakaiMojo extends BaseMojo
                     Thread.currentThread().setContextClassLoader(jarLoader);
                     Class<?> what = jarLoader.loadClass(
                             "com.telenav.lexakai.Lexakai");
-                    Method mth = what.getMethod("main", String[].class);
+                    Method mth = what.getMethod("embeddedMain", String[].class);
                     runLog.info("Invoking lexakai " + mth + " on " + what
                             .getName());
                     mth.invoke(null, (Object) args.toArray(String[]::new));
