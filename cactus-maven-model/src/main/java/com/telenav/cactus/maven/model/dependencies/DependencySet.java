@@ -1,6 +1,8 @@
 package com.telenav.cactus.maven.model.dependencies;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.mastfrog.function.threadlocal.ThreadLocalStack;
+import com.mastfrog.function.threadlocal.ThreadLocalValue;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
@@ -12,8 +14,6 @@ import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
 import com.telenav.cactus.maven.model.property.ParentsPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 import com.telenav.cactus.maven.model.resolver.PomResolver;
-import com.telenav.cactus.maven.model.util.ThreadLocalStack;
-import com.telenav.cactus.maven.model.util.ThreadLocalValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

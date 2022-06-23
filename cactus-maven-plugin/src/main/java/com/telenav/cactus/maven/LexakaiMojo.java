@@ -19,7 +19,7 @@ package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.streams.stdio.ThreadMappedStdIO;
-import com.telenav.cactus.cli.PathUtils;
+import com.telenav.cactus.util.PathUtils;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;

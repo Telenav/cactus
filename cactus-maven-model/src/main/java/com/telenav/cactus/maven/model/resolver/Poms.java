@@ -153,11 +153,8 @@ public final class Poms implements PomResolver
         return ThrowingOptional.ofNullable(result);
     }
 
-    public static Poms in(Path first, Path... more) throws IOException
+    public static Poms in(Collection<? extends Path> paths) throws IOException
     {
-        List<Path> paths = new ArrayList<>();
-        paths.add(first);
-        paths.addAll(asList(more));
         List<Pom> list = new ArrayList<>();
         Set<Path> seen = new HashSet<>();
         for (Path dir : paths)
@@ -178,8 +175,17 @@ public final class Poms implements PomResolver
         }
         if (list.isEmpty())
         {
-            throw new IOException("No poms in " + first);
+            throw new IOException("No poms in " + paths);
         }
         return new Poms(list);
+
+    }
+
+    public static Poms in(Path first, Path... more) throws IOException
+    {
+        List<Path> paths = new ArrayList<>();
+        paths.add(first);
+        paths.addAll(asList(more));
+        return in(paths);
     }
 }

@@ -18,13 +18,13 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.cli.PathUtils;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
+import com.telenav.cactus.util.PathUtils;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -36,7 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static com.telenav.cactus.cli.PathUtils.copyFolderTree;
+import static com.telenav.cactus.util.PathUtils.copyFolderTree;
 
 /**
  * @author Tim Boudreau

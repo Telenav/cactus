@@ -53,6 +53,7 @@
         <module>cactus-git</module>
         <module>cactus-cli</module>
         <module>cactus-graph</module>
+        <module>cactus-util</module>
     </modules>
 
     <!-- Properties -->
@@ -175,6 +176,11 @@
                 <artifactId>graph</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-util</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
 
             <!-- Mastfrog -->
 
@@ -206,6 +212,11 @@
             <dependency>
                 <groupId>com.mastfrog</groupId>
                 <artifactId>util-fileformat</artifactId>
+                <version>${mastfrog.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>util-preconditions</artifactId>
                 <version>${mastfrog.version}</version>
             </dependency>
 

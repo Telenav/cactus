@@ -18,10 +18,10 @@
 package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.mastfrog.function.threadlocal.ThreadLocalValue;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.versions.VersionComparator;
 import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
-import com.telenav.cactus.maven.model.util.ThreadLocalValue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

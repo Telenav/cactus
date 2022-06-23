@@ -22,5 +22,6 @@ open module com.telenav.cactus.cli
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
     requires com.telenav.cactus.maven.log;
+    requires com.telenav.cactus.util;
     exports com.telenav.cactus.cli;
 }

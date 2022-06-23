@@ -31,7 +31,6 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import static com.mastfrog.util.preconditions.Checks.greaterThanZero;
-import static com.telenav.cactus.maven.model.dependencies.DependencyScope.Compile;
 import static java.util.Collections.singleton;
 import static java.util.Collections.unmodifiableList;
 
@@ -40,7 +39,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Tim Boudreau
  */
-public class DependencyGraphs implements Iterable<Pom>
+final class DependencyGraphs implements Iterable<Pom>
 {
 
     private final Poms poms;
@@ -85,11 +84,12 @@ public class DependencyGraphs implements Iterable<Pom>
         Set<Pom> poms = new LinkedHashSet<>();
         poms.add(first);
         poms.addAll(Arrays.asList(anyMore));
-        return dependencyGraph(scopes, false, postFilter, poms);
+        return dependencyGraph(scopes, false, null, postFilter, poms);
     }
 
     public ObjectGraph<MavenCoordinates> dependencyGraph(
             Set<DependencyScope> scopes, boolean includeOptionalDependencies,
+            BiPredicate<Pom, Dependency> preFilter,
             Predicate<MavenCoordinates> postFilter,
             Collection<? extends Pom> poms)
     {
@@ -97,7 +97,8 @@ public class DependencyGraphs implements Iterable<Pom>
         {
             scopes = DependencyScope.all();
         }
-        return new DT(scopes, includeOptionalDependencies, postFilter).go(poms);
+        return new DT(scopes, includeOptionalDependencies, postFilter, preFilter)
+                .go(poms);
     }
 
     class DT implements BiPredicate<Pom, Dependency>
@@ -109,11 +110,12 @@ public class DependencyGraphs implements Iterable<Pom>
         private final Set<Pom> traversedPoms = new HashSet<>();
         private final boolean includeOptionalDependencies;
         private final Predicate<MavenCoordinates> postFilter;
+        private final BiPredicate<Pom, Dependency> preFilter;
 
         public DT(Set<DependencyScope> scopes,
                 boolean includeOptionalDependencies)
         {
-            this(scopes, false, null);
+            this(scopes, false, null, null);
         }
 
         private void postFilter()
@@ -166,28 +168,33 @@ public class DependencyGraphs implements Iterable<Pom>
 
         public DT(Set<DependencyScope> scopes,
                 boolean includeOptionalDependencies,
-                Predicate<MavenCoordinates> postFilter)
+                Predicate<MavenCoordinates> postFilter,
+                BiPredicate<Pom, Dependency> preFilter)
         {
             this.scopes = scopes;
             this.includeOptionalDependencies = includeOptionalDependencies;
             this.postFilter = postFilter;
+            this.preFilter = preFilter;
         }
 
         @Override
         public boolean test(Pom t, Dependency u)
         {
             traversedPoms.add(t);
-            deps.compute(t.coords, (cds, set) ->
+            if (preFilter == null || preFilter.test(t, u))
             {
-                if (set == null)
+                deps.compute(t.coords, (cds, set) ->
                 {
-                    set = new TreeSet<>();
-                }
-                set.add(u.coords);
-                return set;
-            });
-            all.add(t.coords);
-            all.add(u.coords);
+                    if (set == null)
+                    {
+                        set = new TreeSet<>();
+                    }
+                    set.add(u.coords);
+                    return set;
+                });
+                all.add(t.coords);
+                all.add(u.coords);
+            }
             return true;
         }
 
@@ -325,9 +332,10 @@ public class DependencyGraphs implements Iterable<Pom>
 //        String aid = "mesakit-tools-applications-graph-analyzer";
 //        String gid = "com.telenav.mesakit";
 //        Poms poms = Poms.in(Paths.get("/home/tim/work/telenav/jonstuff"));
-        Poms poms = Poms.in(Paths.get("/home/tim/work/personal/mastfrog-parent"),
-                Paths.get("/home/tim/work/personal/meta-update-center"),
-                Paths.get("/home/tim/work/personal/tiny-maven-proxy"));
+        Poms poms = Poms
+                .in(Paths.get("/home/tim/work/personal/mastfrog-parent"),
+                        Paths.get("/home/tim/work/personal/meta-update-center"),
+                        Paths.get("/home/tim/work/personal/tiny-maven-proxy"));
 
         DependencyGraphs dg = new DependencyGraphs(poms.poms());
 
@@ -342,10 +350,12 @@ public class DependencyGraphs implements Iterable<Pom>
 
         ObjectGraph<MavenCoordinates> graph = dg
                 .dependencyGraph(DependencyScope.Compile.asSet(), false,
-//                        filter, poms.javaProjects());
+                        null,
+                        //                        filter, poms.javaProjects());
                         filter, singleton(p));
-        
-        new D3DataGenerator(graph).generate(Paths.get("/home/tim/work/telenav/mf/" + p.artifactId() + ".json"));
+
+        new D3DataGenerator(graph).generate(Paths.get(
+                "/home/tim/work/telenav/mf/" + p.artifactId() + ".json"));
 //        ObjectGraph<MavenCoordinates> graph = dg
 //                .dependencyGraph(Compile.asSet(), false,
 //                        filter, singleton(p));

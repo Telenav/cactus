@@ -21,8 +21,8 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.cli.PathUtils;
 import com.telenav.cactus.cli.ProcessResultConverter;
+import com.telenav.cactus.util.PathUtils;
 
 import java.io.File;
 import java.io.IOException;

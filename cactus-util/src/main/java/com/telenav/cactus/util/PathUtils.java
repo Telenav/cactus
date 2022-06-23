@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli;
+package com.telenav.cactus.util;
 
 import com.mastfrog.function.state.Int;
 import com.mastfrog.function.throwing.ThrowingRunnable;

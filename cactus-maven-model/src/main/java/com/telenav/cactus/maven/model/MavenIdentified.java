@@ -30,6 +30,10 @@ public interface MavenIdentified
     GroupId groupId();
 
     ArtifactId artifactId();
+    
+    default ArtifactIdentifiers toArtifactIdentifiers() {
+        return new ArtifactIdentifiers(groupId(), artifactId());
+    }
 
     default boolean is(MavenIdentified other)
     {

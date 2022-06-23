@@ -35,4 +35,14 @@ public final class GroupId extends ResolvablePomElement<GroupId>
     {
         return of(what);
     }
+
+    public ArtifactIdentifiers artifact(String artifactId)
+    {
+        return artifact(ArtifactId.of(artifactId));
+    }
+
+    public ArtifactIdentifiers artifact(ArtifactId id)
+    {
+        return new ArtifactIdentifiers(this, id);
+    }
 }
