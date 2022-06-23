@@ -51,6 +51,10 @@ public class BumpVersionMojo extends ReplaceMojo
         super.onValidateParameters(log, project);
         VersionChangeMagnitude mag = magnitude();
         VersionFlavorChange flavor = flavor();
+        
+        System.out.println("MAGNITUDE " + mag);
+        System.out.println("FLAVOR " + flavor);
+        
         if (mag.isNone() && flavor.isNone())
         {
             fail("Nothing to do for " + mag + " " + flavor);
@@ -78,7 +82,9 @@ public class BumpVersionMojo extends ReplaceMojo
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
-        super.execute(log, project, myCheckout, tree, checkouts);
+        for (MavenProject prj : session().getAllProjects()) {
+            super.execute(log, prj, myCheckout, tree, checkouts);
+        }
     }
 
     VersionChangeMagnitude magnitude()
