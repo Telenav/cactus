@@ -80,10 +80,10 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
     }
 
     @Parameter(property = "cactus.replacement-version")
-    private String newVersion;
+    String newVersion;
 
     @Parameter(property = "cactus.replacement-branch-name")
-    private String newBranchName;
+    String newBranchName;
 
     private final Map<String, Replacement> variables = new HashMap<>();
 

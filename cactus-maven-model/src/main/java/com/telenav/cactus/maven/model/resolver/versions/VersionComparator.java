@@ -1,15 +1,17 @@
 package com.telenav.cactus.maven.model.resolver.versions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Does a best effort fuzzy dewey decimal comparison.  Old code.
+ * Does a best effort fuzzy dewey decimal comparison. Old code.
  */
-public final class VersionComparator implements Comparator<String> {
+public final class VersionComparator implements Comparator<String>
+{
     public static final VersionComparator INSTANCE = new VersionComparator();
 
     private VersionComparator()
@@ -36,28 +38,19 @@ public final class VersionComparator implements Comparator<String> {
         }
         return 0;
     }
-    private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d+|x)+");
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("^(\\d+)$");
 
-    private static List<Long> extractNumerics(String[] parts)
+    public static List<Long> extractNumerics(String[] parts)
     {
+        // Takes a version split by section delimiter, e.g. 1.5.1, SNAPSHOT
         List<Long> result = new ArrayList<>();
         for (String s : parts)
         {
             Matcher m = NUMBER_PATTERN.matcher(s);
             if (m.find())
             {
-                for (int i = 1; i < m.groupCount(); i++)
-                {
-                    String nums = m.group(i);
-                    if ("x".equals(nums))
-                    {
-                        result.add(Long.MAX_VALUE);
-                    }
-                    else
-                    {
-                        result.add(Long.parseLong(nums));
-                    }
-                }
+                String nums = m.group(1);
+                result.add(Long.parseLong(nums));
             }
         }
         return result;
