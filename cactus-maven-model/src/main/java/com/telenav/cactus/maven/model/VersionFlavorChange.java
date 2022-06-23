@@ -11,15 +11,28 @@ import static com.telenav.cactus.maven.model.VersionFlavor.SNAPSHOT;
  */
 public enum VersionFlavorChange
 {
+    /**
+     * If the version is release, make it snapshot, and vice-versa.
+     */
     TO_OPPOSITE,
+    /**
+     * Force the new version to snapshot.
+     */
     TO_SNAPSHOT,
+    /**
+     * Force the new version to release (no suffix).
+     */
     TO_RELEASE,
+    /**
+     * Do nothing to the suffix.
+     */
     UNCHANGED;
 
-    public boolean isNone() {
+    public boolean isNone()
+    {
         return this == UNCHANGED;
     }
-    
+
     public Optional<String> newSuffix(PomVersion version)
     {
         switch (this)

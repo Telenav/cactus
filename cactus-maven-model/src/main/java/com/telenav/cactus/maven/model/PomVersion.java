@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import org.w3c.dom.Node;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.DOT;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.NONE;
 import static com.telenav.cactus.maven.model.VersionFlavor.RELEASE;
@@ -116,7 +117,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         return Optional.of(of(result));
     }
 
-    public String decimalHead()
+    private String decimalHead()
     {
         String text = text();
         if (text.isEmpty())
@@ -130,16 +131,32 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         });
     }
 
+    /**
+     * Get the leading dot-delimited decimal portion of this version.
+     * 
+     * @return A list of numbers
+     */
     public List<Long> decimals()
     {
         return VersionComparator.extractNumerics(decimalHead().split("[\\.-]+"));
     }
 
+    /**
+     * Get the suffix of this version, if there is one.
+     * 
+     * @return The suffix
+     */
     public Optional<String> suffix()
     {
         return suffixOf(text());
     }
 
+    /**
+     * Get a descriptor for the suffix or its absence that describes the
+     * semantics of what this version is (release, snapshot, other).
+     * 
+     * @return A flavor
+     */
     public VersionFlavor flavor()
     {
         return suffix().map(sfx ->
@@ -156,7 +173,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
 
     static Optional<String> suffixOf(String what)
     {
-        if (what.isEmpty())
+        if (notNull("what", what).isEmpty())
         {
             return Optional.empty();
         }
@@ -168,6 +185,13 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         }));
     }
 
+    /**
+     * Split the version into leading decimals and any trailing characters.
+     * 
+     * @param what A version string
+     * @param func A function that computes the return value from both of them
+     * @return A string
+     */
     static String headTail(String what, BiFunction<String, String, String> func)
     {
         StringBuilder sb = new StringBuilder();

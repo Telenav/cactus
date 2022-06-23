@@ -25,12 +25,23 @@ public enum VersionChangeMagnitude
      * Change the dot version, e.g. 2.1.13 to 2.1.14.
      */
     DOT,
+    /**
+     * Don't change the leading decimal portion of the version.
+     */
     NONE;
     
     public boolean isNone() {
         return this == NONE;
     }
 
+    /**
+     * Increment the decimal corresponding with this enum constant in the
+     * passed list, and return a dewey-decimal representation of it. Decimals
+     * may be added to have something to increment.
+     * 
+     * @param list A list of numbers
+     * @return A dewey decimal string
+     */
     String increment(List<Long> list)
     {
         if (this == NONE || list.isEmpty())
@@ -50,6 +61,7 @@ public enum VersionChangeMagnitude
         int ix;
         if (ordinal() > list.size())
         {
+            // Need to add an ordinal to bump the right spot
             int zeros = ordinal() - (list.size() - 1);
             for (int i = 0; i < zeros; i++)
             {
@@ -60,6 +72,7 @@ public enum VersionChangeMagnitude
         }
         else
         {
+            // Don't add ordinals, just increment, so 2.0 becomes 2.1
             ix = min(ordinal(), list.size() - 1);
             list.set(ix, list.get(ix) + by);
         }
