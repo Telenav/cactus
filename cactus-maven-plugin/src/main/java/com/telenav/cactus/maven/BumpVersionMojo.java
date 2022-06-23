@@ -39,8 +39,8 @@ public class BumpVersionMojo extends ReplaceMojo
             defaultValue = "minor")
     String versionChangeMagnitude = "minor";
     @Parameter(property = "cactus.version.flavor",
-            defaultValue = "minor")
-    String versionFlavor = "minor";
+            defaultValue = "unchanged")
+    String versionFlavor = "unchanged";
 
     boolean snapshot;
 
