@@ -25,10 +25,12 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,6 +45,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -109,6 +113,14 @@ public class PathUtils
         return what.toString();
     }
 
+    /**
+     * Find an executable on the default system path one of the passed set
+     * of paths.
+     * 
+     * @param name The name of the executable
+     * @param additionalSearchLocations More locations to search
+     * @return A path if possible
+     */
     public static Optional<Path> findExecutable(String name,
             Path... additionalSearchLocations)
     {
@@ -181,6 +193,17 @@ public class PathUtils
                                        : FileKind.EITHER, ".git");
     }
 
+    /**
+     * Allows pattern based matching of parent folders which contain some file,
+     * such as seeking the .git directory in directories below a starting folder.
+     * 
+     * @param of A starting folder
+     * @param dirOrFile Whether the file looked for is a directory or a file or
+     * can be either
+     * @param fileOrFolderName The name of the child file which must be present
+     * in the ancestor folder
+     * @return A folder, if possible
+     */
     public static Optional<Path> findParentWithChild(Path of, FileKind dirOrFile,
             String fileOrFolderName)
     {
@@ -191,6 +214,9 @@ public class PathUtils
         });
     }
 
+    /**
+     * Kinds of files search for with <code>findParentWithChild</code>.
+     */
     public enum FileKind implements Predicate<Path>
     {
         FILE,
@@ -219,6 +245,15 @@ public class PathUtils
         }
     }
 
+    /**
+     * Find an ancestor folder of the passed folder which matches the
+     * passed predicate.
+     * 
+     * @param of A folder which, along with its parent folders, should be
+     * tested
+     * @param test The test to apply
+     * @return The passed folder or its first ancestor that passes the test
+     */
     public static Optional<Path> findInParents(Path of, Predicate<Path> test)
     {
         if (!Files.isDirectory(notNull("of", of)))
@@ -236,6 +271,12 @@ public class PathUtils
         return Optional.empty();
     }
 
+    /**
+     * Get the cache directory in the user's home directory - on linux,
+     * ~/.cache, on Mac OS X ~/Library/Caches
+     * 
+     * @return A Path
+     */
     public static Path userCacheRoot()
     {
         Path home = Paths.get(System.getProperty("user.home", System.getenv(
@@ -252,9 +293,14 @@ public class PathUtils
         }
     }
 
+    /**
+     * Get the system temporary directory.
+     * 
+     * @return A path
+     */
     public static Path temp()
     {
-        return Paths.get(System.getProperty("java.io.tmpdir"));
+        return Paths.get(System.getProperty("java.io.tmpdir", "/tmp"));
     }
 
     /**
@@ -338,6 +384,16 @@ public class PathUtils
         return result;
     }
 
+    /**
+     * Copy an entire folder tree.
+     * 
+     * @param log A log
+     * @param from The source folder
+     * @param to The target folder
+     * @return a 2-element array with the number of files copied and the
+     * number of folders created
+     * @throws IOException if something goes wrong
+     */
     public static int[] copyFolderTree(BuildLog log, Path from, Path to) throws IOException
     {
         Int files = Int.create();
@@ -378,6 +434,35 @@ public class PathUtils
         {
             files.getAsInt(), dirs.getAsInt()
         };
+    }
+    
+    /**
+     * Unzip the passed input stream into the passed directory.
+     *
+     * @param in An input stream
+     * @param dir A folder
+     * @throws IOException if something goes wrong
+     */
+    public static void unzip(InputStream in, Path dir) throws IOException {
+        notNull("dir", dir);
+        try ( ZipInputStream zip = new ZipInputStream(notNull("in", in))) {
+            ZipEntry en;
+            while ((en = zip.getNextEntry()) != null) {
+                if (en.isDirectory()) {
+                    Path dest = dir.resolve(en.getName());
+                    if (!Files.exists(dest)) {
+                        Files.createDirectories(dest);
+                    }
+                } else {
+                    Path dest = dir.resolve(en.getName());
+                    if (!Files.exists(dest.getParent())) {
+                        Files.createDirectories(dest.getParent());
+                    }
+                    Files.copy(zip, dest,
+                            StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        }
     }
 
     private static void quietly(ThrowingRunnable tr)

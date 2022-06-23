@@ -21,12 +21,14 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.versions.VersionComparator;
 import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
+import com.telenav.cactus.maven.model.util.ThreadLocalValue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -44,13 +46,29 @@ import java.util.regex.Pattern;
 final class LocalRepoResolver implements PomResolver
 {
     private static Path localRepo;
+    private final ThreadLocalValue<ArtifactFinder> finder = ThreadLocalValue.create();
     static LocalRepoResolver INSTANCE = new LocalRepoResolver();
+    
+    void withArtifactFinder(ArtifactFinder finder, Runnable run) {
+        this.finder.withValue(finder, run);
+    }
 
     @Override
     public ThrowingOptional<Pom> get(String groupId, String artifactId,
             String version)
     {
-        return inLocalRepository(groupId, artifactId, version);
+        Supplier<ThrowingOptional<Pom>> supp = () -> 
+            inLocalRepository(groupId, artifactId, version);
+    
+        ThrowingOptional<Pom> result = supp.get();
+        Optional<ArtifactFinder> finderOpt = finder.toOptional();
+        if (!result.isPresent() && finderOpt.isPresent()) {
+            ArtifactFinder af = finderOpt.get();
+            if (af.find(groupId, artifactId, version, "jar").isPresent()) {
+                result = supp.get();
+            }
+        }
+        return result;
     }
 
     @Override

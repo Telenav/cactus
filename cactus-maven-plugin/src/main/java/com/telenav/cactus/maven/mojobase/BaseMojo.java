@@ -24,6 +24,7 @@ import com.mastfrog.function.throwing.ThrowingFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.resolver.ArtifactFinder;
 import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
@@ -45,15 +46,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
- * A base class for our mojos, which sets up a build logger and provides a way to access some commonly needed types.
+ * A base class for our mojos, which sets up a build logger and provides a way
+ * to access some commonly needed types.
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings({ "unused", "UnusedReturnValue" })
+@SuppressWarnings(
+        {
+            "unused", "UnusedReturnValue"
+        })
 public abstract class BaseMojo extends AbstractMojo
 {
     protected static final String MAVEN_CENTRAL_REPO
@@ -87,7 +93,7 @@ public abstract class BaseMojo extends AbstractMojo
         private final MavenSession session;
 
         private ArtifactFetcher(String groupId, String artifactId,
-                                String version, MavenSession session)
+                String version, MavenSession session)
         {
             this.groupId = groupId;
             this.artifactId = artifactId;
@@ -98,7 +104,8 @@ public abstract class BaseMojo extends AbstractMojo
         }
 
         /**
-         * Download the artifact if needed, returning a Path to it in the local repository.
+         * Download the artifact if needed, returning a Path to it in the local
+         * repository.
          *
          * @return A path
          */
@@ -116,7 +123,8 @@ public abstract class BaseMojo extends AbstractMojo
                     "x", repositoryUrl).build();
 
             request.setRepositories(Collections.singletonList(remoteRepo));
-            RepositorySystemSession session = this.session.getRepositorySession();
+            RepositorySystemSession session = this.session
+                    .getRepositorySession();
             LocalArtifactResult result = session.getLocalRepositoryManager()
                     .find(session, request);
 
@@ -127,7 +135,8 @@ public abstract class BaseMojo extends AbstractMojo
                         + result.getFile());
                 return result.getFile().toPath();
             }
-            throw new MojoFailureException("Could not download " + artifact + " from "
+            throw new MojoFailureException(
+                    "Could not download " + artifact + " from "
                     + remoteRepo.getUrl());
         }
 
@@ -155,7 +164,8 @@ public abstract class BaseMojo extends AbstractMojo
         }
 
         /**
-         * Set the artifact type, if you want something other than the default of "jar".
+         * Set the artifact type, if you want something other than the default
+         * of "jar".
          *
          * @param type A type
          * @return this
@@ -193,8 +203,8 @@ public abstract class BaseMojo extends AbstractMojo
     protected BaseMojo(boolean oncePerSession)
     {
         this(oncePerSession
-                ? RunPolicies.LAST
-                : RunPolicies.FIRST);
+             ? RunPolicies.LAST
+             : RunPolicies.FIRST);
     }
 
     /**
@@ -224,7 +234,8 @@ public abstract class BaseMojo extends AbstractMojo
      *
      * @param <T> A type
      * @param message A message
-     * @return Nothing, but parameterized so that this method can be an exit point of any method that returns something
+     * @return Nothing, but parameterized so that this method can be an exit
+     * point of any method that returns something
      * @throws MojoExecutionException always, using the passed message
      */
     public <T> T fail(String message) throws MojoExecutionException
@@ -233,18 +244,18 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Downloads or finds in the local repo an artifact from maven central (overridable) independent of what the
-     * dependencies of the project are.
+     * Downloads or finds in the local repo an artifact from maven central
+     * (overridable) independent of what the dependencies of the project are.
      *
      * @param groupId A group id
      * @param artifactId An artifact id
      * @param version A version
-     * @return An ArtifactFetcher which can be used to configure the artifact type and repository if needed, and then
-     * fetch the artifact.
+     * @return An ArtifactFetcher which can be used to configure the artifact
+     * type and repository if needed, and then fetch the artifact.
      */
     @SuppressWarnings("SameParameterValue")
     protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
-                                               String version)
+            String version)
     {
         return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
     }
@@ -264,7 +275,8 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * If this mojo allows the project family to be replaced by a parameter, it can provide that here.
+     * If this mojo allows the project family to be replaced by a parameter, it
+     * can provide that here.
      *
      * @return null by default
      */
@@ -294,8 +306,8 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Get the project family for the project the mojo is being run against. The result can be overridden by returning a
-     * valid famiily string from
+     * Get the project family for the project the mojo is being run against. The
+     * result can be overridden by returning a valid famiily string from
      * <code>overrideProjectFamily()</code> if necessary.
      *
      * @return A project family
@@ -317,7 +329,8 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Get a project tree for the project this mojo is run on. Note this is an expensive operation.
+     * Get a project tree for the project this mojo is run on. Note this is an
+     * expensive operation.
      *
      * @return An optional
      */
@@ -327,8 +340,9 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Override to return true if the mojo is intended to run exactly one time for *all* repositories in the checkout,
-     * and should not do its work once for every sub-project when called from a multi-module pom.
+     * Override to return true if the mojo is intended to run exactly one time
+     * for *all* repositories in the checkout, and should not do its work once
+     * for every sub-project when called from a multi-module pom.
      *
      * @return true if the mojo should only be run once, on the last project
      */
@@ -414,8 +428,8 @@ public abstract class BaseMojo extends AbstractMojo
      * Run something against the project tree if one can be constructed.
      *
      * @param <T> The return value type
-     * @param invalidateCache Whether or not the tree's cache should be cleared before returning the instance if it
-     * already existed
+     * @param invalidateCache Whether or not the tree's cache should be cleared
+     * before returning the instance if it already existed
      * @param func A function applied to the project tree
      * @return An optional result
      */
@@ -429,13 +443,13 @@ public abstract class BaseMojo extends AbstractMojo
     /**
      * Run something against the project tree.
      *
-     * @param invalidateCache Whether or not the tree's cache should be cleared before returning the instance if it
-     * already existed
+     * @param invalidateCache Whether or not the tree's cache should be cleared
+     * before returning the instance if it already existed
      * @param cons A consumer
      * @return true if the code was run
      */
     protected final boolean withProjectTree(boolean invalidateCache,
-                                            ThrowingConsumer<ProjectTree> cons)
+            ThrowingConsumer<ProjectTree> cons)
     {
         return projectTree(invalidateCache).ifPresent(cons);
     }
@@ -447,8 +461,8 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * Create the project try; package private so that SharedProjectTreeMojo can use the shared data to cache the
-     * instance.
+     * Create the project try; package private so that SharedProjectTreeMojo can
+     * use the shared data to cache the instance.
      *
      * @param invalidateCache Whether or not to invalidate the cache.
      * @return A project tree, if one can be constructed.
@@ -514,6 +528,38 @@ public abstract class BaseMojo extends AbstractMojo
                 t = e.getCause();
             }
             throw new MojoFailureException(t);
+        }
+    }
+
+    protected void usingArtifactFinder(ThrowingRunnable run)
+    {
+        new ArtifactFinderImpl().run(run.toNonThrowing());
+    }
+
+    class ArtifactFinderImpl implements ArtifactFinder
+    {
+        @Override
+        public Optional<Path> find(String groupId, String artifactId,
+                String version, String type)
+        {
+            ArtifactFetcher fetcher = new ArtifactFetcher(groupId, artifactId,
+                    version, mavenSession);
+            if (type != null)
+            {
+                fetcher.withType(type);
+            }
+            try
+            {
+                Path path = fetcher.get();
+                return Optional.ofNullable(path);
+            }
+            catch (Exception | Error ex)
+            {
+                log().error(
+                        "Fetching " + groupId + ":" + artifactId + ":" + version,
+                        ex);
+            }
+            return Optional.empty();
         }
     }
 }
