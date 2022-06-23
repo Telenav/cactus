@@ -4,6 +4,7 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
+import java.util.function.Predicate;
 import org.w3c.dom.Node;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -67,6 +68,26 @@ public abstract class ResolvablePomElement<E extends ResolvablePomElement<E>>
             }
         }
         return cast();
+    }
+
+    public final boolean textContains(String text)
+    {
+        return value.contains(text);
+    }
+
+    public final boolean textStartsWith(String text)
+    {
+        return value.startsWith(text);
+    }
+
+    public final boolean textEndsWith(String text)
+    {
+        return value.endsWith(text);
+    }
+
+    public final boolean textMatches(Predicate<String> test)
+    {
+        return test.test(value);
     }
 
     abstract E newInstance(String what);

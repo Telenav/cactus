@@ -18,6 +18,7 @@
 package com.telenav.cactus.maven.model.resolver;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.dependencies.Dependencies;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
@@ -151,6 +152,15 @@ public final class Poms implements PomResolver
         }
         Pom result = map.get(artifactId);
         return ThrowingOptional.ofNullable(result);
+    }
+    
+    public ThrowingOptional<Pom> get(ArtifactId artifact) {
+        for (Pom pom : this.poms()) {
+            if (artifact.equals(pom.artifactId())) {
+                return ThrowingOptional.of(pom);
+            }
+        }
+        return ThrowingOptional.empty();
     }
 
     public static Poms in(Collection<? extends Path> paths) throws IOException

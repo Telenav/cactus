@@ -54,9 +54,9 @@ public class DependencyGraphBuilder
     }
 
     public DependencyGraphBuilder withPostFilter(
-            BiPredicate<Pom, Dependency> preFilter)
+            Predicate<MavenCoordinates> postFilter)
     {
-        this.preFilter = preFilter;
+        this.postFilter = postFilter;
         return this;
     }
 
@@ -99,7 +99,7 @@ public class DependencyGraphBuilder
 
         @Override
         public FinishableDependencyGraphBuilder withPostFilter(
-                BiPredicate<Pom, Dependency> preFilter)
+                Predicate<MavenCoordinates> preFilter)
         {
             return (FinishableDependencyGraphBuilder) super.withPostFilter(
                     preFilter);
@@ -133,6 +133,12 @@ public class DependencyGraphBuilder
             return this;
         }
 
+        public FinishableDependencyGraphBuilder graphing(ArtifactId aid)
+        {
+            graphing = graphing.and(new GraphOfArtifactId(notNull("aid", aid)));
+            return this;
+        }
+
         public FinishableDependencyGraphBuilder graphing(MavenIdentified mi)
         {
             graphing = graphing.and(new GraphOf(notNull("mi", mi)
@@ -153,9 +159,9 @@ public class DependencyGraphBuilder
             return this;
         }
 
-        public D3DataGenerator d3Graph() throws IOException
+        public D3GraphGenerator d3Graph() throws IOException
         {
-            return new D3DataGenerator(build());
+            return new D3GraphGenerator(build());
         }
 
         Set<DependencyScope> scopes()
@@ -212,6 +218,25 @@ public class DependencyGraphBuilder
         }
     }
 
+    private static class GraphOfArtifactId implements GraphSpec
+    {
+        private final ArtifactId id;
+
+        public GraphOfArtifactId(ArtifactId id)
+        {
+            this.id = id;
+        }
+
+        @Override
+        public Set<Pom> apply(Poms poms)
+        {
+            return poms.get(id).map(pom ->
+            {
+                return singleton(pom);
+            }).orElse(emptySet());
+        }
+    }
+
     private static class AllProjects implements GraphSpec
     {
         @Override
@@ -251,18 +276,23 @@ public class DependencyGraphBuilder
     {
         ObjectGraph<MavenCoordinates> graph = dependencyGraphBuilder()
                 .scanningFolder(Paths.get(
-                        "/Users/timb/work/personal/mastfrog-parent"))
-                .scanningFolder(Paths.get(
-                        "/Users/timb/work/personal/meta-update-center"))
+                        "/Users/timb/work/telenav/jonstuff"))
                 .includeOptionalDependencies()
-//                .withPreFilter((pom, dep) ->
-//                {
-//                    return dep.groupId().text().contains("com.mastfrog");
-//                })
-                .graphing(GroupId.of("com.mastfrog").artifact("meta-update-server"))
-//                .graphing("com.mastfrog", "util-preconditions")
-                
-                .d3Graph().generate(Paths.get("/tmp/wug/foo.json"));
+                .withPostFilter((dep)
+                        -> dep.groupId().textContains("com.telenav")
+                )
+                .graphing(ArtifactId.of("kivakit-examples-microservice"))
+                .d3Graph()
+                //                .withCategorizer(id ->
+                //                {
+                //                    String txt = id.artifactId().text();
+                //                    if (txt.indexOf('-') > 0)
+                //                    {
+                //                        return txt.substring(0, txt.indexOf('-'));
+                //                    }
+                //                    return id.groupId().text();
+                //                })
+                .generate(Paths.get("/tmp/tgraph/graph.json"));
         System.out.println(graph);
     }
 }

@@ -7,16 +7,21 @@ import com.mastfrog.util.fileformat.SimpleJSON;
 import com.mastfrog.util.streams.Streams;
 import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.MavenCoordinates;
+import com.telenav.cactus.maven.model.MavenIdentified;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -28,74 +33,100 @@ import static java.nio.file.StandardOpenOption.WRITE;
  *
  * @author tim
  */
-public final class D3DataGenerator
+public final class D3GraphGenerator
 {
 
     private final ObjectGraph<MavenCoordinates> graph;
     private static final DecimalFormat FMT = new DecimalFormat(
             "#####.################");
 
-    public D3DataGenerator(ObjectGraph<MavenCoordinates> graph)
+    private double alpha = 0.400;
+    private double alphaDecay = 0.00002;
+    private double velocityDecay = 0.725;
+    private int chargeForceStrength = -853;
+    private int chargeForceDistanceMax = 3750;
+    private double chargeForceTheta = 4D;
+    private double collideForceRadiusFactor = 120;
+    private int collideForceStrength = 550;
+    private int collideForceIterations = 150;
+    private Function<MavenIdentified, String> familyFinder = D3GraphGenerator::family;
+
+    public D3GraphGenerator(ObjectGraph<MavenCoordinates> graph)
     {
         this.graph = graph;
     }
 
-    private double alpha = 0.9;
-    private double alphaDecay = 0.00001;
-    private double velocityDecay = 0.725;
-    private int chargeForceStrength = -203;
-    private int chargeForceDistanceMax = 8200;
-    private double chargeForceTheta = 1.125D;
-    private double collideForceRadiusFactor = 5.5;
-    private int collideForceStrength = 122;
-    private int collideForceIterations = 122;
+    public D3GraphGenerator withFamiliesFor(String prefix)
+    {
+        return withCategorizer(artifact ->
+        {
+            return artifact.groupId().textStartsWith(prefix)
+                   ? family(artifact)
+                   : artifact.groupId().text();
+        });
+    }
 
-    public D3DataGenerator setAlpha(double alpha)
+    public D3GraphGenerator withCategorizer(
+            Function<MavenIdentified, String> func)
+    {
+        familyFinder = func;
+        return this;
+    }
+
+    public D3GraphGenerator withAlpha(double alpha)
     {
         this.alpha = alpha;
         return this;
     }
 
-    public D3DataGenerator setAlphaDecay(double alphaDecay)
+    public D3GraphGenerator withAlphaDecay(double alphaDecay)
     {
         this.alphaDecay = alphaDecay;
         return this;
     }
 
-    public D3DataGenerator setVelocityDecay(double velocityDecay)
+    public D3GraphGenerator withVelocityDecay(double velocityDecay)
     {
         this.velocityDecay = velocityDecay;
         return this;
     }
 
-    public D3DataGenerator setChargeForceStrength(int chargeForceStrength)
+    public D3GraphGenerator withChargeForceStrength(int chargeForceStrength)
     {
         this.chargeForceStrength = chargeForceStrength;
         return this;
     }
 
-    public D3DataGenerator setChargeForceDistanceMax(int chargeForceDistanceMax)
+    public D3GraphGenerator withChargeForceDistanceMax(
+            int chargeForceDistanceMax)
     {
         this.chargeForceDistanceMax = chargeForceDistanceMax;
         return this;
     }
 
-    public D3DataGenerator setChargeForceTheta(double chargeForceTheta)
+    public D3GraphGenerator withChargeForceTheta(double chargeForceTheta)
     {
         this.chargeForceTheta = chargeForceTheta;
         return this;
     }
 
-    public D3DataGenerator setCollideForceRadiusFactor(
+    public D3GraphGenerator withCollideForceRadiusFactor(
             double collideForceRadiusFactor)
     {
         this.collideForceRadiusFactor = collideForceRadiusFactor;
         return this;
     }
 
-    public D3DataGenerator setCollideForceIterations(int collideForceIterations)
+    public D3GraphGenerator withCollideForceIterations(
+            int collideForceIterations)
     {
         this.collideForceIterations = collideForceIterations;
+        return this;
+    }
+
+    public D3GraphGenerator withCollideForceStrength(int collideForceStrength)
+    {
+        this.collideForceStrength = collideForceStrength;
         return this;
     }
 
@@ -104,7 +135,7 @@ public final class D3DataGenerator
         return to.replaceAll("__ALPHA__", FMT.format(alpha))
                 .replaceAll("__ALPHA_DECAY__", FMT.format(alphaDecay))
                 .replaceAll("__VELOCITY_DECAY__", FMT.format(velocityDecay))
-                .replaceAll("__CHARGE_FORCE_STRENGTH__", FMT.format(
+                .replaceAll("__CHARGE_FORCE_STRENGTH__", Integer.toString(
                         chargeForceStrength))
                 .replaceAll("__CHARGE_FORCE_DISTANCE_MAX__", FMT.format(
                         chargeForceDistanceMax))
@@ -112,8 +143,21 @@ public final class D3DataGenerator
                         chargeForceTheta))
                 .replaceAll("__COLLIDE_FORCE_RADIUS_FACTOR__", FMT.format(
                         collideForceRadiusFactor))
-                .replaceAll("__COLLIDE_FORCE_ITERATIONS__", FMT.format(
+                .replaceAll("__COLLIDE_FORCE_STRENGTH__", Integer.toString(
+                        collideForceStrength))
+                .replaceAll("__COLLIDE_FORCE_ITERATIONS__", Integer.toString(
                         collideForceIterations));
+    }
+
+    private Object idOf(ObjectGraph<MavenCoordinates> graph,
+            MavenCoordinates coords)
+    {
+        return graph.toNodeId(coords);
+    }
+
+    private String nameOf(MavenIdentified coords)
+    {
+        return coords.artifactId().toString();
     }
 
     public ObjectGraph<MavenCoordinates> generate(Path into) throws IOException
@@ -127,18 +171,17 @@ public final class D3DataGenerator
             {
                 MavenCoordinates coords = graph.toNode(i);
                 Map<String, Object> map = new TreeMap<>();
-                map.put("id", family(coords.groupId()) + ":" + coords
-                        .artifactId().text());
-                map.put("pagerank", scores.get(coords));
+                map.put("id", idOf(graph, coords));
+                map.put("name", nameOf(coords));
+                map.put("rank", scores.get(coords));
                 map.put("group", groups.get(coords));
                 nodes.add(map);
                 graph.children(coords).forEach(kid ->
                 {
                     Map<String, Object> link = new HashMap<>();
                     link.put("source", map.get("id"));
-                    link.put("target", family(kid.groupId()) + ":" + kid
-                            .artifactId());
-                    link.put("value", 2); // What is this?
+                    link.put("target", idOf(graph, kid));
+                    link.put("value", 1); // What is this?
                     links.add(link);
                 });
             }
@@ -155,7 +198,7 @@ public final class D3DataGenerator
                     CREATE);
             System.out.println("Write " + output);
             Path dir = into.getParent();
-            try ( InputStream in = D3DataGenerator.class.getResourceAsStream(
+            try ( InputStream in = D3GraphGenerator.class.getResourceAsStream(
                     "index.html"))
             {
                 String data = applyProperties(Streams.readString(in, UTF_8)
@@ -170,12 +213,13 @@ public final class D3DataGenerator
         return graph;
     }
 
-    private static void scoreMap(List<Score<MavenCoordinates>> scores,
+    private void scoreMap(List<Score<MavenCoordinates>> scores,
             IOBiConsumer<Map<MavenCoordinates, Double>, Map<MavenCoordinates, Integer>> c)
             throws IOException
     {
         Map<MavenCoordinates, Double> result = new HashMap<>();
         Map<MavenCoordinates, Integer> groups = new HashMap<>();
+        Set<String> allFamilies = new HashSet<>();
         List<String> families = new ArrayList<>();
         double min = Integer.MAX_VALUE;
         double max = Integer.MIN_VALUE;
@@ -196,22 +240,34 @@ public final class D3DataGenerator
         double mn = min;
         scores.forEach(score ->
         {
-            double normScore = 0.1 + (1D - ((range - (score.score() - mn)) * factor));
-            if (!Double.isFinite(normScore)) {
+            double normScore = 0.0 + (1D - ((range - (score.score() - mn)) * factor));
+            if (!Double.isFinite(normScore))
+            {
                 normScore = 1;
             }
             System.out.println(score.node() + " " + normScore);
             result.put(score.node(), normScore);
-            String fam = family(score.node().groupId());
-            int ix = families.indexOf(fam);
-            if (ix < 0)
+            String fam = familyFinder.apply(score.node());
+            int ix;
+            if (allFamilies.add(fam))
             {
                 ix = families.size();
                 families.add(fam);
             }
+            else
+            {
+                ix = families.indexOf(fam);
+            }
             groups.put(score.node(), ix);
         });
         c.accept(result, groups);
+    }
+
+    private static String family(MavenIdentified artifact)
+    {
+        String gid = artifact.groupId().text();
+        int ix = gid.lastIndexOf('.');
+        return gid.substring(ix + 1);
     }
 
     private static String family(GroupId groupId)

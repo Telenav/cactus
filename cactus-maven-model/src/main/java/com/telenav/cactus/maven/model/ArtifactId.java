@@ -36,4 +36,8 @@ public final class ArtifactId extends ResolvablePomElement<ArtifactId>
         return of(what);
     }
 
+    public ArtifactIdentifiers inGroup(GroupId id)
+    {
+        return new ArtifactIdentifiers(id, this);
+    }
 }

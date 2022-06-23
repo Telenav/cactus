@@ -106,6 +106,19 @@ public interface PomResolver
         return get(groupId.text(), artifactId.text());
     }
 
+    /**
+     * Find a single artifact matching an ID. Implementations over the local
+     * repository do not return a result for this, as it would mean walking the
+     * entire tree.
+     *
+     * @param artifact An artifact ID
+     * @return A pom, if possible
+     */
+    default ThrowingOptional<Pom> get(ArtifactId artifact)
+    {
+        return ThrowingOptional.empty();
+    }
+
     default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId,
             PomVersion version)
     {
@@ -148,6 +161,13 @@ public interface PomResolver
             {
                 return PomResolver.this.get(groupId, artifactId, version)
                         .or(parent.get(groupId, artifactId, version));
+            }
+
+            @Override
+            public ThrowingOptional<Pom> get(ArtifactId artifact)
+            {
+                return PomResolver.this.get(artifact)
+                        .orThrowing(() -> parent.get(artifact));
             }
 
             @Override
