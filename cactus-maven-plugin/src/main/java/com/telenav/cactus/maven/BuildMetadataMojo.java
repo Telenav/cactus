@@ -52,7 +52,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        defaultPhase = LifecyclePhase.PROCESS_SOURCES,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "build-metadata", threadSafe = false)
