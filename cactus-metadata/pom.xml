@@ -16,7 +16,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.12</version>
+        <version>1.4.13</version>
     </parent>
 
     <artifactId>cactus-metadata</artifactId>
@@ -55,7 +55,7 @@
                             <finalName>cactus-metadata-${project.version}</finalName>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
-                                <transformer implementation = "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.telenav.cactus.metadata.BuildMetadataUpdater</mainClass>
                                 </transformer>
                             </transformers>
@@ -95,20 +95,20 @@
                         <phase>validate</phase>
                         <configuration>
 
-                            <target name = "build-metadata">
+                            <target name="build-metadata">
 
-                                <property name = "project.groupId" value = "${project.groupId}"/>
-                                <property name = "project.artifactId" value = "${project.artifactId}"/>
-                                <property name = "project.version" value = "${project.version}"/>
-                                <property name = "project.name" value = "${project.name}"/>
-                                <condition property = "source.exists">
-                                    <available file = "src" type = "dir"/>
+                                <property name="project.groupId" value="${project.groupId}"/>
+                                <property name="project.artifactId" value="${project.artifactId}"/>
+                                <property name="project.version" value="${project.version}"/>
+                                <property name="project.name" value="${project.name}"/>
+                                <condition property="source.exists">
+                                    <available file="src" type="dir"/>
                                 </condition>
-                                <taskdef classpathref = "maven.plugin.classpath" resource = "net/sf/antcontrib/antcontrib.properties"/>
+                                <taskdef classpathref="maven.plugin.classpath" resource="net/sf/antcontrib/antcontrib.properties"/>
                                 <if>
-                                    <equals arg1 = "${source.exists}" arg2 = "true"/>
+                                    <equals arg1="${source.exists}" arg2="true"/>
                                     <then>
-                                        <echo file = "src/main/java/project.properties">
+                                        <echo file="src/main/java/project.properties">
                                             project-name = ${project.name}${line.separator}project-version
                                             = ${project.version}${line.separator}project-group-id
                                             = ${project.groupId}${line.separator}project-artifact-id
@@ -116,7 +116,7 @@
                                         </echo>
                                     </then>
                                     <else>
-                                        <echo file = "${project.basedir}/project.properties">
+                                        <echo file="${project.basedir}/project.properties">
                                             project-name = ${project.name}${line.separator}project-version
                                             = ${project.version}${line.separator}project-group-id
                                             = ${project.groupId}${line.separator}project-artifact-id

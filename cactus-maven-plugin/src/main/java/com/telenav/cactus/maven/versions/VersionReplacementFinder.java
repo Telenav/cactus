@@ -95,16 +95,16 @@ public class VersionReplacementFinder
 
     public static void main(String[] args) throws Exception
     {
-//        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
-        Poms poms = Poms.in(Paths.get("/tmp/jonstuff"));
+        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
+//        Poms poms = Poms.in(Paths.get("/tmp/jonstuff"));
         VersionReplacementFinder vr = new VersionReplacementFinder(poms, false)
                 .bumpVersionsOfSuperpoms()
                 .withFamilyVersionChange(ProjectFamily.named("cactus"),
                         PomVersion.of("1.4.12"),
-                        PomVersion.of("1.5.1-SNAPSHOT"))
-                .withFamilyVersionChange(ProjectFamily.named("kivakit"),
-                        PomVersion.of("1.6.0"),
-                        PomVersion.of("1.6.2-SNAPSHOT"))
+                        PomVersion.of("1.4.13"))
+//                .withFamilyVersionChange(ProjectFamily.named("kivakit"),
+//                        PomVersion.of("1.6.0"),
+//                        PomVersion.of("1.6.2-SNAPSHOT"))
                 .withFamilyVersionChange(ProjectFamily.named("lexakai"),
                         PomVersion.of("1.0.7"),
                         PomVersion.of("1.0.8"));
