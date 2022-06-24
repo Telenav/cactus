@@ -29,16 +29,17 @@ public enum VersionChangeMagnitude
      * Don't change the leading decimal portion of the version.
      */
     NONE;
-    
-    public boolean isNone() {
+
+    public boolean isNone()
+    {
         return this == NONE;
     }
 
     /**
-     * Increment the decimal corresponding with this enum constant in the
-     * passed list, and return a dewey-decimal representation of it. Decimals
-     * may be added to have something to increment.
-     * 
+     * Increment the decimal corresponding with this enum constant in the passed
+     * list, and return a dewey-decimal representation of it. Decimals may be
+     * added to have something to increment.
+     *
      * @param list A list of numbers
      * @return A dewey decimal string
      */
@@ -115,5 +116,36 @@ public enum VersionChangeMagnitude
             }
         }
         return sb.toString();
+    }
+
+    public static VersionChangeMagnitude between(PomVersion old, PomVersion nue)
+    {
+        List<Long> oldDecimals = old.decimals();
+        List<Long> newDecimals = nue.decimals();
+        if (oldDecimals.isEmpty() || newDecimals.isEmpty())
+        {
+            return NONE;
+        }
+        int firstChange = -1;
+        for (int i = 0; i < min(oldDecimals.size(), newDecimals.size()); i++)
+        {
+            if (!oldDecimals.get(i).equals(newDecimals.get(i)))
+            {
+                firstChange = i;
+                break;
+            }
+        }
+        if (firstChange == -1)
+        {
+            if (newDecimals.size() > oldDecimals.size())
+            {
+                firstChange = min(DOT.ordinal(), oldDecimals.size());
+            }
+        }
+        if (firstChange == -1)
+        {
+            return NONE;
+        }
+        return values()[firstChange];
     }
 }

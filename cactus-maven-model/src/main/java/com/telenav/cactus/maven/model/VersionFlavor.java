@@ -2,6 +2,10 @@ package com.telenav.cactus.maven.model;
 
 import java.util.Optional;
 
+import static com.telenav.cactus.maven.model.VersionFlavorChange.TO_RELEASE;
+import static com.telenav.cactus.maven.model.VersionFlavorChange.TO_SNAPSHOT;
+import static com.telenav.cactus.maven.model.VersionFlavorChange.UNCHANGED;
+
 /**
  * Describes the kind of suffix a version has:
  * <ul>
@@ -28,6 +32,19 @@ public enum VersionFlavor
      */
     OTHER;
 
+    public VersionFlavorChange toThis()
+    {
+        switch (this)
+        {
+            case SNAPSHOT:
+                return TO_SNAPSHOT;
+            case RELEASE:
+                return TO_RELEASE;
+            default:
+                return UNCHANGED;
+        }
+    }
+
     public boolean isSnapshot()
     {
         return this == SNAPSHOT;
@@ -44,9 +61,9 @@ public enum VersionFlavor
     }
 
     /**
-     * Get the opposite of this flavor - release for snapshot, snapshot for release.
-     * OTHER has no opposite and returns itself.
-     * 
+     * Get the opposite of this flavor - release for snapshot, snapshot for
+     * release. OTHER has no opposite and returns itself.
+     *
      * @return A flavor
      */
     public VersionFlavor opposite()
@@ -77,7 +94,7 @@ public enum VersionFlavor
 
     /**
      * Get the version flavor for a string.
-     * 
+     *
      * @param what A version string
      * @return A flavor
      */

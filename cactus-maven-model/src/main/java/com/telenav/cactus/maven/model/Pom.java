@@ -303,4 +303,24 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         }
         return sb.toString();
     }
+
+    private Boolean hasExplicitVersion;
+
+    public boolean hasExplicitVersion()
+    {
+        if (hasExplicitVersion != null)
+        {
+            return hasExplicitVersion;
+        }
+        try
+        {
+            return hasExplicitVersion = toPomFile().nodeQuery("/project/version")
+                    .isPresent();
+        }
+        catch (XPathExpressionException | ParserConfigurationException
+                | SAXException | IOException ex)
+        {
+            return Exceptions.chuck(ex);
+        }
+    }
 }
