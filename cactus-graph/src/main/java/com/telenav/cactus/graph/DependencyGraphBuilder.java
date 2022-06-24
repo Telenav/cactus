@@ -276,6 +276,29 @@ public class DependencyGraphBuilder
     {
         ObjectGraph<MavenCoordinates> graph = dependencyGraphBuilder()
                 .scanningFolder(Paths.get(
+                        "/Users/timb/work/personal/mastfrog-parent"))
+                .includeOptionalDependencies()
+                .withPostFilter((dep)
+                        -> dep.groupId().textContains("com.mastfrog")
+                        && !dep.artifactId().is("util-preconditions")
+                )
+//                .graphingAllJavaAndPomProjects()
+//                .graphing(ArtifactId.of("kivakit-examples-microservice"))
+                .d3Graph()
+                .withCategorizer(id ->
+                {
+                    String txt = id.artifactId().text();
+                    if (txt.indexOf('-') > 0)
+                    {
+                        return txt.substring(0, txt.indexOf('-'));
+                    }
+                    return id.groupId().text();
+                })
+                .generate(Paths.get("/tmp/mgraph/graph.json"));
+
+        /*
+        ObjectGraph<MavenCoordinates> graph = dependencyGraphBuilder()
+                .scanningFolder(Paths.get(
                         "/Users/timb/work/telenav/jonstuff"))
                 .includeOptionalDependencies()
                 .withPostFilter((dep)
@@ -293,6 +316,7 @@ public class DependencyGraphBuilder
                 //                    return id.groupId().text();
                 //                })
                 .generate(Paths.get("/tmp/tgraph/graph.json"));
+         */
         System.out.println(graph);
     }
 }
