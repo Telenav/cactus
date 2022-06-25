@@ -1,5 +1,7 @@
 package com.telenav.cactus.maven.model;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,6 +35,10 @@ public enum VersionChangeMagnitude
     public boolean isNone()
     {
         return this == NONE;
+    }
+    
+    public VersionChangeMagnitude leastNotNone() {
+        return this == NONE ? DOT : this;
     }
 
     /**

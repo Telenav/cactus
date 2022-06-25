@@ -126,7 +126,6 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         }
         return headTail(text, (head, tail) ->
         {
-            System.out.println("HEAD " + this + " " + head + " tail " + tail);
             return head;
         });
     }
@@ -219,8 +218,6 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
                 }
                 else
                 {
-                    System.out.println("ABORT WITH " + sb.toString()
-                            + " and " + (what.substring(i)));
                     // Nun numeric char, don't skip it like a delimiter
                     func.apply(sb.toString(), what.substring(i,
                             what.length()));

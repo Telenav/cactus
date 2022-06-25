@@ -1,48 +1,40 @@
 package com.telenav.cactus.maven.versions;
 
-import com.mastfrog.function.optional.ThrowingOptional;
+import com.mastfrog.function.state.Bool;
+import com.telenav.cactus.maven.util.XMLTextContentReplacement;
+import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.MavenCoordinates;
-import com.telenav.cactus.maven.model.ParentMavenCoordinates;
+import com.telenav.cactus.maven.model.MavenIdentified;
+import com.telenav.cactus.maven.model.MavenVersioned;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
+import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.scope.ProjectFamily;
-import java.io.ByteArrayOutputStream;
-import java.nio.file.Files;
+import com.telenav.cactus.maven.util.AbstractXMLUpdater;
+import com.telenav.cactus.maven.util.XMLVersionElementAdder;
+import com.telenav.cactus.maven.versions.VersionMismatchPolicy.VersionMismatchPolicyOutcome;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import org.w3c.dom.Document;
 
-import static com.telenav.cactus.maven.versions.VersionReplacementFinder.PomRole.*;
-import static com.telenav.cactus.maven.versions.VersionReplacementFinder.PropertyRole.FAMILY_PREV_VERSION;
-import static com.telenav.cactus.maven.versions.VersionReplacementFinder.PropertyRole.FAMILY_VERSION;
-import static com.telenav.cactus.maven.versions.VersionReplacementFinder.PropertyRole.PROJECT_PREV_VERSION;
-import static com.telenav.cactus.maven.versions.VersionReplacementFinder.PropertyRole.PROJECT_VERSION;
-import static java.lang.Integer.max;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
-import static java.util.Collections.emptySet;
+import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.util.XMLReplacer.writeXML;
+import static com.telenav.cactus.maven.versions.PomRole.*;
 
 /**
  * Accepts a mapping of versions to change for individual POM files and/or
@@ -63,28 +55,20 @@ import static java.util.Collections.emptySet;
  */
 public class VersionReplacementFinder
 {
-    private final Poms poms;
-    private final Set<GroupId> allGroupIds = new HashSet<>();
-    private final Map<PomRole, Set<Pom>> pomsForKind = new EnumMap<>(
-            PomRole.class);
-    private final Map<Pom, Set<PomRole>> rolesForPom = new HashMap<>();
-    private final Map<ProjectFamily, Set<Pom>> pomsForFamily = new HashMap<>();
-    private final Map<String, Map<String, Set<Pom>>> pomsForValueOfProperty = new HashMap<>();
-    private final Set<MavenCoordinates> allCoordinates = new HashSet<>();
-    private final PotentialPropertyChanges propertyChanges;
+    private final PomCategories categories;
+    private final VersionIndicatingProperties propertyChanges;
     private final Map<ProjectFamily, VersionChange> familyVersionChanges = new HashMap<>();
     private final Map<Pom, VersionChange> pomVersionChanges = new HashMap<>();
     private final Map<Pom, VersionChange> parentVersionChanges = new HashMap<>();
-    private final Map<Pom, Pom> parentForPom = new HashMap<>();
-    private final boolean ignoreVersionMismatches;
     private final Set<Pom> versionMismatches = new HashSet<>();
     private boolean bumpVersionsOfSuperpoms;
+    private VersionMismatchPolicy versionMismatchPolicy
+            = VersionMismatchPolicy.VersionMismatchPolicyOutcome.ABORT;
 
-    public VersionReplacementFinder(Poms poms, boolean ignoreVersionMismatches)
+    public VersionReplacementFinder(Poms poms)
     {
-        this.poms = poms;
-        this.ignoreVersionMismatches = ignoreVersionMismatches;
-        propertyChanges = categorizeProperties();
+        categories = new PomCategories(poms);
+        propertyChanges = VersionIndicatingProperties.create(categories);
     }
 
     public VersionReplacementFinder bumpVersionsOfSuperpoms()
@@ -93,110 +77,514 @@ public class VersionReplacementFinder
         return this;
     }
 
+    public VersionReplacementFinder withVersionMismatchPolicy(
+            VersionMismatchPolicy policy)
+    {
+        this.versionMismatchPolicy = notNull("policy", policy);
+        return this;
+    }
+
     public static void main(String[] args) throws Exception
     {
-        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
+//        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
+//        Poms poms = Poms.in(Paths.get("/Users/timb/work/personal/mastfrog-parent"));
+        Poms poms = Poms.in(Paths.get(
+                "/Users/timb/work/personal/http-test-harness"));
 //        Poms poms = Poms.in(Paths.get("/tmp/jonstuff"));
-        VersionReplacementFinder vr = new VersionReplacementFinder(poms, false)
+        VersionReplacementFinder vr = new VersionReplacementFinder(poms)
                 .bumpVersionsOfSuperpoms()
-                .withFamilyVersionChange(ProjectFamily.named("cactus"),
-                        PomVersion.of("1.4.12"),
-                        PomVersion.of("1.4.13"))
-//                .withFamilyVersionChange(ProjectFamily.named("kivakit"),
-//                        PomVersion.of("1.6.0"),
-//                        PomVersion.of("1.6.2-SNAPSHOT"))
-                .withFamilyVersionChange(ProjectFamily.named("lexakai"),
-                        PomVersion.of("1.0.7"),
-                        PomVersion.of("1.0.8"));
+                .withVersionMismatchPolicy(VersionMismatchPolicyOutcome.SKIP)
+                .withSinglePomChange(ArtifactId.of("http-test-harness-parent"),
+                        PomVersion.of("0.9.6-dev")) //                .withFamilyVersionChange(ProjectFamily.named("mastfrog"),
+                //                        PomVersion.of("2.0.102"), PomVersion.of("2.0.103")) 
+                //                .withSinglePomChange(
+                //                        ArtifactId.of("telenav-build"),
+                //                        PomVersion.of("2.1.1"))
+                //                .withFamilyVersionChange(ProjectFamily.named("cactus"),
+                //                        PomVersion.of("1.4.12"),
+                //                        PomVersion.of("1.5.0-SNAPSHOT"))
+                //                .withFamilyVersionChange(ProjectFamily.named("kivakit"),
+                //                        PomVersion.of("1.6.0"),
+                //                        PomVersion.of("1.6.2-SNAPSHOT"))
+                //                .withFamilyVersionChange(ProjectFamily.named("lexakai"),
+                //                        PomVersion.of("1.0.8"),
+                //                        PomVersion.of("1.0.9"))
+                //x
+                ;
         System.out.println(vr);
         vr.go();
     }
 
+    public VersionReplacementFinder withSinglePomChange(
+            ArtifactId artifactId, PomVersion newVersion)
+    {
+        return categories.poms().get(artifactId).map(pom ->
+        {
+            return withSinglePomChange(pom, newVersion);
+        }).orElse(this);
+    }
+
+    public VersionReplacementFinder withSinglePomChange(
+            ArtifactId artifactId, GroupId group, PomVersion newVersion)
+    {
+        return categories.poms().get(group, artifactId).map(pom ->
+        {
+            return withSinglePomChange(pom, newVersion);
+        }).orElse(this);
+    }
+
+    public <P extends MavenIdentified & MavenVersioned> VersionReplacementFinder
+            withSinglePomChange(P what, PomVersion newVersion)
+    {
+        Consumer<Pom> c = pom ->
+        {
+            if (!pom.rawVersion().equals(newVersion))
+            {
+                pomVersionChanges.put(pom, new VersionChange(pom.rawVersion(),
+                        newVersion));
+            }
+        };
+        if (what instanceof Pom)
+        {
+            c.accept((Pom) what);
+        }
+        else
+        {
+            categories.poms().get(what).toOptional().ifPresent(c);
+        }
+        return this;
+    }
+
+    public VersionReplacementFinder withFamilyVersionChange(ProjectFamily family,
+            PomVersion old, PomVersion nue)
+    {
+        VersionChange vc = new VersionChange(old, nue);
+        familyVersionChanges.put(family, vc);
+        return this;
+    }
+
+    /**
+     * Iterate all the version mismatches, passing each one's pom and the
+     * version (may be null) we are trying to change it to.
+     *
+     * @param c A biconsumer
+     */
+    private void eachVersionMismatch(BiPredicate<Pom, VersionChange> c)
+    {
+        for (Iterator<Pom> it = versionMismatches.iterator(); it.hasNext();)
+        {
+            Pom pom = it.next();
+            VersionChange change = this.pomVersionChanges.get(pom);
+            if (change == null)
+            {
+                change = this.familyVersionChanges.get(ProjectFamily
+                        .fromGroupId(pom.groupId()));
+            }
+            if (change == null || c.test(pom, change))
+            {
+                it.remove();
+            }
+        }
+    }
+
     private void resolveVersionMismatchesAndFinalizeUpdateSet()
     {
+        // The VersionChangeUpdatesCollector we pass changes to, and it
+        // records whether or not there was an actual change to the stored
+        // values that represent what we're going to do.
+        //
+        // Its hasChanges() resets the changed state.
+        //
+        // We need to run this iteratively until no new changes have been
+        // added, because each round may add changes to additional poms
+        // which have children, so those children get the fact that their
+        // parent version needs updating recorded in the next round, and
+        // so forth, until no change has been made
+        VersionChangeUpdatesCollector changes
+                = new VersionChangeUpdatesCollector(pomVersionChanges,
+                        parentVersionChanges);
+        // Collect any outcomes from the policy installed on this instance,
+        // so we can abort if any of them say to
+        Map<Pom, VersionMismatchPolicyOutcome> outcomes = new HashMap<>();
+        do
+        {
+            resolveVersionMismatchesAndFinalizeUpdateSet(changes, outcomes);
+        } // loop until no more changes
+        while (changes.hasChanges() && !versionMismatches.isEmpty());
+
+        // Collect just the fatal mismatches so we can abort if we need to
+        Set<Pom> fatals = new HashSet<>();
+        outcomes.forEach((pom, outcome) ->
+        {
+            if (outcome == VersionMismatchPolicyOutcome.ABORT)
+            {
+                fatals.add(pom);
+            }
+        });
+        // Abort if necessary
+        if (!fatals.isEmpty())
+        {
+            StringBuilder sb = new StringBuilder(
+                    "Have unresolvable version mismatches:");
+            for (Pom pom : fatals)
+            {
+                sb.append('\n').append(pom);
+            }
+            throw new IllegalStateException(sb.toString());
+        }
+    }
+
+    private void applyFamilyVersionChanges(VersionChangeUpdatesCollector changes)
+    {
+        // Iterate all of the family version changes, and record them as
+        // applying to all poms in that family unless some other version change
+        // specific to that pom was already recorded.
+        familyVersionChanges.forEach((family, expectedVersionChange) ->
+        {
+            categories.eachPomInFamily(family, pom ->
+            {
+                if (!pomVersionChanges.containsKey(pom) && !versionMismatches
+                        .contains(pom))
+                {
+                    // Check if the current version is what we expect - otherwise
+                    // we will need to add a mismatch to possibly resolve with
+                    // the policy, or in the next round
+                    PomVersion currentVersion = pom.rawVersion();
+                    boolean match = currentVersion.equals(
+                            expectedVersionChange.oldVersion());
+                    if (!match)
+                    {
+                        versionMismatches.add(pom);
+                    }
+                    else
+                        if (match)
+                        {
+                            // If it has its own <version> tag, change its version
+                            if (pom.hasExplicitVersion())
+                            {
+                                changes.changePomVersion(pom,
+                                        expectedVersionChange);
+                            }
+                            else
+                            {
+                                // Else the version comes from its parent so we
+                                // will change that
+                                changes.changeParentVersion(pom,
+                                        expectedVersionChange);
+                            }
+                        }
+                }
+            });
+        });
+    }
+
+    private Map<Pom, VersionMismatchPolicyOutcome> applyVersionMismatchPolicy(
+            VersionChangeUpdatesCollector changes)
+    {
+        // For any remaining mismatches, apply the mismatch policy to
+        // resolve them
+        Map<Pom, VersionMismatchPolicyOutcome> outcomes = new HashMap<>();
+        eachVersionMismatch((pom, expectedChangeOrNull) ->
+        {
+            if (expectedChangeOrNull != null)
+            {
+                VersionMismatchPolicy.VersionMismatchPolicyOutcome outcome
+                        = versionMismatchPolicy.mismatchEncountered(pom,
+                                expectedChangeOrNull,
+                                categories.rolesFor(pom));
+                outcomes.put(pom, outcome);
+                switch (outcome)
+                {
+                    case ABORT:
+                        // Leave it as a version mismatch by returning false
+                        break;
+                    case SKIP:
+                        // Mark the mismatch resolved by returning true to
+                        // remove it from the set of mismatches
+                        return true;
+                    case BRING_TO_TARGET_VERSION:
+                        // Just record a version change to the thing it's
+                        // supposed to be
+                        changes.changePomVersion(pom, expectedChangeOrNull);
+                        return true;
+                    case BUMP:
+                        // Bump the version of it from whatever it is now, to
+                        // that + 1, changing the same magnitude decimal as
+                        // the version change for the family, and bringing it
+                        // to whatever flavor the version change for the family
+                        // uses.
+                        VersionFlavor newFlavor
+                                = expectedChangeOrNull.newVersion.flavor();
+
+                        Optional<PomVersion> res = pom.rawVersion().updatedWith(
+                                VersionChangeMagnitude.DOT,
+                                VersionFlavorChange.between(expectedChangeOrNull
+                                        .oldVersion().flavor(), newFlavor));
+                        if (res.isPresent())
+                        {
+                            changes.changePomVersion(pom, new VersionChange(pom
+                                    .rawVersion(), res.get()));
+                        }
+                        // If res.isAbsent() then the mismatch is because the
+                        // computed new version is what the pom is already at,
+                        // so return true and remove it from the list of
+                        // mismatches either way - it is inconsistent, but it is
+                        // inconsistent because it is already at the version we
+                        // are trying to bring it to.  This can happen if there
+                        // was a previous version update that failed somehow.
+                        return true;
+                    default:
+                        throw new AssertionError(outcome);
+                }
+            }
+            return false;
+        });
+        return outcomes;
+    }
+
+    private void resolveVersionMismatchesAndFinalizeUpdateSet(
+            VersionChangeUpdatesCollector changes,
+            Map<Pom, VersionMismatchPolicyOutcome> outcomes)
+    {
+        // Winnows down the final set of changes we're going to make before we
+        // construct our change set.
+        //
+        // The work done here is idempotent, so it is harmless if it is
+        // called multiply (we do in toString() as well).
+        //
+        // First, iterate all the parent poms that have their versions changing
+        // and make sure we have a parent version change recorded for their
+        // children
+        ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
+        // Make sure there is a version change for every project in the families
+        // we are changing versions for
+        applyFamilyVersionChanges(changes);
+        // Now see if we have version mismatches in poms which are superpoms - 
+        // they have no modules and are "pom" packaging - these should just be
+        // bumped, as we allow superpoms to have their own versioning schemes
         if (!versionMismatches.isEmpty() && bumpVersionsOfSuperpoms)
         {
-            for (Iterator<Pom> it = versionMismatches.iterator(); it.hasNext();)
+            eachVersionMismatch((pom, familyChange) ->
             {
-                Pom pom = it.next();
-                Set<PomRole> roles = rolesForPom.get(pom);
-                if (roles.contains(CONFIG) || roles.contains(CONFIG_ROOT))
+                // We are only interested in poms that provide configuration
+                // information - i.e. parents of something
+                if (categories.is(pom, CONFIG)
+                        || categories.is(pom, CONFIG_ROOT))
                 {
-                    it.remove();
-                    ProjectFamily family = ProjectFamily.fromGroupId(pom
-                            .groupId());
-                    VersionChange familyChange = familyVersionChanges
-                            .get(family);
                     VersionFlavorChange flavorChange = VersionFlavorChange.UNCHANGED;
                     VersionChangeMagnitude bumpMagnitude = VersionChangeMagnitude.DOT;
+                    // If we have a family change, compute a new version based on
+                    // the kind of change (magnitude, flavor) it is making.
                     if (familyChange != null)
                     {
                         flavorChange = familyChange.newVersion.flavor().toThis();
                         bumpMagnitude = VersionChangeMagnitude.between(
                                 familyChange.oldVersion, familyChange.newVersion);
                     }
-
+                    // Compute our new version
                     PomVersion newVersion = pom.rawVersion().updatedWith(
-                            VersionChangeMagnitude.DOT, flavorChange).get();
+                            bumpMagnitude, flavorChange).get();
                     VersionChange vc = new VersionChange(pom.rawVersion(),
                             newVersion);
                     if (!pom.hasExplicitVersion())
                     {
-                        List<Pom> parents = pom.parents(poms);
+                        // If the pom does not have its own <version> tag, then
+                        // we either need to add a version tag to it overriding
+                        // that from its parent (if the parent will not be changed)
+                        // or we need to update its parent's version (in which case
+                        // we will pick up that this pom needs updating for the new
+                        // parent version on the next round).
+                        List<Pom> parents = categories.parents(pom);
                         for (Pom par : parents)
                         {
                             if (par.rawVersion().equals(pom.rawVersion()))
                             {
                                 if (par.hasExplicitVersion())
                                 {
-                                    pomVersionChanges.put(par, vc);
+                                    changes.changePomVersion(par, vc);
                                 }
                                 else
                                 {
-                                    parentVersionChanges.put(par, vc);
+                                    changes.changeParentVersion(par, vc);
                                 }
+                                return true;
                             }
                         }
                     }
                     else
                     {
-                        pomVersionChanges.put(pom, vc);
+                        changes.changePomVersion(pom, vc);
+                        return true;
                     }
+                    return true;
+                }
+                return false;
+            });
+        }
+        // We may have made changes that can be consumed by these:
+        ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
+        ensurePomsWithPropertyChangesGetTheirVersionUpdated(changes);
+        removeDirectVersionChangesForPomsThatUseParentVersion(changes);
+        applyVersionMismatchPolicy(changes);
+    }
+
+    private VersionChange versionChangeFor(Pom pom)
+    {
+        VersionChange vc = pomVersionChanges.get(pom);
+        if (vc == null && !pom.hasExplicitVersion())
+        {
+            vc = parentVersionChanges.get(pom);
+        }
+        return vc;
+    }
+
+    private void removeDirectVersionChangesForPomsThatUseParentVersion(
+            VersionChangeUpdatesCollector changes)
+    {
+        // We may have generated pom version change where the version change
+        // actually pertains to the parent - move it there if so.
+        Map<Pom, VersionChange> directChanges = new HashMap<>(pomVersionChanges);
+        directChanges.forEach((pom, versionChange) ->
+        {
+            if (!pom.hasExplicitVersion())
+            {
+                Optional<Pom> par = categories.parentOf(pom);
+                if (par.isPresent())
+                {
+                    VersionChange vc = versionChangeFor(par.get());
+                    if (vc != null)
+                    {
+                        changes.changeParentVersion(pom, vc);
+                    }
+                }
+                changes.removePomVersionChange(pom);
+            }
+        });
+    }
+
+    private boolean hasPropertyChange(Pom pom)
+    {
+        Bool any = Bool.create();
+        propertyChanges.collectMatches(pom, (kind, prop) ->
+        {
+            any.set();
+        });
+        return any.getAsBoolean();
+    }
+
+    private void ensurePomsWithPropertyChangesGetTheirVersionUpdated(
+            VersionChangeUpdatesCollector changes)
+    {
+        // Make sure any pom we are making a change in is getting a version change - 
+        // along with its children - so if we are changing cactus.version in
+        // telenav-superpom, we need a new version of all superpoms descending
+        // from it, and all projects that use that as the parent will also
+        // need updating (in the next round those will be applied).
+        categories.eachPom(pom ->
+        {
+            if (categories.is(pom, PARENT) || categories.is(pom, CONFIG) || categories
+                    .is(pom, CONFIG_ROOT))
+            {
+                PomVersion currVersion = pom.rawVersion();
+                VersionChange ch = versionChangeFor(pom);
+                if (ch == null)
+                {
+                    ProjectFamily fam = ProjectFamily.fromGroupId(pom.groupId());
+                    ch = familyVersionChanges.get(fam);
+                }
+                if (ch != null)
+                {
+                    if (currVersion.equals(ch.newVersion()))
+                    {
+                        return;
+                    }
+                    if (currVersion.equals(ch.oldVersion()))
+                    {
+                        if (pom.hasExplicitVersion())
+                        {
+                            changes.changePomVersion(pom, ch);
+                        }
+                        else
+                        {
+                            changes.changeParentVersion(pom, ch);
+                        }
+                    }
+                    else
+                        if (pom.hasExplicitVersion())
+                        {
+                            // Superpom of something else that contains a property
+                            // we are updating, so we need to update its verison,
+                            // which will cause us to need to update everything
+                            // that uses it as a parent and shares its version
+                            PomVersion newVersion = currVersion.updatedWith(
+                                    ch.magnitude().leastNotNone(),
+                                    VersionFlavorChange.UNCHANGED).get();
+                            VersionChange newChange = new VersionChange(
+                                    currVersion, newVersion);
+                            changes.changePomVersion(pom, newChange);
+                        }
                 }
                 else
                 {
-                    System.out.println("RETAIN VERSION MISMATCH " + pom);
-                }
-            }
-        }
-        for (Pom pom : poms.poms())
-        {
-            Pom parentPom = parentForPom.get(pom);
+                    if (hasPropertyChange(pom))
+                    {
+                        PomVersion newVersion = currVersion.updatedWith(
+                                VersionChangeMagnitude.DOT,
+                                VersionFlavorChange.UNCHANGED).get();
+                        VersionChange newChange = new VersionChange(
+                                currVersion, newVersion);
+                        if (pom.hasExplicitVersion())
+                        {
+                            changes.changePomVersion(pom, newChange);
+                        }
+                        else
+                        {
 
-            if (parentPom != null)
-            {
-                VersionChange ch = pomVersionChanges.get(parentPom);
-                if (ch == null && !parentPom.hasExplicitVersion())
-                {
-                    ch = parentVersionChanges.get(parentPom);
+                        }
+                    }
                 }
-                parentVersionChanges.put(pom, ch);
             }
-            if (!pom.hasExplicitVersion())
-            {
-                pomVersionChanges.remove(pom);
-            }
-        }
+        });
     }
 
-    private List<TextContentReplacer> replacers()
+    private void ensureChildrenOfParentPomsBeingReversionedAreUpdated(
+            VersionChangeUpdatesCollector changes)
+    {
+        // Ensure parent pom children have updates pending
+        categories.eachPom(pom -> categories.parentOf(pom).ifPresent(parent ->
+        {
+            VersionChange vc = pomVersionChanges.get(parent);
+            if (vc == null && !parent.hasExplicitVersion())
+            {
+                vc = parentVersionChanges.get(parent);
+            }
+            if (vc != null)
+            {
+                if (changes.changeParentVersion(pom, vc))
+                {
+                    System.out.println(
+                            "ADD CHNA " + pom.artifactId() + " for " + parent
+                            .artifactId());
+                }
+            }
+            else
+            {
+                System.out.println(
+                        "NOPE " + parent.artifactId() + " for child " + pom
+                        .artifactId());
+            }
+        }));
+    }
+
+    private Set<AbstractXMLUpdater> replacers()
     {
         resolveVersionMismatchesAndFinalizeUpdateSet();
-        List<TextContentReplacer> replacers = new ArrayList<>();
-        for (Pom pom : poms.poms())
+        Set<AbstractXMLUpdater> replacers = new LinkedHashSet<>();
+
+        categories.eachPom(pom ->
         {
             VersionChange vc = this.pomVersionChanges.get(pom);
-            Set<VersionRepresentingProperty<?>> matched = new HashSet<>();
+            Set<VersionProperty<?>> matched = new HashSet<>();
             propertyChanges.collectMatches(pom, (kind, prop) ->
             {
                 matched.add(prop);
@@ -219,7 +607,7 @@ public class VersionReplacementFinder
                 else
                 {
                     MavenCoordinates coords = (MavenCoordinates) prop.target;
-                    Pom target = poms.get(coords).get();
+                    Pom target = categories.poms().get(coords).get();
                     assert coords.equals(target.coords);
                     VersionChange cd = this.pomVersionChanges.get(target);
                     if (cd != null)
@@ -235,115 +623,90 @@ public class VersionReplacementFinder
                 }
                 if (newValue != null)
                 {
-                    String query = "project/properties/" + prop.property;
+                    String query = "/project/properties/" + prop.property;
                     replacers.add(
-                            new TextContentReplacer(PomFile.of(pom), query,
+                            new XMLTextContentReplacement(PomFile.of(pom), query,
                                     newValue));
                 }
             });
-            Set<VersionRepresentingProperty<?>> neverMatched = propertyChanges
-                    .all();
-            neverMatched.removeAll(matched);
-            if (!neverMatched.isEmpty())
-            {
-                System.out.println("\nSOME UNMATCHED PROPERTIES:");
-                neverMatched.forEach(n -> System.out.println("  * " + n));
-            }
             if (vc != null)
             {
-                String query = "/project/version";
-                replacers.add(new TextContentReplacer(PomFile.of(pom), query,
-                        vc.newVersion.text()));
+                if (pom.hasExplicitVersion())
+                {
+                    String query = "/project/version";
+                    replacers.add(new XMLTextContentReplacement(
+                            PomFile.of(pom),
+                            query,
+                            vc.newVersion.text()));
+                }
+                else
+                {
+                    replacers.add(new XMLVersionElementAdder(
+                            PomFile.of(pom), vc.newVersion().text()));
+                }
             }
             VersionChange parentChange = parentVersionChanges.get(pom);
             if (parentChange != null)
             {
                 String query = "/project/parent/version";
-                replacers.add(new TextContentReplacer(PomFile.of(pom), query,
+                replacers.add(new XMLTextContentReplacement(PomFile.of(pom),
+                        query,
                         parentChange.newVersion.text()));
             }
-        }
+        });
         return replacers;
     }
 
+    /**
+     * Rewrite pom files.
+     *
+     * @return
+     * @throws Exception
+     */
     public Set<Path> go() throws Exception
     {
-
-        List<TextContentReplacer> replacers = replacers();
-        return TextContentReplacer.openAll(replacers, () ->
+        Set<AbstractXMLUpdater> replacers = replacers();
+        try
         {
-            Set<Path> result = new HashSet<>();
-            Map<Path, Document> docForPath = new HashMap<>();
-            for (TextContentReplacer rep : replacers)
+            return AbstractXMLUpdater.openAll(replacers, () ->
             {
-                Document changed = rep.replace();
-                if (changed != null)
+                Set<Path> result = new HashSet<>();
+                Map<Path, Document> docForPath = new HashMap<>();
+                for (AbstractXMLUpdater rep : replacers)
                 {
-                    Document old = docForPath.get(rep.path());
-                    if (old != changed && old != null)
+                    Document changed = rep.replace();
+                    if (changed != null)
                     {
-                        throw new IllegalStateException(
-                                "Context did not hold - " + old + " vs " + changed + " for " + rep
-                                        .path());
+                        Document old = docForPath.get(rep.path());
+                        if (old != changed && old != null)
+                        {
+                            throw new IllegalStateException(
+                                    "Context did not hold - " + old + " vs "
+                                    + changed + " for " + rep.path());
+                        }
+                        System.out.println(" CHANGE: " + rep);
+                        docForPath.put(rep.path(), changed);
                     }
-                    System.out.println(" CHANGE: " + rep);
-                    docForPath.put(rep.path(), changed);
                 }
-            }
-            for (Map.Entry<Path, Document> e : docForPath.entrySet())
-            {
-                writeXML(e.getValue(), e.getKey());
-                result.add(e.getKey());
-            }
-            return result;
-        });
-    }
-
-    private static void writeXML(Document doc, Path path) throws Exception
-    {
-        String oldContent = Files.readString(path, UTF_8);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        StreamResult res = new StreamResult(out);
-        TransformerFactory tFactory
-                = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
-//        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.setOutputProperty(
-                "{http://xml.apache.org/xslt}indent-amount", "4");
-        transformer.transform(new DOMSource(doc), res);
-        String munge = new String(out.toByteArray(), "UTF-8");
-        munge = restoreOriginalHead(oldContent, munge);
-        Files.write(path, munge.getBytes(UTF_8), WRITE, TRUNCATE_EXISTING);
-        System.out.println("Saved " + path);
-    }
-
-    private static String restoreOriginalHead(String orig, String mangled)
-    {
-        int oix = orig.indexOf("<project");
-        int nix = mangled.indexOf("<project");
-        if (oix < 0 || nix < 0)
-        {
-            // If it's hosed, don't make it worse.
-            return mangled;
+                for (Map.Entry<Path, Document> e : docForPath.entrySet())
+                {
+                    writeXML(e.getValue(), e.getKey());
+                    result.add(e.getKey());
+                }
+                return result;
+            });
         }
-        int oend = orig.indexOf('>', oix + 1);
-        int nend = mangled.indexOf('>', nix + 1);
-        if (oend < 0 || nend < 0)
+        finally
         {
-            return mangled;
+            // Dump our cached values
+            categories.poms().reload();
         }
-        String oldHead = orig.substring(0, oend + 1);
-        String newTail = mangled.substring(nend + 1, mangled.length());
-        return oldHead + newTail + (newTail.charAt(newTail.length() - 1) == '\n'
-                                    ? ""
-                                    : '\n');
     }
 
     @Override
     public String toString()
     {
-        List<TextContentReplacer> replacers = replacers();
+        Set<AbstractXMLUpdater> replacers = replacers();
         StringBuilder sb = new StringBuilder("Version Replacements:\n");
         sb.append("FAMILIES:\n");
         familyVersionChanges.forEach((fam, ver) ->
@@ -376,34 +739,22 @@ public class VersionReplacementFinder
             sb.append(propertyChanges);
         }
 
-        if (!rolesForPom.isEmpty())
+        if (!categories.rolesForPom().isEmpty())
         {
-            // Sort for readability
-            List<Map.Entry<Pom, Set<PomRole>>> entries = new ArrayList<>(
-                    rolesForPom
-                            .entrySet());
-            entries.sort((a, b) ->
+            sb.append("ROLES:\n");
+            categories.eachPomAndItsRoles((Pom pom, Set<PomRole> roles) ->
             {
-                int result = Integer.compare(maxOrdinal(a.getValue()),
-                        maxOrdinal(b
-                                .getValue()));
-                if (result == 0)
-                {
-                    result = a.getKey().compareTo(b.getKey());
-                }
-                return result;
-            });
+                String par = categories.parentOf(pom)
+                        .map(p -> p.artifactId()
+                        .toString())
+                        .orElse("");
 
-            sb.append("ROLES FOR POMS TO MODIFY:\n");
-            entries.forEach((e) ->
-            {
-                Pom pom = e.getKey();
-                Set<PomRole> roles = e.getValue();
                 sb.append(" * ").append(pom.toArtifactIdentifiers()).append(' ')
                         .append(roles)
                         .append(versionMismatches.contains(pom)
                                 ? " **VERSION-MISMATCH** " + pom.rawVersion()
                                 : "")
+                        .append(" parent ").append(par)
                         .append('\n');
             });
         }
@@ -414,433 +765,5 @@ public class VersionReplacementFinder
         }
 
         return sb.toString();
-    }
-
-    private static <E extends Enum<E>> int maxOrdinal(Set<E> set)
-    {
-        int result = -1;
-        for (E e : set)
-        {
-            result = max(result, e.ordinal());
-        }
-        return result;
-    }
-
-    public VersionReplacementFinder withFamilyVersionChange(ProjectFamily family,
-            PomVersion old, PomVersion nue)
-    {
-        VersionChange vc = new VersionChange(old, nue);
-        familyVersionChanges.put(family, vc);
-        Set<Pom> poms = pomsForFamily.getOrDefault(family, emptySet());
-        poms.forEach(pom ->
-        {
-            PomVersion currentVersion = pom.rawVersion();
-            boolean match = currentVersion.equals(old);
-            if (!match)
-            {
-                versionMismatches.add(pom);
-                System.out.println(
-                        "Skip version mismatch " + currentVersion
-                        + " for " + pom);
-            }
-            if (ignoreVersionMismatches || match)
-            {
-                pomVersionChanges.put(pom, vc);
-            }
-        });
-        return this;
-    }
-
-    private void onPom(PomRole role, Pom pom)
-    {
-        Set<Pom> pomSet = pomsForKind
-                .computeIfAbsent(role, r -> new HashSet<>());
-        Set<PomRole> roles = rolesForPom.computeIfAbsent(pom,
-                p -> new HashSet<>());
-        pomSet.add(pom);
-        roles.add(role);
-    }
-
-    private void categorizePoms()
-    {
-        Set<MavenCoordinates> parents = new HashSet<>();
-        for (Pom pom : poms.poms())
-        {
-            pom.parent().ifPresent(parent ->
-            {
-                poms.get(parent).ifPresent(parentPom -> parentForPom.put(pom,
-                        parentPom));
-            });
-            allGroupIds.add(pom.groupId());
-            allCoordinates.add(pom.coords.toPlainMavenCoordinates());
-            pom.properties().forEach((prop, value) ->
-            {
-                Map<String, Set<Pom>> pomsByValue
-                        = pomsForValueOfProperty.computeIfAbsent(prop,
-                                p -> new HashMap<>());
-                Set<Pom> set = pomsByValue.computeIfAbsent(value,
-                        v -> new HashSet<>());
-                set.add(pom);
-            });
-            ProjectFamily fam = ProjectFamily.fromGroupId(pom.groupId());
-            Set<Pom> forFamily = pomsForFamily.computeIfAbsent(fam,
-                    f -> new HashSet<>());
-            forFamily.add(pom);
-            String pkg = pom.packaging;
-            if ("pom".equals(pkg))
-            {
-                ThrowingOptional<ParentMavenCoordinates> parent = pom.parent();
-                parent.ifPresent(par -> parents.add(par
-                        .toPlainMavenCoordinates()));
-                if (!pom.modules.isEmpty())
-                {
-                    onPom(BILL_OF_MATERIALS, pom);
-                }
-                else
-                {
-                    if (!parent.isPresent())
-                    {
-                        onPom(CONFIG_ROOT, pom);
-                    }
-                    onPom(CONFIG, pom);
-                }
-            }
-            else
-            {
-                onPom(JAVA, pom);
-            }
-        }
-        parents.forEach(parent ->
-        {
-            poms.get(parent).ifPresent(parentPom ->
-            {
-                onPom(PARENT, parentPom);
-            });
-        });
-    }
-
-    static class VersionChange
-    {
-        final PomVersion oldVersion;
-        final PomVersion newVersion;
-
-        public VersionChange(PomVersion oldVersion, PomVersion newVersion)
-        {
-            this.oldVersion = oldVersion;
-            this.newVersion = newVersion;
-        }
-
-        @Override
-        public String toString()
-        {
-            return oldVersion + " -> " + newVersion;
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (o == this)
-            {
-                return true;
-            }
-            else
-                if (o == null || o.getClass() != VersionChange.class)
-                {
-                    return false;
-                }
-            VersionChange other = (VersionChange) o;
-            return other.oldVersion.equals(oldVersion) && other.newVersion
-                    .equals(newVersion);
-        }
-
-        public int hashCode()
-        {
-            return newVersion.hashCode() + (71 * oldVersion.hashCode());
-        }
-    }
-
-    private PotentialPropertyChanges categorizeProperties()
-    {
-        categorizePoms();
-        Map<String, ProjectFamily> familyVersionKeys = new HashMap<>();
-        Map<String, ProjectFamily> familyPrevVersionKeys = new HashMap<>();
-        Map<String, MavenCoordinates> projectVersionKeys = new HashMap<>();
-        Map< String, MavenCoordinates> projectPrevVersionKeys = new HashMap<>();
-        for (ProjectFamily fam : this.pomsForFamily.keySet())
-        {
-            String prop = fam + ".version";
-            familyVersionKeys.put(prop, fam);
-            String prevProp = fam + ".prev.version";
-            familyPrevVersionKeys.put(prevProp, fam);
-            String prevProp2 = fam + ".previous.version";
-            familyPrevVersionKeys.put(prevProp2, fam);
-        }
-        for (MavenCoordinates coords : allCoordinates)
-        {
-            if (coords.artifactId().is(ProjectFamily.fromGroupId(coords
-                    .groupId()).name()))
-            {
-                continue;
-            }
-            String dots = coords.artifactId().text().replace('-', '.');
-
-            String prop = coords.artifactId() + ".version";
-            String prevProp = coords.artifactId() + ".prev.version";
-            String prevProp2 = coords.artifactId() + ".previous.version";
-            ProjectFamily fam = ProjectFamily.fromGroupId(coords.groupId());
-            String prop2 = fam + "." + prop;
-            String prevProp3 = fam + "." + prevProp;
-            String prevProp4 = fam + "." + prevProp2;
-
-            String prop3 = dots + ".version";
-            String prevProp5 = dots + ".prev.version";
-            String prevProp6 = dots + ".previos.version";
-            projectVersionKeys.put(prop, coords);
-            projectVersionKeys.put(prop2, coords);
-            projectVersionKeys.put(prop3, coords);
-            projectPrevVersionKeys.put(prevProp, coords);
-            projectPrevVersionKeys.put(prevProp2, coords);
-            projectPrevVersionKeys.put(prevProp3, coords);
-            projectPrevVersionKeys.put(prevProp4, coords);
-            projectPrevVersionKeys.put(prevProp5, coords);
-            projectPrevVersionKeys.put(prevProp6, coords);
-        }
-        Set<VersionRepresentingProperty<ProjectFamily>> familyVersionChanges = collectPropertyChanges(
-                FAMILY_VERSION, familyVersionKeys);
-        Set<VersionRepresentingProperty<ProjectFamily>> familyPrevVersionChanges = collectPropertyChanges(
-                FAMILY_PREV_VERSION, familyPrevVersionKeys);
-        Set<VersionRepresentingProperty<MavenCoordinates>> projectVersionChanges = collectPropertyChanges(
-                PROJECT_VERSION, projectVersionKeys);
-        Set<VersionRepresentingProperty<MavenCoordinates>> projectPrevVersionChanges = collectPropertyChanges(
-                PROJECT_PREV_VERSION, projectPrevVersionKeys);
-        return new PotentialPropertyChanges(familyVersionChanges,
-                familyPrevVersionChanges, projectVersionChanges,
-                projectPrevVersionChanges);
-    }
-
-    static class PotentialPropertyChanges
-    {
-        final Set<VersionRepresentingProperty<ProjectFamily>> familyVersionChanges;
-        final Set<VersionRepresentingProperty<ProjectFamily>> familyPrevVersionChanges;
-        final Set<VersionRepresentingProperty<MavenCoordinates>> projectVersionChanges;
-        final Set<VersionRepresentingProperty<MavenCoordinates>> projectPrevVersionChanges;
-
-        public PotentialPropertyChanges(
-                Set<VersionRepresentingProperty<ProjectFamily>> familyVersionChanges,
-                Set<VersionRepresentingProperty<ProjectFamily>> familyPrevVersionChanges,
-                Set<VersionRepresentingProperty<MavenCoordinates>> projectVersionChanges,
-                Set<VersionRepresentingProperty<MavenCoordinates>> projectPrevVersionChanges)
-        {
-            this.familyVersionChanges = familyVersionChanges;
-            this.familyPrevVersionChanges = familyPrevVersionChanges;
-            this.projectVersionChanges = projectVersionChanges;
-            this.projectPrevVersionChanges = projectPrevVersionChanges;
-        }
-
-        Set<VersionRepresentingProperty<?>> all()
-        {
-            Set<VersionRepresentingProperty<?>> result = new HashSet<>(
-                    familyVersionChanges);
-            result.addAll(familyPrevVersionChanges);
-            result.addAll(projectVersionChanges);
-            result.addAll(projectPrevVersionChanges);
-            return result;
-        }
-
-        public void collectMatches(Pom pom,
-                BiConsumer<PropertyRole, ? super VersionRepresentingProperty<?>> into)
-        {
-            Predicate<VersionRepresentingProperty<?>> test = prop -> prop
-                    .matches(pom);
-            familyVersionChanges.stream().filter(test).forEach(prop -> into
-                    .accept(FAMILY_VERSION, prop));
-            familyPrevVersionChanges.stream().filter(test).forEach(prop -> into
-                    .accept(FAMILY_PREV_VERSION, prop));
-            projectVersionChanges.stream().filter(test).forEach(prop -> into
-                    .accept(PROJECT_VERSION, prop));
-            projectPrevVersionChanges.stream().filter(test).forEach(prop -> into
-                    .accept(PROJECT_PREV_VERSION, prop));
-        }
-
-        boolean isEmpty()
-        {
-            return familyVersionChanges.isEmpty()
-                    && familyPrevVersionChanges.isEmpty()
-                    && projectVersionChanges.isEmpty()
-                    && projectPrevVersionChanges.isEmpty();
-        }
-
-        @Override
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            appendIfNotEmpty(FAMILY_VERSION, familyVersionChanges, sb);
-            appendIfNotEmpty(FAMILY_PREV_VERSION, familyPrevVersionChanges, sb);
-            appendIfNotEmpty(PROJECT_VERSION, projectVersionChanges, sb);
-            appendIfNotEmpty(PROJECT_PREV_VERSION, projectPrevVersionChanges, sb);
-            return sb.toString();
-        }
-
-        private void appendIfNotEmpty(PropertyRole heading,
-                Set<? extends VersionRepresentingProperty<?>> set,
-                StringBuilder sb)
-        {
-            if (!set.isEmpty())
-            {
-                sb.append("  ").append(heading).append(":\n");
-                set.forEach(change ->
-                {
-                    sb.append("   * ").append(change).append('\n');
-                });
-            }
-        }
-    }
-
-    private <T> Set<VersionRepresentingProperty<T>> collectPropertyChanges(
-            PropertyRole role,
-            Map<String, T> props)
-    {
-        Set<VersionRepresentingProperty<T>> changes = new HashSet<>();
-        props.forEach((property, target) ->
-        {
-            Map<String, Set<Pom>> valuesAndPoms = pomsForValueOfProperty.get(
-                    property);
-            if (valuesAndPoms != null)
-            {
-                valuesAndPoms.forEach((value, pomSet) ->
-                {
-                    pomSet.forEach(pom ->
-                    {
-                        VersionRepresentingProperty<T> change = new VersionRepresentingProperty<>(
-                                property,
-                                pom, target, value);
-                        changes.add(change);
-                    });
-                });
-            }
-        });
-        return changes;
-    }
-
-    private static final class VersionRepresentingProperty<T>
-    {
-        final String property;
-        final Pom in;
-        final T target;
-        final String oldValue;
-
-        public VersionRepresentingProperty(String property, Pom in, T target,
-                String oldValue)
-        {
-            this.property = property;
-            this.in = in;
-            this.target = target;
-            this.oldValue = oldValue;
-        }
-
-        boolean matches(Pom pom)
-        {
-            // this is wrong
-            return pom.equals(in) || (ProjectFamily.fromGroupId(pom.groupId()).equals(target))
-                    || pom.coords
-                    .toPlainMavenCoordinates()
-                    .equals(target);
-                    /*
-                    && (ProjectFamily.fromGroupId(pom.groupId()).equals(target) || pom.coords
-                    .toPlainMavenCoordinates()
-                    .equals(target))*/
-        }
-
-        @Override
-        public String toString()
-        {
-            return in.pom.getParent().getFileName()
-                    .resolve(in.pom.getFileName()) + "\t" + property + " in "
-                    + target + " for " + " currently " + oldValue;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int hash = 7;
-            hash = 97 * hash + Objects.hashCode(this.property);
-            hash = 97 * hash + Objects.hashCode(this.in);
-            hash = 97 * hash + Objects.hashCode(this.target);
-            hash = 97 * hash + Objects.hashCode(this.oldValue);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            final VersionRepresentingProperty<?> other = (VersionRepresentingProperty<?>) obj;
-            if (!Objects.equals(this.property, other.property))
-                return false;
-            if (!Objects.equals(this.oldValue, other.oldValue))
-                return false;
-            if (!Objects.equals(this.in, other.in))
-                return false;
-            return Objects.equals(this.target, other.target);
-        }
-    }
-
-    enum PomRole
-    {
-        PARENT,
-        BILL_OF_MATERIALS,
-        CONFIG,
-        CONFIG_ROOT,
-        JAVA;
-
-        boolean isPomProject()
-        {
-            return this != JAVA;
-        }
-    }
-
-    enum PropertyRole
-    {
-        FAMILY_VERSION,
-        FAMILY_PREV_VERSION,
-        PROJECT_VERSION,
-        PROJECT_PREV_VERSION,
-        OTHER;
-
-        boolean isFamily()
-        {
-            return this == FAMILY_PREV_VERSION || this == FAMILY_VERSION;
-        }
-
-        boolean isProject()
-        {
-            return this == PROJECT_PREV_VERSION || this == PROJECT_VERSION;
-        }
-
-        boolean isPrevious()
-        {
-            return this == PROJECT_PREV_VERSION || this == FAMILY_PREV_VERSION;
-        }
-
-        PomVersion value(VersionChange change)
-        {
-            if (this == OTHER)
-            {
-                throw new IllegalStateException("Not a version property");
-            }
-            if (isPrevious())
-            {
-                return change.oldVersion;
-            }
-            else
-            {
-                return change.newVersion;
-            }
-        }
     }
 }

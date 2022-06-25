@@ -43,6 +43,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.xml.sax.SAXException;
 
+import static java.util.Collections.unmodifiableMap;
+
 /**
  * @author Tim Boudreau
  */
@@ -135,8 +137,24 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         return coords.rawVersion();
     }
 
+    public String packaging()
+    {
+        return packaging;
+    }
+
+    public boolean isPomProject()
+    {
+        return "pom".equals(packaging);
+    }
+
+    private Map<String, String> props;
+
     public Map<String, String> properties()
     {
+        if (props != null)
+        {
+            return props;
+        }
         try
         {
             Map<String, String> result = new LinkedHashMap<>();
@@ -144,7 +162,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
             {
                 result.put(key, val);
             });
-            return result;
+            return props = unmodifiableMap(result);
         }
         catch (Exception | Error e)
         {
@@ -253,20 +271,11 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         {
             return true;
         }
-        if (obj == null)
+        if (obj == null || Pom.class != obj.getClass())
         {
             return false;
         }
-        if (getClass() != obj.getClass())
-        {
-            return false;
-        }
-        final Pom other = (Pom) obj;
-        if (!Objects.equals(this.pom, other.pom))
-        {
-            return false;
-        }
-        return Objects.equals(this.coords, other.coords);
+        return pom.equals(((Pom) obj).pom);
     }
 
     @Override
@@ -314,7 +323,8 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         }
         try
         {
-            return hasExplicitVersion = toPomFile().nodeQuery("/project/version")
+            return hasExplicitVersion = toPomFile()
+                    .nodeQuery("/project/version")
                     .isPresent();
         }
         catch (XPathExpressionException | ParserConfigurationException
@@ -323,4 +333,5 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
             return Exceptions.chuck(ex);
         }
     }
+
 }

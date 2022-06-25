@@ -22,6 +22,7 @@ import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.dependencies.Dependencies;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
+import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
@@ -59,6 +60,11 @@ public final class Poms implements PomResolver
     {
         sorted = new ArrayList<>(all);
         Collections.sort(sorted);
+        initLookup();
+    }
+
+    private void initLookup()
+    {
         for (Pom pom : sorted)
         {
             Map<String, Pom> kids
@@ -66,6 +72,20 @@ public final class Poms implements PomResolver
                             gid -> new HashMap<>());
             kids.put(pom.coords.artifactId.text(), pom);
         }
+    }
+
+    public Poms reload() throws IOException
+    {
+        List<Pom> nue = new ArrayList<>(sorted.size());
+        for (Pom pom : sorted)
+        {
+            Pom.from(pom.pom).ifPresent(newPom -> nue.add(newPom));
+        }
+        sorted.clear();
+        sorted.addAll(nue);
+        initLookup();
+        dependenciesContext.clear();
+        return this;
     }
 
     @Override
@@ -153,10 +173,13 @@ public final class Poms implements PomResolver
         Pom result = map.get(artifactId);
         return ThrowingOptional.ofNullable(result);
     }
-    
-    public ThrowingOptional<Pom> get(ArtifactId artifact) {
-        for (Pom pom : this.poms()) {
-            if (artifact.equals(pom.artifactId())) {
+
+    public ThrowingOptional<Pom> get(ArtifactId artifact)
+    {
+        for (Pom pom : this.poms())
+        {
+            if (artifact.equals(pom.artifactId()))
+            {
                 return ThrowingOptional.of(pom);
             }
         }

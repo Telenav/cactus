@@ -1,12 +1,14 @@
 package com.telenav.cactus.maven.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.DOT;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MAJOR;
@@ -35,6 +37,14 @@ public class PomVersionTest
 
     private static VersionAssertions assertions = new VersionAssertions();
 
+    @Test
+    public void testEquals() {
+        assertEquals(PomVersion.of("1.4.12"), PomVersion.of("1.4.12"));
+        assertNotEquals(PomVersion.of("1.4.12"), PomVersion.of("1.4.13"));
+        assertNotEquals(PomVersion.of("1.4.12"), PomVersion.of("1.4"));
+        assertEquals(PomVersion.of("1.4.12").decimals(), Arrays.asList(1L, 4L, 12L));
+    }
+    
     @ParameterizedTest
     @MethodSource("assertions")
     public void test(VersionAssertions.VersionAssertion assertion)

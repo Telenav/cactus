@@ -28,6 +28,29 @@ public enum VersionFlavorChange
      */
     UNCHANGED;
 
+    public static VersionFlavorChange between(VersionFlavor a, VersionFlavor b)
+    {
+        if (a == b)
+        {
+            return UNCHANGED;
+        }
+        if (a.opposite() == b)
+        {
+            return TO_OPPOSITE;
+        }
+        switch (b)
+        {
+            case SNAPSHOT:
+                return TO_SNAPSHOT;
+            case RELEASE:
+                return TO_RELEASE;
+            case OTHER:
+                return UNCHANGED;
+            default:
+                throw new AssertionError(b);
+        }
+    }
+
     public boolean isNone()
     {
         return this == UNCHANGED;

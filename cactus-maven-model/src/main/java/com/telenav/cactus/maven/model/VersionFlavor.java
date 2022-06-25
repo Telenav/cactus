@@ -31,6 +31,7 @@ public enum VersionFlavor
      * <code>-SNAPSHOT</code>.
      */
     OTHER;
+    
 
     public VersionFlavorChange toThis()
     {
