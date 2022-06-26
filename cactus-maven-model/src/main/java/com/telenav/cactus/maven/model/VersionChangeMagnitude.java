@@ -36,9 +36,18 @@ public enum VersionChangeMagnitude
     {
         return this == NONE;
     }
-    
-    public VersionChangeMagnitude leastNotNone() {
-        return this == NONE ? DOT : this;
+
+    /**
+     * Returns DOT if this == NONE, otherwise this, so we get a magnitude that
+     * will result in at least a minimal change.
+     *
+     * @return A magnitude which is not NONE
+     */
+    public VersionChangeMagnitude notNone()
+    {
+        return this == NONE
+               ? DOT
+               : this;
     }
 
     /**

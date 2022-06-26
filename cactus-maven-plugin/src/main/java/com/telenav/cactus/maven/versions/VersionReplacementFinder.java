@@ -17,7 +17,6 @@ import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
 import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
-import com.telenav.cactus.maven.versions.VersionMismatchPolicyOutcome;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -374,7 +373,7 @@ public class VersionReplacementFinder
         // bumped, as we allow superpoms to have their own versioning schemes
         if (!versionMismatches.isEmpty() && bumpVersionsOfSuperpoms)
         {
-            eachVersionMismatch((pom, familyChange) ->
+            eachVersionMismatch((pom, familyOrPomChange) ->
             {
                 // We are only interested in poms that provide configuration
                 // information - i.e. parents of something
@@ -385,11 +384,24 @@ public class VersionReplacementFinder
                     VersionChangeMagnitude bumpMagnitude = VersionChangeMagnitude.DOT;
                     // If we have a family change, compute a new version based on
                     // the kind of change (magnitude, flavor) it is making.
-                    if (familyChange != null)
+                    if (familyOrPomChange != null)
                     {
-                        flavorChange = familyChange.newVersion.flavor().toThis();
-                        bumpMagnitude = VersionChangeMagnitude.between(
-                                familyChange.oldVersion, familyChange.newVersion);
+                        // Check that it is really caused by a family change.
+                        // We will make requested changes consistent with the
+                        // version request for that family;  side-effect
+                        // changes (a parent of some family not directly being
+                        // modified changed, so we have to cascade parent pom
+                        // version updates up through all of its children)
+                        // should not mess with the suffix
+                        if (familyVersionChanges.containsKey(ProjectFamily
+                                .fromGroupId(pom.groupId())))
+                        {
+                            flavorChange = familyOrPomChange.newVersion.flavor()
+                                    .toThis();
+                            bumpMagnitude = VersionChangeMagnitude.between(
+                                    familyOrPomChange.oldVersion,
+                                    familyOrPomChange.newVersion);
+                        }
                     }
                     // Compute our new version
                     PomVersion newVersion = pom.rawVersion().updatedWith(
@@ -549,7 +561,7 @@ public class VersionReplacementFinder
                             // which will cause us to need to update everything
                             // that uses it as a parent and shares its version
                             PomVersion newVersion = currVersion.updatedWith(
-                                    ch.magnitude().leastNotNone(),
+                                    ch.magnitude().notNone(),
                                     VersionFlavorChange.UNCHANGED).get();
                             VersionChange newChange = new VersionChange(
                                     currVersion, newVersion);
@@ -561,7 +573,7 @@ public class VersionReplacementFinder
                     if (hasPropertyChange(pom))
                     {
                         PomVersion newVersion = currVersion.updatedWith(
-                                VersionChangeMagnitude.DOT,
+                                ch.magnitude().notNone(),
                                 VersionFlavorChange.UNCHANGED).get();
                         VersionChange newChange = new VersionChange(
                                 currVersion, newVersion);
