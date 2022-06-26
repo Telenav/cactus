@@ -256,7 +256,6 @@ public class PomCategories
                     roles.add(CONFIG);
                 }
             }
-            System.out.println("HAVE " + pom.artifactId() + " " + roles);
         });
     }
 }

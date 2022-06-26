@@ -685,6 +685,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return result;
     }
 
+    public void allPomFilesInSubtree(Consumer<Path> pomConsumer) throws IOException
+    {
+        try ( Stream<Path> str = Files.walk(root).filter(path -> path
+                .getFileName().toString().equals("pom.xml")))
+        {
+            str.forEach(pomConsumer);
+        }
+    }
+
     public void scanForPomFiles(Consumer<Path> pomConsumer)
     {
         boolean isRoot = isSubmoduleRoot();

@@ -23,7 +23,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.util.EnumMatcher;
+import com.telenav.cactus.util.EnumMatcher;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.ArrayList;

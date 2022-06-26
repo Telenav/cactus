@@ -18,11 +18,14 @@
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.scope.ProjectFamily;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.Heads;
 import com.telenav.cactus.maven.model.Pom;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -312,11 +315,30 @@ public class ProjectTree
     {
         withCache(c ->
         {
+            Path realFile;
+            if (Files.isDirectory(file) && Files.exists(file.resolve("pom.xml")))
+            {
+                realFile = file.resolve("pom.xml");
+            }
+            else
+            {
+                realFile = file;
+            }
+            if ("pom.xml".equals(realFile.getFileName()))
+            {
+                for (Pom pom : c.allPoms())
+                {
+                    if (pom.pom.equals(realFile))
+                    {
+                        return Optional.of(pom);
+                    }
+                }
+            }
             List<Path> paths = new ArrayList<>();
             Map<Path, Pom> candidateItems = new HashMap<>();
             c.projectFolders().forEach((dir, pomInfo) ->
             {
-                if (file.startsWith(dir))
+                if (realFile.startsWith(dir))
                 {
                     candidateItems.put(dir, pomInfo);
                     paths.add(dir);
@@ -333,7 +355,7 @@ public class ProjectTree
             });
             return Optional.of(candidateItems.get(paths.get(0)));
         });
-        return null;
+        return Optional.empty();
     }
 
     public GitCheckout checkoutFor(Pom info)
@@ -626,32 +648,14 @@ public class ProjectTree
 
         void populate()
         {
-            root.submodules().ifPresent(statii ->
+            try
             {
-                statii.forEach(status ->
-                {
-                    status.repository().ifPresent(repo ->
-                    {
-                        if (!repo.hasPomInRoot())
-                        {
-                            nonMavenCheckouts.add(repo);
-                        }
-                        else
-                        {
-                            repo.pomFiles(false).forEach(path ->
-                            {
-                                cacheOnePomFile(path);
-
-                            });
-                        }
-                    });
-                });
-            });
-
-            root.pomFiles(true).forEach(path ->
+                root.allPomFilesInSubtree(this::cacheOnePomFile);
+            }
+            catch (IOException ex)
             {
-                cacheOnePomFile(path);
-            });
+                Exceptions.chuck(ex);
+            }
         }
 
         private void cacheOnePomFile(Path path)

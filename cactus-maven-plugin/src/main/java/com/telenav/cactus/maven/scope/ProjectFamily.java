@@ -260,6 +260,14 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         return isParentFamilyOf(gid.text());
     }
 
+    public void ifParentFamilyOf(GroupId groupId, Runnable run)
+    {
+        if (isParentFamilyOf(groupId))
+        {
+            run.run();
+        }
+    }
+
     public boolean isParentFamilyOf(String gid)
     {
         int ix = notNull("gid", gid).lastIndexOf('.');

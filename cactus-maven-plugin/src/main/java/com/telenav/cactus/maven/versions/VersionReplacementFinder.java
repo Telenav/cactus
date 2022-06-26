@@ -1,7 +1,7 @@
 package com.telenav.cactus.maven.versions;
 
 import com.mastfrog.function.state.Bool;
-import com.telenav.cactus.maven.util.XMLTextContentReplacement;
+import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
 import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.MavenCoordinates;
@@ -15,11 +15,13 @@ import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.telenav.cactus.maven.util.AbstractXMLUpdater;
-import com.telenav.cactus.maven.util.XMLVersionElementAdder;
-import com.telenav.cactus.maven.versions.VersionMismatchPolicy.VersionMismatchPolicyOutcome;
+import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
+import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
+import com.telenav.cactus.maven.versions.VersionMismatchPolicyOutcome;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,7 +35,7 @@ import java.util.function.Consumer;
 import org.w3c.dom.Document;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
-import static com.telenav.cactus.maven.util.XMLReplacer.writeXML;
+import static com.telenav.cactus.maven.xml.XMLReplacer.writeXML;
 import static com.telenav.cactus.maven.versions.PomRole.*;
 
 /**
@@ -63,7 +65,8 @@ public class VersionReplacementFinder
     private final Set<Pom> versionMismatches = new HashSet<>();
     private boolean bumpVersionsOfSuperpoms;
     private VersionMismatchPolicy versionMismatchPolicy
-            = VersionMismatchPolicy.VersionMismatchPolicyOutcome.ABORT;
+            = VersionMismatchPolicyOutcome.ABORT;
+    private boolean pretend;
 
     public VersionReplacementFinder(Poms poms)
     {
@@ -81,6 +84,12 @@ public class VersionReplacementFinder
             VersionMismatchPolicy policy)
     {
         this.versionMismatchPolicy = notNull("policy", policy);
+        return this;
+    }
+
+    public VersionReplacementFinder pretend(boolean pretendMode)
+    {
+        this.pretend = pretendMode;
         return this;
     }
 
@@ -288,7 +297,7 @@ public class VersionReplacementFinder
         {
             if (expectedChangeOrNull != null)
             {
-                VersionMismatchPolicy.VersionMismatchPolicyOutcome outcome
+                VersionMismatchPolicyOutcome outcome
                         = versionMismatchPolicy.mismatchEncountered(pom,
                                 expectedChangeOrNull,
                                 categories.rolesFor(pom));
@@ -356,6 +365,7 @@ public class VersionReplacementFinder
         // and make sure we have a parent version change recorded for their
         // children
         ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
+        ensureAllParentChangesHaveCorrespondingChangesForParent(changes);
         // Make sure there is a version change for every project in the families
         // we are changing versions for
         applyFamilyVersionChanges(changes);
@@ -422,6 +432,7 @@ public class VersionReplacementFinder
             });
         }
         // We may have made changes that can be consumed by these:
+        ensureAllParentChangesHaveCorrespondingChangesForParent(changes);
         ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
         ensurePomsWithPropertyChangesGetTheirVersionUpdated(changes);
         removeDirectVersionChangesForPomsThatUseParentVersion(changes);
@@ -470,6 +481,27 @@ public class VersionReplacementFinder
             any.set();
         });
         return any.getAsBoolean();
+    }
+
+    private void ensureAllParentChangesHaveCorrespondingChangesForParent(
+            VersionChangeUpdatesCollector changes)
+    {
+        // Need a copy in case of modification
+        new HashMap<>(parentVersionChanges).forEach((pom, ver) ->
+        {
+            categories.parentOf(pom).ifPresent(parentPom ->
+            {
+                if (parentPom.hasExplicitVersion())
+                {
+                    System.out.println("AD PVC " + parentPom.coords + " " + ver);
+                    changes.changePomVersion(parentPom, ver);
+                }
+                else
+                {
+                    changes.changeParentVersion(parentPom, ver);
+                }
+            });;
+        });
     }
 
     private void ensurePomsWithPropertyChangesGetTheirVersionUpdated(
@@ -537,10 +569,6 @@ public class VersionReplacementFinder
                         {
                             changes.changePomVersion(pom, newChange);
                         }
-                        else
-                        {
-
-                        }
                     }
                 }
             }
@@ -560,18 +588,7 @@ public class VersionReplacementFinder
             }
             if (vc != null)
             {
-                if (changes.changeParentVersion(pom, vc))
-                {
-                    System.out.println(
-                            "ADD CHNA " + pom.artifactId() + " for " + parent
-                            .artifactId());
-                }
-            }
-            else
-            {
-                System.out.println(
-                        "NOPE " + parent.artifactId() + " for child " + pom
-                        .artifactId());
+                changes.changeParentVersion(pom, vc);
             }
         }));
     }
@@ -597,12 +614,6 @@ public class VersionReplacementFinder
                     {
                         newValue = kind.value(fv).text();
                     }
-                    else
-                    {
-                        System.out.println(
-                                "no new value for " + prop + " in " + pom
-                                        .artifactId());
-                    }
                 }
                 else
                 {
@@ -613,12 +624,6 @@ public class VersionReplacementFinder
                     if (cd != null)
                     {
                         newValue = kind.value(cd).text();
-                    }
-                    else
-                    {
-                        System.out.println(
-                                "no new value for " + prop + " in " + pom
-                                        .artifactId());
                     }
                 }
                 if (newValue != null)
@@ -665,7 +670,15 @@ public class VersionReplacementFinder
      */
     public Set<Path> go() throws Exception
     {
-        Set<AbstractXMLUpdater> replacers = replacers();
+        return go(System.out::println);
+    }
+
+    public Set<Path> go(Consumer<String> msgs) throws Exception
+    {
+        List<AbstractXMLUpdater> replacers = new ArrayList<>(replacers());
+        // Ensure a consistent order for the sanity of anyone reading a log
+        // repeatedly.
+        Collections.sort(replacers);
         try
         {
             return AbstractXMLUpdater.openAll(replacers, () ->
@@ -684,13 +697,19 @@ public class VersionReplacementFinder
                                     "Context did not hold - " + old + " vs "
                                     + changed + " for " + rep.path());
                         }
-                        System.out.println(" CHANGE: " + rep);
+                        msgs.accept(" CHANGE: " + rep);
                         docForPath.put(rep.path(), changed);
                     }
                 }
                 for (Map.Entry<Path, Document> e : docForPath.entrySet())
                 {
-                    writeXML(e.getValue(), e.getKey());
+                    msgs.accept("Rewrite " + e.getKey() + (pretend
+                                                           ? " (pretend)"
+                                                           : ""));
+                    if (!pretend)
+                    {
+                        writeXML(e.getValue(), e.getKey());
+                    }
                     result.add(e.getKey());
                 }
                 return result;

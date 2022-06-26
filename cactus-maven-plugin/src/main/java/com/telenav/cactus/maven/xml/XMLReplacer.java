@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.telenav.cactus.maven.util;
+package com.telenav.cactus.maven.xml;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
@@ -52,7 +52,6 @@ public final class XMLReplacer
         }
         munge = restoreOriginalHead(oldContent, munge);
         Files.write(path, munge.getBytes(UTF_8), WRITE, TRUNCATE_EXISTING);
-        System.out.println("Saved " + path);
     }
 
     private static String restoreOriginalHead(String orig, String mangled)

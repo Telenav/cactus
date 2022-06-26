@@ -1,4 +1,4 @@
-package com.telenav.cactus.maven.util;
+package com.telenav.cactus.maven.xml;
 
 import com.telenav.cactus.maven.model.internal.PomFile;
 import org.w3c.dom.Document;

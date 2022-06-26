@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.util;
+package com.telenav.cactus.util;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import java.util.Arrays;
@@ -45,11 +45,12 @@ public final class EnumMatcher<E extends Enum<E>> implements Iterable<E>
 
     public E match(String what, E failover)
     {
+        notNull("failover", failover);
         if (what == null)
         {
             return failover;
         }
-        return match(what).orElse(notNull("failover", failover));
+        return match(what.trim()).orElse(failover);
     }
 
     public Optional<E> match(String what)
@@ -73,7 +74,8 @@ public final class EnumMatcher<E extends Enum<E>> implements Iterable<E>
     {
         return with.equals(toTest.name())
                 || with.equals(lowerCase(toTest))
-                || with.equals(hyphenated(toTest));
+                || with.equals(hyphenated(toTest))
+                || with.equals(hyphenatedLower(toTest));
     }
 
     private static String lowerCase(Enum<?> e)
@@ -82,6 +84,11 @@ public final class EnumMatcher<E extends Enum<E>> implements Iterable<E>
     }
 
     private static String hyphenated(Enum<?> e)
+    {
+        return e.name().replace('_', '-');
+    }
+
+    private static String hyphenatedLower(Enum<?> e)
     {
         return lowerCase(e).replace('_', '-');
     }

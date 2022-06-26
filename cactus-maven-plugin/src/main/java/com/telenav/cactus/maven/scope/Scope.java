@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.telenav.cactus.maven.util.EnumMatcher.enumMatcher;
+import static com.telenav.cactus.util.EnumMatcher.enumMatcher;
 
 /**
  * A number of cross repository git operations can operate on one of several
