@@ -31,7 +31,12 @@ public enum VersionFlavor
      * <code>-SNAPSHOT</code>.
      */
     OTHER;
-    
+
+    @Override
+    public String toString()
+    {
+        return name().replace('_', '-').toLowerCase();
+    }
 
     public VersionFlavorChange toThis()
     {

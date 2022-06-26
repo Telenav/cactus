@@ -28,6 +28,12 @@ public enum VersionFlavorChange
      */
     UNCHANGED;
 
+    @Override
+    public String toString()
+    {
+        return name().replace('_', '-').toLowerCase();
+    }
+
     public static VersionFlavorChange between(VersionFlavor a, VersionFlavor b)
     {
         if (a == b)

@@ -32,6 +32,12 @@ public enum VersionChangeMagnitude
      */
     NONE;
 
+    @Override
+    public String toString()
+    {
+        return name().replace('_', '-').toLowerCase();
+    }
+
     public boolean isNone()
     {
         return this == NONE;

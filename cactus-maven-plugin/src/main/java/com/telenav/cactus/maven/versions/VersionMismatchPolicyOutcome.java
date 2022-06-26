@@ -1,7 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.versions;
 
 import com.telenav.cactus.maven.model.Pom;
@@ -11,14 +24,15 @@ import java.util.Set;
  *
  * @author timb
  */
-public enum VersionMismatchPolicyOutcome implements VersionMismatchPolicy {
+public enum VersionMismatchPolicyOutcome implements VersionMismatchPolicy
+{
     /**
      * Just do nothing to the non-matching pom.
      */
     SKIP,
     /**
-     * Clobber the version with whatever it's supposed to be regardless of
-     * its current value.
+     * Clobber the version with whatever it's supposed to be regardless of its
+     * current value.
      */
     BRING_TO_TARGET_VERSION,
     /**
@@ -32,10 +46,15 @@ public enum VersionMismatchPolicyOutcome implements VersionMismatchPolicy {
     ABORT;
 
     @Override
+    public String toString()
+    {
+        return name().replace('_', '-').toLowerCase();
+    }
+
+    @Override
     public VersionMismatchPolicyOutcome onMismatch(Pom what,
             VersionChange expectedVersionChange, Set<PomRole> roles)
     {
         return this;
     }
-    
 }

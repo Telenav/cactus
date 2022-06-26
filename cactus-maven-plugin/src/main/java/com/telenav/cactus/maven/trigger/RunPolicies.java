@@ -49,6 +49,12 @@ public enum RunPolicies implements RunPolicy
      */
     LAST;
 
+    @Override
+    public String toString()
+    {
+        return name().replace('_', '-').toLowerCase();
+    }
+
     /**
      * Determine if the mojo should run.
      *
@@ -81,6 +87,8 @@ public enum RunPolicies implements RunPolicy
     {
         // XXX verify that this actually always works - if the first project
         // invoked does not use this mojo, this test might fail.
+        //
+        // Pending - there is a similar test in the versions maven plugin. Steal it.
         return session.getProjects().indexOf(invokedOn) == 0;
     }
 

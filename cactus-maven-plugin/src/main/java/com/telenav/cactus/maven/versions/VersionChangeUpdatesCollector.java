@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.versions;
 
 import com.mastfrog.util.preconditions.Checks;
@@ -7,7 +24,8 @@ import java.util.Objects;
 
 /**
  * Collector for version changes, which can report if any changes have accrued
- * and be reset.
+ * and be reset, and ensures it is not reporting a change which was an attempt
+ * to replace data with the same data.
  */
 final class VersionChangeUpdatesCollector
 {

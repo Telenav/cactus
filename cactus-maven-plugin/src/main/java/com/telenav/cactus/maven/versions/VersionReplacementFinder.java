@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.versions;
 
 import com.mastfrog.function.state.Bool;
@@ -34,6 +51,8 @@ import java.util.function.Consumer;
 import org.w3c.dom.Document;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.model.VersionChangeMagnitude.DOT;
+import static com.telenav.cactus.maven.model.VersionFlavorChange.UNCHANGED;
 import static com.telenav.cactus.maven.xml.XMLReplacer.writeXML;
 import static com.telenav.cactus.maven.versions.PomRole.*;
 
@@ -363,8 +382,8 @@ public class VersionReplacementFinder
         // First, iterate all the parent poms that have their versions changing
         // and make sure we have a parent version change recorded for their
         // children
-        ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
-        ensureAllParentChangesHaveCorrespondingChangesForParent(changes);
+//        ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
+//        ensureAllParentChangesHaveCorrespondingChangesForParent(changes);
         // Make sure there is a version change for every project in the families
         // we are changing versions for
         applyFamilyVersionChanges(changes);
@@ -444,7 +463,7 @@ public class VersionReplacementFinder
             });
         }
         // We may have made changes that can be consumed by these:
-        ensureAllParentChangesHaveCorrespondingChangesForParent(changes);
+//        ensureAllParentChangesHaveCorrespondingChangesForParent(changes);
         ensureChildrenOfParentPomsBeingReversionedAreUpdated(changes);
         ensurePomsWithPropertyChangesGetTheirVersionUpdated(changes);
         removeDirectVersionChangesForPomsThatUseParentVersion(changes);
@@ -556,13 +575,24 @@ public class VersionReplacementFinder
                     else
                         if (pom.hasExplicitVersion())
                         {
+                            boolean isExplicit = familyVersionChanges
+                                    .containsKey(ProjectFamily.fromGroupId(
+                                            pom.groupId()));
+                            VersionFlavorChange flavorChange = VersionFlavorChange.UNCHANGED;
+                            if (isExplicit)
+                            {
+                                flavorChange = familyVersionChanges.get(
+                                        ProjectFamily.fromGroupId(
+                                                pom.groupId())).newVersion()
+                                        .flavor().toThis();
+                            }
                             // Superpom of something else that contains a property
                             // we are updating, so we need to update its verison,
                             // which will cause us to need to update everything
                             // that uses it as a parent and shares its version
                             PomVersion newVersion = currVersion.updatedWith(
                                     ch.magnitude().notNone(),
-                                    VersionFlavorChange.UNCHANGED).get();
+                                    flavorChange).get();
                             VersionChange newChange = new VersionChange(
                                     currVersion, newVersion);
                             changes.changePomVersion(pom, newChange);
@@ -573,8 +603,7 @@ public class VersionReplacementFinder
                     if (hasPropertyChange(pom))
                     {
                         PomVersion newVersion = currVersion.updatedWith(
-                                ch.magnitude().notNone(),
-                                VersionFlavorChange.UNCHANGED).get();
+                                DOT, UNCHANGED).get();
                         VersionChange newChange = new VersionChange(
                                 currVersion, newVersion);
                         if (pom.hasExplicitVersion())

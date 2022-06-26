@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
@@ -247,7 +264,7 @@ public class BumpVersionMojo extends ReplaceMojo
                 = new VersionReplacementFinder(new Poms(tree.allProjects()))
                         .withVersionMismatchPolicy(
                                 mismatchPolicy());
-        log.info("Computing changes");
+        log.info("Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
@@ -305,14 +322,11 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         if (isIncludeRoot())
         {
-            System.out.println("INCLUDE ROOT");
             if (tree.root().isSubmoduleRoot() && tree.root().hasPomInRoot())
             {
-                System.out.println("  HAVE POM IN ROOT");
                 tree.projectOf(tree.root().checkoutRoot().resolve("pom.xml"))
                         .ifPresent(rootPom ->
                         {
-                            System.out.println("ADD UDPATE FOR ROOT POM");
                             PomVersion newRootVersion = rootPom.rawVersion()
                                     .updatedWith(magnitude(),
                                             flavor()).get();
@@ -331,6 +345,7 @@ public class BumpVersionMojo extends ReplaceMojo
         log.info("Done");
 
         runSubstitutions(log, project, myCheckout, tree, checkouts);
+        tree.invalidateCache();
     }
 
     private void runSubstitutions(BuildLog log, MavenProject project,
