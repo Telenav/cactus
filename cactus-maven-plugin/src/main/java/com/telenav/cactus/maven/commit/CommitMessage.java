@@ -87,7 +87,7 @@ public class CommitMessage
         List<Object> result = new ArrayList<>(sections);
         if (!result.isEmpty())
         {
-            result.add("-----------------------------------------------\n");
+            result.add("\n-----------------------------------------------\n");
         }
         result.add(provenanceInfo());
         return result;
