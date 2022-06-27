@@ -24,15 +24,7 @@
         The cactus-maven-plugin project codifies Telenav Open Source processes.
     </description>
 
-    <properties>
-        <enforcer.skip>true</enforcer.skip>
-    </properties>
-    
     <dependencies>
-        <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>function</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-maven-xml</artifactId>

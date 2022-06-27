@@ -18,14 +18,11 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.tree.ConsistencyChecker;
-import com.telenav.cactus.maven.tree.Inconsistency;
 import com.telenav.cactus.maven.tree.ParentRelativePathChecker;
 import com.telenav.cactus.maven.tree.Problem;
 import java.util.LinkedHashSet;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;

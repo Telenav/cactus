@@ -9,10 +9,6 @@
     <artifactId>cactus-maven-versioning</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>function</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cactus-maven-model</artifactId>
         </dependency>
