@@ -22,7 +22,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.sourceanalysis.CodeflowersJsonGenerator;
 import com.telenav.cactus.maven.sourceanalysis.MavenProjectsScanner;
 import com.telenav.cactus.maven.sourceanalysis.WordCount;
@@ -80,7 +80,8 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
                 continue;
             }
             ProjectFamily fam = e.getKey();
-            fam.assetsPath(myCheckout).ifPresentOrElse(assetsRoot ->
+            fam.assetsPath(myCheckout.submoduleRoot()
+                    .map(co -> co.checkoutRoot())).ifPresentOrElse(assetsRoot ->
             {
                 Path codeflowersPath = assetsRoot.resolve("docs").resolve(
                                 version).resolve("codeflowers")

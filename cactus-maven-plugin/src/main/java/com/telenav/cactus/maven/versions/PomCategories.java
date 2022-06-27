@@ -22,7 +22,7 @@ import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.ParentMavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;

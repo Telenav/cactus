@@ -65,7 +65,7 @@ final class MemoizingPomResolver implements PomResolver
             ThrowingOptional<Pom> result = delegate.get(groupId, artifactId);
             result.ifPresent(pom ->
             {
-                pom.coords.version().ifPresent(ver ->
+                pom.coords.resolvedVersion().ifPresent(ver ->
                 {
                     String vk = k + ":" + ver;
                     withVersion.put(vk, ThrowingOptional.of(pom));

@@ -54,6 +54,7 @@
         <module>cactus-cli</module>
         <module>cactus-graph</module>
         <module>cactus-util</module>
+        <module>cactus-scope</module>
     </modules>
 
     <!-- Properties -->
@@ -173,7 +174,12 @@
             </dependency>
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
-                <artifactId>graph</artifactId>
+                <artifactId>cactus-graph</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-scope</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>

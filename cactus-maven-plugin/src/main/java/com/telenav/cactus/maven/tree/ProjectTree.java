@@ -19,20 +19,23 @@ package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.util.preconditions.Exceptions;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.Heads;
 import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.scope.Scope;
 import java.io.IOException;
 import java.nio.file.Files;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -139,7 +142,7 @@ public class ProjectTree
         Set<String> result = new HashSet<>();
         allProjects().forEach(pom ->
         {
-            result.add(pom.rawVersion().text());
+            result.add(pom.version().text());
         });
         return result;
     }
@@ -151,7 +154,7 @@ public class ProjectTree
         {
             if (test.test(pom))
             {
-                result.add(pom.rawVersion().text());
+                result.add(pom.version().text());
             }
         });
         return result;
@@ -251,7 +254,7 @@ public class ProjectTree
                     g -> new TreeMap<>());
             for (Pom info : poms)
             {
-                Set<Pom> pomSet = subMap.computeIfAbsent(info.rawVersion()
+                Set<Pom> pomSet = subMap.computeIfAbsent(info.version()
                         .text(),
                         v -> new TreeSet<>());
                 pomSet.add(info);
@@ -301,7 +304,7 @@ public class ProjectTree
             {
                 if (filter.test(pom))
                 {
-                    Set<Pom> infos = result.computeIfAbsent(pom.rawVersion()
+                    Set<Pom> infos = result.computeIfAbsent(pom.version()
                             .text(),
                             v -> new TreeSet<>());
                     infos.add(pom);
@@ -433,6 +436,67 @@ public class ProjectTree
     public Heads remoteHeads(GitCheckout checkout)
     {
         return withCache(c -> c.remoteHeads(checkout));
+    }
+    /**
+     * Get a depth-first list of checkouts matching this scope, given the passed
+     * contextual criteria.
+     *
+     * @param tree A project tree
+     * @param callingProjectsCheckout The checkout of the a mojo is currently
+     * being run against.
+     * @param includeRoot If true, include the root (submodule parent) checkout
+     * in the returned list regardless of whether it directly contains a maven
+     * project matching the other criteria (needed for operations that change
+     * the head commit of a submodule, which will generate modifications in the
+     * submodule parent project.
+     * @param callingProjectsGroupId The group id of the project whose mojo is
+     * being invoked
+     */
+    public List<GitCheckout> matchCheckouts(Scope scope,
+            GitCheckout callingProjectsCheckout, boolean includeRoot,
+            ProjectFamily family, String callingProjectsGroupId)
+    {
+        Set<GitCheckout> checkouts;
+        switch (scope)
+        {
+            case FAMILY:
+                checkouts = checkoutsInProjectFamily(family);
+                break;
+            case FAMILY_OR_CHILD_FAMILY:
+                checkouts = checkoutsInProjectFamilyOrChildProjectFamily(
+                        family);
+                break;
+            case SAME_GROUP_ID:
+                checkouts = checkoutsContainingGroupId(
+                        callingProjectsGroupId);
+                break;
+            case JUST_THIS:
+                checkouts = new HashSet<>(Arrays.asList(callingProjectsCheckout));
+                break;
+            case ALL_PROJECT_FAMILIES:
+                checkouts = new HashSet<>(allCheckouts());
+                break;
+            case ALL:
+                checkouts = new HashSet<>(allCheckouts());
+                checkouts.addAll(nonMavenCheckouts());
+                break;
+            default:
+                throw new AssertionError(this);
+        }
+        checkouts = new LinkedHashSet<>(checkouts);
+        if (!includeRoot)
+        {
+            callingProjectsCheckout.submoduleRoot().ifPresent(checkouts::remove);
+        }
+        else
+        {
+            if (!checkouts.isEmpty()) // don't generate a push of _just_ the root checkout
+            {
+                callingProjectsCheckout.submoduleRoot()
+                        .ifPresent(checkouts::add);
+            }
+        }
+        return GitCheckout.depthFirstSort(checkouts);
     }
 
     final class Cache

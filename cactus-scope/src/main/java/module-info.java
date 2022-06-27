@@ -15,25 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.model;
 
-import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.maven.model.property.PropertyResolver;
+open module com.telenav.cactus.scope {
 
-/**
- * A thing which has a PomVersion.
- *
- * @author Tim Boudreau
- */
-public interface MavenVersioned
-{
-    ThrowingOptional<String> resolvedVersion();
-
-    default boolean isResolved()
-    {
-        return resolvedVersion().isPresent()
-                && PropertyResolver.isResolved(version().text());
-    }
-
-    PomVersion version();
+    requires com.mastfrog.function;
+    requires com.telenav.cactus.util;
+    requires cactus.maven.model;
+    exports com.telenav.cactus.scope;
 }

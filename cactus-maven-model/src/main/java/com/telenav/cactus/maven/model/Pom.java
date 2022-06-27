@@ -132,9 +132,9 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     }
 
     @Override
-    public PomVersion rawVersion()
+    public PomVersion version()
     {
-        return coords.rawVersion();
+        return coords.version();
     }
 
     public String packaging()
@@ -185,7 +185,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     public ThrowingOptional<Pom> resolveParent(PomResolver resolver)
     {
         return parent().flatMapThrowing(par -> resolver.get(par.groupId(), par
-                .artifactId(), par.rawVersion()));
+                .artifactId(), par.version()));
     }
 
     public Dependency toDependency(String type, DependencyScope scope,
@@ -218,7 +218,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
             ParentMavenCoordinates pmc = opt.get();
 
             ThrowingOptional<Pom> resolved = resolver.get(pmc.groupId(),
-                    pmc.artifactId(), pmc.rawVersion());
+                    pmc.artifactId(), pmc.version());
             if (resolved.isPresent())
             {
                 try
@@ -253,9 +253,9 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     }
 
     @Override
-    public ThrowingOptional<String> version()
+    public ThrowingOptional<String> resolvedVersion()
     {
-        return coords.version();
+        return coords.resolvedVersion();
     }
 
     @Override

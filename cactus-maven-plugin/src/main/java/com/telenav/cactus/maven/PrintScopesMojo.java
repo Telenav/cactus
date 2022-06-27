@@ -20,8 +20,8 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.telenav.cactus.maven.scope.Scope;
+import com.telenav.cactus.scope.ProjectFamily;
+import com.telenav.cactus.scope.Scope;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -128,7 +128,7 @@ public class PrintScopesMojo extends BaseMojo
     {
         ProjectTree tree = tree(project);
         GitCheckout co = GitCheckout.repository(project.getBasedir()).get();
-        ProjectFamily family = ProjectFamily.of(project);
+        ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         for (Scope scope : Scope.values())
         {
             if (seen(family, scope, co))
@@ -140,7 +140,7 @@ public class PrintScopesMojo extends BaseMojo
                     + (co.name().isEmpty()
                        ? "(root)"
                        : co.name()) + " -----");
-            List<GitCheckout> matched = scope.matchCheckouts(tree, co, true,
+            List<GitCheckout> matched = tree.matchCheckouts(scope, co, true,
                     family, project.getGroupId());
             for (GitCheckout gc : matched)
             {

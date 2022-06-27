@@ -43,6 +43,13 @@ public class MavenCoordinates extends ArtifactIdentifiers implements
                 PomVersion.of(version));
     }
 
+    public MavenCoordinates(String groupId, String artifactId,
+            String version)
+    {
+        this(GroupId.of(groupId), ArtifactId.of(artifactId),
+                PomVersion.of(version));
+    }
+
     public MavenCoordinates(GroupId groupId, ArtifactId artifactId,
             PomVersion version)
     {
@@ -85,7 +92,7 @@ public class MavenCoordinates extends ArtifactIdentifiers implements
      * 
      * @return The version
      */
-    public PomVersion rawVersion() {
+    public PomVersion version() {
         return version;
     }
 
@@ -174,7 +181,7 @@ public class MavenCoordinates extends ArtifactIdentifiers implements
     }
 
     @Override
-    public ThrowingOptional<String> version()
+    public ThrowingOptional<String> resolvedVersion()
     {
         return version.ifResolved();
     }

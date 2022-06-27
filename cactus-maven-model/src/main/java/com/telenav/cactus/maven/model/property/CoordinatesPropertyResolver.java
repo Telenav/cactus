@@ -138,9 +138,9 @@ public final class CoordinatesPropertyResolver extends AbstractPropertyResolver
                     return parent.artifactId().text();
                 case PROJECT_PARENT_VERSION:
                 case PARENT_VERSION:
-                    if (parent.version().isPresent())
+                    if (parent.resolvedVersion().isPresent())
                     {
-                        return parent.version().get();
+                        return parent.resolvedVersion().get();
                     }
                     return null;
                 case PARENT_BASEDIR:
@@ -156,9 +156,9 @@ public final class CoordinatesPropertyResolver extends AbstractPropertyResolver
             case PROJECT_GROUP_ID:
                 return self.groupId().text();
             case PROJECT_VERSION:
-                if (self.version().isPresent())
+                if (self.resolvedVersion().isPresent())
                 {
-                    return self.version().get();
+                    return self.resolvedVersion().get();
                 }
                 break;
             case PROJECT_ARTIFACT_ID:

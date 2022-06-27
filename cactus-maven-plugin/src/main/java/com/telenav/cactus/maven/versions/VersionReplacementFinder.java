@@ -31,7 +31,7 @@ import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
 import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
 import java.nio.file.Path;
@@ -165,9 +165,9 @@ public class VersionReplacementFinder
     {
         Consumer<Pom> c = pom ->
         {
-            if (!pom.rawVersion().equals(newVersion))
+            if (!pom.version().equals(newVersion))
             {
-                pomVersionChanges.put(pom, new VersionChange(pom.rawVersion(),
+                pomVersionChanges.put(pom, new VersionChange(pom.version(),
                         newVersion));
             }
         };
@@ -276,7 +276,7 @@ public class VersionReplacementFinder
                     // Check if the current version is what we expect - otherwise
                     // we will need to add a mismatch to possibly resolve with
                     // the policy, or in the next round
-                    PomVersion currentVersion = pom.rawVersion();
+                    PomVersion currentVersion = pom.version();
                     boolean match = currentVersion.equals(
                             expectedVersionChange.oldVersion());
                     if (!match)
@@ -343,14 +343,14 @@ public class VersionReplacementFinder
                         VersionFlavor newFlavor
                                 = expectedChangeOrNull.newVersion.flavor();
 
-                        Optional<PomVersion> res = pom.rawVersion().updatedWith(
+                        Optional<PomVersion> res = pom.version().updatedWith(
                                 VersionChangeMagnitude.DOT,
                                 VersionFlavorChange.between(expectedChangeOrNull
                                         .oldVersion().flavor(), newFlavor));
                         if (res.isPresent())
                         {
                             changes.changePomVersion(pom, new VersionChange(pom
-                                    .rawVersion(), res.get()));
+                                    .version(), res.get()));
                         }
                         // If res.isAbsent() then the mismatch is because the
                         // computed new version is what the pom is already at,
@@ -423,9 +423,9 @@ public class VersionReplacementFinder
                         }
                     }
                     // Compute our new version
-                    PomVersion newVersion = pom.rawVersion().updatedWith(
+                    PomVersion newVersion = pom.version().updatedWith(
                             bumpMagnitude, flavorChange).get();
-                    VersionChange vc = new VersionChange(pom.rawVersion(),
+                    VersionChange vc = new VersionChange(pom.version(),
                             newVersion);
                     if (!pom.hasExplicitVersion())
                     {
@@ -438,7 +438,7 @@ public class VersionReplacementFinder
                         List<Pom> parents = categories.parents(pom);
                         for (Pom par : parents)
                         {
-                            if (par.rawVersion().equals(pom.rawVersion()))
+                            if (par.version().equals(pom.version()))
                             {
                                 if (par.hasExplicitVersion())
                                 {
@@ -548,7 +548,7 @@ public class VersionReplacementFinder
             if (categories.is(pom, PARENT) || categories.is(pom, CONFIG) || categories
                     .is(pom, CONFIG_ROOT))
             {
-                PomVersion currVersion = pom.rawVersion();
+                PomVersion currVersion = pom.version();
                 VersionChange ch = versionChangeFor(pom);
                 if (ch == null)
                 {
@@ -812,7 +812,7 @@ public class VersionReplacementFinder
                 sb.append(" * ").append(pom.toArtifactIdentifiers()).append(' ')
                         .append(roles)
                         .append(versionMismatches.contains(pom)
-                                ? " **VERSION-MISMATCH** " + pom.rawVersion()
+                                ? " **VERSION-MISMATCH** " + pom.version()
                                 : "")
                         .append(" parent ").append(par)
                         .append('\n');

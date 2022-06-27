@@ -208,15 +208,15 @@ public class Dependency implements MavenIdentified, MavenVersioned
     }
 
     @Override
-    public PomVersion rawVersion()
+    public PomVersion version()
     {
-        return coords.rawVersion();
+        return coords.version();
     }
     
     @Override
-    public ThrowingOptional<String> version()
+    public ThrowingOptional<String> resolvedVersion()
     {
-        return coords.version();
+        return coords.resolvedVersion();
     }
 
     @Override

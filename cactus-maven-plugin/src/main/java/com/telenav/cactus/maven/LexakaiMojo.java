@@ -23,7 +23,7 @@ import com.telenav.cactus.util.PathUtils;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import org.apache.maven.plugin.MojoFailureException;
@@ -376,7 +376,8 @@ public class LexakaiMojo extends BaseMojo
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
-        return ProjectFamily.of(project).assetsPath(checkout).map(assetsPath
+        return ProjectFamily.fromGroupId(project.getGroupId()).assetsPath(checkout.submoduleRoot()
+                .map(co -> co.checkoutRoot())).map(assetsPath
                 -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
         ).orElseGet(()
                 -> appendProjectLexakaiDocPath(project.getBasedir().toPath()

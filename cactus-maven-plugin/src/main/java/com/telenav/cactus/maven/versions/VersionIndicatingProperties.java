@@ -19,7 +19,7 @@ package com.telenav.cactus.maven.versions;
 
 import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

@@ -15,18 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.scope;
+package com.telenav.cactus.scope;
 
-import com.telenav.cactus.git.GitCheckout;
-import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.telenav.cactus.util.EnumMatcher.enumMatcher;
 
@@ -86,7 +79,7 @@ public enum Scope
         return name().toLowerCase().replace('_', '-');
     }
 
-    public static Scope find(String prop) throws MojoExecutionException
+    public static Scope find(String prop) throws Exception
     {
         if (prop == null)
         {
@@ -97,7 +90,7 @@ public enum Scope
         {
             String msg = "Unknown scope " + prop + " is not one of " + Arrays
                     .toString(Scope.values());
-            throw new MojoExecutionException(Scope.class, msg, msg);
+            throw new IllegalStateException(msg);
         }
         return result.get();
     }
@@ -107,65 +100,4 @@ public enum Scope
         return this == FAMILY || this == FAMILY_OR_CHILD_FAMILY;
     }
 
-    /**
-     * Get a depth-first list of checkouts matching this scope, given the passed
-     * contextual criteria.
-     *
-     * @param tree A project tree
-     * @param callingProjectsCheckout The checkout of the a mojo is currently
-     * being run against.
-     * @param includeRoot If true, include the root (submodule parent) checkout
-     * in the returned list regardless of whether it directly contains a maven
-     * project matching the other criteria (needed for operations that change
-     * the head commit of a submodule, which will generate modifications in the
-     * submodule parent project.
-     * @param callingProjectsGroupId The group id of the project whose mojo is
-     * being invoked
-     */
-    public List<GitCheckout> matchCheckouts(ProjectTree tree,
-            GitCheckout callingProjectsCheckout, boolean includeRoot,
-            ProjectFamily family, String callingProjectsGroupId)
-    {
-        Set<GitCheckout> checkouts;
-        switch (this)
-        {
-            case FAMILY:
-                checkouts = tree.checkoutsInProjectFamily(family);
-                break;
-            case FAMILY_OR_CHILD_FAMILY:
-                checkouts = tree.checkoutsInProjectFamilyOrChildProjectFamily(
-                        family);
-                break;
-            case SAME_GROUP_ID:
-                checkouts = tree.checkoutsContainingGroupId(
-                        callingProjectsGroupId);
-                break;
-            case JUST_THIS:
-                checkouts = new HashSet<>(Arrays.asList(callingProjectsCheckout));
-                break;
-            case ALL_PROJECT_FAMILIES:
-                checkouts = new HashSet<>(tree.allCheckouts());
-                break;
-            case ALL:
-                checkouts = new HashSet<>(tree.allCheckouts());
-                checkouts.addAll(tree.nonMavenCheckouts());
-                break;
-            default:
-                throw new AssertionError(this);
-        }
-        checkouts = new LinkedHashSet<>(checkouts);
-        if (!includeRoot)
-        {
-            callingProjectsCheckout.submoduleRoot().ifPresent(checkouts::remove);
-        }
-        else
-        {
-            if (!checkouts.isEmpty()) // don't generate a push of _just_ the root checkout
-            {
-                callingProjectsCheckout.submoduleRoot()
-                        .ifPresent(checkouts::add);
-            }
-        }
-        return GitCheckout.depthFirstSort(checkouts);
-    }
 }

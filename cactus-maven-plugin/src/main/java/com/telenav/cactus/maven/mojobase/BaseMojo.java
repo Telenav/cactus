@@ -24,8 +24,9 @@ import com.mastfrog.function.throwing.ThrowingFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.resolver.ArtifactFinder;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
@@ -317,7 +318,7 @@ public abstract class BaseMojo extends AbstractMojo
         String overriddenFamily = overrideProjectFamily();
         if (overriddenFamily == null || overriddenFamily.isEmpty())
         {
-            return ProjectFamily.of(project());
+            return ProjectFamily.fromGroupId(project.getGroupId());
         }
         return ProjectFamily.named(overriddenFamily);
     }
@@ -561,5 +562,10 @@ public abstract class BaseMojo extends AbstractMojo
             }
             return Optional.empty();
         }
+    }
+
+    protected final MavenCoordinates coordinatesOf(MavenProject project) {
+        return new MavenCoordinates(notNull("project", project).getGroupId(),
+            project.getArtifactId(), project.getVersion());
     }
 }

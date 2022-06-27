@@ -18,8 +18,8 @@
 
 package com.telenav.cactus.maven.mojobase;
 
-import com.telenav.cactus.maven.scope.Scope;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.Scope;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
@@ -90,7 +90,7 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
     {
         withProjectTree(tree ->
         {
-            List<GitCheckout> checkouts = scope.matchCheckouts(tree,
+            List<GitCheckout> checkouts = tree.matchCheckouts(scope,
                     myCheckout, includeRoot, projectFamily(), project
                             .getGroupId());
 

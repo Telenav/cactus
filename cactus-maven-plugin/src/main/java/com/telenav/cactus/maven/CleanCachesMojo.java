@@ -20,7 +20,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.util.PathUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -84,15 +84,15 @@ public class CleanCachesMojo extends BaseMojo
             {
                 case temporary:
                     return PathUtils.temp()
-                            .resolve(ProjectFamily.of(project).name())
+                            .resolve(ProjectFamily.fromGroupId(project.getGroupId()).name())
                             .resolve(project.getVersion());
                 case byFamilyAndVersion:
                     return PathUtils.userCacheRoot()
-                            .resolve(ProjectFamily.of(project).name())
+                            .resolve(ProjectFamily.fromGroupId(project.getGroupId()).name())
                             .resolve(project.getVersion());
                 case byFamiilyArtifactIdVersion:
                     return PathUtils.userCacheRoot()
-                            .resolve(ProjectFamily.of(project).name())
+                            .resolve(ProjectFamily.fromGroupId(project.getGroupId()).name())
                             .resolve(project.getArtifactId())
                             .resolve(project.getVersion());
                 case byFamily:

@@ -89,11 +89,11 @@ public interface PomResolver
     default <T extends MavenIdentified & MavenVersioned> ThrowingOptional<Pom> get(
             T obj)
     {
-        ThrowingOptional<String> ver = obj.version();
+        ThrowingOptional<String> ver = obj.resolvedVersion();
         if (ver.isPresent())
         {
             return get(obj.groupId(), obj.artifactId(),
-                    obj.rawVersion());
+                    obj.version());
         }
         else
         {

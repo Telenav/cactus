@@ -150,11 +150,11 @@ public final class Poms implements PomResolver
                 return Optional.empty();
             }
             Pom result = map.get(artifactId);
-            if (result == null || !result.version().isPresent())
+            if (result == null || !result.resolvedVersion().isPresent())
             {
                 return Optional.empty();
             }
-            if (VersionMatchers.matcher(version).test(result.version().get()))
+            if (VersionMatchers.matcher(version).test(result.resolvedVersion().get()))
             {
                 return Optional.of(result);
             }

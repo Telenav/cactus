@@ -18,7 +18,6 @@
 package com.telenav.cactus.maven.versions;
 
 import com.telenav.cactus.maven.model.Pom;
-import com.telenav.cactus.maven.scope.ProjectFamily;
 import java.util.Objects;
 
 /**

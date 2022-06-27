@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.mojobase;
 
-import com.telenav.cactus.maven.scope.Scope;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.Scope;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;

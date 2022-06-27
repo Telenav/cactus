@@ -27,7 +27,7 @@ import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.util.EnumMatcher;
 import com.telenav.cactus.maven.versions.VersionMismatchPolicy;
@@ -183,7 +183,7 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         VersionChangeMagnitude mag = magnitude();
         VersionFlavorChange flavor = flavor();
-        PomVersion oldVersion = pom.rawVersion();
+        PomVersion oldVersion = pom.version();
         PomVersion updatedVersion = oldVersion.updatedWith(mag, flavor)
                 .orElseThrow(
                         () -> new IllegalStateException("Applying " + mag + " "
@@ -205,7 +205,7 @@ public class BumpVersionMojo extends ReplaceMojo
         Map<PomVersion, Integer> counts = new HashMap<>();
         tree.projectsForFamily(family).forEach(pom ->
         {
-            counts.compute(pom.rawVersion(), (k, old) ->
+            counts.compute(pom.version(), (k, old) ->
             {
                 if (old == null)
                 {
@@ -273,7 +273,7 @@ public class BumpVersionMojo extends ReplaceMojo
                 replacer.withSinglePomChange(ArtifactId.of(project
                         .getArtifactId()),
                         GroupId.of(project.getGroupId()),
-                        myPom.rawVersion());
+                        myPom.version());
                 break;
             case SAME_GROUP_ID:
                 tree.projectsForGroupId(project.getGroupId()).forEach(pom ->
@@ -327,7 +327,7 @@ public class BumpVersionMojo extends ReplaceMojo
                 tree.projectOf(tree.root().checkoutRoot().resolve("pom.xml"))
                         .ifPresent(rootPom ->
                         {
-                            PomVersion newRootVersion = rootPom.rawVersion()
+                            PomVersion newRootVersion = rootPom.version()
                                     .updatedWith(magnitude(),
                                             flavor()).get();
                             replacer

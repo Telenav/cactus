@@ -15,14 +15,13 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.scope;
+package com.telenav.cactus.scope;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
-import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.model.GroupId;
+import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.util.PathUtils;
-import org.apache.maven.project.MavenProject;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,9 +96,9 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param prj A project
      * @return A family
      */
-    public static ProjectFamily of(MavenProject prj)
+    public static ProjectFamily of(MavenIdentified prj)
     {
-        return fromGroupId(notNull("prj", prj).getGroupId());
+        return fromGroupId(notNull("prj", prj).groupId());
     }
 
     private final String name;
@@ -123,15 +122,16 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         return name.toUpperCase() + "_ASSETS_HOME";
     }
 
-    public ThrowingOptional<Path> assetsPath(GitCheckout checkout)
+    public ThrowingOptional<Path> assetsPath(
+            ThrowingOptional<Path> submoduleRoot)
     {
         String envVar = System.getenv(assetsEnvironmentVariable());
         Path path = null;
         if (envVar != null)
         {
             path = Paths.get(envVar);
-            ThrowingOptional<Path> result = ThrowingOptional.from(PathUtils
-                    .ifDirectory(path));
+            ThrowingOptional<Path> result
+                    = ThrowingOptional.from(PathUtils.ifDirectory(path));
             // If the directory pointed to by the environment variable does not
             // actually exist, use the search strategy instead
             if (result.isPresent())
@@ -139,9 +139,9 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
                 return result;
             }
         }
-        return checkout.submoduleRoot().flatMap(root ->
+        return submoduleRoot.flatMap(root ->
         {
-            return PathUtils.ifDirectory(root.checkoutRoot().resolve(
+            return PathUtils.ifDirectory(root.resolve(
                     name + "-assets"));
         });
     }
@@ -182,7 +182,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param run Something to run
      * @return true if the code was run
      */
-    public boolean ifMember(MavenProject prj, ThrowingRunnable run)
+    public boolean ifMember(MavenIdentified prj, ThrowingRunnable run)
     {
         if (is(prj))
         {
@@ -200,7 +200,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param code Some code
      * @return True if the code was run.
      */
-    public boolean ifMemberOrParent(MavenProject prj, ThrowingRunnable code)
+    public boolean ifMemberOrParent(MavenIdentified prj, ThrowingRunnable code)
     {
         boolean result = ifMember(prj, code);
         if (!result)
@@ -218,7 +218,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param code Something to run
      * @return true if the code was run
      */
-    public boolean ifParentFamily(MavenProject prj, ThrowingRunnable code)
+    public boolean ifParentFamily(MavenIdentified prj, ThrowingRunnable code)
     {
         if (isParentFamilyOf(prj))
         {
@@ -234,7 +234,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param prj A project
      * @return true if it is a member
      */
-    public boolean is(MavenProject prj)
+    public boolean is(MavenIdentified prj)
     {
         return of(prj).equals(this);
     }
@@ -250,9 +250,9 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param prj A project
      * @return A family
      */
-    public boolean isParentFamilyOf(MavenProject prj)
+    public boolean isParentFamilyOf(MavenIdentified prj)
     {
-        return isParentFamilyOf(notNull("prj", prj).getGroupId());
+        return isParentFamilyOf(notNull("prj", prj).groupId());
     }
 
     public boolean isParentFamilyOf(GroupId gid)

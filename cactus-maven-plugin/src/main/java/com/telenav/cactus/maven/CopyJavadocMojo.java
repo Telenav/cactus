@@ -21,7 +21,7 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
 import com.telenav.cactus.util.PathUtils;
@@ -153,11 +153,12 @@ public class CopyJavadocMojo extends BaseMojo
     private void copyJavadoc(Path javadocOrigin, MavenProject project,
                              BuildLog log)
     {
-        ProjectFamily family = ProjectFamily.of(project);
+        ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         ThrowingOptional.from(GitCheckout
                         .repository(project.getBasedir()))
                 .flatMapThrowing(checkout
-                        -> family.assetsPath(checkout).map(assetsPath
+                        -> family.assetsPath(checkout.submoduleRoot()
+                .map(co -> co.checkoutRoot())).map(assetsPath
                         -> deriveJavadocDestination(assetsPath, project,
                         checkout)
                 )).ifPresentOrElse(dest ->
