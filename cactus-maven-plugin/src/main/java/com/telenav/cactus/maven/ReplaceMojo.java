@@ -87,6 +87,15 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
 
     private final Map<String, Replacement> variables = new HashMap<>();
 
+    public ReplaceMojo()
+    {
+    }
+
+    public ReplaceMojo(boolean runFirst)
+    {
+        super(runFirst);
+    }
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
                            GitCheckout myCheckout, ProjectTree tree,

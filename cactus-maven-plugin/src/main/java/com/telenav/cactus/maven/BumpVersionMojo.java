@@ -65,7 +65,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VERIFY,
+        defaultPhase = LifecyclePhase.INITIALIZE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "bump-version", threadSafe = true)
@@ -150,6 +150,11 @@ public class BumpVersionMojo extends ReplaceMojo
             defaultValue = "bump")
     String versionMismatchPolicy;
 
+    public BumpVersionMojo()
+    {
+        super(true);
+    }
+
     @Override
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
@@ -176,8 +181,8 @@ public class BumpVersionMojo extends ReplaceMojo
         // Allow version changes to be logged by things that use them
         session().getAllProjects().forEach(prj ->
         {
-            project.getProperties().put("cactus.version.change.description", vc
-                    .toString());
+            project.getProperties().put("cactus.version.change.description",
+                    projectFamily() + " " + vc);
         });
 
         log.info("Bump version of " + project.getGroupId() + ":" + project
@@ -270,6 +275,7 @@ public class BumpVersionMojo extends ReplaceMojo
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
+        // PENDING:  Should fail on local modifications
         log.info("Building index of all pom.xmls");
         // The thing that will rewrite the pom files
         VersionReplacementFinder replacer

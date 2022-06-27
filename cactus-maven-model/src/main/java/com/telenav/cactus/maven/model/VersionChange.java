@@ -142,17 +142,6 @@ public final class VersionChange
                 return false;
             }
         VersionChange other = (VersionChange) o;
-        boolean oa = other.oldVersion().equals(oldVersion);
-        boolean ob = other.newVersion().equals(newVersion);
-        if (!oa || !ob)
-        {
-            if (other.toString().equals(toString()))
-            {
-                System.out.println("MISMATCH W SAME STRING '" + oa + "' '" + ob
-                        + " for " + other.oldVersion() + " " + oldVersion()
-                        + "' / '" + other.newVersion() + "' '" + newVersion() + "'");
-            }
-        }
         return other.oldVersion().equals(oldVersion)
                 && other.newVersion.equals(newVersion);
     }
