@@ -8,7 +8,9 @@ package com.telenav.cactus.maven.common;
  */
 public final class CactusCommonPropertyNames
 {
-    private static final String PREFIX = "cactus.";
+    public static final String PLUGIN_FAMILY_NAME = "cactus";
+
+    private static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
     /**
      * Property for verbose mode, consumed by BaseMojo.
      */

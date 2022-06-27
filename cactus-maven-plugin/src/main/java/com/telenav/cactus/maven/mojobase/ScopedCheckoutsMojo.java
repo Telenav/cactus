@@ -15,14 +15,15 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.mojobase;
 
 import com.telenav.cactus.scope.Scope;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,25 +32,28 @@ import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
+import static java.util.Collections.emptySet;
+
 /**
- * Subtype of ScopeMojo for mojos that perform git operations against a set
- * of repositories, which pre-creates the project tree and collects the set of
+ * Subtype of ScopeMojo for mojos that perform git operations against a set of
+ * repositories, which pre-creates the project tree and collects the set of
  * repositories that match the requested scope.
  *
  * @author Tim Boudreau
  */
 public abstract class ScopedCheckoutsMojo extends ScopeMojo
 {
-    protected  ScopedCheckoutsMojo()
+    protected ScopedCheckoutsMojo()
     {
     }
 
     /**
      * Create a new mojo.
-     * 
-     * @param runFirst If true, this mojo should run on the <i>first</i> invocation,
-     * in the case of an aggregator project, instead of on the last - this is needed,
-     * for example, for mojos that want to change branches before any code is built.
+     *
+     * @param runFirst If true, this mojo should run on the <i>first</i>
+     * invocation, in the case of an aggregator project, instead of on the last
+     * - this is needed, for example, for mojos that want to change branches
+     * before any code is built.
      */
     protected ScopedCheckoutsMojo(boolean runFirst)
     {
@@ -71,6 +75,45 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
     protected abstract void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception;
+
+    protected final CommitMessage addCommitMessageDetail(CommitMessage msg,
+            List<GitCheckout> checkouts)
+    {
+        return addCommitMessageDetail(msg, checkouts, emptySet());
+    }
+
+    protected final CommitMessage addCommitMessageDetail(CommitMessage msg,
+            List<GitCheckout> checkouts, Collection<? extends Pom> projects)
+    {
+        msg.append("\nMojo: " + getClass().getSimpleName());
+        if (!projects.isEmpty())
+        {
+            try ( CommitMessage.Section<?> sec = msg
+                    .section("Affected Projects"))
+            {
+                projects.forEach(pom ->
+                {
+                    sec.bulletPoint(pom.toArtifactIdentifiers().toString());
+                });
+            }
+        }
+        if (!checkouts.isEmpty())
+        {
+            try ( CommitMessage.Section<?> sec = msg.section(
+                    "Affected Checkouts"))
+            {
+                checkouts.forEach(checkout ->
+                {
+                    String nm = checkout.name().isEmpty()
+                                ? "(root)"
+                                : checkout.name();
+                    sec.bulletPoint(nm);
+                });
+            }
+        }
+
+        return msg;
+    }
 
     /**
      * If this mojo should fail if any checkout it operates on is locally

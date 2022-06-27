@@ -18,6 +18,7 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -39,16 +40,18 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_M
  * <b>must</b> be supplied (try enclosing the -D argument entirely on the
  * command-line, e.g. <code>'-Dcommit-message=Some commit message'</code>).
  * <p>
- * The scope for which commits are generated is FAMILY by default, generating commits for all git sub-repositories of
- * the subrepo parent which share a project family (derived from the project's groupId). Passing ALL will change it to
- * any repos containing modified sources). JUST_THIS will commit only the repository that owns the current project.
+ * The scope for which commits are generated is FAMILY by default, generating
+ * commits for all git sub-repositories of the subrepo parent which share a
+ * project family (derived from the project's groupId). Passing ALL will change
+ * it to any repos containing modified sources). JUST_THIS will commit only the
+ * repository that owns the current project.
  * </p>
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings(
         {
-                "unused", "DuplicatedCode"
+            "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
@@ -62,21 +65,32 @@ public class CommitMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = COMMIT_MESSAGE, required = true)
     private String commitMessage;
+    
+    static {
+        System.out.println("CM: '" + COMMIT_MESSAGE + "'");
+    }
 
     /**
-     * If true, push after committing. If no remote branch of the same name as the local branch exists, one will be
-     * created.
+     * If true, do not call <code>git add -A</code> before committing - only
+     * commit that which has been manually staged.
+     */
+    @Parameter(property = "cactus.commit.skip.add", defaultValue = "false")
+    private boolean skipAdd;
+
+    /**
+     * If true, push after committing. If no remote branch of the same name as
+     * the local branch exists, one will be created.
      */
     @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> matched) throws Exception
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> matched) throws Exception
     {
         List<GitCheckout> checkouts = matched.stream().filter(
-                        GitCheckout::hasUncommitedChanges)
+                GitCheckout::hasUncommitedChanges)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (checkouts.isEmpty())
@@ -104,16 +118,22 @@ public class CommitMojo extends ScopedCheckoutsMojo
             }
         }
 
+        CommitMessage msg = new CommitMessage(commitMessage);
+        addCommitMessageDetail(msg, checkouts);
+
         log.info("Begin commit with message '" + commitMessage + "'");
         for (GitCheckout at : checkouts)
         {
             log.info("add/commit " + (at.name().isEmpty()
-                    ? "(root)"
-                    : at.name()));
+                                      ? "(root)"
+                                      : at.name()));
             if (!isPretend())
             {
-                at.addAll();
-                at.commit(commitMessage);
+                if (!skipAdd)
+                {
+                    at.addAll();
+                }
+                at.commit(msg.toString());
             }
         }
         if (push)
