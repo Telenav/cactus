@@ -16,10 +16,23 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-open module cactus.maven.scope {
+package com.telenav.cactus.analysis;
 
-    requires com.mastfrog.function;
-    requires com.telenav.cactus.util;
-    requires cactus.maven.model;
-    exports com.telenav.cactus.scope;
+import com.telenav.cactus.maven.model.Pom;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Map;
+
+/**
+ *
+ * @author Tim Boudreau
+ */
+public interface ProjectScanConsumer
+{
+    void onProjectScanned(Pom pom, Map<Path, Integer> scores) throws IOException;
+
+    default void onDone() throws IOException
+    {
+
+    }
 }

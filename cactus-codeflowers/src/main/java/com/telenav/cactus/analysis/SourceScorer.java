@@ -15,11 +15,42 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.analysis;
 
-open module cactus.maven.scope {
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-    requires com.mastfrog.function;
-    requires com.telenav.cactus.util;
-    requires cactus.maven.model;
-    exports com.telenav.cactus.scope;
+/**
+ * Reads a file and generates an integer score for it.
+ *
+ * @author Tim Boudreau
+ */
+public interface SourceScorer
+{
+
+    /**
+     * Score one file.
+     *
+     * @param path A file
+     * @return A score
+     * @throws IOException if something goes wrong
+     */
+    int score(Path path) throws IOException;
+
+    /**
+     * Convenience scorer implementation that processes the file's content as a
+     * string.
+     */
+    public interface StringSourceScorer extends SourceScorer
+    {
+
+        @Override
+        default int score(Path path) throws IOException
+        {
+            return score(path, Files.readString(path));
+        }
+
+        int score(Path path, String lines);
+    }
 }

@@ -15,13 +15,16 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.tree.ConsistencyChecker;
 import com.telenav.cactus.maven.tree.Inconsistency;
+import com.telenav.cactus.maven.tree.ParentRelativePathChecker;
+import com.telenav.cactus.maven.tree.Problem;
+import java.util.LinkedHashSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -33,9 +36,11 @@ import java.util.Set;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Check that the git repository tree is consistent and report details of any inconsistencies. Inconsistencies are
- * branch mismatches within a family, dirty (locally modified) sources or mismatching version numbers within a group-id.
- * Used in preparation for a release to ensure all checkouts are in a known state and there are no surprises.
+ * Check that the git repository tree is consistent and report details of any
+ * inconsistencies. Inconsistencies are branch mismatches within a family, dirty
+ * (locally modified) sources or mismatching version numbers within a group-id.
+ * Used in preparation for a release to ensure all checkouts are in a known
+ * state and there are no surprises.
  *
  * @author Tim Boudreau
  */
@@ -45,45 +50,60 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "check-consistency", threadSafe = true)
-public class CheckConsistencyMojo extends BaseMojo
+public class CheckConsistencyMojo extends SharedProjectTreeMojo
 {
 
     /**
-     * Comma-delimited suffix list for checkout folder names that should be ignored when checking branch consistency,
-     * such as assets checkouts.
+     * Comma-delimited suffix list for checkout folder names that should be
+     * ignored when checking branch consistency, such as assets checkouts.
      */
     @Parameter(property = "cactus.ignore-in-branch-consistency-check",
-               defaultValue = "-assets")
+            defaultValue = "-assets")
     private String ignoreInBranchConsistencyCheck = "";
 
     /**
-     * Comma-delimited list of artifact ids which should be ignored when checking version consistency.
+     * Comma-delimited list of artifact ids which should be ignored when
+     * checking version consistency.
      */
-    @Parameter(property = "cactus.ignore-in-version-consistency-check", defaultValue = "")
+    @Parameter(property = "cactus.ignore-in-version-consistency-check",
+            defaultValue = "")
     private String ignoreInVersionConsistencyCheck = "";
 
     /**
-     * If true, check all group ids, not just checkouts containing a project with the same group id as the one owning
-     * the project this mojo is being run against.
+     * If true, check all group ids, not just checkouts containing a project
+     * with the same group id as the one owning the project this mojo is being
+     * run against.
      */
     @Parameter(property = "cactus.all-group-ids", defaultValue = "false")
     private boolean allGroupIds = false;
 
+    public CheckConsistencyMojo()
+    {
+        super(true);
+    }
+
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+
         ConsistencyChecker checker = new ConsistencyChecker(
                 ignoreInBranchConsistencyCheck,
                 ignoreInVersionConsistencyCheck, allGroupIds
-                ? null
-                : project.getGroupId(), true);
+                                                 ? null
+                                                 : project.getGroupId(), true);
 
-        Set<Inconsistency<?>> inconsistencies = checker
-                .checkConsistency(project, log);
+        Set<Problem> inconsistencies = new LinkedHashSet<>(checker
+                .checkConsistency(project, log, projectTree()));
+        log.info("Check parent relative paths");
+        projectTree().ifPresent(tree ->
+        {
+            inconsistencies.addAll(new ParentRelativePathChecker().checkTree(
+                    tree));
+        });
         if (!inconsistencies.isEmpty())
         {
             StringBuilder sb = new StringBuilder();
-            for (Inconsistency<?> issue : inconsistencies)
+            for (Problem issue : inconsistencies)
             {
                 if (sb.length() > 0)
                 {
@@ -92,7 +112,7 @@ public class CheckConsistencyMojo extends BaseMojo
                 sb.append(issue);
             }
             log.error(sb.toString());
-            throw new MojoExecutionException(this, sb.toString(), sb.toString());
+            fail(sb.toString());
         }
     }
 }

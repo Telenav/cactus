@@ -1,15 +1,7 @@
 package com.telenav.cactus.maven.model.internal;
 
+import com.telenav.cactus.maven.xml.XMLFile;
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.mastfrog.function.throwing.ThrowingBiConsumer;
-import com.mastfrog.function.throwing.ThrowingBiFunction;
-import com.mastfrog.function.throwing.ThrowingConsumer;
-import com.mastfrog.function.throwing.ThrowingFunction;
-import com.mastfrog.function.throwing.ThrowingQuadFunction;
-import com.mastfrog.function.throwing.ThrowingRunnable;
-import com.mastfrog.function.throwing.ThrowingSupplier;
-import com.mastfrog.function.throwing.ThrowingTriConsumer;
-import com.mastfrog.function.throwing.ThrowingTriFunction;
 import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.ArtifactIdentifiers;
 import com.telenav.cactus.maven.model.Dependency;
@@ -28,18 +20,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,20 +42,15 @@ import org.xml.sax.SAXException;
  *
  * @author Tim Boudreau
  */
-public final class PomFile
+public final class PomFile extends XMLFile
 {
     private static final Map<Pom, PomFile> CACHE = Collections.synchronizedMap(
             new WeakHashMap<>());
-    private static final XPathFactory XPATH_FACTORY = XPathFactory
-            .newDefaultInstance();
-    private static final ThreadLocal<XPath> XPATH = ThreadLocal.withInitial(
-            () -> XPATH_FACTORY.newXPath());
-    private final ThreadLocal<Document> docContext = new ThreadLocal<>();
-    public final Path path;
+
 
     public PomFile(Path path)
     {
-        this.path = path;
+        super(path);
     }
 
     public static PomFile of(Pom pom)
@@ -80,9 +63,9 @@ public final class PomFile
         CACHE.computeIfAbsent(pom, p -> pomFile);
     }
 
-    private static XPath xpath()
+    public boolean isPom() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException
     {
-        return XPATH.get();
+        return "pom".equals(packaging());
     }
 
     public void visitProperties(BiConsumer<String, String> c) throws Exception
@@ -152,15 +135,6 @@ public final class PomFile
         return kids;
     }
 
-    static Map<String, String> toStringMap(Map<String, Node> m)
-    {
-        Map<String, String> result = new TreeMap<>();
-        m.forEach((k, v) ->
-        {
-            result.put(k, v.getTextContent() + "");
-        });
-        return result;
-    }
 
     private Dependency toDependency(Map<String, Node> nodes)
     {
@@ -205,55 +179,6 @@ public final class PomFile
         return ids;
     }
 
-    private static String nodeText(String key, Map<String, Node> m)
-    {
-        Node n = m.get(key);
-        if (n != null)
-        {
-            return n.getTextContent().trim();
-        }
-        return null;
-    }
-
-    public <T> T inContext(ThrowingFunction<Document, T> supp) throws Exception
-    {
-        Document oldDoc = docContext.get();
-        Document doc;
-        if (oldDoc == null)
-        {
-            doc = document();
-            docContext.set(doc);
-        }
-        else
-        {
-            doc = oldDoc;
-        }
-        try
-        {
-            return supp.apply(doc);
-        }
-        finally
-        {
-            if (oldDoc == null)
-            {
-                docContext.remove();
-            }
-        }
-    }
-
-    public <T> T inContext(ThrowingSupplier<T> supp) throws Exception
-    {
-        return inContext(doc -> supp.get());
-    }
-
-    public void inContextRun(ThrowingRunnable supp) throws Exception
-    {
-        this.inContext((ThrowingSupplier<Void>) (() ->
-        {
-            supp.run();
-            return null;
-        }));
-    }
 
     public ThrowingOptional<ParentMavenCoordinates> parentCoordinates()
             throws ParserConfigurationException, SAXException, IOException, XPathExpressionException
@@ -341,10 +266,6 @@ public final class PomFile
         return new MavenCoordinates(groupIdNode, artifactIdNode, versionNode);
     }
 
-    public boolean isPom() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException
-    {
-        return "pom".equals(packaging());
-    }
 
     public Set<String> modules() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException
     {
@@ -375,170 +296,5 @@ public final class PomFile
         return packagingNode == null
                ? "jar"
                : packagingNode.getTextContent();
-    }
-
-    public ThrowingOptional<String> nodeText(String query)
-            throws XPathExpressionException, ParserConfigurationException,
-            SAXException, IOException
-    {
-        return nodeQuery(query).map(nd -> nd.getTextContent().trim());
-    }
-
-    public List<String> nodeTextList(String query)
-            throws XPathExpressionException, ParserConfigurationException,
-            SAXException, IOException
-    {
-        List<String> result = new ArrayList<>(32);
-        nodesQuery(query).ifPresent(list ->
-        {
-            for (int i = 0; i < list.getLength(); i++)
-            {
-                Node no = list.item(i);
-                String txt = no.getTextContent();
-                if (txt != null)
-                {
-                    txt = txt.trim();
-                    if (!txt.isEmpty())
-                    {
-                        result.add(txt);
-                    }
-                }
-            }
-        });
-        return result;
-    }
-
-    public ThrowingOptional<Node> nodeQuery(String query)
-            throws XPathExpressionException, ParserConfigurationException,
-            SAXException, IOException
-    {
-        XPath xpath = xpath();
-        Document doc = document();
-        XPathExpression findPackaging = xpath.compile(query);
-        Node result = (Node) findPackaging.evaluate(doc, XPathConstants.NODE);
-        return ThrowingOptional.ofNullable(result);
-    }
-
-    public boolean nodeQuery(String query, ThrowingConsumer<Node> c) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd = nodeQuery(query);
-        nd.ifPresent(c);
-        return nd.isPresent();
-    }
-
-    public <T> ThrowingOptional<T> nodeQueryGet(String query,
-            ThrowingFunction<Node, T> c) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd = nodeQuery(query);
-        return nd.map(c);
-    }
-
-    public boolean nodeQuery(String query1, String query2,
-            ThrowingBiConsumer<Node, Node> c)
-            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd1 = nodeQuery(query1);
-        ThrowingOptional<Node> nd2 = nodeQuery(query2);
-        nd1.ifPresent(n1 -> nd2.ifPresent(n2 -> c.accept(n1, n2)));
-        return nd1.isPresent() && nd2.isPresent();
-    }
-
-    public boolean nodeQuery(String query1, String query2, String query3,
-            ThrowingTriConsumer<Node, Node, Node> c)
-            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd1 = nodeQuery(query1);
-        ThrowingOptional<Node> nd2 = nodeQuery(query2);
-        ThrowingOptional<Node> nd3 = nodeQuery(query3);
-        nd1.ifPresent(n1 -> nd2.ifPresent(n2 -> nd3.ifPresent(n3 -> c.accept(n1,
-                n2, n3))));
-        return nd1.isPresent() && nd2.isPresent() && nd3.isPresent();
-    }
-
-    public <T> ThrowingOptional<T> nodeQueryGet(String query1, String query2,
-            ThrowingBiFunction<Node, Node, T> c)
-            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd1 = nodeQuery(query1);
-
-        return nd1.flatMapThrowing(n1 ->
-        {
-            ThrowingOptional<Node> nd2 = nodeQuery(query2);
-            return nd2.map(n2 ->
-            {
-                return c.apply(n1, n2);
-            });
-        });
-    }
-
-    public <T> ThrowingOptional<T> nodeQueryGet(String query1, String query2,
-            String query3,
-            ThrowingTriFunction<Node, Node, Node, T> c)
-            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd1 = nodeQuery(query1);
-
-        return nd1.<T>flatMapThrowing(n1 ->
-        {
-            ThrowingOptional<Node> nd2 = nodeQuery(query2);
-            return nd2.<T>flatMapThrowing(n2 ->
-            {
-                ThrowingOptional<Node> nd3 = nodeQuery(query3);
-                return nd3.<T>map(n3 -> c.apply(n1, n2, n3));
-            });
-        });
-    }
-
-    public <T> ThrowingOptional<T> nodeQueryGet(String query1, String query2,
-            String query3, String query4,
-            ThrowingQuadFunction<Node, Node, Node, Node, T> c)
-            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
-    {
-        ThrowingOptional<Node> nd1 = nodeQuery(query1);
-
-        return nd1.flatMapThrowing(n1 ->
-        {
-            ThrowingOptional<Node> nd2 = nodeQuery(query2);
-            return nd2.flatMapThrowing(n2 ->
-            {
-                ThrowingOptional<Node> nd3 = nodeQuery(query3);
-
-                return nd3.flatMapThrowing(n3 ->
-                {
-                    ThrowingOptional<Node> nd4 = nodeQuery(query4);
-                    return nd4.map(n4 -> c.apply(n1, n2, n3, n4));
-                });
-            });
-        });
-    }
-
-    private ThrowingOptional<NodeList> nodesQuery(String query)
-            throws XPathExpressionException, ParserConfigurationException,
-            SAXException, IOException
-    {
-        XPath xpath = xpath();
-        Document doc = document();
-        XPathExpression findPackaging = xpath.compile(query);
-        NodeList result = (NodeList) findPackaging.evaluate(doc,
-                XPathConstants.NODESET);
-        if (result == null || result.getLength() == 0)
-        {
-            return ThrowingOptional.empty();
-        }
-        return ThrowingOptional.of(result);
-    }
-
-    private Document document() throws ParserConfigurationException,
-            SAXException, IOException
-    {
-        Document result = docContext.get();
-        if (result == null)
-        {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory
-                    .newDefaultInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            result = db.parse(path.toFile());
-        }
-        return result;
     }
 }

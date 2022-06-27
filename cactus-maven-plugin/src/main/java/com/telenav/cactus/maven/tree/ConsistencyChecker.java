@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -107,6 +106,12 @@ public class ConsistencyChecker
         log = log.child("consistency");
         ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project
                 .getBasedir().toPath());
+        return checkConsistency(project, log, treeOpt);
+    }
+
+    public Set<Inconsistency<?>> checkConsistency(MavenProject project,
+            BuildLog log, ThrowingOptional<ProjectTree> treeOpt) throws Exception
+    {
         if (!treeOpt.isPresent())
         {
             log.child("checkConsistency").error(

@@ -47,6 +47,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
+
 /**
  * @author Tim Boudreau
  */
@@ -228,7 +230,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     GitCheckout(Path root)
     {
-        this.root = root;
+        this.root = notNull("root", root).normalize();
     }
 
     public boolean add(Collection<? extends Path> paths)

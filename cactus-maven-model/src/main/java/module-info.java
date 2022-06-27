@@ -4,8 +4,10 @@ open module cactus.maven.model
     requires java.logging;
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
+    requires cactus.maven.xml;
 
     exports com.telenav.cactus.maven.model;
+    exports com.telenav.cactus.maven.model.internal;
     exports com.telenav.cactus.maven.model.dependencies;
     exports com.telenav.cactus.maven.model.resolver;
 }

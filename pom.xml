@@ -55,6 +55,9 @@
         <module>cactus-graph</module>
         <module>cactus-util</module>
         <module>cactus-scope</module>
+        <module>cactus-maven-xml</module>
+        <module>cactus-maven-versioning</module>
+        <module>cactus-codeflowers</module>
     </modules>
 
     <!-- Properties -->
@@ -185,6 +188,21 @@
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
                 <artifactId>cactus-util</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-maven-versioning</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-maven-xml</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-codeflowers</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
 

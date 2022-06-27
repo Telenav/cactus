@@ -37,7 +37,7 @@ import java.util.function.Function;
  * which has a different key name (a branch name, a version, or a fixed string
  * like "dirty" or "clean".
  */
-public class Inconsistency<T>
+public class Inconsistency<T> extends Problem
 {
     private final Map<String, Set<T>> partitions;
     private final Kind kind;

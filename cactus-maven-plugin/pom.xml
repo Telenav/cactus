@@ -51,6 +51,18 @@
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-maven-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-maven-versioning</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-codeflowers</artifactId>
+        </dependency>
 
         <!-- Mastfrog -->
 
