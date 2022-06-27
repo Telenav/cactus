@@ -15,15 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.refactoring;
+package com.telenav.cactus.maven.model;
 
-import com.telenav.cactus.maven.model.PomVersion;
-import com.telenav.cactus.maven.model.VersionChangeMagnitude;
+import com.mastfrog.function.optional.ThrowingOptional;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
- * Represents an old version to change from and a new version to change to.
+ * Models a change from an old version to a new version.
  */
 public final class VersionChange
 {
@@ -36,9 +35,45 @@ public final class VersionChange
         this.newVersion = notNull("newVersion", newVersion);
     }
 
-    public VersionChangeMagnitude magnitude()
+    /**
+     * Safe factory method for version changes which only returns an instance if
+     * the passed versions are not the same.
+     *
+     * @param oldVersion The old version
+     * @param newVersion The new version
+     * @return An optional VersionChange.
+     */
+    public static ThrowingOptional<VersionChange> versionChange(
+            PomVersion oldVersion, PomVersion newVersion)
+    {
+        if (notNull("oldVersion", oldVersion).equals(notNull("newVersion",
+                newVersion)))
+        {
+            return ThrowingOptional.empty();
+        }
+        return ThrowingOptional.of(new VersionChange(oldVersion, newVersion));
+    }
+
+    /**
+     * Get the magnitude of this version change (will be NONE if no change).
+     *
+     * @return A magnitude
+     */
+    public VersionChangeMagnitude magnitudeChange()
     {
         return VersionChangeMagnitude.between(oldVersion, newVersion);
+    }
+
+    /**
+     * Get the suffix change for this version change.
+     *
+     * @return A VersionFlavorChange describing any changes to the suffix (will
+     * may be UNCHANGED if no change)
+     */
+    public VersionFlavorChange flavorChange()
+    {
+        return VersionFlavorChange.between(oldVersion.flavor(),
+                newVersion.flavor());
     }
 
     /**
@@ -72,10 +107,26 @@ public final class VersionChange
         return newVersion;
     }
 
+    public static ThrowingOptional<VersionChange> parse(String what)
+    {
+        if (what == null || what.isEmpty())
+        {
+            return ThrowingOptional.empty();
+        }
+        String[] parts = what.split("->");
+        if (parts.length != 2)
+        {
+            return ThrowingOptional.empty();
+        }
+        PomVersion from = PomVersion.of(parts[0]);
+        PomVersion to = PomVersion.of(parts[1]);
+        return ThrowingOptional.of(new VersionChange(from, to));
+    }
+
     @Override
     public String toString()
     {
-        return oldVersion + " -> " + newVersion;
+        return oldVersion + "->" + newVersion;
     }
 
     @Override
@@ -93,11 +144,13 @@ public final class VersionChange
         VersionChange other = (VersionChange) o;
         boolean oa = other.oldVersion().equals(oldVersion);
         boolean ob = other.newVersion().equals(newVersion);
-        if (!oa || !ob) {
-            if (other.toString().equals(toString())) {
+        if (!oa || !ob)
+        {
+            if (other.toString().equals(toString()))
+            {
                 System.out.println("MISMATCH W SAME STRING '" + oa + "' '" + ob
-                    + " for " + other.oldVersion() + " " + oldVersion() 
-                + "' / '" + other.newVersion() + "' '" + newVersion() + "'");
+                        + " for " + other.oldVersion() + " " + oldVersion()
+                        + "' / '" + other.newVersion() + "' '" + newVersion() + "'");
             }
         }
         return other.oldVersion().equals(oldVersion)

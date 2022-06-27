@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.refactoring;
 
+import com.telenav.cactus.maven.model.VersionChange;
 import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.model.Pom;
 import java.util.Map;

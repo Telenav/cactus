@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.refactoring;
 
+import com.telenav.cactus.maven.model.VersionChange;
 import com.mastfrog.function.state.Bool;
 import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
 import com.telenav.cactus.maven.model.ArtifactId;
@@ -341,7 +342,7 @@ public class VersionReplacementFinder
                         // to whatever flavor the version change for the family
                         // uses.
                         VersionFlavor newFlavor
-                                = expectedChangeOrNull.newVersion.flavor();
+                                = expectedChangeOrNull.newVersion().flavor();
 
                         Optional<PomVersion> res = pom.version().updatedWith(
                                 VersionChangeMagnitude.DOT,
@@ -415,11 +416,10 @@ public class VersionReplacementFinder
                         if (familyVersionChanges.containsKey(ProjectFamily
                                 .fromGroupId(pom.groupId())))
                         {
-                            flavorChange = familyOrPomChange.newVersion.flavor()
+                            flavorChange = familyOrPomChange.newVersion()
+                                    .flavor()
                                     .toThis();
-                            bumpMagnitude = VersionChangeMagnitude.between(
-                                    familyOrPomChange.oldVersion,
-                                    familyOrPomChange.newVersion);
+                            bumpMagnitude = familyOrPomChange.magnitudeChange();
                         }
                     }
                     // Compute our new version
@@ -591,7 +591,7 @@ public class VersionReplacementFinder
                             // which will cause us to need to update everything
                             // that uses it as a parent and shares its version
                             PomVersion newVersion = currVersion.updatedWith(
-                                    ch.magnitude().notNone(),
+                                    ch.magnitudeChange().notNone(),
                                     flavorChange).get();
                             VersionChange newChange = new VersionChange(
                                     currVersion, newVersion);
@@ -683,7 +683,7 @@ public class VersionReplacementFinder
                     replacers.add(new XMLTextContentReplacement(
                             PomFile.of(pom),
                             query,
-                            vc.newVersion.text()));
+                            vc.newVersion().text()));
                 }
                 else
                 {
@@ -697,7 +697,7 @@ public class VersionReplacementFinder
                 String query = "/project/parent/version";
                 replacers.add(new XMLTextContentReplacement(PomFile.of(pom),
                         query,
-                        parentChange.newVersion.text()));
+                        parentChange.newVersion().text()));
             }
         });
         return replacers;

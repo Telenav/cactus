@@ -27,6 +27,7 @@ import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.resolver.Poms;
+import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.util.EnumMatcher;
@@ -161,12 +162,23 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             fail("Nothing to do for " + mag + " " + flavor);
         }
+        // Pending - this should probably be done later, and use the set of
+        // versions for the project tree - will work fine if only bumping
+        // a single family, though, which is the common case.
         PomVersion oldVersion = PomVersion.of(project.getVersion());
         PomVersion updatedVersion = oldVersion.updatedWith(mag, flavor)
                 .orElseThrow(
                         () -> new MojoExecutionException("Applying " + mag + " "
                                 + "+ " + flavor + " to version "
                                 + oldVersion + " does not change anything"));
+
+        VersionChange vc = new VersionChange(oldVersion, updatedVersion);
+        // Allow version changes to be logged by things that use them
+        session().getAllProjects().forEach(prj ->
+        {
+            project.getProperties().put("cactus.version.change.description", vc
+                    .toString());
+        });
 
         log.info("Bump version of " + project.getGroupId() + ":" + project
                 .getArtifactId() + " from "
@@ -264,7 +276,8 @@ public class BumpVersionMojo extends ReplaceMojo
                 = new VersionReplacementFinder(new Poms(tree.allProjects()))
                         .withVersionMismatchPolicy(
                                 mismatchPolicy());
-        log.info("Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
+        log.info(
+                "Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
