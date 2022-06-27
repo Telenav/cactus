@@ -28,6 +28,10 @@ import org.apache.maven.project.MavenProject;
 
 import java.util.Optional;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.FAMILY;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.INCLUDE_ROOT;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SCOPE;
+
 /**
  * Base class for once-per-session mojos which operate within a Scope -
  * typically git operations which may be performed against a project, family of
@@ -68,9 +72,8 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @see Scope#FAMILY
      */
-    @Parameter(property = "cactus.scope", name = "scopeProperty",
-            defaultValue = "FAMILY")
-    private String scopeProperty;
+    @Parameter(property = SCOPE, defaultValue = "FAMILY")
+    private String scope;
 
     /**
      * If true, include the submodule root project even if it does not directly
@@ -80,24 +83,17 @@ public abstract class ScopeMojo extends BaseMojo
      * commit than before, in order to ensure that a commit is generated for the
      * submodule parent updating it to point to the new commit(s).
      */
-    @Parameter(property = "cactus.include-root", defaultValue = "true")
+    @Parameter(property = INCLUDE_ROOT, defaultValue = "true")
     private boolean includeRoot;
 
     /**
      * Override the project family, using this value instead of one derived from
      * the project's group id. Only relevant for scopes concerned with families.
      */
-    @Parameter(property = "cactus.family", defaultValue = "")
+    @Parameter(property = FAMILY, defaultValue = "")
     private String family;
 
-    /**
-     * If true, do not actually make changes, just print what would be done.
-     */
-    @Parameter(property = "cactus.pretend", defaultValue = "false")
-    private boolean pretend;
-
-    private Scope scope;
-
+    private Scope scopeValue;
     private GitCheckout myCheckout;
 
     /**
@@ -153,18 +149,6 @@ public abstract class ScopeMojo extends BaseMojo
     }
 
     /**
-     * Generic "don't really do anything" parameter - if this returns true, the
-     * subclass should not really make changes, but log what it would do as
-     * accurately as possible.
-     *
-     * @return True if we are in pretend mode
-     */
-    protected boolean isPretend()
-    {
-        return pretend;
-    }
-
-    /**
      * Override to throw an exception if some parameters are unusable.
      *
      * @param log A log
@@ -203,8 +187,8 @@ public abstract class ScopeMojo extends BaseMojo
     @Override
     protected final void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        execute(log, project, myCheckout, scope, projectFamily(),
-                includeRoot, pretend);
+        execute(log, project, myCheckout, scopeValue, projectFamily(),
+                includeRoot, isPretend());
     }
 
     /**
@@ -214,7 +198,7 @@ public abstract class ScopeMojo extends BaseMojo
      */
     protected Scope scope()
     {
-        return scope;
+        return scopeValue;
     }
 
     /**
@@ -229,7 +213,7 @@ public abstract class ScopeMojo extends BaseMojo
     protected final void validateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        scope = Scope.find(scopeProperty);
+        scopeValue = Scope.find(scope);
         Optional<GitCheckout> checkout = GitCheckout.repository(project
                 .getBasedir());
         if (checkout.isEmpty())
@@ -239,11 +223,11 @@ public abstract class ScopeMojo extends BaseMojo
         }
         myCheckout = checkout.get();
         onValidateParameters(log, project);
-        if (!scope.appliesFamily() && (family != null && !"".equals(family)))
+        if (!scopeValue.appliesFamily() && (family != null && !"".equals(family)))
         {
             log.warn(
                     "Useless assignment of telanav.family to '" + family + "' when "
-                    + "using scope " + scope + " which will not read it.  It is useful "
+                    + "using scope " + scopeValue + " which will not read it.  It is useful "
                     + "only with " + Scope.FAMILY + " and "
                     + Scope.FAMILY_OR_CHILD_FAMILY);
         }

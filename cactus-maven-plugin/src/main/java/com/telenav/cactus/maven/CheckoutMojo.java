@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.telenav.cactus.git.GitCheckout.isGitCommitId;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -497,17 +498,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     boolean createBranchesIfNeeded;
 
     /**
-     * If true, update <code>.gitmodules</code> in the submodule root to spell out the new branches for those checkouts
-     * that changed, and generate a commit in it.
-     */
-    @Parameter(property = "cactus.update-root",
-               defaultValue = "true")
-    boolean updateRoot = true;
-
-    /**
      * If we create new branches, push them to the remote immediately.
      */
-    @Parameter(property = "cactus.push",
+    @Parameter(property = PUSH,
                defaultValue = "false")
     boolean push;
 
@@ -625,7 +618,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         {
             beh.postRun();
         }
-        if (push && updateRoot)
+        if (push && isIncludeRoot())
         {
             // Ensure we push our new branch if needed
             switch (tree.root().needsPush())
@@ -717,7 +710,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             // the build fails here.
             return new SwitchToExistingLocalBranch(tree, checkout, log,
                     overrideBranchWith, isPretend(), permitLocalChanges,
-                    updateRoot);
+                    isIncludeRoot());
         }
 
         Branches br = tree.branches(checkout);
@@ -759,7 +752,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                     return new CreateAndSwitchToBranch(tree, checkout,
                             log,
                             this.baseBranch, isPretend(), base.trackingName(),
-                            permitLocalChanges, updateRoot, push);
+                            permitLocalChanges, isIncludeRoot(), push);
                 }
             }
             else
@@ -788,7 +781,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                         // so switch to it
                         return new SwitchToExistingLocalBranch(tree,
                                 checkout, log, base.name(), isPretend(),
-                                permitLocalChanges, updateRoot);
+                                permitLocalChanges, isIncludeRoot());
                     }
                 }
                 else
@@ -797,7 +790,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                     // so switch to it
                     return new SwitchToExistingLocalBranch(tree,
                             checkout, log, base.name(), isPretend(),
-                            permitLocalChanges, updateRoot);
+                            permitLocalChanges, isIncludeRoot());
                 }
             }
         }
@@ -833,7 +826,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                     return new SwitchToExistingLocalBranch(tree,
                             checkout, log,
                             realTargetBranch, isPretend(), permitLocalChanges,
-                            updateRoot);
+                            isIncludeRoot());
                 }
                 else
                 {
@@ -845,7 +838,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                                 checkout,
                                 log, realTargetBranch, isPretend(),
                                 existingTargetBranch.trackingName(),
-                                permitLocalChanges, updateRoot, push);
+                                permitLocalChanges, isIncludeRoot(), push);
                     }
                     else
                     {
@@ -871,7 +864,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                         // branches here
                         return new SwitchToExistingLocalBranch(tree,
                                 checkout, log, baseBranch, isPretend(),
-                                permitLocalChanges, updateRoot);
+                                permitLocalChanges, isIncludeRoot());
                     }
                 }
             }
@@ -885,7 +878,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                     return new CreateAndSwitchToBranch(tree, checkout,
                             log, realTargetBranch, isPretend(), base
                             .trackingName(), permitLocalChanges,
-                            updateRoot, push);
+                            isIncludeRoot(), push);
                 }
                 else
                 {
@@ -925,7 +918,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         // If we are going to update the root, then ensure it's included
         // in the set of repos;  if we're definitely not going to, then
         // ensure it's NOT there.
-        if (updateRoot)
+        if (isIncludeRoot())
         {
             if (!checkouts.contains(tree.root()))
             {

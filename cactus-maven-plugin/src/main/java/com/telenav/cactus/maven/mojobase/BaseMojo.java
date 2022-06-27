@@ -50,6 +50,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PRETEND;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.VERBOSE;
 
 /**
  * A base class for our mojos, which sets up a build logger and provides a way
@@ -185,6 +187,15 @@ public abstract class BaseMojo extends AbstractMojo
     @Parameter(defaultValue = "${session}", readonly = true)
     private MavenSession mavenSession;
 
+    @Parameter(property = VERBOSE, defaultValue = "false")
+    private boolean verbose;
+
+    /**
+     * If true, do not actually make changes, just print what would be done.
+     */
+    @Parameter(property = PRETEND, defaultValue = "false")
+    private boolean pretend;
+    
     protected BuildLog log;
 
     ThrowingOptional<ProjectTree> tree;
@@ -206,6 +217,29 @@ public abstract class BaseMojo extends AbstractMojo
         this(oncePerSession
              ? RunPolicies.LAST
              : RunPolicies.FIRST);
+    }
+    /**
+     * Generic "don't really do anything" parameter - if this returns true, the
+     * subclass should not really make changes, but log what it would do as
+     * accurately as possible.
+     *
+     * @return True if we are in pretend mode
+     */
+    protected boolean isPretend()
+    {
+        return pretend;
+    }
+    
+    /**
+     * Run some code only if not in pretend-mode.
+     * 
+     * @param code The code to run
+     * @throws Exception if something goes wrong
+     */
+    protected void ifNotPretending(ThrowingRunnable code) throws Exception {
+        if (!pretend) {
+            code.run();
+        }
     }
 
     /**
@@ -389,6 +423,19 @@ public abstract class BaseMojo extends AbstractMojo
         }
     }
 
+    protected final boolean isVerbose()
+    {
+        return verbose;
+    }
+
+    protected final void ifVerbose(ThrowingRunnable run) throws Exception
+    {
+        if (isVerbose())
+        {
+            run.run();
+        }
+    }
+
     /**
      * Perform any fail-fast validation here; a super call is not needed.
      *
@@ -564,8 +611,9 @@ public abstract class BaseMojo extends AbstractMojo
         }
     }
 
-    protected final MavenCoordinates coordinatesOf(MavenProject project) {
+    protected final MavenCoordinates coordinatesOf(MavenProject project)
+    {
         return new MavenCoordinates(notNull("project", project).getGroupId(),
-            project.getArtifactId(), project.getVersion());
+                project.getArtifactId(), project.getVersion());
     }
 }

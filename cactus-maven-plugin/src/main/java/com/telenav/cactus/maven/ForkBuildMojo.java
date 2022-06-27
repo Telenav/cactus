@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.Branches;
@@ -42,22 +41,30 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
+
 /**
- * Performs the first steps of attempting to automatically merge a development or feature branch into a stable branch -
- * given a branch to merge, it will create a new temporary branch from the stable branch, and merge the development
- * branch into it, failing if the merge creates conflicts.
+ * Performs the first steps of attempting to automatically merge a development
+ * or feature branch into a stable branch - given a branch to merge, it will
+ * create a new temporary branch from the stable branch, and merge the
+ * development branch into it, failing if the merge creates conflicts.
  * <p>
- * If it succeeds, the build will proceed, and MergeToBranchMojo (which shares data with this one) can be configured as
- * a packaging step (at any step after tests run, really) to merge the temporary branches into the stable branch.
+ * If it succeeds, the build will proceed, and MergeToBranchMojo (which shares
+ * data with this one) can be configured as a packaging step (at any step after
+ * tests run, really) to merge the temporary branches into the stable branch.
  * </p><p>
- * The use case here is continuous builds which are set up to maintain a "stable" branch, know about some set of "team"
- * or feature branches, which automatically update the stable branch from those branches if they are mergeable and all
- * tests pass, so developers working on other branches/features have a stable source to merge from which incorporates
- * the work of their colleagues, and reduce the frequency/severity of "big bang" merges.
+ * The use case here is continuous builds which are set up to maintain a
+ * "stable" branch, know about some set of "team" or feature branches, which
+ * automatically update the stable branch from those branches if they are
+ * mergeable and all tests pass, so developers working on other
+ * branches/features have a stable source to merge from which incorporates the
+ * work of their colleagues, and reduce the frequency/severity of "big bang"
+ * merges.
  * </p><p>
- * To do that, you will want to set up your pom files with a profile that executes this mojo on the validate phase (or
- * some very early phase in the build), and execute the MergeToBranchMojo afterwards (which will never run if the build
- * fails).
+ * To do that, you will want to set up your pom files with a profile that
+ * executes this mojo on the validate phase (or some very early phase in the
+ * build), and execute the MergeToBranchMojo afterwards (which will never run if
+ * the build fails).
  * </p>
  *
  * @author Tim Boudreau
@@ -97,26 +104,23 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     /**
      * If true, merge and push to the remote stable branch on success.
      */
-    @Parameter(property = "cactus.push", defaultValue = "false")
+    @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
 
     /**
-     * If true, log what will be done.
+     * If true, allow some checkouts not to have a branch with the stable-branch
+     * name, and simply do not move them to a branch - this is primarily for
+     * testing.
      */
-    @Parameter(property = "cactus.verbose", defaultValue = "true")
-    private boolean verbose;
-
-    /**
-     * If true, allow some checkouts not to have a branch with the stable-branch name, and simply do not move them to a
-     * branch - this is primarily for testing.
-     */
-    @Parameter(property = "cactus.ignore-no-stable-branch", defaultValue = "true")
+    @Parameter(property = "cactus.ignore-no-stable-branch",
+            defaultValue = "true")
     private boolean ignoreNoStableBranch;
 
     /**
-     * If true, perform a <code>git fetch --all</code> on each repository before checking for and attempting to create
-     * branches. Continuous builds will want this always set to true, but it can slow things down for local testing of
-     * changes to this mojo.
+     * If true, perform a <code>git fetch --all</code> on each repository before
+     * checking for and attempting to create branches. Continuous builds will
+     * want this always set to true, but it can slow things down for local
+     * testing of changes to this mojo.
      */
     @Parameter(property = "cactus.fetch-first", defaultValue = "false")
     private boolean fetchFirst;
@@ -133,8 +137,8 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
         if (fetchFirst)
         {
@@ -175,7 +179,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
             // Should this fail, or just end execution?
             fail("Did not find any branches named '" + mergeBranch + "' in " + checkouts);
         }
-        if (verbose)
+        ifVerbose(() ->
         {
             log.warn("Workflow for " + scope() + ":");
             branchesToCreateFrom.forEach((co, br) ->
@@ -187,7 +191,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
                             co.name() + ":\tcreate " + tempBranch + " merging " + mergeBranch + " into " + stableBranch);
                 }
             });
-        }
+        });
         for (Map.Entry<GitCheckout, Branch> e : branchesToCreateFrom.entrySet())
         {
             Branch base = e.getValue();
@@ -236,7 +240,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
         tempBranch = mergeBranch + "_" + stableBranch + "_" + Long.toString(
                 System.currentTimeMillis(), 36)
                 + "_" + Long
-                .toString(ThreadLocalRandom.current().nextLong(), 36);
+                        .toString(ThreadLocalRandom.current().nextLong(), 36);
         sharedData.put(TEMP_BRANCH_KEY, tempBranch);
         sharedData.put(TARGET_BRANCH_KEY, stableBranch);
         log.info("Temporary branch name " + tempBranch);

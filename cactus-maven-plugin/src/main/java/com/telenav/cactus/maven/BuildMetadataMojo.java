@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
@@ -63,14 +62,8 @@ public class BuildMetadataMojo extends BaseMojo
      * The relative path to the destination directory.
      */
     @Parameter(property = "cactus.project-properties-destination",
-               defaultValue = "target/classes/project.properties")
+            defaultValue = "target/classes/project.properties")
     private String projectPropertiesDestination;
-
-    /**
-     * If true, log the contents of generated files.
-     */
-    @Parameter(property = "cactus.verbose", defaultValue = "false")
-    private boolean verbose;
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -111,13 +104,14 @@ public class BuildMetadataMojo extends BaseMojo
             });
         });
         BuildMetadataUpdater.main(args.toArray(String[]::new));
-        if (verbose)
+        ifVerbose(() ->
         {
             log.info("Wrote project.properties");
             log.info("------------------------");
             log.info("to " + propsFile + "\n");
             log.info(propertiesFileContent + "\n");
-            Path buildProps = propsFile.getParent().resolve("build.properties");
+            Path buildProps = propsFile.getParent().resolve(
+                    "build.properties");
             if (Files.exists(buildProps))
             {
                 log.info("Wrote build.properties");
@@ -129,7 +123,7 @@ public class BuildMetadataMojo extends BaseMojo
             {
                 log.warn("No build file was generated in " + buildProps);
             }
-        }
+        });
     }
 
     private String projectProperties(MavenProject project)

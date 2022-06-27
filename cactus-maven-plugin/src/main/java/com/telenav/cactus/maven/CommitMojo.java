@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_MESSAGE;
 
 /**
  * Performs a git commit, with the passed <code>commit-message</code> which
@@ -58,14 +60,14 @@ public class CommitMojo extends ScopedCheckoutsMojo
     /**
      * The commit message.
      */
-    @Parameter(property = "cactus.commit-message", required = true)
+    @Parameter(property = COMMIT_MESSAGE, required = true)
     private String commitMessage;
 
     /**
      * If true, push after committing. If no remote branch of the same name as the local branch exists, one will be
      * created.
      */
-    @Parameter(property = "cactus.push", defaultValue = "false")
+    @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
 
     @Override

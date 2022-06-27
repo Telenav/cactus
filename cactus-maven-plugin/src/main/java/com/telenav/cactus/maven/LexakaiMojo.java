@@ -53,6 +53,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
@@ -191,12 +192,6 @@ public class LexakaiMojo extends BaseMojo
     private boolean updateReadme;
 
     /**
-     * If true, log the commands being passed to lexakai.
-     */
-    @Parameter(property = "cactus.verbose", defaultValue = "true")
-    private boolean verbose;
-
-    /**
      * If true, don't really run lexakai.
      */
     // PLEASE leave as DOT skip, so we are consistent with maven.test.skip,
@@ -215,7 +210,7 @@ public class LexakaiMojo extends BaseMojo
      * The destination folder for generated documentation - if unset, it is
      * computed as described above.
      */
-    @Parameter(property = "cactus.commit-changes", defaultValue = "false")
+    @Parameter(property = COMMIT_CHANGES, defaultValue = "false")
     private boolean commitChanges;
 
     /**
@@ -250,7 +245,7 @@ public class LexakaiMojo extends BaseMojo
      */
     @Parameter(property = "cactus.show-lexakai-output", defaultValue = "true")
     private boolean showLexakaiOutput;
-    
+
     /**
      * Lexakai prints voluminous output which we suppress by default.
      */
@@ -287,11 +282,11 @@ public class LexakaiMojo extends BaseMojo
             args.add("-exclude-projects=" + skips);
         });
         args.add(project.getBasedir().toString());
-        if (verbose)
+        ifVerbose(() ->
         {
             log.info("Lexakai args:");
             log.info("lexakai " + args);
-        }
+        });
         if (!skip)
         {
             runLexakai(args, project, log);
@@ -326,18 +321,21 @@ public class LexakaiMojo extends BaseMojo
                     DO_NOT_PUBLISH_PROPERTY))
             {
                 skippedConsumer.accept(childProject);
-                if (verbose)
+                if (isVerbose())
                 {
                     log.warn(childProject.getArtifactId() + " marks itself as "
                             + "skipped for lexakai");
                 }
             }
         });
-        if (alsoSkip != null) {
-            for (String skip : alsoSkip.split(",")) {
-                skip = skip.trim();
-                if (!skip.isEmpty()) {
-                    result.add(skip);
+        if (alsoSkip != null)
+        {
+            for (String skipped : alsoSkip.split(","))
+            {
+                skipped = skipped.trim();
+                if (!skipped.isEmpty())
+                {
+                    result.add(skipped);
                 }
             }
         }
@@ -376,8 +374,9 @@ public class LexakaiMojo extends BaseMojo
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
-        return ProjectFamily.fromGroupId(project.getGroupId()).assetsPath(checkout.submoduleRoot()
-                .map(co -> co.checkoutRoot())).map(assetsPath
+        return ProjectFamily.fromGroupId(project.getGroupId()).assetsPath(
+                checkout.submoduleRoot()
+                        .map(co -> co.checkoutRoot())).map(assetsPath
                 -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
         ).orElseGet(()
                 -> appendProjectLexakaiDocPath(project.getBasedir().toPath()
