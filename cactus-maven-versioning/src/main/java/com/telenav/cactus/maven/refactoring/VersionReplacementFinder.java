@@ -86,6 +86,7 @@ public class VersionReplacementFinder
     private VersionMismatchPolicy versionMismatchPolicy
             = VersionMismatchPolicyOutcome.ABORT;
     private boolean pretend;
+    private VersionUpdateFilter filter;
 
     public VersionReplacementFinder(Poms poms)
     {
@@ -109,6 +110,12 @@ public class VersionReplacementFinder
     public VersionReplacementFinder pretend(boolean pretendMode)
     {
         this.pretend = pretendMode;
+        return this;
+    }
+
+    public VersionReplacementFinder withFilter(VersionUpdateFilter filter)
+    {
+        this.filter = filter;
         return this;
     }
 
@@ -634,6 +641,17 @@ public class VersionReplacementFinder
         }));
     }
 
+    private boolean filterAccepts(VersionProperty<?> prop, PomVersion change)
+    {
+        if (filter == VersionUpdateFilter.DEFAULT)
+        {
+            return true;
+        }
+        return filter
+                .shouldUpdateVersionProperty(prop.in, prop.property, change,
+                        prop.oldValue);
+    }
+
     private Set<AbstractXMLUpdater> replacers()
     {
         resolveVersionMismatchesAndFinalizeUpdateSet();
@@ -669,35 +687,51 @@ public class VersionReplacementFinder
                 }
                 if (newValue != null)
                 {
-                    String query = "/project/properties/" + prop.property;
-                    replacers.add(
-                            new XMLTextContentReplacement(PomFile.of(pom), query,
-                                    newValue));
+                    if (filterAccepts(prop, PomVersion.of(newValue)))
+                    {
+
+                        String query = "/project/properties/" + prop.property;
+                        replacers.add(
+                                new XMLTextContentReplacement(PomFile.of(pom),
+                                        query,
+                                        newValue));
+                    }
                 }
             });
             if (vc != null)
             {
-                if (pom.hasExplicitVersion())
+                if (filter.shouldUpdatePomVersion(pom, vc))
                 {
-                    String query = "/project/version";
-                    replacers.add(new XMLTextContentReplacement(
-                            PomFile.of(pom),
-                            query,
-                            vc.newVersion().text()));
-                }
-                else
-                {
-                    replacers.add(new XMLVersionElementAdder(
-                            PomFile.of(pom), vc.newVersion().text()));
+
+                    if (pom.hasExplicitVersion())
+                    {
+                        String query = "/project/version";
+                        replacers.add(new XMLTextContentReplacement(
+                                PomFile.of(pom),
+                                query,
+                                vc.newVersion().text()));
+                    }
+                    else
+                    {
+                        replacers.add(new XMLVersionElementAdder(
+                                PomFile.of(pom),
+                                vc.newVersion().text()));
+                    }
                 }
             }
             VersionChange parentChange = parentVersionChanges.get(pom);
             if (parentChange != null)
             {
-                String query = "/project/parent/version";
-                replacers.add(new XMLTextContentReplacement(PomFile.of(pom),
-                        query,
-                        parentChange.newVersion().text()));
+                Pom parentPom = categories.parentOf(pom).get();
+                if (filter.shouldUpdateParentVersion(pom, parentPom,
+                        parentChange))
+                {
+
+                    String query = "/project/parent/version";
+                    replacers.add(new XMLTextContentReplacement(PomFile.of(pom),
+                            query,
+                            parentChange.newVersion().text()));
+                }
             }
         });
         return replacers;

@@ -34,6 +34,7 @@ import com.telenav.cactus.util.EnumMatcher;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicy;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicyOutcome;
 import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
+import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -150,9 +151,37 @@ public class BumpVersionMojo extends ReplaceMojo
             defaultValue = "bump")
     String versionMismatchPolicy;
 
+    /**
+     * By default, this mojo walks the closure of all poms that are affected by
+     * the requested change, and bumps versions of any superpoms with updated
+     * properties, and then walks thorugh all their children updating their
+     * parent versions, so that absolutely everything in the tree expects a
+     * consistent set of versions of things.
+     * <p>
+     * If you want to update one project family _without_ altering any of the
+     * others, set this to true and updates to any poms outside the family will
+     * be skipped, regardless of the consequences for the buildability of the
+     * result.
+     * </p>
+     */
+    @Parameter(property = "cactus.version.single.family")
+    boolean singleFamily;
+
     public BumpVersionMojo()
     {
         super(true);
+    }
+
+    private VersionUpdateFilter filter()
+    {
+        if (singleFamily)
+        {
+            return VersionUpdateFilter.withinFamily(projectFamily());
+        }
+        else
+        {
+            return VersionUpdateFilter.DEFAULT;
+        }
     }
 
     @Override
@@ -281,7 +310,8 @@ public class BumpVersionMojo extends ReplaceMojo
         VersionReplacementFinder replacer
                 = new VersionReplacementFinder(new Poms(tree.allProjects()))
                         .withVersionMismatchPolicy(
-                                mismatchPolicy());
+                                mismatchPolicy())
+                        .withFilter(filter());
         log.info(
                 "Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
         // Set up version changes for the right things based on the scope:
