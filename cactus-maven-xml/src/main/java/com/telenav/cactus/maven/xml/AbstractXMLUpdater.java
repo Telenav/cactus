@@ -93,7 +93,7 @@ public abstract class AbstractXMLUpdater implements
     @Override
     public final int compareTo(AbstractXMLUpdater o)
     {
-        return in.path().compareTo(o.in.path());
+        return in.path().toString().compareTo(o.in.path().toString());
     }
 
     /**

@@ -18,21 +18,20 @@
 package com.telenav.cactus.maven.refactoring;
 
 import com.telenav.cactus.maven.model.Pom;
-import java.util.Objects;
 
 /**
- * A property which represents a single occurrence of a property representing a
- * version. Will be parameterized on MavenCoordinates or ProjectFamily depending
- * on what it applies to.
+ * A property which represents a single occurrence of a property in a single
+ * pom, representing a version of a family or a project. Will be parameterized
+ * on MavenCoordinates or ProjectFamily depending on what it applies to.
  *
  * @author Tim Boudreau
  */
 final class VersionProperty<T>
 {
-    final String property;
-    final Pom in;
-    final T target;
-    final String oldValue;
+    private final String property;
+    private final Pom in;
+    private final T target;
+    private final String oldValue;
 
     /**
      * Create a new VersionProperty.
@@ -50,6 +49,21 @@ final class VersionProperty<T>
         this.in = in;
         this.target = target;
         this.oldValue = oldValue;
+    }
+
+    public Pom pom()
+    {
+        return in;
+    }
+
+    public String oldValue()
+    {
+        return oldValue;
+    }
+
+    public String property()
+    {
+        return property;
     }
 
     public T pointsTo()
@@ -71,33 +85,25 @@ final class VersionProperty<T>
     }
 
     @Override
-    public int hashCode()
-    {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.property);
-        hash = 97 * hash + Objects.hashCode(this.in);
-        hash = 97 * hash + Objects.hashCode(this.target);
-        hash = 97 * hash + Objects.hashCode(this.oldValue);
-        return hash;
-    }
-
-    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final VersionProperty<?> other = (VersionProperty<?>) obj;
-        if (!Objects.equals(this.property, other.property))
-            return false;
-        if (!Objects.equals(this.oldValue, other.oldValue))
-            return false;
-        if (!Objects.equals(this.in, other.in))
-            return false;
-        return Objects.equals(this.target, other.target);
+        }
+        else
+            if (obj == null || VersionProperty.class != obj.getClass())
+            {
+                return false;
+            }
+        VersionProperty vp = (VersionProperty) obj;
+        return property.equals(vp.property) && in.equals(vp.in) && target
+                .equals(vp.target);
     }
 
+    public int hashCode()
+    {
+        return ((71 * property.hashCode()) + (3 * target.hashCode()))
+                * in.hashCode();
+    }
 }

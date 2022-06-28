@@ -132,6 +132,11 @@ public final class PomCategories
         return poms;
     }
 
+    public boolean hasParent(Pom pom)
+    {
+        return parentForPom.containsKey(pom);
+    }
+
     public Optional<Pom> parentOf(Pom pom)
     {
         return Optional.ofNullable(parentForPom.get(pom));
@@ -140,6 +145,11 @@ public final class PomCategories
     public void eachPomAndItsRoles(BiConsumer<Pom, Set<PomRole>> c)
     {
         PomRole.visitMapEntriesSorted(rolesForPom, c);
+    }
+
+    public ThrowingOptional<Pom> pomFor(MavenCoordinates coords)
+    {
+        return poms.get(coords);
     }
 
     public List<Pom> parents(Pom what)

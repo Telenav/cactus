@@ -20,8 +20,13 @@ package com.telenav.cactus.maven.refactoring;
 import com.telenav.cactus.maven.model.VersionChange;
 import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.model.PomVersion;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
  * Collector for version changes, which can report if any changes have accrued
@@ -32,12 +37,22 @@ final class VersionChangeUpdatesCollector
 {
     private final Map<Pom, VersionChange> pomVersionChanges;
     private final Map<Pom, VersionChange> parentVersionChanges;
+    private final Map<Pom, Set<PropertyChange<?, PomVersion>>> propertyChanges;
+    private final Set<Pom> removeExplicitVersionFrom;
+    private final VersionUpdateFilter filter;
 
-    VersionChangeUpdatesCollector(Map<Pom, VersionChange> pomVersionChanges,
-            Map<Pom, VersionChange> parentVersionChanges)
+    VersionChangeUpdatesCollector(
+            Map<Pom, VersionChange> pomVersionChanges,
+            Map<Pom, VersionChange> parentVersionChanges,
+            Map<Pom, Set<PropertyChange<?, PomVersion>>> propertyChanges,
+            Set<Pom> removeExplicitVersionFrom,
+            VersionUpdateFilter filter)
     {
         this.pomVersionChanges = pomVersionChanges;
         this.parentVersionChanges = parentVersionChanges;
+        this.propertyChanges = propertyChanges;
+        this.removeExplicitVersionFrom = removeExplicitVersionFrom;
+        this.filter = filter;
     }
     boolean hasChanges;
 
@@ -59,35 +74,23 @@ final class VersionChangeUpdatesCollector
         return result;
     }
 
-    void set()
+    ChangeResult removeExplicitVersionFrom(Pom pom)
     {
-        hasChanges = true;
-        System.out.println("Set.");
+        boolean result = removeExplicitVersionFrom.add(pom);
+        hasChanges |= result;
+        return ChangeResult.of(result);
     }
 
-    void or(boolean val)
-    {
-        if (val)
-        {
-            System.out.println("OR'd");
-        }
-        hasChanges |= val;
-    }
-
-    boolean removePomVersionChange(Pom pom)
+    ChangeResult removePomVersionChange(Pom pom)
     {
         VersionChange oldChange = pomVersionChanges.remove(Checks.notNull("pom",
                 pom));
         boolean result = oldChange != null;
         hasChanges |= result;
-        if (result)
-        {
-            System.out.println("removePomVersionChange " + pom);
-        }
-        return result;
+        return ChangeResult.of(result);
     }
 
-    boolean removeParentVersionChange(Pom pom)
+    ChangeResult removeParentVersionChange(Pom pom)
     {
         VersionChange oldChange = parentVersionChanges.remove(Checks.notNull(
                 "pom",
@@ -98,37 +101,86 @@ final class VersionChangeUpdatesCollector
         {
             System.out.println("removeParentVersionChange " + pom);
         }
-        return result;
+        return ChangeResult.of(result);
     }
 
-    boolean changePomVersion(Pom pom, VersionChange change)
+    ChangeResult changeProperty(Pom pom, PropertyChange<?, PomVersion> change)
     {
-        VersionChange old = pomVersionChanges.put(Checks.notNull("pom", pom),
-                Checks.notNull("change", change));
+        if (!filter.shouldUpdateVersionProperty(pom, change.propertyName(),
+                change.newValue(), change.oldValue()))
+        {
+            return ChangeResult.FILTERED;
+        }
+        Set<PropertyChange<?, PomVersion>> changes = propertyChanges
+                .computeIfAbsent(pom,
+                        p -> new HashSet<>());
+        return ChangeResult.of(changes.add(change));
+    }
+
+    ChangeResult removeAllPropertyChanges(Pom pom)
+    {
+        Set<PropertyChange<?, PomVersion>> changes = propertyChanges.remove(pom);
+        return ChangeResult.of(changes != null && !changes.isEmpty());
+    }
+
+    ChangeResult changePomVersion(Pom pom, VersionChange change)
+    {
+        if (!filter.shouldUpdatePomVersion(notNull("pom", pom),
+                notNull("change", change)))
+        {
+            return ChangeResult.FILTERED;
+        }
+        VersionChange old = pomVersionChanges.put(pom, change);
         boolean was = hasChanges;
         boolean result = !Objects.equals(old, change);
         hasChanges |= result;
         if (!was && result)
         {
             System.out.println(
-                    "changePomVersion " + old + " -> " + change + " for " + pom);
+                    "changePomVersion " + old + " -> " + change
+                    + " for " + pom);
         }
-        return result;
+        return ChangeResult.of(result);
     }
 
-    boolean changeParentVersion(Pom pom, VersionChange change)
+    ChangeResult changeParentVersion(Pom pom, Pom parentPom, VersionChange change)
     {
-        VersionChange old = parentVersionChanges.put(Checks.notNull("pom", pom),
-                Checks.notNull("change", change));
+        if (!filter.shouldUpdateParentVersion(notNull("pom", pom), notNull(
+                "parentPom", parentPom), notNull("change", change)))
+        {
+            return ChangeResult.FILTERED;
+        }
+        VersionChange old = parentVersionChanges.put(pom, change);
         boolean was = hasChanges;
         boolean result = !Objects.equals(old, change);
         hasChanges |= result;
         if (!was && result)
         {
             System.out.println(
-                    "changeParentVersion " + old + " -> " + change + " for " + pom);
+                    "changeParentVersion " + old + " -> " + change
+                    + " for " + pom);
         }
-        return result;
+        return ChangeResult.of(result);
     }
 
+    enum ChangeResult
+    {
+        CHANGED,
+        ALREADY_PRESENT,
+        FILTERED;
+        
+        static ChangeResult of(boolean val) {
+            return val ? CHANGED : ALREADY_PRESENT;
+        }
+
+        boolean isChange()
+        {
+            return this == CHANGED;
+        }
+
+        boolean isFiltered()
+        {
+            return this == FILTERED;
+        }
+    }
 }

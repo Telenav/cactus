@@ -89,7 +89,6 @@ public final class XMLTextContentReplacement extends AbstractXMLUpdater
         });
     }
 
-
     @Override
     public int hashCode()
     {
