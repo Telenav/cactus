@@ -34,8 +34,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.telenav.cactus.maven.refactoring.PomRole.*;
+import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 
@@ -46,7 +48,7 @@ import static java.util.Collections.emptySet;
  *
  * @author Tim Boudreau
  */
-public final class PomCategories
+public final class PomCategorizer
 {
     private final Map<PomRole, Set<Pom>> pomsForKind = new EnumMap<>(
             PomRole.class);
@@ -59,10 +61,14 @@ public final class PomCategories
 
     private final Poms poms;
 
-    public PomCategories(Poms poms)
+    public PomCategorizer(Poms poms)
     {
         this.poms = poms;
         categorizePoms();
+    }
+    
+    public Set<ProjectFamily> families() {
+        return pomsForFamily.keySet();
     }
 
     public boolean is(Pom pom, PomRole role)
@@ -115,6 +121,18 @@ public final class PomCategories
         {
             result.forEach(c);
         }
+    }
+
+    public Map<ProjectFamily, Set<Pom>> projectsInFamilyWithRole(PomRole role)
+    {
+        Map<ProjectFamily, Set<Pom>> result = new HashMap<>();
+        pomsForFamily.forEach((family, poms) ->
+        {
+            Set<Pom> set = poms.stream().filter(pom -> is(pom, role)).collect(
+                    Collectors.toCollection(HashSet::new));
+            result.put(family, set);
+        });
+        return result;
     }
 
     public Set<Pom> pomsForFamily(ProjectFamily family)
@@ -178,6 +196,19 @@ public final class PomCategories
         return childPomsByParent.getOrDefault(pom, emptySet());
     }
 
+    public Set<Pom> roots()
+    {
+        Set<Pom> result = new HashSet<>();
+        for (Pom pom : allPoms())
+        {
+            if (!parentForPom.containsKey(pom))
+            {
+                result.add(pom);
+            }
+        }
+        return result;
+    }
+
     private void recordParent(Pom child, Pom parent)
     {
         parentForPom.put(child, parent);
@@ -203,7 +234,7 @@ public final class PomCategories
             });
 
             // Make sure 
-            allCoordinates.add(pom.coords.toPlainMavenCoordinates());
+            allCoordinates.add(pom.coordinates().toPlainMavenCoordinates());
             // Create an inverse index by property by property value to
             // map all POMs defining a property in relation to the name
             // and value
@@ -217,14 +248,14 @@ public final class PomCategories
                 set.add(pom);
             });
             // Collect the family
-            ProjectFamily fam = ProjectFamily.fromGroupId(pom.groupId());
+            ProjectFamily fam = familyOf(pom);
             Set<Pom> forFamily = pomsForFamily.computeIfAbsent(fam,
                     f -> new HashSet<>());
             forFamily.add(pom);
             // If it is a pom project...
             if (pom.isPomProject())
             {
-                if (!pom.modules.isEmpty())
+                if (!pom.modules().isEmpty())
                 {
                     // If it has modules, it is a bill of materials.
                     // We'll catch up with whether it is also supplying

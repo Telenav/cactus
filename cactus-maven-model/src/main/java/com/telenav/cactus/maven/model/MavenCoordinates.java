@@ -33,7 +33,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  */
 public class MavenCoordinates extends ArtifactIdentifiers implements
         Comparable<MavenCoordinates>,
-        MavenIdentified, MavenVersioned
+        MavenArtifactCoordinates
 {
     public final PomVersion version;
 
@@ -171,7 +171,7 @@ public class MavenCoordinates extends ArtifactIdentifiers implements
             ver = poms.get(groupId.text(), artifactId.text())
                     .map(pom ->
                     {
-                        return pom.coords.version;
+                        return pom.coordinates().version;
                     }).orElse(version);
         }
         MavenCoordinates nue = ver == version

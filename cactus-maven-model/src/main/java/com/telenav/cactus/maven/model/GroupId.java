@@ -31,7 +31,7 @@ public final class GroupId extends ResolvablePomElement<GroupId>
     }
 
     @Override
-    GroupId newInstance(String what)
+    protected GroupId newInstance(String what)
     {
         return of(what);
     }

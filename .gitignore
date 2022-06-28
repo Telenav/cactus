@@ -36,3 +36,7 @@ cactus-graph/cactus/
 cactus-util/cactus/
 /cactus-maven-model/nbproject/
 /cactus-util/nbproject/
+/cactus-codeflowers/cactus/
+/cactus-maven-versioning/cactus/
+/cactus-maven-xml/cactus/
+/cactus-scope/cactus/

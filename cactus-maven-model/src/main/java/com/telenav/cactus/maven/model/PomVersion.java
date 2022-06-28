@@ -1,10 +1,15 @@
 package com.telenav.cactus.maven.model;
 
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.model.resolver.versions.VersionComparator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.regex.Pattern;
 import org.w3c.dom.Node;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -21,7 +26,6 @@ import static com.telenav.cactus.maven.model.VersionFlavorChange.TO_SNAPSHOT;
  */
 public final class PomVersion extends ResolvablePomElement<PomVersion>
 {
-
     /**
      * The unknown version, denoted by the string "---", which is used for
      * dependencies that are initially read from a &lt;dependencies&gt; section
@@ -51,11 +55,30 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
 
     public static PomVersion of(String what)
     {
-        return new PomVersion(what);
+        if (PLACEHOLDER.equals(what)) {
+            return UNKNOWN;
+        }
+        return new PomVersion(notNull("what", what).trim());
+    }
+
+    /**
+     * Create a version change to another version; returns empty() if the
+     * versions are equal.
+     *
+     * @param nue An updated version
+     * @return A version change if the parameter indicates one
+     */
+    public ThrowingOptional<VersionChange> to(PomVersion nue)
+    {
+        if (nue.equals(this))
+        {
+            return ThrowingOptional.empty();
+        }
+        return ThrowingOptional.of(new VersionChange(this, nue));
     }
 
     @Override
-    PomVersion newInstance(String what)
+    protected PomVersion newInstance(String what)
     {
         return of(what);
     }
@@ -69,9 +92,6 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         }
         return VersionComparator.INSTANCE.compare(this.text(), o.text());
     }
-
-    private static final Pattern SUFFIX_PATTERN = Pattern.compile(
-            "^[\\d.]+\\.\\d+(\\S+)");
 
     /**
      * Update the version in accordance with semantic versioning / 3-digit dewey
@@ -132,7 +152,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
 
     /**
      * Get the leading dot-delimited decimal portion of this version.
-     * 
+     *
      * @return A list of numbers
      */
     public List<Long> decimals()
@@ -142,7 +162,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
 
     /**
      * Get the suffix of this version, if there is one.
-     * 
+     *
      * @return The suffix
      */
     public Optional<String> suffix()
@@ -153,7 +173,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
     /**
      * Get a descriptor for the suffix or its absence that describes the
      * semantics of what this version is (release, snapshot, other).
-     * 
+     *
      * @return A flavor
      */
     public VersionFlavor flavor()
@@ -168,6 +188,39 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
                     return VersionFlavor.OTHER;
             }
         }).orElse(VersionFlavor.RELEASE);
+    }
+
+    /**
+     * Test if this version is the same version some versioned object has.
+     *
+     * @param versioned A versioned object
+     * @return true if the version matches
+     */
+    public boolean isVersionOf(MavenVersioned versioned)
+    {
+        if (versioned == null)
+        {
+            return false;
+        }
+        return this.equals(versioned.version());
+    }
+
+    public boolean isValidVersion()
+    {
+        boolean result = !decimals().isEmpty();
+        if (result)
+        {
+            for (int i = 0; i < text().length(); i++)
+            {
+                char c = text().charAt(i);
+                // Pending - what else?
+                if (Character.isWhitespace(c))
+                {
+                    return false;
+                }
+            }
+        }
+        return result;
     }
 
     static Optional<String> suffixOf(String what)
@@ -186,7 +239,7 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
 
     /**
      * Split the version into leading decimals and any trailing characters.
-     * 
+     *
      * @param what A version string
      * @param func A function that computes the return value from both of them
      * @return A string
@@ -226,5 +279,28 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         }
         return func.apply(sb.toString(), what.substring(sb.length(), what
                 .length()));
+    }
+
+    public static Optional<PomVersion> mostCommonVersion(
+            Collection<? extends MavenVersioned> c)
+    {
+        if (c.isEmpty())
+        {
+            return Optional.empty();
+        }
+        Map<PomVersion, Integer> map = new HashMap<>();
+        c.forEach(mv ->
+        {
+            map.compute(mv.version(), (k, oldCount) -> oldCount == null
+                                                       ? 1
+                                                       : oldCount + 1);
+        });
+        List<Map.Entry<PomVersion, Integer>> entries = new ArrayList<>(map
+                .entrySet());
+        Collections.sort(entries, (a, b) ->
+        {
+            return b.getValue().compareTo(a.getValue());
+        });
+        return Optional.of(entries.get(0).getKey());
     }
 }

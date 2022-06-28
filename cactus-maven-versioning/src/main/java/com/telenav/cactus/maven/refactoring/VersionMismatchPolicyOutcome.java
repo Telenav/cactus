@@ -22,8 +22,9 @@ import com.telenav.cactus.maven.model.Pom;
 import java.util.Set;
 
 /**
+ * What to do when a version mismatch is encountered.
  *
- * @author timb
+ * @author Tim Boudreau
  */
 public enum VersionMismatchPolicyOutcome implements VersionMismatchPolicy
 {
@@ -35,7 +36,7 @@ public enum VersionMismatchPolicyOutcome implements VersionMismatchPolicy
      * Clobber the version with whatever it's supposed to be regardless of its
      * current value.
      */
-    BRING_TO_TARGET_VERSION,
+    COERCE_TO_TARGET_VERSION,
     /**
      * Bump the version, using the change for the family (if any) as a basis
      * (magnitude, flavor).

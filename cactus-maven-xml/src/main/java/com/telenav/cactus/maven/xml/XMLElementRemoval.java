@@ -71,4 +71,9 @@ public final class XMLElementRemoval extends AbstractXMLUpdater
             return false;
         return Objects.equals(this.in, other.in);
     }
+    
+    @Override
+    public String toString() {
+        return query + " REMOVAL in " + in;
+    }
 }

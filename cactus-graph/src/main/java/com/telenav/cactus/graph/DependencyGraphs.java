@@ -183,7 +183,7 @@ final class DependencyGraphs implements Iterable<Pom>
             traversedPoms.add(t);
             if (preFilter == null || preFilter.test(t, u))
             {
-                deps.compute(t.coords, (cds, set) ->
+                deps.compute(t.coordinates(), (cds, set) ->
                 {
                     if (set == null)
                     {
@@ -192,7 +192,7 @@ final class DependencyGraphs implements Iterable<Pom>
                     set.add(u.coords);
                     return set;
                 });
-                all.add(t.coords);
+                all.add(t.coordinates());
                 all.add(u.coords);
             }
             return true;
@@ -301,7 +301,7 @@ final class DependencyGraphs implements Iterable<Pom>
 
         public void go(Pom owner)
         {
-            curr = owner.coords.toPlainMavenCoordinates();
+            curr = owner.coordinates().toPlainMavenCoordinates();
             if (coords.containsKey(curr))
             {
                 return;
@@ -313,7 +313,7 @@ final class DependencyGraphs implements Iterable<Pom>
         @Override
         public void accept(Pom obj) throws Exception
         {
-            MavenCoordinates parent = obj.coords.toPlainMavenCoordinates();
+            MavenCoordinates parent = obj.coordinates().toPlainMavenCoordinates();
             if (curr.equals(parent))
             {
                 throw new IllegalStateException("Pom parented to itself: " + obj);

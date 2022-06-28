@@ -66,8 +66,7 @@ public final class ParentRelativePathChecker
                                     new NonExistentParentProblem(pom,
                                             parentCoords));
                         }
-                        return from(repository(
-                                pom.pom))
+                        return from(repository(pom.path()))
                                 .flatMapThrowing(pomOwningCheckout ->
                                 {
                                     return from(repository(relPath))
@@ -115,11 +114,11 @@ public final class ParentRelativePathChecker
 
         public String toString()
         {
-            return "POM " + pom.coords + " has a parent relative path "
+            return "POM " + pom.coordinates() + " has a parent relative path "
                     + "pointing to " + parentCoords.relativePath.resolve(
                             pom.projectFolder()) + " via the value "
                     + " '" + parentCoords.relativePath.text() + "' "
-                    + "which does not exist.\n" + pom.pom;
+                    + "which does not exist.\n" + pom.path();
         }
     }
 
@@ -162,7 +161,7 @@ public final class ParentRelativePathChecker
 
         public String toString()
         {
-            return "POM " + pom.coords + " has a parent relative path '" + parentCoords.relativePath
+            return "POM " + pom.coordinates() + " has a parent relative path '" + parentCoords.relativePath
                     + (parentCoords.relativePath.isDefault()
                        ? " (because <relativePath/> is not specified and the default is ../pom.xml)"
                        : "")
@@ -171,7 +170,7 @@ public final class ParentRelativePathChecker
                     + " into the checkout in " + encounteredCheckout
                             .checkoutRoot()
                     + ". Such projects will not be buildable when checkout out individually.\n"
-                    + pom.pom;
+                    + pom.path();
         }
     }
 }

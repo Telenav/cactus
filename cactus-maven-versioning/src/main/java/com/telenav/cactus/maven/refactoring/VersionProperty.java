@@ -79,8 +79,8 @@ final class VersionProperty<T>
     @Override
     public String toString()
     {
-        return in.pom.getParent().getFileName().resolve(in.pom.getFileName())
-                + "\t" + property + " in " + target + " for "
+        return in.path().getParent().getFileName().resolve(in.path().getFileName())
+                + "\t" + property + " in " + target
                 + " currently " + oldValue;
     }
 

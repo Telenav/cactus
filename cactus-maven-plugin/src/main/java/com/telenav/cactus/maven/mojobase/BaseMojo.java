@@ -187,15 +187,15 @@ public abstract class BaseMojo extends AbstractMojo
     @Parameter(defaultValue = "${session}", readonly = true)
     private MavenSession mavenSession;
 
-    @Parameter(property = VERBOSE, defaultValue = "false")
+    @Parameter(property = VERBOSE, defaultValue = "false", alias = "verbose")
     private boolean verbose;
 
     /**
      * If true, do not actually make changes, just print what would be done.
      */
-    @Parameter(property = PRETEND, defaultValue = "false")
+    @Parameter(property = PRETEND, defaultValue = "false", alias = "pretend")
     private boolean pretend;
-    
+
     protected BuildLog log;
 
     ThrowingOptional<ProjectTree> tree;
@@ -218,6 +218,7 @@ public abstract class BaseMojo extends AbstractMojo
              ? RunPolicies.LAST
              : RunPolicies.FIRST);
     }
+
     /**
      * Generic "don't really do anything" parameter - if this returns true, the
      * subclass should not really make changes, but log what it would do as
@@ -229,15 +230,17 @@ public abstract class BaseMojo extends AbstractMojo
     {
         return pretend;
     }
-    
+
     /**
      * Run some code only if not in pretend-mode.
-     * 
+     *
      * @param code The code to run
      * @throws Exception if something goes wrong
      */
-    protected void ifNotPretending(ThrowingRunnable code) throws Exception {
-        if (!pretend) {
+    protected void ifNotPretending(ThrowingRunnable code) throws Exception
+    {
+        if (!pretend)
+        {
             code.run();
         }
     }

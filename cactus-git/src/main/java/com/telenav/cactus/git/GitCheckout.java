@@ -440,6 +440,22 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return true;
     }
 
+    /**
+     * Collect the owning git checkouts of a collection of paths.
+     *
+     * @param paths Some paths
+     * @return Some git checkouts
+     */
+    public static Set<GitCheckout> ownersOf(Collection<? extends Path> paths)
+    {
+        Set<GitCheckout> result = new HashSet<>();
+        for (Path p : paths)
+        {
+            GitCheckout.repository(p).ifPresent(result::add);
+        }
+        return result;
+    }
+
     public boolean hasPomInRoot()
     {
         return Files.exists(root.resolve("pom.xml"));

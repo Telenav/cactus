@@ -31,12 +31,29 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 /**
  * A project family a Maven project may belong to, as determined by the last
  * dot-delimited portion of a maven group id, omitting any hyphen-delimited
- * suffix. <code>^.*\.(\S+)-?.*</code>.
+ * suffix - roughly <code>^.*\.(\S+)-?.*</code>.
  *
  * @author Tim Boudreau
  */
 public final class ProjectFamily implements Comparable<ProjectFamily>
 {
+    /**
+     * Suffix for an environment variable that indicates the destination on disk
+     * for "assets" files (documentation and similar) that may be emitted by the
+     * build - for example, for use with github pages - which should be the the
+     * preferred output location for such files if it is set and if the
+     * directory it points to actually exists on disk.
+     */
+    public static final String ASSETS_HOME_SUFFIX = "_ASSETS_HOME";
+    /**
+     * Suffix for a folder or git checkout in the submodule root (if there is
+     * one) that indicates the destination on disk for "assets" files
+     * (documentation and similar) that may be emitted by the build - for
+     * example, for use with github pages - which should be the the preferred
+     * output location for such files if it is set and if the directory it
+     * points to actually exists on disk.
+     */
+    public static final String ASSETS_CHECKOUT_SUFFIX = "-assets";
 
     /**
      * Get the project family for a maven group-id.
@@ -44,9 +61,20 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      * @param groupId A group id
      * @return A family
      */
-    public static ProjectFamily fromGroupId(GroupId groupId)
+    public static ProjectFamily familyOf(GroupId groupId)
     {
         return fromGroupId(groupId.text());
+    }
+
+    /**
+     * Get the logical project family for a maven artifact.
+     *
+     * @param artifact A project
+     * @return A family
+     */
+    public static ProjectFamily familyOf(MavenIdentified artifact)
+    {
+        return familyOf(artifact.groupId());
     }
 
     /**
@@ -90,17 +118,6 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         return new ProjectFamily(notNull("name", name));
     }
 
-    /**
-     * Get the logical project family for a maven project.
-     *
-     * @param prj A project
-     * @return A family
-     */
-    public static ProjectFamily of(MavenIdentified prj)
-    {
-        return fromGroupId(notNull("prj", prj).groupId());
-    }
-
     private final String name;
 
     private ProjectFamily(String name)
@@ -117,11 +134,30 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         this.name = name;
     }
 
+    /**
+     * Get an environment variable based on the family name in upper-case with
+     * the suffix {@link ProjectFamily#ASSETS_HOME} which may determine the
+     * destination for "assets" (non-maven documentation files and similar)
+     * which are emitted by the build (lexakai, codeflowers, javadoc) should be
+     * put.
+     *
+     * @return
+     */
     public String assetsEnvironmentVariable()
     {
-        return name.toUpperCase() + "_ASSETS_HOME";
+        return name.toUpperCase() + ASSETS_HOME_SUFFIX;
     }
 
+    /**
+     * Get a path to an "assets" (non-maven documentation files and similar)
+     * destination for projects in this project family, using either the
+     * environment variable provided by {@link ProjectFamily#assetsEnvironmentVariable()
+     * } or as a git submodule named <code>$FAMILY-assets</code> in the
+     * submodule root of the passed path, if present.
+     *
+     * @param submoduleRoot A submodule root
+     * @return An assets path, if one can be determined and if it exists on disk
+     */
     public ThrowingOptional<Path> assetsPath(
             ThrowingOptional<Path> submoduleRoot)
     {
@@ -142,10 +178,16 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         return submoduleRoot.flatMap(root ->
         {
             return PathUtils.ifDirectory(root.resolve(
-                    name + "-assets"));
+                    name + ASSETS_CHECKOUT_SUFFIX));
         });
     }
 
+    /**
+     * Case insensitive comparison on the text value.
+     *
+     * @param o Another project family
+     * @return A comparison result
+     */
     @Override
     public int compareTo(ProjectFamily o)
     {
@@ -236,7 +278,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
      */
     public boolean is(MavenIdentified prj)
     {
-        return of(prj).equals(this);
+        return familyOf(prj).equals(this);
     }
 
     /**
@@ -255,11 +297,28 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         return isParentFamilyOf(notNull("prj", prj).groupId());
     }
 
-    public boolean isParentFamilyOf(GroupId gid)
+    /**
+     * Determine if this family is the <i>parent family</i> of the passed
+     * project - the next-to-last dot-delimited portion is a match for this
+     * family name - for example, the parent family of <code>com.foo.bar</code>
+     * is <code>foo</code>. This is useful when a bill-of-materials POM uses the
+     * parent name, but we want to run actions for all sub-families of that
+     * family.
+     *
+     * @param groupId A group id
+     * @return A family
+     */
+    public boolean isParentFamilyOf(GroupId groupId)
     {
-        return isParentFamilyOf(gid.text());
+        return isParentFamilyOf(groupId.text());
     }
 
+    /**
+     * Run the passed code if this family is the parent family of
+     * the passed group id.
+     *
+     * @param groupId A group id
+     */
     public void ifParentFamilyOf(GroupId groupId, Runnable run)
     {
         if (isParentFamilyOf(groupId))
@@ -268,6 +327,12 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         }
     }
 
+    /**
+     * Determine if this family is the parent family of the passed group
+     * id
+     * @param gid
+     * @return 
+     */
     public boolean isParentFamilyOf(String gid)
     {
         int ix = notNull("gid", gid).lastIndexOf('.');
@@ -277,7 +342,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         }
         return fromGroupId(gid).equals(this);
     }
-
+    
     /**
      * Get the name of this project family.
      *

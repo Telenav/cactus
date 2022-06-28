@@ -27,6 +27,8 @@ import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.property.ParentsPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
+
 /**
  * A thing that can resolve pom files somehow, such as from among a collection
  * of known poms on disk, or from the local repository.
@@ -89,7 +91,7 @@ public interface PomResolver
     default <T extends MavenIdentified & MavenVersioned> ThrowingOptional<Pom> get(
             T obj)
     {
-        ThrowingOptional<String> ver = obj.resolvedVersion();
+        ThrowingOptional<String> ver = notNull("obj", obj).resolvedVersion();
         if (ver.isPresent())
         {
             return get(obj.groupId(), obj.artifactId(),
@@ -103,7 +105,8 @@ public interface PomResolver
 
     default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId)
     {
-        return get(groupId.text(), artifactId.text());
+        return get(notNull("groupId", groupId).text(),
+                notNull("artifactId", artifactId).text());
     }
 
     /**
@@ -112,13 +115,24 @@ public interface PomResolver
      * entire tree.
      *
      * @param artifact An artifact ID
-     * @return A pom, if possible
+     * @return A pom, if possible. The default implementation returns empty(),
+     * since this interface may be over a collection of poms in a project tree,
+     * <i>or</i> over the entire local repository, which is both impractical to
+     * scan and could easily result in a wrong result.
      */
     default ThrowingOptional<Pom> get(ArtifactId artifact)
     {
         return ThrowingOptional.empty();
     }
 
+    /**
+     * Get a Pom matching the passed group id and artifact id, if such exists.
+     *
+     * @param groupId A group id
+     * @param artifactId An artifact id
+     * @param version A version
+     * @return An optional
+     */
     default ThrowingOptional<Pom> get(GroupId groupId, ArtifactId artifactId,
             PomVersion version)
     {
@@ -133,7 +147,7 @@ public interface PomResolver
             String version)
     {
         return get(groupId, artifactId).flatMapThrowing(pom
-                -> version.equals(pom.coords.version.text())
+                -> version.equals(pom.coordinates().version.text())
                    ? ThrowingOptional.of(pom)
                    : ThrowingOptional.empty());
     }

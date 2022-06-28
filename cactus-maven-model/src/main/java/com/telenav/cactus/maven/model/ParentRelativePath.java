@@ -74,7 +74,7 @@ public final class ParentRelativePath extends ResolvablePomElement<ParentRelativ
     }
 
     @Override
-    ParentRelativePath newInstance(String what)
+    protected ParentRelativePath newInstance(String what)
     {
         return new ParentRelativePath(what);
     }

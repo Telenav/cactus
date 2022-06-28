@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PLUGIN_FAMILY_NAME;
@@ -52,6 +54,25 @@ public class CommitMessage
             sections.add(section);
             return this;
         });
+    }
+
+    /**
+     * Provides a generic function that can be passed to libraries that
+     * need to add sections without requiring they depend on this api.
+     * 
+     * @param sections A set that created sections will be placed into, so
+     * they can be closed
+     * @return a function
+     */
+    public Function<? super String, Consumer<Object>> sectionFunction(
+            List<? super Section<?>> sections)
+    {
+        return heading ->
+        {
+            Section<?> sect = section(heading);
+            sections.add(sect);
+            return sect::bulletPoint;
+        };
     }
 
     public String toString()

@@ -56,7 +56,7 @@ public final class VersionIndicatingProperties
     }
 
     public static VersionIndicatingProperties create(
-            PomCategories categories)
+            PomCategorizer categories)
     {
         Map<String, ProjectFamily> familyVersionKeys = new HashMap<>();
         Map<String, ProjectFamily> familyPrevVersionKeys = new HashMap<>();
@@ -73,7 +73,7 @@ public final class VersionIndicatingProperties
         }
         for (MavenCoordinates coords : categories.allCoordinates())
         {
-            if (coords.artifactId().is(ProjectFamily.fromGroupId(coords
+            if (coords.artifactId().is(ProjectFamily.familyOf(coords
                     .groupId()).name()))
             {
                 continue;
@@ -83,7 +83,7 @@ public final class VersionIndicatingProperties
             String prop = coords.artifactId() + ".version";
             String prevProp = coords.artifactId() + ".prev.version";
             String prevProp2 = coords.artifactId() + ".previous.version";
-            ProjectFamily fam = ProjectFamily.fromGroupId(coords.groupId());
+            ProjectFamily fam = ProjectFamily.familyOf(coords.groupId());
             String prop2 = fam + "." + prop;
             String prevProp3 = fam + "." + prevProp;
             String prevProp4 = fam + "." + prevProp2;
@@ -115,7 +115,7 @@ public final class VersionIndicatingProperties
     }
 
     private static <T> Set<VersionProperty<T>> collectPropertyChanges(
-            PomCategories categories,
+            PomCategorizer categories,
             PropertyRole role,
             Map<String, T> props)
     {

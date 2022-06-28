@@ -170,7 +170,7 @@ public class ProjectTree
         Set<Pom> result = new TreeSet<>();
         allProjects().forEach(project ->
         {
-            if (groupId.equals(project.coords.groupId))
+            if (groupId.equals(project.coordinates().groupId))
             {
                 result.add(project);
             }
@@ -199,7 +199,7 @@ public class ProjectTree
             Map<String, Set<String>> result = new TreeMap<>();
             c.allPoms().forEach(pom ->
             {
-                GitCheckout.repository(pom.pom).ifPresent(checkout ->
+                GitCheckout.repository(pom.path()).ifPresent(checkout ->
                 {
                     Set<String> branches = result.computeIfAbsent(
                             pom.groupId().text(), g -> new TreeSet<>());
@@ -231,7 +231,7 @@ public class ProjectTree
                 }
                 Map<String, Set<Pom>> infosByBranch = result.computeIfAbsent(
                         pom.groupId().text(), id -> new TreeMap<>());
-                GitCheckout.repository(pom.pom).ifPresent(checkout ->
+                GitCheckout.repository(pom.path()).ifPresent(checkout ->
                 {
                     c.branchFor(checkout).ifPresent(branch ->
                     {
@@ -331,7 +331,7 @@ public class ProjectTree
             {
                 for (Pom pom : c.allPoms())
                 {
-                    if (pom.pom.equals(realFile))
+                    if (pom.path().equals(realFile))
                     {
                         return Optional.of(pom);
                     }
@@ -437,6 +437,7 @@ public class ProjectTree
     {
         return withCache(c -> c.remoteHeads(checkout));
     }
+
     /**
      * Get a depth-first list of checkouts matching this scope, given the passed
      * contextual criteria.
@@ -527,7 +528,7 @@ public class ProjectTree
             {
                 for (Pom project : projectSet)
                 {
-                    if (groupId.equals(project.coords.groupId))
+                    if (groupId.equals(project.coordinates().groupId))
                     {
                         all.add(repo);
                         break;
@@ -563,10 +564,10 @@ public class ProjectTree
             {
                 for (Pom project : projectSet)
                 {
-                    ProjectFamily pomFamily = ProjectFamily.fromGroupId(
+                    ProjectFamily pomFamily = ProjectFamily.familyOf(
                             project.groupId());
                     if (family.equals(pomFamily) || family.isParentFamilyOf(
-                            project.coords.groupId))
+                            project.coordinates().groupId))
                     {
                         all.add(repo);
                         break;
@@ -604,8 +605,7 @@ public class ProjectTree
             checkoutForPom.forEach((pom, checkout) ->
             {
                 // Filter out any irrelevant or already examined checkouts
-                if (seen.contains(checkout) || !groupId.equals(
-                        pom.coords.groupId))
+                if (seen.contains(checkout) || !pom.groupId().is(groupId))
                 {
                     return;
                 }
@@ -676,7 +676,7 @@ public class ProjectTree
         public Map<Path, Pom> projectFolders()
         {
             Map<Path, Pom> infos = new HashMap<>();
-            allPoms().forEach(pom -> infos.put(pom.pom.getParent(), pom));
+            allPoms().forEach(pom -> infos.put(pom.path().getParent(), pom));
             return infos;
         }
 
@@ -730,8 +730,8 @@ public class ProjectTree
                         = infoForGroupAndArtifact.computeIfAbsent(
                                 info.groupId().text(),
                                 id -> new HashMap<>());
-                subcache.put(info.coords.artifactId.text(), info);
-                GitCheckout.repository(info.pom).ifPresent(co ->
+                subcache.put(info.coordinates().artifactId.text(), info);
+                GitCheckout.repository(info.path()).ifPresent(co ->
                 {
                     Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
                             c -> new HashSet<>());

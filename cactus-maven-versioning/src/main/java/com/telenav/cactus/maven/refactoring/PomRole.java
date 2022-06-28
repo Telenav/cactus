@@ -26,25 +26,44 @@ import java.util.function.BiConsumer;
 import static java.lang.Integer.max;
 
 /**
+ * Roles a POM file can play within a project tree. A pom may have multiple
+ * roles. This information is used, among other things, to determine how its
+ * version should be adjusted when performing automated version changes.
  *
- * @author timb
+ * @see PomCategories
+ * @author Tim Boudreau
  */
 public enum PomRole
 {
+    /**
+     * This pom is used as a parent by some other one.
+     */
     PARENT,
+    /**
+     * This pom has a <code>&lt;modules&gt;</code> section.
+     */
     BILL_OF_MATERIALS,
+    /**
+     * This pom may provide properties to other poms which use it as a parent,
+     * but it has a parent, so other poms' properties may also be provided
+     * through it.
+     */
     CONFIG,
+    /**
+     * This pom provides properties to other poms which use it as a parent, and
+     * it has no parent.
+     */
     CONFIG_ROOT,
+    /**
+     * This pom represents a non-pom (jar, maven-plugin, nbm, something else)
+     * project.
+     */
     JAVA,
     /**
-     * A UFO.
+     * A UFO - its role cannot be determined - should not be encountered but
+     * present for completeness and debugging.
      */
     UNKNOWN;
-
-    boolean isPomProject()
-    {
-        return this != JAVA;
-    }
 
     @Override
     public String toString()

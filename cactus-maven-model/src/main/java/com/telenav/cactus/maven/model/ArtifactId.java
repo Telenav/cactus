@@ -31,7 +31,7 @@ public final class ArtifactId extends ResolvablePomElement<ArtifactId>
     }
 
     @Override
-    ArtifactId newInstance(String what)
+    protected ArtifactId newInstance(String what)
     {
         return of(what);
     }

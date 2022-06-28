@@ -4,9 +4,10 @@ import java.util.function.Function;
 
 /**
  * A thing that wraps a string or strings, which may be placeholders or not yet
- * fully resolved (maven properties), and which can be passed a function to
- * resolve some or all of the values, for which it will return a new instance if
- * the function produces a change.
+ * fully resolved (maven properties), representing an element in a pom file
+ * (with or without substructure), and which can be passed a function to resolve
+ * some or all of the values, for which it will return a new instance if the
+ * function produces a change.
  *
  * @author Tim Boudreau
  */

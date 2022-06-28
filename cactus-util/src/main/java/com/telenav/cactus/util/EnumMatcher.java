@@ -70,6 +70,26 @@ public final class EnumMatcher<E extends Enum<E>> implements Iterable<E>
         return Optional.empty();
     }
 
+    public E matchOrThrow(String what)
+    {
+        return match(what).orElseThrow(() ->
+        {
+            StringBuilder sb = new StringBuilder("Invalid value '").append(what)
+                    .append("' for a ").append(values.getClass()
+                    .getComponentType().getSimpleName())
+                    .append(". Possible values: ");
+            for (int i = 0; i < values.length; i++)
+            {
+                sb.append(hyphenatedLower(values[i]));
+                if (i < values.length - 1)
+                {
+                    sb.append(", ");
+                }
+            }
+            return new IllegalArgumentException(sb.toString());
+        });
+    }
+
     private boolean isMatch(E toTest, String with)
     {
         return with.equals(toTest.name())

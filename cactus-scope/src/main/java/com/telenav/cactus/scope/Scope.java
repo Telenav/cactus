@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.scope;
 
-
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -62,7 +61,7 @@ public enum Scope
     SAME_GROUP_ID,
     /**
      * Operate on all checkouts which contain at least one pom.xml file.
-     * 
+     *
      * @see ProjectFamily
      */
     ALL_PROJECT_FAMILIES,
@@ -77,6 +76,18 @@ public enum Scope
     public String toString()
     {
         return name().toLowerCase().replace('_', '-');
+    }
+
+    public boolean canBeMultiFamily()
+    {
+        switch (this)
+        {
+            case ALL:
+            case ALL_PROJECT_FAMILIES:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static Scope find(String prop) throws Exception

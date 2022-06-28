@@ -108,10 +108,10 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
         {
             for (Pom pom : tree.projectsWithin(co))
             {
-                if (!"pom".equals(pom.packaging))
+                if (!pom.isPomProject())
                 {
                     Set<Pom> poms = result.computeIfAbsent(ProjectFamily
-                                    .fromGroupId(pom.coords.groupId.text()),
+                                    .fromGroupId(pom.coordinates().groupId().text()),
                             f -> new HashSet<>());
                     poms.add(pom);
                 }
@@ -124,7 +124,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             throws Exception
     {
         Set<String> versions = new HashSet<>();
-        poms.forEach(pom -> versions.add(pom.coords.version.text()));
+        poms.forEach(pom -> versions.add(pom.coordinates().version.text()));
         if (versions.size() > 1)
         {
             throw new MojoExecutionException(

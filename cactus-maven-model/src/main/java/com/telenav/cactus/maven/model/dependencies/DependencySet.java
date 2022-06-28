@@ -343,7 +343,7 @@ public class DependencySet implements Dependencies
         // so don't show up twice in the path
         INIT_PATH.pushingThrowing(owner, () ->
         {
-            log(false, "init " + owner.coords);
+            log(false, "init " + owner.coordinates());
             // Maintain declaration order so we match classpath order:
             Set<Dependency> dependenciesLocal = new LinkedHashSet<>();
             // Resolves properties against our own pom's properties, and
@@ -390,7 +390,7 @@ public class DependencySet implements Dependencies
             dependenciesLocal.addAll(inheritedById.values());
             // And add them, in classpath order, to the instance's list field
             this.dependencies.addAll(dependenciesLocal);
-            log(false, "Completed init of " + owner.coords + " with "
+            log(false, "Completed init of " + owner.coordinates() + " with "
                     + dependenciesLocal.size() + " dependencies and "
                     + dependencyManagement.size() + " depManagement entries");
         });
@@ -478,7 +478,7 @@ public class DependencySet implements Dependencies
                 {
                     log(true, "Import exclusions in " + imported
                             + " will clobber exclusions in " + dep + " for "
-                            + owner.coords);
+                            + owner.coordinates());
                 }
                 dep = dep.withExclusions(imported.exclusions());
             }
@@ -753,7 +753,7 @@ public class DependencySet implements Dependencies
         // Add our owner to the thread-local path, for logging
         return INIT_PATH.pushing(owner, () ->
         {
-            log(false, "Collect dep closure: " + owner.coords + " for " + scopes
+            log(false, "Collect dep closure: " + owner.coordinates() + " for " + scopes
                     + (!includeOptional
                        ? " excluding optional dependencies"
                        : ""));
@@ -939,7 +939,7 @@ public class DependencySet implements Dependencies
             }
             for (Iterator<Pom> it = poms.iterator(); it.hasNext();)
             {
-                into.append(it.next().coords);
+                into.append(it.next().coordinates());
                 if (it.hasNext())
                 {
                     into.append("-> ");

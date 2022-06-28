@@ -43,12 +43,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.xml.sax.SAXException;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
 
 /**
  * @author Tim Boudreau
  */
-public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
+public class Pom implements Comparable<Pom>, MavenArtifactCoordinates
 {
     public static ThrowingOptional<Pom> in(Path pomFileOrDir)
     {
@@ -102,13 +104,13 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         return ThrowingOptional.empty();
     }
 
-    public final Set<String> modules;
+    private final Set<String> modules;
 
-    public final String packaging;
+    private final String packaging;
 
-    public final Path pom;
+    private final Path pom;
 
-    public final MavenCoordinates coords;
+    private final MavenCoordinates coords;
 
     public Pom(Path pom, MavenCoordinates coords, String packaging,
             Set<String> modules)
@@ -117,8 +119,18 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         this.coords = coords;
         this.packaging = packaging;
         this.modules = modules == null || modules.isEmpty()
-                       ? Collections.emptySet()
-                       : Collections.unmodifiableSet(modules);
+                       ? emptySet()
+                       : unmodifiableSet(modules);
+    }
+
+    public Path path()
+    {
+        return pom;
+    }
+
+    public Set<String> modules()
+    {
+        return modules;
     }
 
     PomFile toPomFile()
@@ -134,7 +146,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     @Override
     public PomVersion version()
     {
-        return coords.version();
+        return coordinates().version();
     }
 
     public String packaging()
@@ -144,7 +156,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
 
     public boolean isPomProject()
     {
-        return "pom".equals(packaging);
+        return "pom".equals(packaging());
     }
 
     private Map<String, String> props;
@@ -191,7 +203,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     public Dependency toDependency(String type, DependencyScope scope,
             boolean optional)
     {
-        return new Dependency(coords, type, scope, optional, Collections
+        return new Dependency(coordinates(), type, scope, optional, Collections
                 .emptySet());
     }
 
@@ -243,25 +255,25 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     @Override
     public GroupId groupId()
     {
-        return coords.groupId;
+        return coordinates().groupId();
     }
 
     @Override
     public ArtifactId artifactId()
     {
-        return coords.artifactId;
+        return coordinates().artifactId;
     }
 
     @Override
     public ThrowingOptional<String> resolvedVersion()
     {
-        return coords.resolvedVersion();
+        return coordinates().resolvedVersion();
     }
 
     @Override
     public int compareTo(Pom o)
     {
-        return coords.compareTo(o.coords);
+        return coordinates().compareTo(o.coordinates());
     }
 
     @Override
@@ -283,7 +295,7 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     {
         int hash = 7;
         hash = 67 * hash + Objects.hashCode(this.pom);
-        hash = 67 * hash + Objects.hashCode(this.coords);
+        hash = 67 * hash + Objects.hashCode(this.coordinates());
         return hash;
     }
 
@@ -296,8 +308,8 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(coords);
-        if ("pom".equals(packaging) && !modules.isEmpty())
+        sb.append(coordinates());
+        if (isPomProject() && !modules.isEmpty())
         {
             sb.append('(');
             for (Iterator<String> it = modules.iterator(); it.hasNext();)
@@ -332,6 +344,14 @@ public class Pom implements Comparable<Pom>, MavenIdentified, MavenVersioned
         {
             return Exceptions.chuck(ex);
         }
+    }
+
+    /**
+     * @return the coords
+     */
+    public MavenCoordinates coordinates()
+    {
+        return coords;
     }
 
 }

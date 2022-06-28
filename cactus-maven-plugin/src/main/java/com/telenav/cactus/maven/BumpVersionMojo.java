@@ -17,8 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.state.Obj;
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.maven.commit.CommitMessage;
+import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.GroupId;
@@ -28,6 +31,7 @@ import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.model.VersionChange;
+import com.telenav.cactus.maven.refactoring.SuperpomBumpPolicy;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.util.EnumMatcher;
@@ -50,6 +54,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
+import static com.telenav.cactus.scope.ProjectFamily.familyOf;
+import static com.telenav.cactus.scope.Scope.FAMILY;
+import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -81,6 +89,9 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private static final EnumMatcher<VersionMismatchPolicyOutcome> MISMATCH_MATCHER
             = EnumMatcher.enumMatcher(VersionMismatchPolicyOutcome.class);
+
+    private static final EnumMatcher<SuperpomBumpPolicy> SUPERPOM_POLICY_MATCHER
+            = EnumMatcher.enumMatcher(SuperpomBumpPolicy.class);
 
     /**
      * The magnitude of the decimal to change (subsequent ones will be zeroed).
@@ -172,11 +183,98 @@ public class BumpVersionMojo extends ReplaceMojo
         super(true);
     }
 
+    /**
+     * If a superpom is updated, it should get its version bumped (along with
+     * all projects that use that superpom as a parent) so all of its children -
+     * particularly on other machines not where this code is running, which may
+     * have stale local versions of that superpom or its children that would not
+     * contain the updated property.
+     * <p>
+     * This property describes what to do to the version of a superpom in or out
+     * of a family being updated, which needs its version bumped because of a
+     * property change.
+     * </p>
+     * <p>
+     * Possible values:
+     * </p>
+     * <ul>
+     * <li><code>bump-acquiring-new-family-flavor</code> - the bumped superpom
+     * version should acquire the flavor/suffix the family is acquiring - i.e.
+     * if we are changing the version of all projects in the family from 2.0.0
+     * to 2.0.1-SNAPSHOT and we have a superpom with version 1.6.3 in the same
+     * family (usually this means same groupId), then change the superpom's
+     * version to 1.6.4-SNAPSHOT. If the superpom being changed is not part of
+     * the family, then just bump its version by one dot revision - i.e. if
+     * mesakit-superpom-1.5.1 contains a property <code>kivakit.version</code>,
+     * it becomes mesakit-superpom-1.5.2 because it is not part of the family
+     * <code>kivakit</code> - the version is bumped but the suffix is left
+     * alone.  <i>If in the same family</i> magnitude of the superpom version
+     * change will be the same as that of the family - so if we are going from
+     * family 2.3.1 to 2.4.0, we will go from superpom 1.6.3 to superpom 1.7.0
+     * (the second digit is what's changing in both).</li>
+     * <li><code>bump-without-changing-flavor</code> - for superpoms that don't
+     * follow the versioning scheme of the family they are superpom for, simply
+     * increment the verson by one dot-revision. <i>If in the same family</i>
+     * magnitude of the superpom version change will be the same as that of the
+     * family - so if we are going from family 2.3.1 to 2.4.0, we will go from
+     * superpom 1.6.3 to superpom 1.7.0 (the second digit is what's changing in
+     * both).</li>
+     * <li><code>ignore</code> - this is DANGEROUS and will probably result in a
+     * source tree that does not build without manually fixing things, or at
+     * best, will result in commiting changes that may result in things building
+     * for you but not for other people until they clean and rebuild everything
+     * or download new snapshots. With this option, simply does not make any
+     * changes to superpoms unless they are part of the family being updated.
+     * </li>
+     * </ul>
+     *
+     */
+    @Parameter(property = "cactus.superpom.bump.policy",
+            defaultValue = "bump-without-changing-flavor")
+    String bumpPolicy;
+
+    /**
+     * Explicitly set the version you want to change the family to, overriding
+     * the version change magnitude and similar. In general, this is not needed,
+     * as the plugin will always compute a correct new version based on what you
+     * tell it to do. This property can only be used when updating only a single
+     * project or project family - attempting to apply the same version to a
+     * bunch of heterogenous projects is assumed to be operator error and will
+     * fail the build (you can always do it one by one if that's really what you
+     * want).
+     */
+    @Parameter(property = "cactus.explicit.version", required = false)
+    String explicitVersion;
+
+    /**
+     * Perform substitutions in documentation files.
+     */
+    @Parameter(property = "cactus.update.docs", defaultValue = "true")
+    boolean updateDocs;
+
+    /**
+     * Generate commits with the new version changes for each repository
+     * modified.
+     */
+    @Parameter(property = COMMIT_CHANGES, defaultValue = "false")
+    boolean commit;
+
+    /**
+     * Create a new release branch, if the version is a release and we are in
+     * single-family mode.
+     */
+    @Parameter(property = "cactus.create.release.branch", defaultValue = "false")
+    boolean createReleaseBranch;
+
+    @Parameter(property = "cactus.development.branch", defaultValue = "develop")
+    String developmentBranch;
+
     private VersionUpdateFilter filter()
     {
         if (singleFamily)
         {
-            return VersionUpdateFilter.withinFamily(projectFamily());
+            return VersionUpdateFilter.withinFamilyOrParentFamily(
+                    projectFamily());
         }
         else
         {
@@ -200,11 +298,24 @@ public class BumpVersionMojo extends ReplaceMojo
         // versions for the project tree - will work fine if only bumping
         // a single family, though, which is the common case.
         PomVersion oldVersion = PomVersion.of(project.getVersion());
-        PomVersion updatedVersion = oldVersion.updatedWith(mag, flavor)
-                .orElseThrow(
-                        () -> new MojoExecutionException("Applying " + mag + " "
-                                + "+ " + flavor + " to version "
-                                + oldVersion + " does not change anything"));
+        PomVersion updatedVersion;
+        if (explicitVersion != null)
+        {
+            updatedVersion = PomVersion.of(explicitVersion);
+            if (!updatedVersion.isValidVersion())
+            {
+                fail("'" + explicitVersion + "' is not a valid maven version");
+            }
+        }
+        else
+        {
+            updatedVersion = oldVersion.updatedWith(mag, flavor)
+                    .orElseThrow(
+                            () -> new MojoExecutionException(
+                                    "Applying " + mag + " "
+                                    + "+ " + flavor + " to version "
+                                    + oldVersion + " does not change anything"));
+        }
 
         VersionChange vc = new VersionChange(oldVersion, updatedVersion);
         // Allow version changes to be logged by things that use them
@@ -227,6 +338,19 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private PomVersion newVersion(Pom pom)
     {
+        if (explicitVersion != null && projectFamily().equals(familyOf(pom)))
+        {
+            return PomVersion.of(explicitVersion);
+        }
+        else
+            if (explicitVersion != null)
+            {
+                throw new IllegalStateException(
+                        "Explicit version can only be used when altering a "
+                        + " SINGLE project family, but have family " + projectFamily() + " plus "
+                        + familyOf(pom) + " from " + pom);
+            }
+
         VersionChangeMagnitude mag = magnitude();
         VersionFlavorChange flavor = flavor();
         PomVersion oldVersion = pom.version();
@@ -282,7 +406,7 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         Set<ProjectFamily> families = new HashSet<>();
         tree.allProjects().forEach(pom -> families.add(ProjectFamily
-                .fromGroupId(pom.groupId())));
+                .familyOf(pom.groupId())));
         return families;
     }
 
@@ -293,10 +417,44 @@ public class BumpVersionMojo extends ReplaceMojo
         tree.allProjects().forEach(pom
                 -> fam.ifParentFamilyOf(pom.groupId(),
                         () -> relatives.add(ProjectFamily
-                                .fromGroupId(pom.groupId())))
+                                .familyOf(pom.groupId())))
         );
         relatives.add(fam);
         return relatives;
+    }
+
+    private void checkCheckoutStates(String messageHead,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+    {
+        StringBuilder failMessage = new StringBuilder();
+        for (GitCheckout co : checkouts)
+        {
+            if (co.isSubmoduleRoot())
+            {
+                continue;
+            }
+            String nm = co.name();
+            if (tree.isDetachedHead(co))
+            {
+                failMessage.append('\n');
+                failMessage.append(nm).append(" is in detached head state");
+            }
+            else
+                if (tree.isDirty(co))
+                {
+                    if (commit)
+                    {
+                        failMessage.append('\n');
+                        failMessage.append(nm).append(
+                                " has local modifications, and a commit has been requested");
+                    }
+                }
+        }
+        if (failMessage.length() > 0)
+        {
+            failMessage.insert(0, messageHead);
+            fail(failMessage.toString());
+        }
     }
 
     @Override
@@ -304,52 +462,76 @@ public class BumpVersionMojo extends ReplaceMojo
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
+        log.info("Checking repositories' state");
+        checkCheckoutStates("Some git checkouts are not in a usable "
+                + "state for generating version changes", tree, checkouts);
         // PENDING:  Should fail on local modifications
         log.info("Building index of all pom.xmls");
         // The thing that will rewrite the pom files
         VersionReplacementFinder replacer
                 = new VersionReplacementFinder(new Poms(tree.allProjects()))
-                        .withVersionMismatchPolicy(
-                                mismatchPolicy())
+                        .withVersionMismatchPolicy(mismatchPolicy())
+                        .withSuperpomBumpPolicy(superpomBumpPolicy())
                         .withFilter(filter());
         log.info(
                 "Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
+        if (explicitVersion != null && scope().canBeMultiFamily())
+        {
+            fail("Cannot use an explicit version with a scope that "
+                    + "can match more than one family, such as '" + scope() + "'."
+                    + " Only '" + FAMILY + "' or '" + FAMILY_OR_CHILD_FAMILY + "' are "
+                    + "legal if you pass a specific version to change to.");
+        }
+        Obj<PomVersion> singleVersion = Obj.create();
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
             case JUST_THIS:
                 Pom myPom = Pom.from(project.getFile().toPath()).get();
-                replacer.withSinglePomChange(ArtifactId.of(project
-                        .getArtifactId()),
-                        GroupId.of(project.getGroupId()),
-                        myPom.version());
+
+                PomVersion myNewVersion = newVersion(myPom);
+
+                replacer.withSinglePomChange(myPom, myNewVersion);
+                singleVersion.accept(myNewVersion);
                 break;
             case SAME_GROUP_ID:
                 tree.projectsForGroupId(project.getGroupId()).forEach(pom ->
                 {
-                    replacer.withSinglePomChange(pom, newVersion(pom));
+                    PomVersion nv = newVersion(pom);
+                    singleVersion.set(nv);
+                    replacer.withSinglePomChange(pom, nv);
                 });
                 break;
             case FAMILY:
                 PomVersion v = findVersionOfFamily(tree);
+                PomVersion nue;
+                if (explicitVersion != null)
+                {
+                    nue = PomVersion.of(explicitVersion);
+                }
+                else
+                {
+                    nue = v.updatedWith(
+                            magnitude(),
+                            flavor())
+                            .get();
+                }
+                singleVersion.set(v);
                 replacer.withFamilyVersionChange(projectFamily(),
                         v,
-                        v.updatedWith(
-                                magnitude(),
-                                flavor())
-                                .get());
+                        nue);
                 break;
             case FAMILY_OR_CHILD_FAMILY:
                 familyWithChildFamilies(tree).forEach(family ->
                 {
                     PomVersion familyVersion = findVersionOfFamily(tree, family);
+                    PomVersion newFamilyVersion = familyVersion.updatedWith(
+                            magnitude(),
+                            flavor()).get();
+                    singleVersion.accept(newFamilyVersion);
                     replacer.withFamilyVersionChange(family,
                             familyVersion,
-                            familyVersion
-                                    .updatedWith(
-                                            magnitude(),
-                                            flavor())
-                                    .get());
+                            newFamilyVersion);
                 });
                 break;
             case ALL:
@@ -357,13 +539,14 @@ public class BumpVersionMojo extends ReplaceMojo
                 allFamilies(tree).forEach(family ->
                 {
                     PomVersion familyVersion = findVersionOfFamily(tree, family);
+                    PomVersion newFamilyVersion = familyVersion.updatedWith(
+                            magnitude(),
+                            flavor()).get();
+
+                    singleVersion.accept(newFamilyVersion);
                     replacer.withFamilyVersionChange(family,
                             familyVersion,
-                            familyVersion
-                                    .updatedWith(
-                                            magnitude(),
-                                            flavor())
-                                    .get());
+                            newFamilyVersion);
                 });
                 break;
             default:
@@ -389,11 +572,22 @@ public class BumpVersionMojo extends ReplaceMojo
         log.info(replacer.toString());
         Set<Path> rewritten = replacer.go(log::info);
         // Pending:  Construct new MavenProject instances and call 
-        // session().setAllProjects() with them.
-//        session().
-        log.info("Done");
+        // session().setAllProjects() with them, so the build can proceed if
+        // possible?
 
-        runSubstitutions(log, project, myCheckout, tree, checkouts);
+        // Use the set of checkouts that contain files that were actually modified,
+        // so we don't generate substitution changes in checkouts we did not
+        // make changes in
+        Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+        if (updateDocs)
+        {
+            runSubstitutions(log, project, myCheckout, tree, new ArrayList<>(
+                    owners));
+        }
+        if (commit)
+        {
+            generateCommit(owners, replacer, singleVersion.toOptional());
+        }
         tree.invalidateCache();
     }
 
@@ -418,25 +612,55 @@ public class BumpVersionMojo extends ReplaceMojo
 
     VersionFlavorChange flavor()
     {
-        Optional<VersionFlavorChange> chg = FLAVOR_MATCHER.match(versionFlavor);
-        if (!chg.isPresent())
-        {
-            throw new IllegalStateException(
-                    "Unrecognized version change flavor '" + versionFlavor + "'");
-        }
-        return chg.get();
+        return FLAVOR_MATCHER.matchOrThrow(versionFlavor);
     }
 
     VersionMismatchPolicy mismatchPolicy()
     {
-        Optional<VersionMismatchPolicyOutcome> chg = MISMATCH_MATCHER.match(
-                versionMismatchPolicy);
-        if (!chg.isPresent())
+        return MISMATCH_MATCHER.matchOrThrow(versionMismatchPolicy);
+    }
+
+    SuperpomBumpPolicy superpomBumpPolicy()
+    {
+        return SUPERPOM_POLICY_MATCHER.matchOrThrow(this.bumpPolicy);
+    }
+
+    private void generateCommit(Set<GitCheckout> owners,
+            VersionReplacementFinder replacer,
+            Optional<PomVersion> singleVersion)
+    {
+        BuildLog lg = log().child("commit");
+        lg.warn("Begin commit of " + owners.size() + " repository");
+        CommitMessage msg = new CommitMessage("Updated versions of " + replacer
+                .changeCount() + " projects");
+        singleVersion.ifPresent(ver ->
         {
-            throw new IllegalStateException(
-                    "Unrecognized version mismatch policy '"
-                    + versionMismatchPolicy + "'");
+            msg.append("Bump version to " + ver);
+        });
+        List<Section<?>> generatedSections = new ArrayList<>();
+        replacer.collectChanges(msg.sectionFunction(generatedSections));
+        generatedSections.forEach(Section::close);
+        for (GitCheckout checkout : owners)
+        {
+            if (isPretend() || checkout.isDirty())
+            {
+                if (createReleaseBranch && singleFamily && singleVersion
+                        .isPresent())
+                {
+                    String newBranch = "release/" + singleVersion.get();
+                    if (!isPretend())
+                    {
+                        checkout.createAndSwitchToBranch(newBranch,
+                                Optional.ofNullable(developmentBranch));
+                    }
+                }
+                if (!isPretend())
+                {
+                    checkout.addAll();
+                    checkout.commit(msg.toString());
+                }
+                lg.info("Commit " + checkout.name());
+            }
         }
-        return chg.get();
     }
 }

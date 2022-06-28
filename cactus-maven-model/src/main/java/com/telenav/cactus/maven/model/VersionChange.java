@@ -24,7 +24,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 /**
  * Models a change from an old version to a new version.
  */
-public final class VersionChange
+public final class VersionChange implements MavenVersioned
 {
     final PomVersion oldVersion;
     final PomVersion newVersion;
@@ -107,6 +107,13 @@ public final class VersionChange
         return newVersion;
     }
 
+    public PomVersion version(boolean previous)
+    {
+        return previous
+               ? oldVersion
+               : newVersion;
+    }
+
     public static ThrowingOptional<VersionChange> parse(String what)
     {
         if (what == null || what.isEmpty())
@@ -151,4 +158,17 @@ public final class VersionChange
     {
         return newVersion.hashCode() + (71 * oldVersion.hashCode());
     }
+
+    @Override
+    public ThrowingOptional<String> resolvedVersion()
+    {
+        return ThrowingOptional.of(newVersion.text());
+    }
+
+    @Override
+    public PomVersion version()
+    {
+        return newVersion;
+    }
+
 }

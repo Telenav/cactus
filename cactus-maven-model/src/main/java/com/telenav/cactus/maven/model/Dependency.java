@@ -34,7 +34,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  *
  * @author Tim Boudreau
  */
-public class Dependency implements MavenIdentified, MavenVersioned
+public class Dependency implements MavenArtifactCoordinates
 {
 
     public final MavenCoordinates coords;

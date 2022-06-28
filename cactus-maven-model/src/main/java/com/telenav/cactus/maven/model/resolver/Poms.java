@@ -68,9 +68,9 @@ public final class Poms implements PomResolver
         for (Pom pom : sorted)
         {
             Map<String, Pom> kids
-                    = poms.computeIfAbsent(pom.coords.groupId().text(),
+                    = poms.computeIfAbsent(pom.coordinates().groupId().text(),
                             gid -> new HashMap<>());
-            kids.put(pom.coords.artifactId.text(), pom);
+            kids.put(pom.coordinates().artifactId.text(), pom);
         }
     }
 
@@ -79,7 +79,7 @@ public final class Poms implements PomResolver
         List<Pom> nue = new ArrayList<>(sorted.size());
         for (Pom pom : sorted)
         {
-            Pom.from(pom.pom).ifPresent(newPom -> nue.add(newPom));
+            Pom.from(pom.path()).ifPresent(newPom -> nue.add(newPom));
         }
         sorted.clear();
         sorted.addAll(nue);
@@ -92,7 +92,7 @@ public final class Poms implements PomResolver
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sorted.forEach(pom -> sb.append(pom.coords).append(", "));
+        sorted.forEach(pom -> sb.append(pom.coordinates()).append(", "));
         return sb.toString();
     }
 
@@ -110,13 +110,7 @@ public final class Poms implements PomResolver
     public List<Pom> javaProjects()
     {
         List<Pom> result = new ArrayList<>();
-        for (Pom p : sorted)
-        {
-            if (!"pom".equals(p.packaging))
-            {
-                result.add(p);
-            }
-        }
+        sorted.stream().filter(p -> !p.isPomProject()).forEach(result::add);
         return result;
     }
 
@@ -140,7 +134,7 @@ public final class Poms implements PomResolver
                     + " should use the two-arg overload");
         }
         return get(groupId, artifactId).flatMap(pom
-                -> pom.coords.version.is(version)
+                -> pom.coordinates().version.is(version)
                    ? Optional.of(pom)
                    : Optional.empty()).or(() ->
         {
@@ -154,7 +148,8 @@ public final class Poms implements PomResolver
             {
                 return Optional.empty();
             }
-            if (VersionMatchers.matcher(version).test(result.resolvedVersion().get()))
+            if (VersionMatchers.matcher(version).test(result.resolvedVersion()
+                    .get()))
             {
                 return Optional.of(result);
             }

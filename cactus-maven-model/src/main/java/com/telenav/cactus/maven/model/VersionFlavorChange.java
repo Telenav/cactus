@@ -62,6 +62,12 @@ public enum VersionFlavorChange
         return this == UNCHANGED;
     }
 
+    /**
+     * Compute the suffix for this flavor as applied to the passed version.
+     *
+     * @param version A version
+     * @return A suffix
+     */
     public Optional<String> newSuffix(PomVersion version)
     {
         switch (this)

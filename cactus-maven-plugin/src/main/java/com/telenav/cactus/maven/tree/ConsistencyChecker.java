@@ -317,10 +317,10 @@ public class ConsistencyChecker
                 boolean found = false;
                 for (Pom pom : tree.allProjects())
                 {
-                    GitCheckout co = GitCheckout.repository(pom.pom).get();
+                    GitCheckout co = GitCheckout.repository(pom.path()).get();
                     if (co.equals(checkout))
                     {
-                        if (targetGroupId.equals(pom.coords.groupId))
+                        if (pom.groupId().is(targetGroupId))
                         {
                             found = true;
                             break;
@@ -346,7 +346,7 @@ public class ConsistencyChecker
         {
             Pom info = Pom.from(checkout.checkoutRoot().resolve("pom.xml"))
                     .get();
-            if (!targetGroupId.equals(info.coords.groupId))
+            if (!targetGroupId.equals(info.groupId()))
             {
                 return false;
             }
@@ -369,10 +369,10 @@ public class ConsistencyChecker
 
     private boolean isVersionRequiredToBeConsistent(Pom info)
     {
-        if (targetGroupId != null && !targetGroupId.equals(info.coords.groupId))
+        if (targetGroupId != null && !targetGroupId.equals(info.groupId().text()))
         {
             return false;
         }
-        return ignoreInVersionConsistencyCheck.contains(info.coords.artifactId);
+        return ignoreInVersionConsistencyCheck.contains(info.artifactId().text());
     }
 }
