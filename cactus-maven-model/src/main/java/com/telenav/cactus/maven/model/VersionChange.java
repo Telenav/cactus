@@ -18,8 +18,13 @@
 package com.telenav.cactus.maven.model;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.model.VersionFlavor.SNAPSHOT;
+import static java.util.Arrays.asList;
 
 /**
  * Models a change from an old version to a new version.
@@ -33,6 +38,28 @@ public final class VersionChange
     {
         this.oldVersion = notNull("oldVersion", oldVersion);
         this.newVersion = notNull("newVersion", newVersion);
+    }
+
+    /**
+     * Determine if this version change will reduce the version
+     *
+     * @return
+     */
+    public boolean isDowngrade()
+    {
+        if (!isChange())
+        {
+            return false;
+        }
+        List<PomVersion> both = new ArrayList<>(asList(oldVersion,
+                newVersion));
+        both.sort(Comparator.naturalOrder());
+        boolean result = both.indexOf(newVersion) != 1;
+        if (result && oldVersion.flavor() == SNAPSHOT && newVersion.flavor() != SNAPSHOT)
+        {
+            result = false;
+        }
+        return result;
     }
 
     /**

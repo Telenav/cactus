@@ -227,4 +227,15 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
         return func.apply(sb.toString(), what.substring(sb.length(), what
                 .length()));
     }
+
+    /**
+     * Create a version change from this to some other version.
+     * 
+     * @param newVersion The new version
+     * @return a version change
+     */
+    public VersionChange to(PomVersion newVersion)
+    {
+        return new VersionChange(this, newVersion);
+    }
 }

@@ -297,15 +297,35 @@ public class VersionReplacementFinder
                             // If it has its own <version> tag, change its version
                             if (pom.hasExplicitVersion())
                             {
-                                changes.changePomVersion(pom,
-                                        expectedVersionChange);
+                                if (filter.shouldUpdatePomVersion(pom,
+                                        expectedVersionChange))
+                                {
+                                    changes.changePomVersion(pom,
+                                            expectedVersionChange);
+                                }
                             }
                             else
                             {
                                 // Else the version comes from its parent so we
                                 // will change that
-                                changes.changeParentVersion(pom,
-                                        expectedVersionChange);
+                                if (filter.shouldUpdateParentVersion(pom,
+                                        categories.parentOf(pom).get(),
+                                        expectedVersionChange))
+                                {
+                                    changes.changeParentVersion(pom,
+                                            expectedVersionChange);
+                                }
+                                else
+                                    if (filter.shouldUpdatePomVersion(pom,
+                                            pom.version().to(
+                                                    expectedVersionChange
+                                                            .newVersion())))
+                                    {
+                                        changes.changePomVersion(pom, pom
+                                                .version().to(
+                                                        expectedVersionChange
+                                                                .newVersion()));
+                                    }
                             }
                         }
                 }
@@ -483,7 +503,20 @@ public class VersionReplacementFinder
         if (vc == null && !pom.hasExplicitVersion())
         {
             vc = parentVersionChanges.get(pom);
+            if (!filter.shouldUpdateParentVersion(pom, categories.parentOf(pom)
+                    .get(), vc))
+            {
+                return null;
+            }
         }
+        else
+        {
+            if (!filter.shouldUpdatePomVersion(pom, vc))
+            {
+                return null;
+            }
+        }
+
         return vc;
     }
 
@@ -498,15 +531,34 @@ public class VersionReplacementFinder
             if (!pom.hasExplicitVersion())
             {
                 Optional<Pom> par = categories.parentOf(pom);
+                boolean removeVersion = true;
                 if (par.isPresent())
                 {
                     VersionChange vc = versionChangeFor(par.get());
                     if (vc != null)
                     {
-                        changes.changeParentVersion(pom, vc);
+                        if (filter.shouldUpdateParentVersion(pom, par.get(), vc))
+                        {
+                            changes.changeParentVersion(pom, vc);
+                        }
+                        else
+                            if (filter.shouldUpdatePomVersion(pom, vc))
+                            {
+                                changes.changePomVersion(pom, vc);
+                                removeVersion = false;
+                            }
                     }
                 }
-                changes.removePomVersionChange(pom);
+                // If this is an inserted version because we are not allowed to
+                // update the pom - its version differs from the one seen - 
+                // then we should not remove it
+                removeVersion &= versionChange.newVersion().equals(
+                        familyVersionChanges.get(ProjectFamily.fromGroupId(
+                                pom.groupId())));
+                if (removeVersion)
+                {
+                    changes.removePomVersionChange(pom);
+                }
             }
         });
     }
@@ -516,6 +568,38 @@ public class VersionReplacementFinder
         Bool any = Bool.create();
         propertyChanges.collectMatches(pom, (kind, prop) ->
         {
+            if (kind.isFamily())
+            {
+                ProjectFamily family = (ProjectFamily) prop.pointsTo();
+                VersionChange ver = familyVersionChanges.get(family);
+                if (ver == null || !filter.shouldUpdateVersionProperty(pom,
+                        prop.property,
+                        ver.newVersion(), prop.oldValue))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                MavenCoordinates targetCoords = (MavenCoordinates) prop
+                        .pointsTo();
+                boolean accepted = categories.forCoordinates(targetCoords).map(
+                        lib ->
+                {
+                    VersionChange ch = versionChangeFor(lib);
+                    if (ch == null)
+                    {
+                        return false;
+                    }
+                    return filter.shouldUpdateVersionProperty(
+                            pom, prop.property, ch.newVersion(), prop.oldValue);
+                }).orElse(false);
+                if (!accepted)
+                {
+                    return;
+                }
+            }
+
             any.set();
         });
         return any.getAsBoolean();
@@ -572,11 +656,24 @@ public class VersionReplacementFinder
                     {
                         if (pom.hasExplicitVersion())
                         {
-                            changes.changePomVersion(pom, ch);
+                            if (filter.shouldUpdatePomVersion(pom, ch))
+                            {
+                                changes.changePomVersion(pom, ch);
+                            }
                         }
                         else
                         {
-                            changes.changeParentVersion(pom, ch);
+                            // Only add a parent change if we are really able to update the
+                            // parent's pom
+                            if (filter.shouldUpdatePomVersion(categories
+                                    .parentOf(pom).get(), ch))
+                            {
+                                changes.changeParentVersion(pom, ch);
+                            }
+                            else
+                            {
+                                changes.changePomVersion(pom, ch);
+                            }
                         }
                     }
                     else
@@ -602,7 +699,10 @@ public class VersionReplacementFinder
                                     flavorChange).get();
                             VersionChange newChange = new VersionChange(
                                     currVersion, newVersion);
-                            changes.changePomVersion(pom, newChange);
+                            if (filter.shouldUpdatePomVersion(pom, newChange))
+                            {
+                                changes.changePomVersion(pom, newChange);
+                            }
                         }
                 }
                 else
@@ -615,7 +715,15 @@ public class VersionReplacementFinder
                                 currVersion, newVersion);
                         if (pom.hasExplicitVersion())
                         {
-                            changes.changePomVersion(pom, newChange);
+                            if (filter.shouldUpdatePomVersion(pom, newChange))
+                            {
+                                changes.changePomVersion(pom, newChange);
+                            }
+                            else
+                            {
+                                System.out.println(
+                                        "CANNOT UPDATE POM FOR PROP CHANGE IN " + pom);
+                            }
                         }
                     }
                 }
@@ -689,7 +797,6 @@ public class VersionReplacementFinder
                 {
                     if (filterAccepts(prop, PomVersion.of(newValue)))
                     {
-
                         String query = "/project/properties/" + prop.property;
                         replacers.add(
                                 new XMLTextContentReplacement(PomFile.of(pom),
@@ -702,7 +809,6 @@ public class VersionReplacementFinder
             {
                 if (filter.shouldUpdatePomVersion(pom, vc))
                 {
-
                     if (pom.hasExplicitVersion())
                     {
                         String query = "/project/version";
@@ -723,15 +829,10 @@ public class VersionReplacementFinder
             if (parentChange != null)
             {
                 Pom parentPom = categories.parentOf(pom).get();
-                if (filter.shouldUpdateParentVersion(pom, parentPom,
-                        parentChange))
-                {
-
-                    String query = "/project/parent/version";
-                    replacers.add(new XMLTextContentReplacement(PomFile.of(pom),
-                            query,
-                            parentChange.newVersion().text()));
-                }
+                String query = "/project/parent/version";
+                replacers.add(new XMLTextContentReplacement(PomFile.of(pom),
+                        query,
+                        parentChange.newVersion().text()));
             }
         });
         return replacers;

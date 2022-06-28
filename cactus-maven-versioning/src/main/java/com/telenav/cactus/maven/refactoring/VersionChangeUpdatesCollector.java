@@ -59,31 +59,12 @@ final class VersionChangeUpdatesCollector
         return result;
     }
 
-    void set()
-    {
-        hasChanges = true;
-        System.out.println("Set.");
-    }
-
-    void or(boolean val)
-    {
-        if (val)
-        {
-            System.out.println("OR'd");
-        }
-        hasChanges |= val;
-    }
-
     boolean removePomVersionChange(Pom pom)
     {
         VersionChange oldChange = pomVersionChanges.remove(Checks.notNull("pom",
                 pom));
         boolean result = oldChange != null;
         hasChanges |= result;
-        if (result)
-        {
-            System.out.println("removePomVersionChange " + pom);
-        }
         return result;
     }
 
@@ -94,10 +75,6 @@ final class VersionChangeUpdatesCollector
                 pom));
         boolean result = oldChange != null;
         hasChanges |= result;
-        if (result)
-        {
-            System.out.println("removeParentVersionChange " + pom);
-        }
         return result;
     }
 
@@ -108,11 +85,6 @@ final class VersionChangeUpdatesCollector
         boolean was = hasChanges;
         boolean result = !Objects.equals(old, change);
         hasChanges |= result;
-        if (!was && result)
-        {
-            System.out.println(
-                    "changePomVersion " + old + " -> " + change + " for " + pom);
-        }
         return result;
     }
 
@@ -123,11 +95,6 @@ final class VersionChangeUpdatesCollector
         boolean was = hasChanges;
         boolean result = !Objects.equals(old, change);
         hasChanges |= result;
-        if (!was && result)
-        {
-            System.out.println(
-                    "changeParentVersion " + old + " -> " + change + " for " + pom);
-        }
         return result;
     }
 

@@ -50,6 +50,11 @@ public class XMLFile
     {
         this.path = notNull("path", path);
     }
+    
+    @Override
+    public String toString() {
+        return path.toString();
+    }
 
     /**
      * Get the document. If inside the closure of one of the inContext()

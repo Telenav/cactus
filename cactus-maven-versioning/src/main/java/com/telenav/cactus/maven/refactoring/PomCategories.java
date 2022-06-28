@@ -152,6 +152,10 @@ public final class PomCategories
         }
         return result;
     }
+    
+    public ThrowingOptional<Pom> forCoordinates(MavenCoordinates coords) {
+        return poms.get(coords);
+    }
 
     private void onPom(PomRole role, Pom pom)
     {
