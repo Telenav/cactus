@@ -294,7 +294,7 @@ class VersionUpdateFinder
                         }
                         else
                         {
-                            changes.addVersionMismatch(pom);
+//                            changes.addVersionMismatch(pom);
                             changed.set(true); // HUH?
                             System.out.println(
                                     "PUNT ONE " + pom + " " + pomChange);
