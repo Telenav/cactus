@@ -164,24 +164,27 @@ class VersionUpdateFinder
 
             if (isFamilyEffectivelyUpdated(fam))
             {
+                // Find the new project version we have been bumping to
                 Set<Pom> changedPomsInFamily = changes.changedPomsInFamily(fam);
                 mostCommonVersion(changedPomsInFamily)
-                        .ifPresent(mostCommonVersion ->
+                        .ifPresent(mostCommonVersion -> // it will be present unless collection empty
                         {
-                            mostCommonVersion(changedPomsInFamily)
+                            // Find the old project version we have
+                            mostCommonVersion(categories.pomsForFamily(fam))
                                     .ifPresent(
                                             oldVersion ->
                                     {
+                                        // Create a new change
                                         oldVersion.to(mostCommonVersion)
-                                                .ifPresent(newChange ->
+                                                .ifPresent(newChange -> // if they are not the same
                                                 {
                                                     changed.set();
+                                                    // Create a new effective family version change,
+                                                    // and the next round will apply it
                                                     syntheticFamilyVersionChanges
                                                             .put(fam, newChange);
                                                 });
-
                                     });
-
                         });
             }
         }
@@ -362,20 +365,20 @@ class VersionUpdateFinder
                                     if (changes.changePomVersion(pom,
                                             updatedPomVersion).isChange())
                                     {
+                                        // If we're changing a parent pom's version,
+                                        // walk all of its children and apply the
+                                        // appropriate parent change to them
                                         cascadeChange(pom, updatedPomVersion);
                                     }
                                 });
                             };
-                            if (vc != null)
+                            if (vc != null && superpomBumpPolicy.isBumpVersion())
                             {
-                                if (superpomBumpPolicy.isBumpVersion())
-                                {
-                                    pom.version().updatedWith(
-                                            superpomBumpPolicy.magnitudeFor(vc),
-                                            superpomBumpPolicy.changeFor(
-                                                    vc.newVersion()))
-                                            .ifPresent(newVersionConsumer);
-                                }
+                                pom.version().updatedWith(
+                                        superpomBumpPolicy.magnitudeFor(vc),
+                                        superpomBumpPolicy.changeFor(
+                                                vc.newVersion()))
+                                        .ifPresent(newVersionConsumer);
                             }
                             else
                             {

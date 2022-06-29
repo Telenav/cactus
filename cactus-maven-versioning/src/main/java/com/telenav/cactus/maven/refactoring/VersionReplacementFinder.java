@@ -32,7 +32,6 @@ import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
 import com.telenav.cactus.maven.xml.XMLElementRemoval;
 import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,38 +122,6 @@ public class VersionReplacementFinder
         this.filter = filter;
         needResolve = true;
         return this;
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-//        Poms poms = Poms.in(Paths.get("/Users/timb/work/telenav/jonstuff"));
-//        Poms poms = Poms.in(Paths.get("/Users/timb/work/personal/mastfrog-parent"));
-        Poms poms = Poms.in(Paths.get(
-                "/Users/timb/work/personal/http-test-harness"));
-//        Poms poms = Poms.in(Paths.get("/tmp/jonstuff"));
-        VersionReplacementFinder vr = new VersionReplacementFinder(poms)
-                .withSuperpomBumpPolicy(
-                        SuperpomBumpPolicy.BUMP_ACQUIRING_NEW_FAMILY_FLAVOR)
-                .withVersionMismatchPolicy(VersionMismatchPolicyOutcome.SKIP)
-                .withSinglePomChange(ArtifactId.of("http-test-harness-parent"),
-                        PomVersion.of("0.9.6-dev")) //                .withFamilyVersionChange(ProjectFamily.named("mastfrog"),
-                //                        PomVersion.of("2.0.102"), PomVersion.of("2.0.103")) 
-                //                .withSinglePomChange(
-                //                        ArtifactId.of("telenav-build"),
-                //                        PomVersion.of("2.1.1"))
-                //                .withFamilyVersionChange(ProjectFamily.named("cactus"),
-                //                        PomVersion.of("1.4.12"),
-                //                        PomVersion.of("1.5.0-SNAPSHOT"))
-                //                .withFamilyVersionChange(ProjectFamily.named("kivakit"),
-                //                        PomVersion.of("1.6.0"),
-                //                        PomVersion.of("1.6.2-SNAPSHOT"))
-                //                .withFamilyVersionChange(ProjectFamily.named("lexakai"),
-                //                        PomVersion.of("1.0.8"),
-                //                        PomVersion.of("1.0.9"))
-                //x
-                ;
-        System.out.println(vr);
-        vr.go();
     }
 
     public VersionReplacementFinder withSinglePomChange(

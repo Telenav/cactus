@@ -72,8 +72,9 @@ final class VersionChangeUpdatesCollector
     {
         return unmodifiableMap(parentVersionChanges);
     }
-    
-    Set<Pom> versionMismatches() {
+
+    Set<Pom> versionMismatches()
+    {
         return unmodifiableSet(versionMismatches);
     }
 
@@ -102,10 +103,6 @@ final class VersionChangeUpdatesCollector
     {
         boolean result = hasChanges;
         hasChanges = false;
-        if (result)
-        {
-            System.out.println("reset.");
-        }
         return result;
     }
 
@@ -166,13 +163,6 @@ final class VersionChangeUpdatesCollector
                 .computeIfAbsent(pom,
                         p -> new HashSet<>());
         ChangeResult result = ChangeResult.changeResult(changes.add(change));
-        if (result.isChange())
-        {
-            if (change.newValue().text().equals("2.0.2"))
-            {
-                new Exception("HAVE 202 CHANGE ").printStackTrace();
-            }
-        }
         return result;
     }
 
@@ -207,19 +197,8 @@ final class VersionChangeUpdatesCollector
         if (result)
         {
             versionMismatches.remove(pom);
-            if (old != null)
-            {
-                System.out.println(
-                        "REPLACE POM V " + pom + " old " + old + " new " + change);
-            }
         }
         hasChanges |= result;
-        if (!was && result)
-        {
-            System.out.println(
-                    "changePomVersion " + old + " -> " + change
-                    + " for " + pom);
-        }
         return ChangeResult.changeResult(result);
     }
 
@@ -242,12 +221,6 @@ final class VersionChangeUpdatesCollector
             versionMismatches.remove(pom);
         }
         hasChanges |= result;
-        if (!was && result)
-        {
-            System.out.println(
-                    "changeParentVersion " + old + " -> " + change
-                    + " for " + pom);
-        }
         return ChangeResult.changeResult(result);
     }
 

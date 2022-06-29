@@ -281,6 +281,7 @@ public class DependencyGraphBuilder
                 .withPostFilter((dep)
                         -> dep.groupId().textContains("com.mastfrog")
                         && !dep.artifactId().is("util-preconditions")
+                        && !dep.artifactId().textContains("testpro")
                 )
 //                .graphingAllJavaAndPomProjects()
 //                .graphing(ArtifactId.of("kivakit-examples-microservice"))

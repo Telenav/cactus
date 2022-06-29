@@ -20,9 +20,9 @@ package com.telenav.cactus.maven.refactoring;
 import com.telenav.cactus.maven.model.Pom;
 
 /**
- * A property which represents a single occurrence of a property in a single
- * pom, representing a version of a family or a project. Will be parameterized
- * on MavenCoordinates or ProjectFamily depending on what it applies to.
+ * A single occurrence of a property in a single pom, representing a version of
+ * a family or a project. Will be parameterized on MavenCoordinates or
+ * ProjectFamily depending on what it applies to.
  *
  * @author Tim Boudreau
  */
@@ -79,7 +79,8 @@ final class VersionProperty<T>
     @Override
     public String toString()
     {
-        return in.path().getParent().getFileName().resolve(in.path().getFileName())
+        return in.path().getParent().getFileName().resolve(in.path()
+                .getFileName())
                 + "\t" + property + " in " + target
                 + " currently " + oldValue;
     }
@@ -96,7 +97,7 @@ final class VersionProperty<T>
             {
                 return false;
             }
-        VersionProperty vp = (VersionProperty) obj;
+        VersionProperty<?> vp = (VersionProperty<?>) obj;
         return property.equals(vp.property) && in.equals(vp.in) && target
                 .equals(vp.target);
     }
