@@ -65,8 +65,9 @@ public class CommitMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = COMMIT_MESSAGE, required = true)
     private String commitMessage;
-    
-    static {
+
+    static
+    {
         System.out.println("CM: '" + COMMIT_MESSAGE + "'");
     }
 
@@ -118,7 +119,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
             }
         }
 
-        CommitMessage msg = new CommitMessage(commitMessage);
+        CommitMessage msg = new CommitMessage(CommitMojo.class, commitMessage);
         addCommitMessageDetail(msg, checkouts);
 
         log.info("Begin commit with message '" + commitMessage + "'");

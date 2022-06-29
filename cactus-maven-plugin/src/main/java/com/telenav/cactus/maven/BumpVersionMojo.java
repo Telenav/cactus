@@ -631,8 +631,9 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         BuildLog lg = log().child("commit");
         lg.warn("Begin commit of " + owners.size() + " repository");
-        CommitMessage msg = new CommitMessage("Updated versions of " + replacer
-                .changeCount() + " projects");
+        CommitMessage msg = new CommitMessage(BumpVersionMojo.class,
+                "Updated versions of " + replacer.changeCount()
+                + " projects");
         singleVersion.ifPresent(ver ->
         {
             msg.append("Bump version to " + ver);
