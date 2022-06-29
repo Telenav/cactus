@@ -226,19 +226,4 @@ public class CommitMessage
             return result.toString();
         }
     }
-
-    public static void main(String[] args)
-    {
-        CommitMessage msg = new CommitMessage(CommitMessage.class,
-                "Did things to stuff");
-        msg.append("Did a bunch of stuff to a bunch of other stuff.")
-                .append("Some of the stuff was good.  Some of the stuff was bad."
-                        + " All if it was done.");
-        msg.section("The Stuff").bulletPoint("Stuff").bulletPoint(
-                "More Stuff")
-                .subsection("Other Things I Did")
-                .paragraph("I did some stuff!")
-                .finish().finish();
-        System.out.println(msg);
-    }
 }
