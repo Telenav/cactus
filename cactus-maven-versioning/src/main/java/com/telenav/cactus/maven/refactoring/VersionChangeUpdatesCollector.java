@@ -193,10 +193,6 @@ final class VersionChangeUpdatesCollector
 
     ChangeResult changePomVersion(Pom pom, VersionChange change)
     {
-        if (pom.artifactId().is("telenav-superpom-mesakit"))
-        {
-            new Exception("GOTCHA " + pom + " - " + change).printStackTrace();
-        }
         if (!filter.shouldUpdatePomVersion(notNull("pom", pom),
                 notNull("change", change)))
         {
@@ -230,13 +226,6 @@ final class VersionChangeUpdatesCollector
     ChangeResult changeParentVersion(Pom pom, Pom parentPom,
             VersionChange change)
     {
-        if (pom.artifactId().is("telenav-superpom-mesakit") || parentPom
-                .artifactId().is("telenav-superpom-mesakit"))
-        {
-            new Exception("GOTCHA-2 " + pom + " - " + parentPom + " " + change)
-                    .printStackTrace();
-        }
-
         if (!filter.shouldUpdateParentVersion(notNull("pom", pom), notNull(
                 "parentPom", parentPom), notNull("change", change)))
         {

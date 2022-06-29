@@ -401,7 +401,8 @@ class VersionUpdateFinder
         {
             // No need to process a family more than once - it will not
             // get any more complete than complete
-            if (completedFamilies.contains(family)) {
+            if (completedFamilies.contains(family))
+            {
                 return;
             }
             // Go through all the poms
@@ -645,7 +646,7 @@ class VersionUpdateFinder
             }
             if (change == null || c.test(pom, change))
             {
-                versionMismatches().remove(pom);
+                changes.removeVersionMismatch(pom);
             }
         }
     }
