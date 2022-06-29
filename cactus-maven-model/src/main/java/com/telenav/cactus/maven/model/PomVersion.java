@@ -5,6 +5,7 @@ import com.telenav.cactus.maven.model.resolver.versions.VersionComparator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,8 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
 
     public static PomVersion of(String what)
     {
-        if (PLACEHOLDER.equals(what)) {
+        if (PLACEHOLDER.equals(what))
+        {
             return UNKNOWN;
         }
         return new PomVersion(notNull("what", what).trim());
@@ -281,6 +283,56 @@ public final class PomVersion extends ResolvablePomElement<PomVersion>
                 .length()));
     }
 
+    /**
+     * In a collection of objects that have a version, find the most prevalent
+     * version.
+     *
+     * @param c A collection
+     * @param tieBreaker A tie-breaker, for the case that each version occurs
+     * only once
+     * @return The version encountered the most in the collection
+     */
+    public static Optional<PomVersion> mostCommonVersion(
+            Collection<? extends MavenArtifactCoordinates> c,
+            Comparator<MavenArtifactCoordinates> tieBreaker)
+    {
+        if (c.isEmpty())
+        {
+            return Optional.empty();
+        }
+        Map<PomVersion, Integer> map = new HashMap<>();
+
+        int max = Integer.MIN_VALUE;
+        for (MavenArtifactCoordinates mv : c)
+        {
+            Integer count = map.compute(mv.version(),
+                    (k, oldCount) -> oldCount == null
+                                     ? 1
+                                     : oldCount + 1);
+            max = Math.max(max, count);
+        }
+        List<Map.Entry<PomVersion, Integer>> entries = new ArrayList<>(map
+                .entrySet());
+        if (max == 1)
+        {
+            List<MavenArtifactCoordinates> fallbackList = new ArrayList<>(c);
+            Collections.sort(fallbackList, tieBreaker);
+            return Optional.of(fallbackList.get(0).version());
+        }
+        Collections.sort(entries, (a, b) ->
+        {
+            return b.getValue().compareTo(a.getValue());
+        });
+        return Optional.of(entries.get(0).getKey());
+    }
+
+    /**
+     * In a collection of objects that have a version, find the most prevalent
+     * version.
+     *
+     * @param c A collection
+     * @return The version encountered the most in the collection
+     */
     public static Optional<PomVersion> mostCommonVersion(
             Collection<? extends MavenVersioned> c)
     {

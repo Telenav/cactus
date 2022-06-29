@@ -19,14 +19,24 @@ package com.telenav.cactus.scope;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.util.strings.LevenshteinDistance;
 import com.telenav.cactus.maven.model.GroupId;
+import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
 import com.telenav.cactus.maven.model.MavenIdentified;
+import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.util.PathUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.model.PomVersion.mostCommonVersion;
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * A project family a Maven project may belong to, as determined by the last
@@ -314,8 +324,8 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     }
 
     /**
-     * Run the passed code if this family is the parent family of
-     * the passed group id.
+     * Run the passed code if this family is the parent family of the passed
+     * group id.
      *
      * @param groupId A group id
      */
@@ -328,10 +338,10 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     }
 
     /**
-     * Determine if this family is the parent family of the passed group
-     * id
+     * Determine if this family is the parent family of the passed group id
+     *
      * @param gid
-     * @return 
+     * @return
      */
     public boolean isParentFamilyOf(String gid)
     {
@@ -342,7 +352,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
         }
         return fromGroupId(gid).equals(this);
     }
-    
+
     /**
      * Get the name of this project family.
      *
@@ -357,5 +367,35 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     public String toString()
     {
         return name;
+    }
+
+    /**
+     * Find the version of a family, as best it can be determined. Uses, the
+     * most prevalent version found in the collections, with one twist: If each
+     * version occurs exactly once, then the version picked up will be that with
+     * the least levenshtein distance to the name of this family (we have
+     * exactly this situation with lexakai, lexakai-annotations and
+     * lexakai-superpom, each of which has a different version that appears only
+     * once).
+     *
+     * @param coords
+     * @return
+     */
+    public Optional<PomVersion> probableFamilyVersion(
+            Collection<? extends MavenArtifactCoordinates> coords)
+    {
+        List<MavenArtifactCoordinates> filtered
+                = coords.stream().filter(this::is)
+                        .collect(toCollection(ArrayList::new));
+
+        Comparator<String> nameDistance
+                = LevenshteinDistance.distanceComparator(name());
+
+        Comparator<MavenArtifactCoordinates> c = (a, b) ->
+        {
+            return nameDistance.compare(a.artifactId().text(), b.artifactId()
+                    .text());
+        };
+        return mostCommonVersion(filtered, c);
     }
 }

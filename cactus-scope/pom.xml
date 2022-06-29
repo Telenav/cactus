@@ -16,5 +16,9 @@
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-maven-model</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>util-strings</artifactId>
+        </dependency>
     </dependencies>
 </project>

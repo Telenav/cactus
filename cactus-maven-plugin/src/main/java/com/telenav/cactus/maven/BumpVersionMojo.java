@@ -23,8 +23,6 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.model.ArtifactId;
-import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.VersionFlavor;
@@ -41,11 +39,8 @@ import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -269,6 +264,9 @@ public class BumpVersionMojo extends ReplaceMojo
     @Parameter(property = "cactus.development.branch", defaultValue = "develop")
     String developmentBranch;
 
+    @Parameter(property = "cactus.families", required = false)
+    String families;
+
     private VersionUpdateFilter filter()
     {
         if (singleFamily)
@@ -287,6 +285,26 @@ public class BumpVersionMojo extends ReplaceMojo
             throws Exception
     {
         super.onValidateParameters(log, project);
+
+        switch (scope())
+        {
+            case ALL:
+            case ALL_PROJECT_FAMILIES:
+            case JUST_THIS:
+            case SAME_GROUP_ID:
+            case FAMILY_OR_CHILD_FAMILY:
+                if (families != null && !families.trim().isEmpty())
+                {
+                    fail("cactus.families can only be used with cactus.scope=family");
+                }
+                break;
+            default:
+                if (createReleaseBranch && families().size() > 1)
+                {
+                    fail("cactus.families cannot be used together with createReleaseBranch");
+                }
+        }
+
         VersionChangeMagnitude mag = magnitude();
         VersionFlavorChange flavor = flavor();
 
@@ -362,44 +380,15 @@ public class BumpVersionMojo extends ReplaceMojo
         return updatedVersion;
     }
 
-    private PomVersion findVersionOfFamily(ProjectTree tree)
+    private Optional<PomVersion> findVersionOfFamily(ProjectTree tree)
     {
         return findVersionOfFamily(tree, projectFamily());
     }
 
-    private PomVersion findVersionOfFamily(ProjectTree tree,
+    private Optional<PomVersion> findVersionOfFamily(ProjectTree tree,
             ProjectFamily family)
     {
-        // Since we have parent-of-parent poms that may have different
-        // versions, simply select the most represented version
-        Map<PomVersion, Integer> counts = new HashMap<>();
-        tree.projectsForFamily(family).forEach(pom ->
-        {
-            counts.compute(pom.version(), (k, old) ->
-            {
-                if (old == null)
-                {
-                    old = 1;
-                }
-                else
-                {
-                    old = old + 1;
-                }
-                return old;
-            });
-        });
-        if (counts.isEmpty())
-        {
-            throw new IllegalArgumentException(
-                    "No projects in " + projectFamily() + " found");
-        }
-        List<Map.Entry<PomVersion, Integer>> entries = new ArrayList<>(counts
-                .entrySet());
-        Collections.sort(entries, (a, b) ->
-        {
-            return b.getValue().compareTo(a.getValue());
-        });
-        return entries.get(0).getKey();
+        return family.probableFamilyVersion(tree.allProjects());
     }
 
     private Set<ProjectFamily> allFamilies(ProjectTree tree)
@@ -503,50 +492,59 @@ public class BumpVersionMojo extends ReplaceMojo
                 });
                 break;
             case FAMILY:
-                PomVersion v = findVersionOfFamily(tree);
-                PomVersion nue;
-                if (explicitVersion != null)
+                for (ProjectFamily fam : families())
                 {
-                    nue = PomVersion.of(explicitVersion);
+                    findVersionOfFamily(tree, fam).ifPresent(v ->
+                    {
+                        PomVersion nue;
+                        if (explicitVersion != null)
+                        {
+                            nue = PomVersion.of(explicitVersion);
+                        }
+                        else
+                        {
+                            nue = v.updatedWith(
+                                    magnitude(),
+                                    flavor())
+                                    .get();
+                        }
+                        singleVersion.set(v);
+                        replacer.withFamilyVersionChange(fam,
+                                v,
+                                nue);
+                    });
                 }
-                else
-                {
-                    nue = v.updatedWith(
-                            magnitude(),
-                            flavor())
-                            .get();
-                }
-                singleVersion.set(v);
-                replacer.withFamilyVersionChange(projectFamily(),
-                        v,
-                        nue);
                 break;
             case FAMILY_OR_CHILD_FAMILY:
                 familyWithChildFamilies(tree).forEach(family ->
                 {
-                    PomVersion familyVersion = findVersionOfFamily(tree, family);
-                    PomVersion newFamilyVersion = familyVersion.updatedWith(
-                            magnitude(),
-                            flavor()).get();
-                    singleVersion.accept(newFamilyVersion);
-                    replacer.withFamilyVersionChange(family,
-                            familyVersion,
-                            newFamilyVersion);
+                    findVersionOfFamily(tree, family).ifPresent(familyVersion ->
+                    {
+                        PomVersion newFamilyVersion = familyVersion.updatedWith(
+                                magnitude(),
+                                flavor()).get();
+                        singleVersion.accept(newFamilyVersion);
+                        replacer.withFamilyVersionChange(family,
+                                familyVersion,
+                                newFamilyVersion);
+                    });
                 });
                 break;
             case ALL:
             case ALL_PROJECT_FAMILIES:
                 allFamilies(tree).forEach(family ->
                 {
-                    PomVersion familyVersion = findVersionOfFamily(tree, family);
-                    PomVersion newFamilyVersion = familyVersion.updatedWith(
-                            magnitude(),
-                            flavor()).get();
+                    findVersionOfFamily(tree, family).ifPresent(familyVersion ->
+                    {
+                        PomVersion newFamilyVersion = familyVersion.updatedWith(
+                                magnitude(),
+                                flavor()).get();
 
-                    singleVersion.accept(newFamilyVersion);
-                    replacer.withFamilyVersionChange(family,
-                            familyVersion,
-                            newFamilyVersion);
+                        singleVersion.accept(newFamilyVersion);
+                        replacer.withFamilyVersionChange(family,
+                                familyVersion,
+                                newFamilyVersion);
+                    });
                 });
                 break;
             default:
@@ -608,6 +606,21 @@ public class BumpVersionMojo extends ReplaceMojo
                     "Unrecognized magnitude change flavoer '" + versionChangeMagnitude + "'");
         }
         return mag.get();
+    }
+
+    Set<ProjectFamily> families()
+    {
+        Set<ProjectFamily> result = new HashSet<>();
+        result.add(projectFamily());
+        for (String s : families.split(","))
+        {
+            s = s.trim();
+            if (!s.isEmpty())
+            {
+                result.add(ProjectFamily.named(s));
+            }
+        }
+        return result;
     }
 
     VersionFlavorChange flavor()

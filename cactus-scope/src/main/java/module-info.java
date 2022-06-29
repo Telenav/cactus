@@ -21,5 +21,6 @@ open module cactus.maven.scope {
     requires com.mastfrog.function;
     requires com.telenav.cactus.util;
     requires cactus.maven.model;
+    requires com.mastfrog.strings;
     exports com.telenav.cactus.scope;
 }
