@@ -22,14 +22,19 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.scope.ProjectFamily;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -66,11 +71,6 @@ public class CommitMojo extends ScopedCheckoutsMojo
     @Parameter(property = COMMIT_MESSAGE, required = true)
     private String commitMessage;
 
-    static
-    {
-        System.out.println("CM: '" + COMMIT_MESSAGE + "'");
-    }
-
     /**
      * If true, do not call <code>git add -A</code> before committing - only
      * commit that which has been manually staged.
@@ -85,13 +85,51 @@ public class CommitMojo extends ScopedCheckoutsMojo
     @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
 
+    /**
+     * Hotfix for multiple families.
+     */
+    @Parameter(property = "cactus.families", required = false)
+    String families;
+
+    private List<GitCheckout> applyFamilies(ProjectTree tree,
+            List<GitCheckout> old) throws MojoExecutionException
+    {
+        // Pending - this belongs in ScopeMojo, and all mojos need updating
+        // to deal with family being a potential set of families.
+        // This is quick and dirty to get a release out.
+        if (families != null && !families.isBlank())
+        {
+            Set<ProjectFamily> fams = new HashSet<>();
+            for (String fam : families.split(","))
+            {
+                if (!fam.isBlank())
+                {
+                    fams.add(ProjectFamily.named(fam.trim()));
+                }
+            }
+            Set<GitCheckout> checkouts = new LinkedHashSet<>();
+            for (ProjectFamily fam : fams)
+            {
+                checkouts.addAll(tree.checkoutsInProjectFamily(fam));
+            }
+            if (checkouts.isEmpty())
+            {
+                fail("No checkouts in families " + fams);
+            }
+            log.info("Using " + " for " + families + ": " + checkouts);
+            return new ArrayList<>(checkouts);
+        }
+        return old;
+    }
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> matched) throws Exception
     {
-        List<GitCheckout> checkouts = matched.stream().filter(
-                GitCheckout::hasUncommitedChanges)
+        List<GitCheckout> checkouts = applyFamilies(tree, matched).stream()
+                .filter(
+                        GitCheckout::hasUncommitedChanges)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (checkouts.isEmpty())

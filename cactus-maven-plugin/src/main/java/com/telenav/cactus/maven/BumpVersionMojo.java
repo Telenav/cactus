@@ -296,7 +296,7 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         super.onValidateParameters(log, project);
 
-        if (family != null && families != null)
+        if ((family != null && !family.isEmpty()) && (families != null && !families.isBlank()))
         {
             fail("Can use one of family or families, not both");
         }
