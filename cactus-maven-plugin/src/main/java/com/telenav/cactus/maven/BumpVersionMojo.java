@@ -268,11 +268,11 @@ public class BumpVersionMojo extends ReplaceMojo
     String developmentBranch;
 
     /**
-     * Allows to bump the version of multiple families in one pass - if
-     * you have properties for the versions of things from multiple families in
-     * your superpoms, this allows a single update to those superpoms to
-     * take care of updates to more than one family without bumping their version
-     * once to set up one set of properties, and again to set up another.
+     * Allows to bump the version of multiple families in one pass - if you have
+     * properties for the versions of things from multiple families in your
+     * superpoms, this allows a single update to those superpoms to take care of
+     * updates to more than one family without bumping their version once to set
+     * up one set of properties, and again to set up another.
      */
     @Parameter(property = "cactus.families", required = false)
     String families;
@@ -295,6 +295,11 @@ public class BumpVersionMojo extends ReplaceMojo
             throws Exception
     {
         super.onValidateParameters(log, project);
+
+        if (family != null && families != null)
+        {
+            fail("Can use one of family or families, not both");
+        }
 
         switch (scope())
         {
@@ -622,7 +627,7 @@ public class BumpVersionMojo extends ReplaceMojo
     Set<ProjectFamily> families()
     {
         Set<ProjectFamily> result = new HashSet<>();
-        result.add(projectFamily());
+
         if (families != null)
         {
             for (String s : families.split(","))
@@ -633,6 +638,10 @@ public class BumpVersionMojo extends ReplaceMojo
                     result.add(ProjectFamily.named(s));
                 }
             }
+        }
+        else
+        {
+            result.add(projectFamily());
         }
         return result;
     }

@@ -91,7 +91,7 @@ public abstract class ScopeMojo extends BaseMojo
      * the project's group id. Only relevant for scopes concerned with families.
      */
     @Parameter(property = FAMILY, defaultValue = "")
-    private String family;
+    protected String family;
 
     private Scope scopeValue;
     private GitCheckout myCheckout;
