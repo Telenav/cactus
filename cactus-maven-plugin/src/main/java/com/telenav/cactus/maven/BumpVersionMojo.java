@@ -613,12 +613,15 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         Set<ProjectFamily> result = new HashSet<>();
         result.add(projectFamily());
-        for (String s : families.split(","))
+        if (families != null)
         {
-            s = s.trim();
-            if (!s.isEmpty())
+            for (String s : families.split(","))
             {
-                result.add(ProjectFamily.named(s));
+                s = s.trim();
+                if (!s.isEmpty())
+                {
+                    result.add(ProjectFamily.named(s));
+                }
             }
         }
         return result;
