@@ -261,9 +261,19 @@ public class BumpVersionMojo extends ReplaceMojo
     @Parameter(property = "cactus.create.release.branch", defaultValue = "false")
     boolean createReleaseBranch;
 
+    /**
+     * Only used when creating a release branch.
+     */
     @Parameter(property = "cactus.development.branch", defaultValue = "develop")
     String developmentBranch;
 
+    /**
+     * Allows to bump the version of multiple families in one pass - if
+     * you have properties for the versions of things from multiple families in
+     * your superpoms, this allows a single update to those superpoms to
+     * take care of updates to more than one family without bumping their version
+     * once to set up one set of properties, and again to set up another.
+     */
     @Parameter(property = "cactus.families", required = false)
     String families;
 

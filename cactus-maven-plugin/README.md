@@ -8,6 +8,46 @@ together with a root bill-of-materials POM using Git submodules. You can think o
 this development style as an extension to git-flow for large, multi-module sets 
 of related projects.
 
+## Assumptions and Use Cases
+
+Where this plugin is really useful is in projects which are large trees of multi-module
+projects, particularly when those use git submodules, and you occasionally make changes
+that span multiple modules.  For example, say you have changes in several projects in
+different submodules you want to commit:
+
+```sh
+mvn -Dcactus.push=true -Dcactus.scope=all '-Dcactus.commit-message=Fix the thing' \
+    com.telenav.cactus:cactus-maven-plugin:commit
+```
+
+will figure out which repositories have changes, add them and commit them in each
+repository, with the same commit message (the commit message will contain info about
+what was changed).
+
+Add `-Dcactus.include-root=true` and it will also get a new commit in the submodule
+root, so that it points to the new commits.
+
+Add `-Dcactus.push=true` and it will push for you as well.
+
+Similarly, `com.telenav.cactus:cactus-maven-plugin:push` will figure out what submodules
+need pushing and push them (`git submodule foreach git push` would abort on the first
+repository that didn't have anything to push).
+
+Creating branches across multiple modules is similarly simplified:
+
+```
+mvn -Dcactus.scope=all-project-families -Dcactus.create-branches=true -Dcactus.update-root=true \
+    -Dcactus.push=true -Dcactus.target-branch=feature/something \
+    com.telenav.cactus:cactus-maven-plugin:checkout
+```
+
+will create a branch named `feature/something` in any submodules that don't have one,
+based on the a default branch (`develop` by default, can be set) - or switch to that
+branch if you already have it - or, if one with that name exists remotely but not
+locally, check it out locally.  So, you express _I want to be on a branch called X_
+and the Right Thing happens.
+
+
 ### Scopes and Families
 
 Most mojos in the Cactus plugin can have what they apply to controlled via the `cactus.scope` 
@@ -27,6 +67,75 @@ You can manually pass `-Dcactus.family=[branch-name]` to override the default fa
 mechanism (this is useful when making changes when running Maven against a root pom which
 has some other group-id).
 
+The possible values of `cactus.scope` are:
+
+
+  * `just-this` - Operate only on the git submodule the project maven was invoked against
+    belongs to.
+
+
+  * `family` - Operate on all git submodules within the tree of the project maven was
+    invoked against that contain a maven project with the same project
+    family.
+
+  * `family-or-child-family` - Operate on all git submodules within the tree of the project
+    maven was invoked against that contain a maven project with the same project
+    family, or where the project family is the parent family of that project
+    (e.g. the groupId is com.foo.bar, the family is "bar" and the parent
+    family is "foo").
+
+  * `same-group-id` - Operate on all git submodules within the tree of the project maven was
+    invoked against that contains the same group id as the project maven was
+    invoked against.
+
+  * `all-project-families` - Operate on all of the checkouts in the project tree
+    tree which contain a `pom.xml` file in their root
+
+  * `all` - Operate on all checkouts in the project tree
+
+
+### Documentation and Github Sites Integeration
+
+Cactus uses the concept of an _assets repository_ - a place where documentation, UML
+diagrams and similar can be generated to, and contains Maven Mojos to build javadoc,
+[lexakai documentation](https://github.com/Telenav/lexakai) and 
+[codeflowers](http://www.redotheweb.com/CodeFlower/) into one.
+
+### Managing Versions
+
+The versions maven plugin exists, and it is good, but it is more about managing your
+_external_ dependencies.  The cactus maven plugin's versioning support is about managing
+_internal_ dependencies - interdependencies _within_ your project tree.  So, say
+you have a project family named `fooframework` on version `1.2.2`.  You run:
+
+```sh
+mvn -Dcactus.version.flavor.change=to-snapshot \
+    com.telenav.cactus:cactus-maven-plugin:1.4.15:bump-version
+```
+
+and now all projects within it have a new version `1.2.3-SNAPSHOT`.  It will also, across
+your entire project tree, find any properties named `fooframework.version` or
+`fooframework.previous.version` or `fooframework.prev.version` - _and_ any properties
+with the suffix `.version`, `.prev.version` or `.previous.version` named after the
+artifact id of a project it is going to update, and updates those properties.
+
+If there are superpoms providing configuration - including those that use their own
+versioning scheme, and properties are modified in them, then their version is bumped
+as well (based on their existing version).  Since those are changed, any projects that
+use those superpoms as their parent will also get their version bumped - so, if it gets
+changed, its version gets bumped, and version bumps cascade through anything that uses
+them - and you always get a result that builds.
+
+Since you may want to update either only one project family and not touch anything else's
+superpoms, you can pass `-Dcactus.version.single.family=true` to suppress all changes
+to poms that do not belong to that project family (meaning anything in the tree that is
+not in the family will still depend on the old version) - or if you _do_ want to update
+those superpoms for local development, but not to bump their versions and those of things
+that depend on them, then you can pass `-Dcactus.superpom.bump.policy=ignore` and properties
+will still be updated, but versions will not (this _does_ mean anyone else who pulls your
+changes need to know to rebuild their superpoms to use your changes).
+
+
 ### What It's Good For
 
 These mojos simplify performing git operations identically across a tree of git submodules - 
@@ -43,25 +152,33 @@ ensure that all operations can succeed before any changes are made.  For example
   * Feature branches are always created from the default development branch, so you cannot
     accidentally create one against some other feature branch
 
+#### Pulling across multiple submodules
+
 Say you want to execute a `git pull` across all submodules in the same family as the
 project you're in (and optionally the submodule root):
 
 ```
-mvn -Dcactus.scope=FAMILY -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:pull
+mvn -Dcactus.scope=family -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:pull
 ```
+
+#### Commiting across multiple submodules
 
 Or you want to generate a commit across all modified projects within the same project family:
 
 ```
-mvn -Dcactus.scope=FAMILY '-Dcactus.commit-message=Initial v3.x modularization' \
+mvn -Dcactus.scope=family '-Dcactus.commit-message=Initial v3.x modularization' \
    -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:commit
 ```
+
+#### Pushing across multiple submodules
 
 And push _all_ of your local changes:
 
 ```
-mvn -Dcactus.scope=ALL -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:push
+mvn -Dcactus.scope=all -Dcactus.update-root=true com.telenav.cactus:cactus-maven-plugin:push
 ```
+
+#### Branching across multiple submodules
 
 Or you have a fresh clone, and a bunch of submodules in "detached head" state, and you
 just want to get all of them onto the default development branch to do some coding (the default
@@ -80,6 +197,11 @@ Or, say you want to work on a new feature branch named `woovlesnorks`
     -Dcactus.update-root=true -Dpush=true \
     com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
 ```
+
+If `cactus.update-root` is true, it will also correct your `.gitmodules` to point to
+the correct branches.
+
+#### Merging a two branches and testing
 
 ForkBuildMojo and MergeToBranchMojo can be combined (running the former on the `validate` phase
 and the latter in the `package` or `install` phase) in a Maven `profile` - pass in a
