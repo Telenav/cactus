@@ -494,6 +494,7 @@ public class BumpVersionMojo extends ReplaceMojo
             case FAMILY:
                 for (ProjectFamily fam : families())
                 {
+                    System.out.println("\nBUMP FAMILY " + fam + "\n");
                     findVersionOfFamily(tree, fam).ifPresent(v ->
                     {
                         PomVersion nue;
