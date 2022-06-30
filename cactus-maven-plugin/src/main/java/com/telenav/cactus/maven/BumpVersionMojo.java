@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.mastfrog.function.state.Obj;
+import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
@@ -39,10 +39,13 @@ import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -295,17 +298,26 @@ public class BumpVersionMojo extends ReplaceMojo
             throws Exception
     {
         super.onValidateParameters(log, project);
+        if (createReleaseBranch)
+        {
+            commit = true; // implicit
+        }
 
-        if ((family != null && !family.isEmpty()) && (families != null && !families.isBlank()))
+        if ((family != null && !family.isEmpty()) && (families != null && !families
+                .isBlank()))
         {
             fail("Can use one of family or families, not both");
         }
 
         switch (scope())
         {
+            case JUST_THIS:
+                if (createReleaseBranch)
+                {
+                    fail("Cannot use createReleaseBranch when bumping a single project");
+                }
             case ALL:
             case ALL_PROJECT_FAMILIES:
-            case JUST_THIS:
             case SAME_GROUP_ID:
             case FAMILY_OR_CHILD_FAMILY:
                 if (families != null && !families.trim().isEmpty())
@@ -314,10 +326,6 @@ public class BumpVersionMojo extends ReplaceMojo
                 }
                 break;
             default:
-                if (createReleaseBranch && families().size() > 1)
-                {
-                    fail("cactus.families cannot be used together with createReleaseBranch");
-                }
         }
 
         VersionChangeMagnitude mag = magnitude();
@@ -486,7 +494,7 @@ public class BumpVersionMojo extends ReplaceMojo
                     + " Only '" + FAMILY + "' or '" + FAMILY_OR_CHILD_FAMILY + "' are "
                     + "legal if you pass a specific version to change to.");
         }
-        Obj<PomVersion> singleVersion = Obj.create();
+        Map<ProjectFamily, PomVersion> familyVersion = new HashMap<>();
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
@@ -496,13 +504,12 @@ public class BumpVersionMojo extends ReplaceMojo
                 PomVersion myNewVersion = newVersion(myPom);
 
                 replacer.withSinglePomChange(myPom, myNewVersion);
-                singleVersion.accept(myNewVersion);
+                familyVersion.put(ProjectFamily.familyOf(myPom), myNewVersion);
                 break;
             case SAME_GROUP_ID:
                 tree.projectsForGroupId(project.getGroupId()).forEach(pom ->
                 {
                     PomVersion nv = newVersion(pom);
-                    singleVersion.set(nv);
                     replacer.withSinglePomChange(pom, nv);
                 });
                 break;
@@ -524,7 +531,7 @@ public class BumpVersionMojo extends ReplaceMojo
                                     flavor())
                                     .get();
                         }
-                        singleVersion.set(v);
+                        familyVersion.put(fam, nue);
                         replacer.withFamilyVersionChange(fam,
                                 v,
                                 nue);
@@ -534,14 +541,14 @@ public class BumpVersionMojo extends ReplaceMojo
             case FAMILY_OR_CHILD_FAMILY:
                 familyWithChildFamilies(tree).forEach(family ->
                 {
-                    findVersionOfFamily(tree, family).ifPresent(familyVersion ->
+                    findVersionOfFamily(tree, family).ifPresent(ffv ->
                     {
-                        PomVersion newFamilyVersion = familyVersion.updatedWith(
+                        PomVersion newFamilyVersion = ffv.updatedWith(
                                 magnitude(),
                                 flavor()).get();
-                        singleVersion.accept(newFamilyVersion);
+                        familyVersion.put(family, ffv);
                         replacer.withFamilyVersionChange(family,
-                                familyVersion,
+                                ffv,
                                 newFamilyVersion);
                     });
                 });
@@ -550,15 +557,15 @@ public class BumpVersionMojo extends ReplaceMojo
             case ALL_PROJECT_FAMILIES:
                 allFamilies(tree).forEach(family ->
                 {
-                    findVersionOfFamily(tree, family).ifPresent(familyVersion ->
+                    findVersionOfFamily(tree, family).ifPresent(ffv ->
                     {
-                        PomVersion newFamilyVersion = familyVersion.updatedWith(
+                        PomVersion newFamilyVersion = ffv.updatedWith(
                                 magnitude(),
                                 flavor()).get();
 
-                        singleVersion.accept(newFamilyVersion);
+                        familyVersion.put(family, ffv);
                         replacer.withFamilyVersionChange(family,
-                                familyVersion,
+                                ffv,
                                 newFamilyVersion);
                     });
                 });
@@ -600,9 +607,77 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         if (commit)
         {
-            generateCommit(owners, replacer, singleVersion.toOptional());
+            log.info("Commit is true.");
+            Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
+            if (createReleaseBranch)
+            {
+                // Ensure we affect the root checkout too.
+                owners.add(tree.root());
+                log.info(
+                        "Create release branch in " + owners.size() + " repositories");
+                computeReleaseBranchNames(owners, tree, familyVersion,
+                        releaseBranchNames, log);
+            }
+            generateCommit(owners, replacer, releaseBranchNames);
         }
         tree.invalidateCache();
+    }
+
+    private void computeReleaseBranchNames(Set<GitCheckout> owners,
+            ProjectTree tree, Map<ProjectFamily, PomVersion> familyVersion,
+            Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
+    {
+        for (GitCheckout co : owners)
+        {
+            computeReleaseBranchName(co, tree, familyVersion, releaseBranchNames,
+                    log1);
+        }
+    }
+
+    private void computeReleaseBranchName(GitCheckout co, ProjectTree tree,
+            Map<ProjectFamily, PomVersion> familyVersion,
+            Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
+    {
+        Set<ProjectFamily> familiesHere = new TreeSet<>();
+        if (co == tree.root())
+        {
+            familiesHere.addAll(familyVersion.keySet());
+        }
+        else
+        {
+            tree.projectsWithin(co).forEach(prj ->
+            {
+                familiesHere.add(familyOf(prj));
+            });
+        }
+        familiesHere.retainAll(familyVersion.keySet());
+        if (!familiesHere.isEmpty())
+        {
+            StringBuilder sb = new StringBuilder("release/");
+            if (familiesHere.size() == 1)
+            {
+                sb.append(familyVersion.get(familiesHere.iterator()
+                        .next()));
+            }
+            else
+            {
+                for (ProjectFamily pf : familiesHere)
+                {
+                    if (sb.length() > "release/".length())
+                    {
+                        sb.append('_');
+                    }
+                    PomVersion ver = familyVersion.get(pf);
+                    sb.append(pf).append('-').append(ver);
+                }
+            }
+            releaseBranchNames.put(co, sb.toString());
+            String logName = (co.name().isEmpty()
+                              ? "(root)"
+                              : co.name());
+            log1.info("Release branch for " + logName
+                    + " is " + sb);
+        }
     }
 
     private void runSubstitutions(BuildLog log, MavenProject project,
@@ -663,40 +738,67 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private void generateCommit(Set<GitCheckout> owners,
             VersionReplacementFinder replacer,
-            Optional<PomVersion> singleVersion)
+            Map<GitCheckout, String> m) throws Exception
     {
         BuildLog lg = log().child("commit");
-        lg.warn("Begin commit of " + owners.size() + " repository");
+        lg.warn("Begin commit of " + owners.size() + " repositories");
         CommitMessage msg = new CommitMessage(BumpVersionMojo.class,
                 "Updated versions of " + replacer.changeCount()
                 + " projects");
-        singleVersion.ifPresent(ver ->
-        {
-            msg.append("Bump version to " + ver);
-        });
+
         List<Section<?>> generatedSections = new ArrayList<>();
         replacer.collectChanges(msg.sectionFunction(generatedSections));
         generatedSections.forEach(Section::close);
-        for (GitCheckout checkout : owners)
+
+        try ( Section<CommitMessage> branchesSection = msg.section("Branches"))
         {
-            if (isPretend() || checkout.isDirty())
+            for (GitCheckout checkout : owners)
             {
-                if (createReleaseBranch && singleFamily && singleVersion
-                        .isPresent())
+                if (createReleaseBranch)
                 {
-                    String newBranch = "release/" + singleVersion.get();
-                    if (!isPretend())
+                    String branchName = m.get(checkout);
+                    if (branchName != null)
                     {
-                        checkout.createAndSwitchToBranch(newBranch,
-                                Optional.ofNullable(developmentBranch));
+                        String n = checkout.name().isEmpty()
+                                   ? "(root)"
+                                   : checkout.name();
+                        branchesSection.bulletPoint(
+                                "`" + n + "` - " + branchName);
                     }
                 }
+            }
+
+            for (GitCheckout checkout : owners)
+            {
+                if (createReleaseBranch)
+                {
+                    String branchName = m.get(checkout);
+                    if (branchName != null)
+                    {
+                        log().info(
+                                "Create and switch to " + branchName + " in "
+                                + " based on " + developmentBranch + " in "
+                                + checkout);
+
+                        ifNotPretending(() ->
+                        {
+                            checkout.createAndSwitchToBranch(branchName,
+                                    Optional.empty());
+                        });
+                    }
+                    else
+                    {
+                        log.info("No branch name was computed for " + checkout
+                                .checkoutRoot());
+                    }
+                }
+
                 if (!isPretend())
                 {
                     checkout.addAll();
                     checkout.commit(msg.toString());
                 }
-                lg.info("Commit " + checkout.name());
+                lg.info("Commited " + checkout.name());
             }
         }
     }
