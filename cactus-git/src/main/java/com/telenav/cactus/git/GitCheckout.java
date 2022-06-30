@@ -19,9 +19,9 @@ package com.telenav.cactus.git;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.util.PathUtils;
 
 import java.io.File;
@@ -54,8 +54,8 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  */
 @SuppressWarnings(
         {
-            "unused", "UnusedReturnValue", "SwitchStatementWithTooFewBranches",
-            "OptionalUsedAsFieldOrParameterType"
+                "unused", "UnusedReturnValue", "SwitchStatementWithTooFewBranches",
+                "OptionalUsedAsFieldOrParameterType"
         })
 public final class GitCheckout implements Comparable<GitCheckout>
 {
@@ -82,61 +82,61 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     public static final GitCommand<String> GET_BRANCH
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
-                    "rev-parse", "--abbrev-ref", "HEAD");
+            "rev-parse", "--abbrev-ref", "HEAD");
 
     public static final GitCommand<String> GET_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
-                    "rev-parse", "HEAD");
+            "rev-parse", "HEAD");
 
     public static final GitCommand<Boolean> UPDATE_REMOTE_HEADS
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
-                    "remote", "update");
+            "remote", "update");
 
     public static final GitCommand<Boolean> FETCH_ALL
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
-                    "fetch", "--all");
+            "fetch", "--all");
 
     public static final GitCommand<Boolean> NO_MODIFICATIONS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
-                    .trueIfEmpty(),
-                    "status", "--porcelain");
+            .trueIfEmpty(),
+            "status", "--porcelain");
 
     public static final GitCommand<Map<String, GitRemotes>> LIST_REMOTES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
-                    GitRemotes::from),
-                    "remote", "-v");
+            GitRemotes::from),
+            "remote", "-v");
 
     public static final GitCommand<Branches> ALL_BRANCHES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
-                    Branches::from),
-                    "branch", "--no-color", "-a");
+            Branches::from),
+            "branch", "--no-color", "-a");
 
     public static final GitCommand<Heads> REMOTE_HEADS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
-                    Heads::from),
-                    "ls-remote");
+            Heads::from),
+            "ls-remote");
 
     public static final GitCommand<Boolean> IS_DIRTY
             = new GitCommand<>(ProcessResultConverter
-                    .exitCode(code -> code != 0),
-                    "diff", "--quiet");
+            .exitCode(code -> code != 0),
+            "diff", "--quiet");
 
     public static final GitCommand<String> ADD_CHANGED
             = new GitCommand<>(ProcessResultConverter.strings(),
-                    "add", "--all");
+            "add", "--all");
 
     public static final GitCommand<Boolean> PULL
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
-                    "pull");
+            "pull");
 
     public static final GitCommand<Boolean> PUSH
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
-                    "push");
+            "push");
 
     public static final GitCommand<Boolean> IS_DETACHED_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().testedWith(
-                    text -> text.contains("(detached)")),
-                    "status", "--porcelain=2", "--branch");
+            text -> text.contains("(detached)")),
+            "status", "--porcelain=2", "--branch");
 
     private static final ZoneId GMT = ZoneId.of("GMT");
 
@@ -192,20 +192,31 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return true;
     }
 
-    public static boolean isGitFlowInstalled()
+    /**
+     * Collect the owning git checkouts of a collection of paths.
+     *
+     * @param paths Some paths
+     * @return Some git checkouts
+     */
+    public static Set<GitCheckout> ownersOf(Collection<? extends Path> paths)
     {
-        return PathUtils.findExecutable("git-flow").isPresent();
-    }
-
-    public static Optional<GitCheckout> repository(File dir)
-    {
-        return repository(dir.toPath());
+        Set<GitCheckout> result = new HashSet<>();
+        for (Path p : paths)
+        {
+            GitCheckout.repository(p).ifPresent(result::add);
+        }
+        return result;
     }
 
     public static Optional<GitCheckout> repository(Path dirOrFile)
     {
         return PathUtils.findGitCheckoutRoot(dirOrFile, false)
                 .map(GitCheckout::new);
+    }
+
+    public static Optional<GitCheckout> repository(File dir)
+    {
+        return repository(dir.toPath());
     }
 
     public static Optional<GitCheckout> submodulesRoot(Path dirOrFile)
@@ -220,13 +231,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     private final GitCommand<Optional<ZonedDateTime>> commitDate
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
-                    .map(this::fromGitLogFormat),
-                    "--no-pager", "log", "-1", "--format=format:%cd",
-                    "--date=iso", "--no-color", "--encoding=utf8");
+            .map(this::fromGitLogFormat),
+            "--no-pager", "log", "-1", "--format=format:%cd",
+            "--date=iso", "--no-color", "--encoding=utf8");
 
     private final GitCommand<List<SubmoduleStatus>> listSubmodules
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
-                    .map(this::parseSubmoduleInfo), "submodule", "status");
+            .map(this::parseSubmoduleInfo), "submodule", "status");
 
     GitCheckout(Path root)
     {
@@ -256,6 +267,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         ADD_CHANGED.withWorkingDir(root).run().awaitQuietly();
         return true;
+    }
+
+    public void allPomFilesInSubtree(Consumer<Path> pomConsumer) throws IOException
+    {
+        try (Stream<Path> str = Files.walk(root).filter(path -> path
+                .getFileName().toString().equals("pom.xml")))
+        {
+            str.forEach(pomConsumer);
+        }
     }
 
     public Collection<? extends GitRemotes> allRemotes()
@@ -306,23 +326,22 @@ public final class GitCheckout implements Comparable<GitCheckout>
     }
 
     /**
-     * Create a new branch (which must not yet exist) and switch to it. If a
-     * remote branch of the same name exists, will automatically be set up to
-     * track it.
+     * Create a new branch (which must not yet exist) and switch to it. If a remote branch of the same name exists, will
+     * automatically be set up to track it.
      *
      * @param newLocalBranch The branch name to create
      * @return true if the command succeeds
      */
     public boolean createAndSwitchToBranch(String newLocalBranch,
-            Optional<String> fallbackTrackingBranch)
+                                           Optional<String> fallbackTrackingBranch)
     {
         return createAndSwitchToBranch(newLocalBranch, fallbackTrackingBranch,
                 false);
     }
 
     public boolean createAndSwitchToBranch(String newLocalBranch,
-            Optional<String> fallbackTrackingBranch,
-            boolean pretend)
+                                           Optional<String> fallbackTrackingBranch,
+                                           boolean pretend)
     {
         if (newLocalBranch.isEmpty())
         {
@@ -333,7 +352,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         {
             throw new IllegalArgumentException(
                     "Already contains a local branch named '"
-                    + newLocalBranch + "': " + this);
+                            + newLocalBranch + "': " + this);
         }
         Optional<Branch> remoteTrackingBranch = branches.find(newLocalBranch,
                 false);
@@ -423,39 +442,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return FETCH_ALL.withWorkingDir(root).run().awaitQuietly();
     }
 
-    /**
-     * Executes a git flow operation
-     *
-     * @param operation The operation: start or finish
-     * @param branchType The type of branch: feature, hotfix or release
-     * @param branch The name of the branch,
-     * @return True if successful
-     */
-    public boolean flow(String operation, String branchType, String branch)
-    {
-        // git flow feature start new-dropdown-box
-        var output = new GitCommand<>(ProcessResultConverter.strings(), root,
-                "flow", branchType, operation, branch).run().awaitQuietly();
-        log.info(output);
-        return true;
-    }
-
-    /**
-     * Collect the owning git checkouts of a collection of paths.
-     *
-     * @param paths Some paths
-     * @return Some git checkouts
-     */
-    public static Set<GitCheckout> ownersOf(Collection<? extends Path> paths)
-    {
-        Set<GitCheckout> result = new HashSet<>();
-        for (Path p : paths)
-        {
-            GitCheckout.repository(p).ifPresent(result::add);
-        }
-        return result;
-    }
-
     public boolean hasPomInRoot()
     {
         return Files.exists(root.resolve("pom.xml"));
@@ -503,7 +489,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
             {
                 String remoteHead = new GitCommand<>(ProcessResultConverter
                         .strings().trimmed(), root, "rev-parse", remoteBranch
-                                .trackingName())
+                        .trackingName())
                         .run().awaitQuietly();
                 String head = head();
                 System.out.println(
@@ -524,22 +510,28 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return false;
     }
 
+    public boolean merge(String branch)
+    {
+        return new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
+                root, "merge", branch).run().awaitQuietly();
+    }
+
     public Optional<String> mergeBase()
     {
         Branches branches = branches();
         return branches.currentBranch().flatMap(currentBranch
                 -> branches.opposite(currentBranch).map(remoteBranch
-                        -> new GitCommand<>(ProcessResultConverter.strings()
-                        .trimmed(),
-                        root, "merge-base", "@", remoteBranch.trackingName())
-                        .run().awaitQuietly()));
+                -> new GitCommand<>(ProcessResultConverter.strings()
+                .trimmed(),
+                root, "merge-base", "@", remoteBranch.trackingName())
+                .run().awaitQuietly()));
     }
 
     public String name()
     {
         return submoduleRoot().map(sroot -> sroot.equals(this)
-                                            ? ""
-                                            : sroot.checkoutRoot().relativize(
+                        ? ""
+                        : sroot.checkoutRoot().relativize(
                         root).toString())
                 .orElse(root.getFileName().toString());
     }
@@ -547,14 +539,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean needsPull()
     {
         return mergeBase().map((String mergeBase)
-                -> remoteHead().map((String remoteHead)
+                        -> remoteHead().map((String remoteHead)
                         -> head().equals(mergeBase)).orElse(false))
                 .orElse(false);
     }
 
     /**
-     * Determines if a push is needed, and whether or not the remote branch
-     * exists.
+     * Determines if a push is needed, and whether or not the remote branch exists.
      *
      * @return A result
      */
@@ -600,8 +591,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
     }
 
     /**
-     * Creates a pull request on Github using the given authentication token,
-     * title and body
+     * Creates a pull request on Github using the given authentication token, title and body
      *
      * @param authenticationToken The token to sign into github
      * @param title The title of the pull request
@@ -609,7 +599,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
      * @return True if the pull request was created
      */
     public boolean pullRequest(String authenticationToken, String title,
-            String body)
+                               String body)
     {
         // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
         var output = new GithubCommand<>(ProcessResultConverter.strings(), root,
@@ -619,7 +609,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
             protected void onLaunch(Process process)
             {
                 super.onLaunch(process);
-                try ( var out = new PrintWriter(process.getOutputStream()))
+                try (var out = new PrintWriter(process.getOutputStream()))
                 {
                     out.println(authenticationToken);
                 }
@@ -633,12 +623,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
         log.info(output);
         return true;
-    }
-
-    public boolean merge(String branch)
-    {
-        return new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
-                root, "merge", branch).run().awaitQuietly();
     }
 
     public boolean push()
@@ -676,10 +660,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Branches branches = branches();
         return branches.currentBranch().flatMap(branch
                 -> branches.find(branch.name(), false).map(remoteBranch
-                        -> new GitCommand<>(ProcessResultConverter.strings()
-                        .trimmed(),
-                        root, "rev-parse", remoteBranch.trackingName())
-                        .run().awaitQuietly()));
+                -> new GitCommand<>(ProcessResultConverter.strings()
+                .trimmed(),
+                root, "rev-parse", remoteBranch.trackingName())
+                .run().awaitQuietly()));
     }
 
     public Heads remoteHeads()
@@ -688,28 +672,18 @@ public final class GitCheckout implements Comparable<GitCheckout>
     }
 
     /**
-     * The local directory name something is checked out into is not necessarily
-     * related in any way to the project name, so when filtering which projects
-     * we care about branch names in, treat the remote name as (at least
-     * somewhat more) authoritative.
+     * The local directory name something is checked out into is not necessarily related in any way to the project name,
+     * so when filtering which projects we care about branch names in, treat the remote name as (at least somewhat more)
+     * authoritative.
      *
-     * @return A set of strings that are the final components of all git remote
-     * urls configure d for this repo, with any ".git" suffix trimmed
+     * @return A set of strings that are the final components of all git remote urls configure d for this repo, with any
+     * ".git" suffix trimmed
      */
     public Set<String> remoteProjectNames()
     {
         Set<String> result = new HashSet<>();
         allRemotes().forEach(remote -> remote.collectRemoteNames(result));
         return result;
-    }
-
-    public void allPomFilesInSubtree(Consumer<Path> pomConsumer) throws IOException
-    {
-        try ( Stream<Path> str = Files.walk(root).filter(path -> path
-                .getFileName().toString().equals("pom.xml")))
-        {
-            str.forEach(pomConsumer);
-        }
     }
 
     public void scanForPomFiles(Consumer<Path> pomConsumer)
@@ -725,7 +699,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         {
             pomConsumer.accept(root.resolve("pom.xml"));
         }
-        try ( Stream<Path> str = Files.walk(root).filter(isSameRoot))
+        try (Stream<Path> str = Files.walk(root).filter(isSameRoot))
         {
             str.forEach(path ->
             {
@@ -744,8 +718,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
     }
 
     /**
-     * Updates .gitmodules so someone grabbing this branch and running git pull
-     * in a submodule pulls from the correct remote branch.
+     * Updates .gitmodules so someone grabbing this branch and running git pull in a submodule pulls from the correct
+     * remote branch.
      *
      * @param submodule The submodule - a path relative to the root
      * @param branch The branch name
@@ -789,8 +763,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
                     .run()
                     .awaitQuietly();
             return infos.isEmpty()
-                   ? ThrowingOptional.empty()
-                   : ThrowingOptional.of(infos);
+                    ? ThrowingOptional.empty()
+                    : ThrowingOptional.of(infos);
         }
         else
         {

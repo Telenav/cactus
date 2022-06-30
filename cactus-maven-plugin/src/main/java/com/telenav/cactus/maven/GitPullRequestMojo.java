@@ -32,7 +32,7 @@ import java.util.List;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Starts and finishes branches accoding to git flow conventions.
+ * Starts and finishes branches according to git flow branching conventions.
  *
  * @author jonathanl (shibo)
  */
