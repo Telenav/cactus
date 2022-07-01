@@ -78,6 +78,12 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
     @Parameter(property = "cactus.tag", defaultValue = "true")
     boolean tag;
 
+    /**
+     * If true, push on success.
+     */
+    @Parameter(property = "cactus.push", defaultValue = "false")
+    boolean push;
+
     @Override
     protected void onValidateParameters(BuildLog log, MavenProject project)
             throws Exception
@@ -140,11 +146,26 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                                     .logggingName());
                     ifNotPretending(() ->
                     {
-                        checkout.switchToBranch(also.name());
+                        if (also.isRemote())
+                        {
+                            log.info(
+                                    "Branch " + also.trackingName() + " does not exist "
+                                    + "locally.  Creating it.");
+                            checkout.createAndSwitchToBranch(also.name(),
+                                    Optional.of(also.trackingName()));
+                        }
+                        else
+                        {
+                            checkout.switchToBranch(also.name());
+                        }
                         checkout.merge(from.name());
                     });
+                    if (push)
+                    {
+                        log.info("Push " + checkout.logggingName());
+                        ifNotPretending(checkout::push);
+                    }
                 }
-
                 log.info("Merge " + from + " into " + to + " in " + checkout
                         .logggingName());
                 ifNotPretending(() ->
@@ -176,6 +197,21 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                     {
                         checkout.deleteBranch(from.name(), to.name(), false);
                     });
+                }
+                if (push)
+                {
+                    // The target branch may not exists, which requires a
+                    // different push call
+                    boolean remoteBranchExists = tree.branches(checkout).find(to
+                            .name(), false).isPresent();
+                    if (remoteBranchExists)
+                    {
+                        checkout.push();
+                    }
+                    else
+                    {
+                        checkout.pushCreatingBranch();
+                    }
                 }
             }
         });
@@ -224,10 +260,12 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                                 branchToMergeTo));
                 if (alsoMergeInto != null)
                 {
-                    branches.find(alsoMergeInto, true).ifPresent(also ->
-                    {
-                        additionalDestinations.put(checkout, also);
-                    });
+                    branches.find(alsoMergeInto, true)
+                            .or(() -> branches.find(alsoMergeInto, false))
+                            .ifPresent(also ->
+                            {
+                                additionalDestinations.put(checkout, also);
+                            });
                 }
             }
 
