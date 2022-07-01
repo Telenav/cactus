@@ -1,10 +1,14 @@
 package com.telenav.cactus.maven.commit;
 
+import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.metadata.BuildMetadata;
+import com.telenav.cactus.util.SectionedMessage;
+import com.telenav.cactus.util.SectionedMessage.MessageSection;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -16,7 +20,7 @@ import static java.lang.Math.min;
  *
  * @author Tim Boudreau
  */
-public class CommitMessage
+public class CommitMessage implements SectionedMessage<Section<CommitMessage>>
 {
     private final String provenanceIdentifier;
     private final String generatorClass;
@@ -49,6 +53,12 @@ public class CommitMessage
         return this;
     }
 
+    @Override
+    public CommitMessage paragraph(CharSequence text)
+    {
+        return append(text);
+    }
+    
     public Section<CommitMessage> section(String title)
     {
         return new Section<>(title, 0, section ->
@@ -139,7 +149,8 @@ public class CommitMessage
         return result;
     }
 
-    public static final class Section<P> implements AutoCloseable
+    public static final class Section<P> implements AutoCloseable,
+                                                    MessageSection<Section<P>>
     {
         private final List<Object> items = new ArrayList<>();
         private final String title;
@@ -164,9 +175,24 @@ public class CommitMessage
             return onClose.apply(this);
         }
 
+        @Override
         public Section<P> bulletPoint(Object text)
         {
             items.add("  * " + text);
+            return this;
+        }
+
+        @Override
+        public Section<P> bulletPoint(int depth, Object text)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < depth; i++)
+            {
+                sb.append("  ");
+            }
+            sb.append("* ");
+            sb.append(text);
+            items.add(sb.toString());
             return this;
         }
 
@@ -224,6 +250,12 @@ public class CommitMessage
                 result.append(item).append('\n');
             }
             return result.toString();
+        }
+
+        @Override
+        public Section<P> paragraph(CharSequence text)
+        {
+            return paragraph(Objects.toString(text));
         }
     }
 }

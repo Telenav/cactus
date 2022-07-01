@@ -31,11 +31,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.model.PomVersion.mostCommonVersion;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toCollection;
 
 /**
@@ -118,6 +123,33 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
             tail = tail.substring(0, dashIndex);
         }
         return new ProjectFamily(tail);
+    }
+
+    public static Set<ProjectFamily> fromCommaDelimited(String what,
+            Supplier<ProjectFamily> fallback)
+    {
+        if (what != null && !what.isBlank())
+        {
+            Set<ProjectFamily> result = new HashSet<>();
+            for (String part : what.split(","))
+            {
+                part = part.trim();
+                if (!part.isEmpty())
+                {
+                    result.add(named(part));
+                }
+            }
+            if (!result.isEmpty())
+            {
+                return result;
+            }
+        }
+        ProjectFamily fam = fallback.get();
+        if (fam != null)
+        {
+            return singleton(fam);
+        }
+        return emptySet();
     }
 
     /**
@@ -289,6 +321,11 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     public boolean is(MavenIdentified prj)
     {
         return familyOf(prj).equals(this);
+    }
+
+    public boolean is(String what)
+    {
+        return what != null && !what.isEmpty() && name.equals(what.trim());
     }
 
     /**

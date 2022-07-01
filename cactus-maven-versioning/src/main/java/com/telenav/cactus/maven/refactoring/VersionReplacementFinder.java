@@ -31,6 +31,8 @@ import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
 import com.telenav.cactus.maven.xml.XMLElementRemoval;
 import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
+import com.telenav.cactus.util.SectionedMessage;
+import com.telenav.cactus.util.SectionedMessage.MessageSection;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +47,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.w3c.dom.Document;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -381,36 +382,50 @@ public class VersionReplacementFinder
      * a consumer for that section
      */
     public void collectChanges(
-            Function<? super String, Consumer<? super Object>> c)
+            SectionedMessage c)
     {
         if (!pomVersionChanges.isEmpty())
         {
-            Consumer<? super Object> versionChanges = c.apply("Version Changes");
-            // Use treemap for consistent sort
-            new TreeMap<>(pomVersionChanges).forEach((pom, vc) ->
+            try ( MessageSection<?> versionChanges = c
+                    .section("Version Changes"))
             {
-                versionChanges.accept(pom.toArtifactIdentifiers() + ": " + vc);
-            });
+                // Use treemap for consistent sort
+                new TreeMap<>(pomVersionChanges).forEach((pom, vc) ->
+                {
+                    versionChanges.bulletPoint(
+                            pom.toArtifactIdentifiers() + ": " + vc);
+                });
+            }
         }
         if (parentVersionChanges.isEmpty())
         {
-            Consumer<? super Object> parentVersionChangeC = c
-                    .apply("Parent Version Changes");
-            new TreeMap<>(parentVersionChanges).forEach((pom, vc) ->
+            try ( MessageSection<?> parentVersionChangeC = c
+                    .section("Parent Version Changes"))
             {
-                parentVersionChangeC.accept(
-                        pom.toArtifactIdentifiers() + ": " + vc);
-            });
+                new TreeMap<>(parentVersionChanges).forEach((pom, vc) ->
+                {
+                    parentVersionChangeC.bulletPoint(
+                            pom.toArtifactIdentifiers() + ": " + vc);
+                });
+            }
         }
         if (!propertyChanges.isEmpty())
         {
-            Consumer<? super Object> propertyChangeC = c.apply(
-                    "Property Changes");
-            new TreeMap<>(propertyChanges).forEach((pom, changes) ->
+            try ( MessageSection<?> propertyChangeC = c.section(
+                    "Property Changes"))
             {
-                propertyChangeC.accept(
-                        pom.toArtifactIdentifiers() + ": " + changes);
-            });
+                new TreeMap<>(propertyChanges).forEach((pom, changes) ->
+                {
+                    propertyChangeC.bulletPoint(pom.toArtifactIdentifiers());
+                    changes.forEach(propC ->
+                    {
+                        propertyChangeC.bulletPoint(2, "*" + propC
+                                .propertyName() + "*"
+                                + " -\t`" + propC.oldValue() + "` \u27F6 `" + propC
+                                .newValue() + "`");
+                    });
+                });
+            }
         }
     }
 

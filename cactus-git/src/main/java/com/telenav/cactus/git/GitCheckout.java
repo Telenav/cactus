@@ -48,6 +48,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 
 /**
  * @author Tim Boudreau
@@ -478,6 +479,69 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return IS_DIRTY.withWorkingDir(root).run().awaitQuietly();
     }
 
+    public boolean checkoutOneFile(Path path)
+    {
+        if (!notNull("path", path).startsWith(checkoutRoot()))
+        {
+            throw new IllegalArgumentException(
+                    path + " is not under checkout root " + checkoutRoot());
+        }
+        if (Files.exists(path) && Files.isDirectory(path))
+        {
+            throw new IllegalArgumentException(
+                    "checkoutOneFile is for files but was passed a directory " + path);
+        }
+        String relPath = checkoutRoot().relativize(path).toString();
+        GitCommand<String> checkoutOne = new GitCommand<>(ProcessResultConverter
+                .strings(), checkoutRoot(), "checkout", relPath);
+        // This will throw if non-zero
+        String output = checkoutOne.run().awaitQuietly();
+        log.child("checkout:" + relPath).info(output);
+        return true;
+    }
+
+    public boolean deleteBranch(String branchToDelete, String branchToMoveTo,
+            boolean force)
+    {
+        Optional<String> currentBranch = this.branch();
+        if (!currentBranch.isPresent() || !currentBranch.get().equals(
+                branchToMoveTo))
+        {
+            this.switchToBranch(branchToMoveTo);
+        }
+
+        GitCommand<String> gc = new GitCommand<>(
+                ProcessResultConverter.strings(),
+                checkoutRoot(),
+                "branch", (force
+                           ? "-D"
+                           : "-d"), branchToDelete);
+        
+        String output = gc.run().awaitQuietly();
+        log.child("delete-branch:" + branchToDelete).info(output);
+
+        return true;
+    }
+
+    public boolean canMerge(String mergeTo)
+    {
+        // c.f. https://stackoverflow.com/questions/501407/is-there-a-git-merge-dry-run-option
+        try
+        {
+            GitCommand<Boolean> trialMerge
+                    = new GitCommand<>(exitCodeIsZero(), checkoutRoot(), "merge",
+                            "--no-commit", "--no-ff");
+            return trialMerge.run().awaitQuietly();
+        }
+        finally
+        {
+            GitCommand<Boolean> abortMerge
+                    = new GitCommand<>(exitCodeIsZero(), checkoutRoot(), "merge",
+                            "--abort");
+            abortMerge.run().awaitQuietly();
+        }
+    }
+
     public boolean isInSyncWithRemoteHead()
     {
         Branches branches = branches();
@@ -525,6 +589,32 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 .trimmed(),
                 root, "merge-base", "@", remoteBranch.trackingName())
                 .run().awaitQuietly()));
+    }
+
+    public String logggingName()
+    {
+        String n = name();
+        if (n.isEmpty())
+        {
+            n = checkoutRoot().getFileName().toString();
+        }
+        return n;
+    }
+
+    public boolean tag(String tagName, boolean force)
+    {
+        GitCommand<Boolean> tag;
+        if (force)
+        {
+            tag = new GitCommand<>(exitCodeIsZero(),
+                    checkoutRoot(), "tag", "-f", tagName);
+        }
+        else
+        {
+            tag = new GitCommand<>(exitCodeIsZero(),
+                    checkoutRoot(), "tag", tagName);
+        }
+        return tag.run().awaitQuietly();
     }
 
     public String name()

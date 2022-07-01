@@ -32,8 +32,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -101,6 +104,13 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                            GitCheckout myCheckout, ProjectTree tree,
                            List<GitCheckout> checkouts) throws Exception
     {
+        executeCollectingChangedFiles(log, project, myCheckout, tree, checkouts, _ignored ->{});
+    }
+
+    void executeCollectingChangedFiles(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout, ProjectTree tree,
+                           List<GitCheckout> checkouts, Consumer<Path> changed) throws Exception
+    {
         for (var checkout : checkouts)
         {
             var branchName = this.newBranchName == null && checkout.branch()
@@ -134,6 +144,7 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                         if (filename.endsWith(".md") || file.getFileName().equals(Paths.get("pom.xml")))
                         {
                             replaceIn(file);
+                            changed.accept(file);
                         }
                     });
                 }
