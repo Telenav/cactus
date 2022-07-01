@@ -74,7 +74,7 @@ public class Inconsistency<T> extends Problem
     }
 
     @Override
-    public String toString()
+    protected String computeMessage()
     {
         StringBuilder sb = new StringBuilder(kind.toString()).append(':');
         partitions.forEach((name, partition) ->

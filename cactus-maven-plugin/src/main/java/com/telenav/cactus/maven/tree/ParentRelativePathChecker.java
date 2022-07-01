@@ -112,7 +112,8 @@ public final class ParentRelativePathChecker
             return parentCoords;
         }
 
-        public String toString()
+        @Override
+        protected String computeMessage()
         {
             return "POM " + pom.coordinates() + " has a parent relative path "
                     + "pointing to " + parentCoords.relativePath.resolve(
@@ -159,7 +160,8 @@ public final class ParentRelativePathChecker
             return encounteredCheckout;
         }
 
-        public String toString()
+        @Override
+        protected String computeMessage()
         {
             return "POM " + pom.coordinates() + " has a parent relative path '" + parentCoords.relativePath
                     + (parentCoords.relativePath.isDefault()

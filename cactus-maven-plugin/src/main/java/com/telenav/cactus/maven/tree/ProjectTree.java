@@ -736,6 +736,7 @@ public class ProjectTree
                     Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
                             c -> new HashSet<>());
                     poms.add(info);
+                    checkoutForPom.put(info, co);
                 });
             });
         }
