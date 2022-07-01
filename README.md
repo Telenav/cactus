@@ -25,7 +25,7 @@ This module contains tools for building modules and applications.
 
 [//]: # (start-user-text)
 
-> [How to build this project](https://github.com/Telenav/telenav-build/blob/release/1.4.20/documentation/building.md) <!-- [cactus.replacement-branch-name] --> 
+> [How to build this project](https://github.com/Telenav/telenav-build/blob/release/1.4.21/documentation/building.md) <!-- [cactus.replacement-branch-name] --> 
 
 [//]: # (end-user-text)
 
