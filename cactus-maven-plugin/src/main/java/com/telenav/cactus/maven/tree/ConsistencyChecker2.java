@@ -44,8 +44,7 @@ public final class ConsistencyChecker2
 
     public static void main(String[] args) throws Exception
     {
-        ConsistencyChecker2 cc = new ConsistencyChecker2().allChecks()
-//                .checkFamily(ProjectFamily.named("kivakit"))
+        ConsistencyChecker2 cc = new ConsistencyChecker2().allChecks() //                .checkFamily(ProjectFamily.named("kivakit"))
                 ;
 
         ProjectTree tree = new ProjectTree(GitCheckout.repository(Paths.get(
@@ -302,8 +301,8 @@ public final class ConsistencyChecker2
                 }
             }
             checkoutsContainingSuperpoms.add(tree.root());
-            System.out.println(
-                    "Containing superpoms: " + checkoutsContainingSuperpoms);
+            log("Checkouts containing superpoms: "
+                    + checkoutsContainingSuperpoms);
             return checkoutsContainingSuperpoms;
         }
 
@@ -360,7 +359,7 @@ public final class ConsistencyChecker2
 
             branchForCheckout.forEach((family, branches) ->
             {
-                System.out.println("B4F " + family + ": " + branches);
+                log("Branches for family " + family + ": " + branches);
                 if (branches.size() > 1)
                 {
                     StringBuilder sb = new StringBuilder(
@@ -419,7 +418,6 @@ public final class ConsistencyChecker2
                 GitCheckout co = tree.checkoutFor(pom);
                 if (co == null)
                 {
-                    System.out.println("TREE has no checkout for " + pom);
                     continue;
                 }
                 if (seen.add(co))
@@ -441,7 +439,8 @@ public final class ConsistencyChecker2
                 GitCheckout co = tree.checkoutFor(pom);
                 if (seen.add(co))
                 {
-                    if (!tree.branches(co).currentBranch().isPresent()) {
+                    if (!tree.branches(co).currentBranch().isPresent())
+                    {
                         into.add("Have detached head state in " + co
                                 .logggingName() + ": " + co.checkoutRoot());
                     }
@@ -454,11 +453,12 @@ public final class ConsistencyChecker2
             Map<ProjectFamily, PomVersion> versForFamily = versionsForFamilies();
             versForFamily.forEach((f, v) ->
             {
-                System.out.println("V4F " + f + " " + v);
+                log("Version for family " + f + ": " + v);
             });
             for (Pom pom : poms().poms())
             {
-                if (pom.projectFolder().equals(tree.root().checkoutRoot())) {
+                if (pom.projectFolder().equals(tree.root().checkoutRoot()))
+                {
                     // Root BOM is allowed to differ
                     continue;
                 }
@@ -509,12 +509,16 @@ public final class ConsistencyChecker2
                 if (roles.contains(BILL_OF_MATERIALS) && roles.contains(CONFIG) && !roles
                         .contains(CONFIG_ROOT) && roles.contains(PARENT))
                 {
-                    into.add(
-                            "Intermediate pom " + pom.toArtifactIdentifiers() + " is acting as "
-                            + "a bill-of-materials and a parent to other poms, but it is has "
-                            + "a parent.  Shared configuration should not live in a bill-of-materials "
-                            + "unless it is also the root pom for its family: " + pom
-                                    .path());
+                    if (categorizer().parentOf(pom).isPresent())
+                    {
+                        into.add(
+                                "Intermediate pom " + pom
+                                        .toArtifactIdentifiers() + " is acting as "
+                                + "a bill-of-materials and a parent to other poms, but it has "
+                                + "a parent.  Shared configuration should not live in a bill-of-materials "
+                                + "unless it is also the root pom for its family: " + pom
+                                        .path());
+                    }
                 }
             });
         }
@@ -538,7 +542,7 @@ public final class ConsistencyChecker2
             }
             return poms;
         }
-        
+
         private PomCategorizer categorizer()
         {
             if (categorizer == null)
