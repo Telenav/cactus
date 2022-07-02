@@ -90,10 +90,29 @@ public class CheckMojo extends SharedProjectTreeMojo
     private boolean checkDirty = true;
 
     /**
-     * The set of families to check - if unset, check all of them.
+     * The set of families to check - if unset, use cactus.family, and if that
+     * is unset, check all of them.
      */
-    @Parameter(property = "cactus.families", required = false)
+    @Parameter(property = "cactus.families", required = false,
+            alias = "cactus.family")
     private String families;
+
+    /**
+     * A single family to check.
+     */
+    @Parameter(property = "cactus.family", required = false,
+            alias = "cactus.family")
+    private String family;
+
+    /**
+     * If present, check will ensure the given scope is on that branch.
+     */
+    @Parameter(property = "cactus.expected.branch", required = false)
+    private String targetBranch;
+
+    @Parameter(property = "cactus.tolerate.version.inconsistinces.families",
+            required = false)
+    private String tolerateVersionInconsistenciesIn;
 
     public CheckMojo()
     {
@@ -104,7 +123,8 @@ public class CheckMojo extends SharedProjectTreeMojo
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         ConsistencyChecker2 c = new ConsistencyChecker2()
-                .activityLogger(log::info);
+                .activityLogger(log::info)
+                .withTargetBranch(targetBranch);
         if (checkRelativePaths)
         {
             c.checkRelativePaths();
@@ -137,13 +157,21 @@ public class CheckMojo extends SharedProjectTreeMojo
         {
             c.checkLocalModifications();
         }
-        if (families != null)
+        if (tolerateVersionInconsistenciesIn != null)
         {
-            ProjectFamily.fromCommaDelimited(families, () -> null).forEach(
-                    fam ->
-            {
-                c.checkFamily(fam);
-            });
+            c.tolerateVersionInconsistenciesIn(
+                    ProjectFamily.fromCommaDelimited(
+                            tolerateVersionInconsistenciesIn, () -> null));
+        }
+        if (families != null && !families.isBlank())
+        {
+            ProjectFamily.fromCommaDelimited(families,
+                    () -> family == null
+                          ? null
+                          : ProjectFamily.named(family)).forEach(c::checkFamily);
+        } else if (family != null && !family.isBlank()) {
+            ProjectFamily fam = ProjectFamily.named(family);
+            c.checkFamily(fam);
         }
 
         withProjectTree(tree ->

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -272,12 +273,24 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     public void allPomFilesInSubtree(Consumer<Path> pomConsumer) throws IOException
     {
+        Path pom = Paths.get("pom.xml");
         try (Stream<Path> str = Files.walk(root).filter(path -> path
-                .getFileName().toString().equals("pom.xml")))
+                .getFileName().equals(pom)))
         {
             str.forEach(pomConsumer);
         }
     }
+    
+    public void allPomFilesInSubtreeParallel(Consumer<Path> pomConsumer) throws IOException
+    {
+        Path pom = Paths.get("pom.xml");
+        try (Stream<Path> str = Files.walk(root).parallel().filter(path -> path
+                .getFileName().equals(pom)))
+        {
+            str.forEach(pomConsumer);
+        }
+    }
+    
 
     public Collection<? extends GitRemotes> allRemotes()
     {

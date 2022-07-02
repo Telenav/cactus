@@ -7,7 +7,9 @@ import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.refactoring.PomCategorizer;
 import com.telenav.cactus.maven.refactoring.PomRole;
+import com.telenav.cactus.maven.tree.Problem.Severity;
 import com.telenav.cactus.scope.ProjectFamily;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -41,6 +44,7 @@ public final class ConsistencyChecker2
     private final Set<ProjectFamily> familiesToCheck = new HashSet<>();
     private Predicate<GitCheckout> checkoutsFilter = _ignored -> true;
     private Consumer<String> activityLogger = System.out::println;
+    private final Set<ProjectFamily> tolerateVersionInconsistenciesIn = new HashSet<>();
 
     public static void main(String[] args) throws Exception
     {
@@ -55,6 +59,7 @@ public final class ConsistencyChecker2
         System.out.println("PROBLEMS\n");
         System.out.println(p);
     }
+    private String targetBranch;
 
     public ConsistencyChecker2 allChecks()
     {
@@ -67,6 +72,20 @@ public final class ConsistencyChecker2
                 = checkLocalModifications
                 = checkRemoteModifications
                 = true;
+        return this;
+    }
+
+    public ConsistencyChecker2 tolerateVersionInconsistenciesIn(
+            ProjectFamily fam)
+    {
+        this.tolerateVersionInconsistenciesIn.add(fam);
+        return this;
+    }
+
+    public ConsistencyChecker2 tolerateVersionInconsistenciesIn(
+            Collection<? extends ProjectFamily> c)
+    {
+        this.tolerateVersionInconsistenciesIn.addAll(c);
         return this;
     }
 
@@ -165,7 +184,8 @@ public final class ConsistencyChecker2
         return new Checker(checkFamilies, checkRoles, checkVersions,
                 checkDetached, checkBranches, checkRelativePaths,
                 checkLocalModifications, checkRemoteModifications, familyFilter,
-                checkoutsFilter, tree, activityLogger).check();
+                checkoutsFilter, tree, activityLogger, targetBranch,
+                tolerateVersionInconsistenciesIn).check();
     }
 
     private Predicate<? super ProjectFamily> familyFilter()
@@ -183,6 +203,12 @@ public final class ConsistencyChecker2
         return familyFilter;
     }
 
+    public ConsistencyChecker2 withTargetBranch(String targetBranch)
+    {
+        this.targetBranch = targetBranch;
+        return this;
+    }
+
     static final class Checker
     {
         private final boolean checkFamilies;
@@ -196,11 +222,13 @@ public final class ConsistencyChecker2
         private final Predicate<? super ProjectFamily> familiesToCheck;
         private final Predicate<? super GitCheckout> reposFilter;
         private final ProjectTree tree;
+        private final Set<ProjectFamily> tolerateVersionInconsistenciesIn;
         private Poms poms;
         private PomCategorizer categorizer;
         private Map<ProjectFamily, PomVersion> versionsForFamilies;
         private final Consumer<String> log;
         private Set<GitCheckout> checkoutsContainingSuperpoms;
+        private final String targetBranch;
 
         public Checker(boolean checkFamilies, boolean checkRoles,
                 boolean checkVersions, boolean checkDetached,
@@ -210,7 +238,9 @@ public final class ConsistencyChecker2
                 Predicate<? super ProjectFamily> familiesToCheck,
                 Predicate<? super GitCheckout> reposFilter,
                 ProjectTree tree,
-                Consumer<String> log)
+                Consumer<String> log,
+                String targetBranch,
+                Set<ProjectFamily> tolerateVersionInconsistenciesIn)
         {
             this.checkFamilies = checkFamilies;
             this.checkRoles = checkRoles;
@@ -224,6 +254,9 @@ public final class ConsistencyChecker2
             this.checkRemoteModifications = checkRemoteModifications;
             this.tree = tree;
             this.log = log;
+            this.targetBranch = targetBranch;
+            this.tolerateVersionInconsistenciesIn = new HashSet<>(
+                    tolerateVersionInconsistenciesIn);
         }
 
         private void log(String what)
@@ -367,14 +400,46 @@ public final class ConsistencyChecker2
                             + "on heterogenous branches:");
                     for (Branch b : branches)
                     {
-                        sb.append("  * ").append(b);
+                        boolean emitted = false;
                         for (GitCheckout co : checkoutsForBranchName.get(b))
                         {
-                            sb.append("\n    * ").append(co.logggingName());
+                            if (tree.checkoutsInProjectFamily(family)
+                                    .contains(co))
+                            {
+                                if (!emitted)
+                                {
+                                    sb.append("\n  * ").append(b);
+                                    emitted = true;
+                                }
+                                sb.append("\n    * ").append(co.logggingName());
+                            }
                         }
                     }
                     into.add(sb.toString());
                 }
+                else
+                    if (targetBranch != null)
+                    {
+                        for (Branch b : branches)
+                        {
+                            if (!b.name().equals(targetBranch))
+                            {
+                                StringBuilder sb = new StringBuilder(
+                                        "All checkouts in family ")
+                                        .append(family).append(
+                                        " are not on the target branch '")
+                                        .append(targetBranch)
+                                        .append('\'');
+                                for (GitCheckout co : checkoutsForBranchName
+                                        .get(b))
+                                {
+                                    sb.append("\n    * ").append(co
+                                            .logggingName()).append(
+                                                    " is on branch ").append(b);
+                                }
+                            }
+                        }
+                    }
             });
         }
 
@@ -455,6 +520,7 @@ public final class ConsistencyChecker2
             {
                 log("Version for family " + f + ": " + v);
             });
+            Map<ProjectFamily, Map<PomVersion, Set<Pom>>> inconsistencies = new HashMap<>();
             for (Pom pom : poms().poms())
             {
                 if (pom.projectFolder().equals(tree.root().checkoutRoot()))
@@ -470,14 +536,52 @@ public final class ConsistencyChecker2
                     if (roles.contains(JAVA) || (!roles.contains(CONFIG) && !roles
                             .contains(CONFIG_ROOT)))
                     {
-                        into.add(
-                                "Versions in family " + fam + " are inconsistent in a POM which is not "
-                                + "a superpom - expected " + ver + " got " + pom
-                                        .version()
-                                + " for " + pom.toArtifactIdentifiers() + " in " + pom
-                                .path());
+                        Map<PomVersion, Set<Pom>> ics = inconsistencies
+                                .computeIfAbsent(fam, f -> new TreeMap<>());
+                        Set<Pom> poms = ics.computeIfAbsent(pom.version(),
+                                v -> new TreeSet<>());
+                        poms.add(pom);
+
+//                        into.add(
+//                                "Versions in family " + fam + " are inconsistent in a POM which is not "
+//                                + "a superpom - expected " + ver + " got " + pom
+//                                        .version()
+//                                + " for " + pom.toArtifactIdentifiers() + " in " + pom
+//                                .path());
                     }
                 }
+            }
+            if (!inconsistencies.isEmpty())
+            {
+                StringBuilder sb = new StringBuilder();
+                inconsistencies.forEach((fam, ics) ->
+                {
+                    if (sb.length() > 0)
+                    {
+                        sb.append("\n\n");
+                    }
+                    sb.append("Versions in family '").append(fam).append(
+                            "' are inconsistent - expecting ").append(
+                                    versForFamily.get(fam));
+                    ics.forEach((ver, poms) ->
+                    {
+                        sb.append("\n  * ").append(ver);
+                        poms.forEach(pom ->
+                        {
+                            Path relPath = tree.root().checkoutRoot()
+                                    .relativize(pom.path());
+                            sb.append("\n    * ").append(pom
+                                    .toArtifactIdentifiers()).append("\t")
+                                    .append(relPath);
+                        });
+                    });
+                    Severity sev = tolerateVersionInconsistenciesIn
+                            .contains(fam)
+                                   ? Severity.NOTE
+                                   : Severity.FATAL;
+                    into.add(sb.toString(), sev);
+                    sb.setLength(0);
+                });
             }
         }
 
