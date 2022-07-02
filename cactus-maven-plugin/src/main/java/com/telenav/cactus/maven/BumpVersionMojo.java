@@ -290,6 +290,16 @@ public class BumpVersionMojo extends ReplaceMojo
     @Parameter(property = "cactus.dot.bump.families", required = false)
     private String dotRevisionFamilies;
 
+    /**
+     * By default, the prefix for a release branch is <code>release/</code>. It
+     * can be overridden here, or via the system property releaseBranchPrefix -
+     * this is useful when doing release dry-runs where you really do want to
+     * create branches and perhaps push them, but not squat the name the
+     * eventual real release branch will get.
+     */
+    @Parameter(property = "cactus.release.branch.prefix", required = false)
+    String releaseBranchPrefix;
+
     private VersionUpdateFilter filter()
     {
         if (singleFamily)
@@ -384,8 +394,22 @@ public class BumpVersionMojo extends ReplaceMojo
         super.newVersion = updatedVersion.text();
         if (super.newBranchName == null && updatedVersion.flavor() == VersionFlavor.RELEASE)
         {
-            super.newBranchName = "release/" + updatedVersion;
+            super.newBranchName = releaseBranchPrefix() + updatedVersion;
         }
+    }
+
+    private String releaseBranchPrefix()
+    {
+        if (releaseBranchPrefix != null && !releaseBranchPrefix.isBlank())
+        {
+            String result = releaseBranchPrefix.trim();
+            if (result.charAt(result.length() - 1) != '/')
+            {
+                result += "/";
+            }
+            return result;
+        }
+        return System.getProperty("releaseBranchPrefix", "release") + "/";
     }
 
     private PomVersion newVersion(Pom pom)

@@ -12,8 +12,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
