@@ -32,15 +32,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.Collections.emptyMap;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -104,19 +103,23 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                            GitCheckout myCheckout, ProjectTree tree,
                            List<GitCheckout> checkouts) throws Exception
     {
-        executeCollectingChangedFiles(log, project, myCheckout, tree, checkouts, _ignored ->{});
+        executeCollectingChangedFiles(log, project, myCheckout, tree, checkouts,
+                emptyMap(), _ignored ->{});
     }
 
     void executeCollectingChangedFiles(BuildLog log, MavenProject project,
                            GitCheckout myCheckout, ProjectTree tree,
-                           List<GitCheckout> checkouts, Consumer<Path> changed) throws Exception
+                           List<GitCheckout> checkouts, 
+                           Map<GitCheckout, String> releaseBranchNames, 
+                           Consumer<Path> changed) throws Exception
     {
         for (var checkout : checkouts)
         {
-            var branchName = this.newBranchName == null && checkout.branch()
+            var branchName = releaseBranchNames.getOrDefault(checkout, 
+                    this.newBranchName == null && checkout.branch()
                     .isPresent()
                     ? checkout.branch().get()
-                    : this.newBranchName;
+                    : this.newBranchName);
 
             if (newVersion == null)
             {

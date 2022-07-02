@@ -221,8 +221,8 @@ public class LexakaiMojo extends BaseMojo
             {
                 "FieldCanBeLocal", "FieldMayBeFinal"
             })
-    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.7")
-    private String lexakaiVersion = "1.0.7";
+    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.8")
+    private String lexakaiVersion = "1.0.8";
 
     /**
      * By default, code is generated into directories that match the relative
@@ -496,6 +496,9 @@ public class LexakaiMojo extends BaseMojo
 
     private void minimizeSVG(Path folderOrFile) throws IOException
     {
+        if (noMinimize) {
+            return;
+        }
         if (Files.isDirectory(folderOrFile))
         {
             try ( Stream<Path> str = Files.walk(folderOrFile, 512).filter(
