@@ -441,7 +441,6 @@
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <doclint>none</doclint>
                         <nohelp>true</nohelp>
-                        <reportOutputDirectory>${env.CACTUS_ASSETS_HOME}/docs/${env.CACTUS_VERSION}/javadoc</reportOutputDirectory>
                         <destDir>cactus</destDir>
                         <additionalOptions>
                             -notimestamp --show-module-contents all --show-packages
@@ -594,7 +593,7 @@
                                     <goal>codeflowers</goal>
                                 </goals>
                                 <configuration>
-                                    <cactus.family>FAMILY_OR_CHILD_FAMILY</cactus.family>
+                                    <cactus.family>family-or-child-family</cactus.family>
                                 </configuration>
                             </execution>
                         </executions>
