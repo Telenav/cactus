@@ -143,6 +143,12 @@ public class CheckMojo extends SharedProjectTreeMojo
     @Parameter(property = "cactus.tolerate.version.inconsistencies.families",
             required = false)
     private String tolerateVersionInconsistenciesIn;
+    
+    /**
+     * For testing other mojos, it may be useful to skip the sanity check.
+     */
+    @Parameter(property="cactus.check.skip", defaultValue="false")
+    private boolean skip;
 
     /**
      * Enforce that all versions in the matched poms are of this version
@@ -160,6 +166,9 @@ public class CheckMojo extends SharedProjectTreeMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if (skip) {
+            return;
+        }
         ConsistencyChecker2 c = new ConsistencyChecker2()
                 .activityLogger(log::info)
                 .withTargetBranch(expectedBranch);
