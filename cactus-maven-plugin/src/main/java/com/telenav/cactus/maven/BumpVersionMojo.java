@@ -403,7 +403,7 @@ public class BumpVersionMojo extends ReplaceMojo
                         + familyOf(pom) + " from " + pom);
             }
 
-        VersionChangeMagnitude mag = magnitude();
+        VersionChangeMagnitude mag = magnitude(familyOf(pom));
         VersionFlavorChange flavor = flavor();
         PomVersion oldVersion = pom.version();
         PomVersion updatedVersion = oldVersion.updatedWith(mag, flavor)
@@ -412,11 +412,6 @@ public class BumpVersionMojo extends ReplaceMojo
                                 + "+ " + flavor + " to version "
                                 + oldVersion + " does not change anything"));
         return updatedVersion;
-    }
-
-    private Optional<PomVersion> findVersionOfFamily(ProjectTree tree)
-    {
-        return findVersionOfFamily(tree, projectFamily());
     }
 
     private Optional<PomVersion> findVersionOfFamily(ProjectTree tree,
@@ -551,7 +546,7 @@ public class BumpVersionMojo extends ReplaceMojo
                         else
                         {
                             nue = v.updatedWith(
-                                    magnitude(),
+                                    magnitude(fam),
                                     flavor())
                                     .get();
                         }
@@ -568,7 +563,7 @@ public class BumpVersionMojo extends ReplaceMojo
                     findVersionOfFamily(tree, family).ifPresent(ffv ->
                     {
                         PomVersion newFamilyVersion = ffv.updatedWith(
-                                magnitude(),
+                                magnitude(family),
                                 flavor()).get();
                         versionForFamily.put(family, ffv);
                         replacer.withFamilyVersionChange(family,
@@ -584,7 +579,7 @@ public class BumpVersionMojo extends ReplaceMojo
                     findVersionOfFamily(tree, family).ifPresent(ffv ->
                     {
                         PomVersion newFamilyVersion = ffv.updatedWith(
-                                magnitude(),
+                                magnitude(family),
                                 flavor()).get();
 
                         versionForFamily.put(family, ffv);
