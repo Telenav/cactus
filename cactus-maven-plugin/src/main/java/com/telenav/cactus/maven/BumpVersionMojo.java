@@ -409,6 +409,16 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             return result;
         }
+        String prop = System.getProperty("releaseBranchPrefix");
+        if (prop != null && !prop.isBlank())
+        {
+            String result = releaseBranchPrefix.trim();
+            if (result.charAt(result.length() - 1) != '/')
+            {
+                result += "/";
+            }
+            return result;
+        }
         return System.getProperty("releaseBranchPrefix", "release") + "/";
     }
 
@@ -719,7 +729,7 @@ public class BumpVersionMojo extends ReplaceMojo
         familiesHere.retainAll(familyVersion.keySet());
         if (!familiesHere.isEmpty())
         {
-            StringBuilder sb = new StringBuilder("release/");
+            StringBuilder sb = new StringBuilder(releaseBranchPrefix());
             if (familiesHere.size() == 1)
             {
                 sb.append(familyVersion.get(familiesHere.iterator()
@@ -729,7 +739,7 @@ public class BumpVersionMojo extends ReplaceMojo
             {
                 for (ProjectFamily pf : familiesHere)
                 {
-                    if (sb.length() > "release/".length())
+                    if (sb.length() > releaseBranchPrefix().length())
                     {
                         sb.append('_');
                     }
