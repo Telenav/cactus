@@ -1,10 +1,14 @@
 package com.telenav.cactus.maven.model;
 
+import com.mastfrog.function.optional.ThrowingOptional;
+import java.util.Arrays;
+import java.util.List;
 import org.w3c.dom.Node;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
+ * A maven group id.
  *
  * @author Tim Boudreau
  */
@@ -28,6 +32,45 @@ public final class GroupId extends ResolvablePomElement<GroupId>
     public static GroupId of(Node what)
     {
         return new GroupId(what);
+    }
+
+    /**
+     * Get the group id as a list of those string segments delimited by
+     * <code>.</code> characters.
+     *
+     * @return A list of strings
+     */
+    public List<String> segments()
+    {
+        return Arrays.asList(text().split("\\."));
+    }
+
+    /**
+     * Concatenate another dot-delimited segment onto this group id.
+     *
+     * @param tail The tail segment.
+     * @return A group id
+     */
+    public GroupId childGroupId(String tail)
+    {
+        return of(text() + "." + notNull("tail", tail));
+    }
+
+    /**
+     * Get a group id omitting the last dot-delimted segment of this group id;
+     * if no dots, returns empty().
+     *
+     * @return an optional
+     */
+    public ThrowingOptional<GroupId> parentGroupId()
+    {
+        String txt = text();
+        int ix = txt.lastIndexOf('.');
+        if (ix > 0 && ix < txt.length() - 1)
+        {
+            return ThrowingOptional.of(of(txt.substring(0, ix)));
+        }
+        return ThrowingOptional.empty();
     }
 
     @Override

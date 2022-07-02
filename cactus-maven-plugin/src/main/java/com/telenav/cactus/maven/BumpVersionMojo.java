@@ -630,27 +630,33 @@ public class BumpVersionMojo extends ReplaceMojo
                     // so we don't generate substitution changes in checkouts we did not
                     // make changes in
                     Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+                    Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
                     if (updateDocs)
                     {
+                        computeReleaseBranchNames(owners, tree,
+                                versionForFamily,
+                                releaseBranchNames, log);
 
                         runSubstitutions(log, project, myCheckout, tree,
-                                new ArrayList<>(
-                                        owners), changedPath -> rewritten.add(
+                                new ArrayList<>(owners), releaseBranchNames,
+                                changedPath -> rewritten.add(
                                         changedPath));
                     }
                     if (commit)
                     {
                         log.info("Commit is true.");
-                        Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
                         if (createReleaseBranch)
                         {
                             // Ensure we affect the root checkout too.
                             owners.add(tree.root());
                             log.info(
                                     "Create release branch in " + owners.size() + " repositories");
-                            computeReleaseBranchNames(owners, tree,
-                                    versionForFamily,
-                                    releaseBranchNames, log);
+                            if (releaseBranchNames.isEmpty())
+                            {
+                                computeReleaseBranchNames(owners, tree,
+                                        versionForFamily,
+                                        releaseBranchNames, log);
+                            }
 
                             // XXX check that the branch does not exist
                             // If it does, roll back everything
@@ -723,10 +729,12 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private void runSubstitutions(BuildLog log, MavenProject project,
             GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts, Consumer<Path> collector) throws Exception
+            List<GitCheckout> checkouts,
+            Map<GitCheckout, String> releaseBranchNames,
+            Consumer<Path> collector) throws Exception
     {
         super.executeCollectingChangedFiles(log, project, myCheckout, tree,
-                checkouts, collector);
+                checkouts, releaseBranchNames, collector);
     }
 
     VersionChangeMagnitude magnitude()

@@ -42,6 +42,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -55,7 +57,7 @@ public class ProjectTree
 {
 
     private final GitCheckout root;
-    private volatile boolean upToDate;
+    private final AtomicBoolean upToDate = new AtomicBoolean();
     private final Cache cache = new Cache();
 
     ProjectTree(GitCheckout root)
@@ -82,19 +84,15 @@ public class ProjectTree
 
     public void invalidateCache()
     {
-        if (upToDate)
+        if (upToDate.compareAndSet(true, false))
         {
-            synchronized (this)
-            {
-                upToDate = false;
-                cache.clear();
-            }
+            cache.clear();
         }
     }
 
     private synchronized <T> T withCache(Function<Cache, T> func)
     {
-        if (!upToDate)
+        if (upToDate.compareAndSet(false, true))
         {
             cache.populate();
         }
@@ -504,17 +502,18 @@ public class ProjectTree
     {
 
         private final Map<String, Map<String, Pom>> infoForGroupAndArtifact
-                = new HashMap<>();
+                = new ConcurrentHashMap<>();
         private final Map<GitCheckout, Set<Pom>> projectsByRepository
-                = new HashMap<>();
-        private final Map<Pom, GitCheckout> checkoutForPom = new HashMap<>();
+                = new ConcurrentHashMap<>();
+        private final Map<Pom, GitCheckout> checkoutForPom = new ConcurrentHashMap<>();
         private final Map<GitCheckout, Optional<String>> branches = new HashMap<>();
-        private final Map<GitCheckout, Boolean> dirty = new HashMap<>();
-        private final Map<GitCheckout, Branches> allBranches = new HashMap<>();
+        private final Map<GitCheckout, Boolean> dirty = new ConcurrentHashMap<>();
+        private final Map<GitCheckout, Branches> allBranches = new ConcurrentHashMap<>();
         private final Map<String, Optional<String>> branchByGroupId = new HashMap<>();
-        private final Map<GitCheckout, Boolean> detachedHeads = new HashMap<>();
+        private final Map<GitCheckout, Boolean> detachedHeads = new ConcurrentHashMap<>();
         private final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
         private final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
+        private Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
 
         public Heads remoteHeads(GitCheckout checkout)
         {
@@ -540,20 +539,25 @@ public class ProjectTree
 
         public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
         {
-            Set<GitCheckout> all = new HashSet<>();
-            projectsByRepository.forEach((repo, projectSet) ->
+            return checkoutsForProjectFamily.computeIfAbsent(family,
+                    key ->
             {
-                for (Pom project : projectSet)
+                Set<GitCheckout> all = new HashSet<>();
+                projectsByRepository.forEach((repo, projectSet) ->
                 {
-                    if (family.equals(ProjectFamily.fromGroupId(
-                            project.groupId().text())))
+                    for (Pom project : projectSet)
                     {
-                        all.add(repo);
-                        break;
+                        if (family.equals(ProjectFamily.fromGroupId(
+                                project.groupId().text())))
+                        {
+                            all.add(repo);
+                            break;
+                        }
                     }
-                }
+                });
+                return all;
             });
-            return all;
+
         }
 
         public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
@@ -708,13 +712,15 @@ public class ProjectTree
             branchByGroupId.clear();
             nonMavenCheckouts.clear();
             detachedHeads.clear();
+            checkoutsForProjectFamily.clear();
+            remoteHeads.clear();
         }
 
-        void populate()
+        synchronized void populate()
         {
             try
             {
-                root.allPomFilesInSubtree(this::cacheOnePomFile);
+                root.allPomFilesInSubtreeParallel(this::cacheOnePomFile);
             }
             catch (IOException ex)
             {
@@ -722,17 +728,33 @@ public class ProjectTree
             }
         }
 
+        private final Map<GitCheckout, GitCheckout> repoInternTable = new ConcurrentHashMap<>();
+
+        private GitCheckout intern(GitCheckout co)
+        {
+            GitCheckout result = repoInternTable.putIfAbsent(co, co);
+            if (result == null)
+            {
+                result = co;
+            }
+            return result;
+        }
+
         private void cacheOnePomFile(Path path)
         {
+//            System.out.println(
+//                    "C1 " + Thread.currentThread().getName() + "\t" + path
+//                    .getParent().getFileName());
             Pom.from(path).ifPresent(info ->
             {
                 Map<String, Pom> subcache
                         = infoForGroupAndArtifact.computeIfAbsent(
                                 info.groupId().text(),
-                                id -> new HashMap<>());
+                                id -> new ConcurrentHashMap<>());
                 subcache.put(info.coordinates().artifactId.text(), info);
                 GitCheckout.repository(info.path()).ifPresent(co ->
                 {
+                    co = intern(co);
                     Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
                             c -> new HashSet<>());
                     poms.add(info);

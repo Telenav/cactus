@@ -154,6 +154,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
 
     /**
      * Get a project family with an explicit name.
+     * @return A project family
      */
     public static ProjectFamily named(String name)
     {

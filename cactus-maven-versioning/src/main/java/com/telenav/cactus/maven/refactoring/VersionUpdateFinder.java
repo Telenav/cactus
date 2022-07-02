@@ -77,6 +77,7 @@ class VersionUpdateFinder
 
     public void go()
     {
+        boolean noFamilyChanges = familyVersionChanges.isEmpty();
         Map<Pom, VersionMismatchPolicyOutcome> mismatchOutcomes = null;
         // Each round can cause new version changes to be added to the set
         // of edits we're making, so iterate until nothing makes a change.
@@ -85,6 +86,10 @@ class VersionUpdateFinder
         // detect that and synthesize an update to that family
         do
         {
+            if (noFamilyChanges && !changes.pomVersionChanges().isEmpty())
+            {
+                cascadeCurrentChanges();
+            }
             // We will aggregate the version mismatch outcomes (from the
             // VersionMismatchPolicy) so we can abort the build if we need to.
             Map<Pom, VersionMismatchPolicyOutcome> outcomes = findUpdates();
@@ -98,6 +103,7 @@ class VersionUpdateFinder
             }
         }
         while (changes.hasChanges());
+        pruneDuplicateVersions();
         // See if we need to abort and do so
         StringBuilder abortMessage = new StringBuilder();
         mismatchOutcomes.forEach((pom, outcome) ->
@@ -686,5 +692,46 @@ class VersionUpdateFinder
     private Set<Pom> versionMismatches()
     {
         return changes.versionMismatches();
+    }
+
+    private void cascadeCurrentChanges()
+    {
+        // We need this for single superpom changes
+        HashMap<Pom, VersionChange> ch = new HashMap<>(changes
+                .pomVersionChanges());
+        Set<Pom> seen = new HashSet<>();
+        while (!ch.isEmpty())
+        {
+            ch.forEach((pom, ver) ->
+            {
+                seen.add(pom);
+                cascadeChange(pom, ver);
+            });
+            
+            ch.putAll(changes.pomVersionChanges());
+            for (Pom p : seen)
+            {
+                ch.remove(p);
+            }
+        }
+    }
+
+    private void pruneDuplicateVersions()
+    {
+        new HashMap<>(changes.pomVersionChanges()).forEach((pom, verChange) ->
+        {
+            VersionChange parentChange = changes.parentVersionChanges().get(pom);
+            if (parentChange != null && verChange.newVersion().equals(
+                    parentChange.version()))
+            {
+                categories.parentOf(pom).ifPresent(parentPom ->
+                {
+                    if (!pom.hasExplicitVersion())
+                    {
+                        changes.removePomVersionChange(pom);
+                    }
+                });
+            }
+        });
     }
 }
