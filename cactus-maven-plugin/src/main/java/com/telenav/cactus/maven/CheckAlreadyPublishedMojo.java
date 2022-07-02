@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
@@ -39,7 +40,12 @@ public class CheckAlreadyPublishedMojo extends SharedDataMojo
 {
     private static final SharedDataKey<HttpClient> HTTP_CLIENT_KEY = SharedDataKey
             .of(HttpClient.class);
+    
+    @Parameter(property="cactus.url.base", defaultValue="https://repo1.maven.org/maven2/")
     private String urlBase = "https://repo1.maven.org/maven2/";
+    
+    @Parameter(property="cactus.published.warn", defaultValue="false")
+    private boolean warnOnAlreadyPublished;
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -90,23 +96,25 @@ public class CheckAlreadyPublishedMojo extends SharedDataMojo
         if (!localText.equals(remoteText))
         {
             String msg = "POM for " + project.getGroupId() + ":" + project
-                    .getArtifactId()
+                    .getArtifactId() + ":" + project.getVersion()
                     + " was already published, and the contents differs from the local copy.  "
                     + "Its version needs to be bumped.";
-            log.warn(msg);
-            fail(msg);
+            if (warnOnAlreadyPublished) {
+                log.warn(msg);
+            } else {
+                fail(msg);
+            }
         }
         else
         {
             log.info(
-                    "The already published version is identical - setting skipStaging to true.");
+                    "The already published pom for " + project.getGroupId() + ":" + project
+                    .getArtifactId() + ":" + project.getVersion() + " is identical to what "
+                    + "we would publish - setting skipStaging to true.");
             project.getProperties().setProperty("skipStaging", "true");
             project.getProperties().setProperty("skipNexusStagingDeployMojo",
                     "true");
             project.getProperties().setProperty("skipRemoteStaging", "true");
-            List<MavenProject> projects = new ArrayList<>(session()
-                    .getAllProjects());
-            projects.remove(project);
         }
     }
 
