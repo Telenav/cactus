@@ -18,7 +18,7 @@
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
     <name>cactus</name>
-    <version>1.4.23</version>
+    <version>1.4.24</version>
 
     <packaging>pom</packaging>
 
@@ -61,9 +61,9 @@
     <properties>
         <!-- Cactus -->
 
-        <cactus.version>1.4.23</cactus.version>
+        <cactus.version>1.4.24</cactus.version>
         <!-- Previous version, so we can run cactus against cactus -->
-        <cactus.previous.version>1.4.22</cactus.previous.version>
+        <cactus.previous.version>1.4.23</cactus.previous.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
         will be automatic without requiring a website visit -->
