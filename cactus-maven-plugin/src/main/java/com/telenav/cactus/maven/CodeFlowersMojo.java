@@ -15,18 +15,17 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.analysis.codeflowers.CodeflowersJsonGenerator;
 import com.telenav.cactus.analysis.MavenProjectsScanner;
 import com.telenav.cactus.analysis.WordCount;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.scope.ProjectFamily;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -42,8 +41,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Collections.emptySet;
+
 /**
- * Generates CodeFlowers JSON and .wc files to the assets directory for each project family in scope.
+ * Generates CodeFlowers JSON and .wc files to the assets directory for each
+ * project family in scope.
  *
  * @author Tim Boudreau
  */
@@ -56,15 +58,28 @@ import java.util.Set;
 public class CodeFlowersMojo extends ScopedCheckoutsMojo
 {
     /**
-     * If true, generate JSON files indented for human-readability; if false, omit all inter-element whitespace.
+     * If true, generate JSON files indented for human-readability; if false,
+     * omit all inter-element whitespace.
      */
     @Parameter(property = "cactus.indent", defaultValue = "false")
     private boolean indent = false;
 
+    @Parameter(property = "cactus.tolerate.version.inconsistencies.families",
+            required = false)
+    private String tolerateVersionInconsistenciesIn;
+
+    private Set<ProjectFamily> tolerateVersionInconsistenciesIn()
+    {
+        return tolerateVersionInconsistenciesIn == null
+               ? emptySet()
+               : ProjectFamily.fromCommaDelimited(
+                        tolerateVersionInconsistenciesIn, () -> null);
+    }
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout, ProjectTree tree,
-                           List<GitCheckout> checkouts) throws Exception
+            GitCheckout myCheckout, ProjectTree tree,
+            List<GitCheckout> checkouts) throws Exception
     {
         Map<ProjectFamily, Set<Pom>> all = allPoms(tree, checkouts);
         for (Map.Entry<ProjectFamily, Set<Pom>> e : all.entrySet())
@@ -73,7 +88,8 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             {
                 continue;
             }
-            String version = checkConsistentVersion(e.getKey(), e.getValue());
+            String version = checkConsistentVersion(e.getKey(), e.getValue(),
+                    tree);
             if (version == null)
             { // empty = should not happen
                 log.warn("Got no versions at all in " + e.getKey());
@@ -84,7 +100,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
                     .map(co -> co.checkoutRoot())).ifPresentOrElse(assetsRoot ->
             {
                 Path codeflowersPath = assetsRoot.resolve("docs").resolve(
-                                version).resolve("codeflowers")
+                        version).resolve("codeflowers")
                         .resolve("site").resolve("data");
                 log.info(
                         "Will generate codeflowers for '" + fam + "' into " + codeflowersPath);
@@ -101,7 +117,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
     }
 
     private Map<ProjectFamily, Set<Pom>> allPoms(ProjectTree tree,
-                                                 Collection<? extends GitCheckout> checkouts)
+            Collection<? extends GitCheckout> checkouts)
     {
         Map<ProjectFamily, Set<Pom>> result = new HashMap<>();
         for (GitCheckout co : checkouts)
@@ -111,7 +127,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
                 if (!pom.isPomProject())
                 {
                     Set<Pom> poms = result.computeIfAbsent(ProjectFamily
-                                    .fromGroupId(pom.coordinates().groupId().text()),
+                            .fromGroupId(pom.coordinates().groupId().text()),
                             f -> new HashSet<>());
                     poms.add(pom);
                 }
@@ -120,18 +136,30 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
         return result;
     }
 
-    private String checkConsistentVersion(ProjectFamily fam, Set<Pom> poms)
+    private String checkConsistentVersion(ProjectFamily fam, Set<Pom> poms,
+            ProjectTree tree)
             throws Exception
     {
         Set<String> versions = new HashSet<>();
         poms.forEach(pom -> versions.add(pom.coordinates().version.text()));
         if (versions.size() > 1)
         {
-            throw new MojoExecutionException(
-                    "Not all projects in family '" + fam + "' have the same version: " + versions);
+            if (tolerateVersionInconsistenciesIn().contains(fam))
+            {
+                fam.probableFamilyVersion(poms).ifPresent(ver ->
+                {
+                    versions.clear();
+                    versions.add(ver.text());
+                });
+            }
+            else
+            {
+                throw new MojoExecutionException(
+                        "Not all projects in family '" + fam + "' have the same version: " + versions);
+            }
         }
         return versions.isEmpty()
-                ? null
-                : versions.iterator().next();
+               ? null
+               : versions.iterator().next();
     }
 }
