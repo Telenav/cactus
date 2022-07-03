@@ -47,6 +47,9 @@ public class FilterFamiliesMojo extends BaseMojo
     @Parameter(property = "cactus.properties", required = false)
     private String properties;
 
+    @Parameter(property = "cactus.filter.skip.superpoms", defaultValue = "true")
+    private boolean skipSuperpoms;
+
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
@@ -63,7 +66,15 @@ public class FilterFamiliesMojo extends BaseMojo
                 .getAllProjects())
                 .stream().filter(x ->
                 {
-                    ProjectFamily fam 
+                    if (skipSuperpoms)
+                    {
+                        if ("pom".equals(x.getPackaging()) && x.getModules()
+                                .isEmpty())
+                        {
+                            return false;
+                        }
+                    }
+                    ProjectFamily fam
                             = fromGroupId(x.getGroupId());
                     return !families.contains(fam);
                 }).collect(toCollection(ArrayList::new));
