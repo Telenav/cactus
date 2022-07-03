@@ -270,22 +270,6 @@ public class LexakaiMojo extends BaseMojo
         super(new FamilyRootRunPolicy());
     }
 
-    public static class FamilyRootRunPolicy implements RunPolicy
-    {
-        @Override
-        public boolean shouldRun(MavenProject invokedOn, MavenSession session)
-        {
-            if (!"pom".equals(invokedOn.getPackaging()))
-            {
-                return false;
-            }
-            return GitCheckout.repository(invokedOn.getBasedir()).map(co ->
-            {
-                return !co.isSubmoduleRoot() && !co.name().contains("/");
-            }).orElse(false);
-        }
-
-    }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
