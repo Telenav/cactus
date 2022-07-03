@@ -762,6 +762,20 @@
 
         <developer>
 
+            <id>tim</id>
+            <name>Tim Boudreau</name>
+            <email>tim@timboudreau.com</email>
+            <organization>Telenav</organization>
+            <organizationUrl>https://www.telenav.com/</organizationUrl>
+            <roles>
+                <role>lead</role>
+                <role>administrator</role>
+            </roles>
+
+        </developer>
+
+        <developer>
+
             <id>haifeng</id>
             <name>Haifeng Zhu</name>
             <email>hfzhu@telenav.com</email>

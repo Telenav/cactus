@@ -30,7 +30,7 @@
         <!--<maven.javadoc.skip>true</maven.javadoc.skip>-->
         <mastfrog.version>2.8.3</mastfrog.version>
         <!-- this must be overridden here only to use the previous version,
-             or it will fail trying to process itself while it is being built -->
+        or it will fail trying to process itself while it is being built -->
         <cactus.maven.plugin.versions>${cactus.previous.version}</cactus.maven.plugin.versions>
     </properties>
 
@@ -92,8 +92,6 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                    <fork>true</fork>
                     <compilerArgs>
                         <arg>--add-reads</arg>
                         <arg>cactus.maven.plugin=ALL-UNNAMED</arg>
@@ -116,7 +114,6 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <!--<Automatic-Module-Name>cactus.maven.plugin</Automatic-Module-Name>-->
                             <Add-Opens>cactus.maven.plugin/*=ALL-UNNAMED</Add-Opens>
                         </manifestEntries>
                     </archive>
@@ -131,6 +128,13 @@
                     <goalPrefix>cactus</goalPrefix>
                 </configuration>
                 <executions>
+                    <!-- We need this for release, so that we can use compile, but 
+                         but not install, to pre-generate the plugin descriptor so that 
+                         the rest of the build, which will use this plugin from
+                         target/classes, does not fail because there is no plugin.xml
+                         in META-INF.  Harmless to do it earlier, since we're not using
+                         any odd scripting languages.
+                    -->
                     <execution>
                         <id>mojo-descriptor-compile-time</id>
                         <phase>compile</phase>
