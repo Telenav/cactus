@@ -51,7 +51,7 @@ final class BooleanProcessResultConverter implements
     public AwaitableCompletionStage<Boolean> onProcessStarted(
             Supplier<String> supp, Process process)
     {
-        return completionStageForProcess(process).thenApplyAsync(proc ->
+        return completionStageForProcess(process).thenApply(proc ->
         {
             return exitCodeTest.test(proc.exitValue());
         });

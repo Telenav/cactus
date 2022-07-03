@@ -660,7 +660,13 @@ public class BumpVersionMojo extends ReplaceMojo
                     // so we don't generate substitution changes in checkouts we did not
                     // make changes in
                     Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+
                     Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
+
+                    boolean addOwners = !owners.contains(tree.root()) && tree
+                            .root()
+                            .isSubmoduleRoot();
+
                     if (updateDocs)
                     {
                         computeReleaseBranchNames(owners, tree,
@@ -686,6 +692,11 @@ public class BumpVersionMojo extends ReplaceMojo
                                 computeReleaseBranchNames(owners, tree,
                                         versionForFamily,
                                         releaseBranchNames, log);
+                            }
+                            if (addOwners)
+                            {
+                                releaseBranchNames.put(tree.root(), longest(
+                                        releaseBranchNames));
                             }
 
                             // XXX check that the branch does not exist
@@ -912,22 +923,29 @@ public class BumpVersionMojo extends ReplaceMojo
         if (createReleaseBranch && !owners.contains(tree.root()) && tree.root()
                 .isSubmoduleRoot())
         {
-            List<String> l = new ArrayList<>(m.values());
-            // Assume the longest branch name is the aggregate one
-            Collections.sort(l, (a, b) -> Integer
-                    .compare(b.length(), a.length()));
-            String bestBranch = l.get(0);
+            String bestBranch = longest(m);
             if (!isPretend())
             {
                 tree.root()
                         .createAndSwitchToBranch(bestBranch, Optional.empty());
                 tree.root().addAll();
                 tree.root().commit(msg.toString());
-                rollback.addRollbackTask(() -> {
+                rollback.addRollbackTask(() ->
+                {
                     tree.root().deleteBranch(bestBranch, this.developmentBranch,
                             true);
                 });
             }
         }
+    }
+
+    private static String longest(Map<GitCheckout, String> m)
+    {
+        assert !m.isEmpty();
+        List<String> l = new ArrayList<>(m.values());
+        // Assume the longest branch name is the aggregate one
+        Collections.sort(l, (a, b) -> Integer
+                .compare(b.length(), a.length()));
+        return l.get(0);
     }
 }
