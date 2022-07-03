@@ -127,12 +127,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "add", "--all");
 
-    public static final GitCommand<Boolean> PULL
-            = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
+    public static final GitCommand<String> PULL
+            = new GitCommand<>(ProcessResultConverter.strings(),
                     "pull");
 
-    public static final GitCommand<Boolean> PUSH
-            = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
+    public static final GitCommand<String> PUSH
+            = new GitCommand<>(ProcessResultConverter.strings(),
                     "push");
 
     public static final GitCommand<Boolean> IS_DETACHED_HEAD
@@ -693,7 +693,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     public boolean pull()
     {
-        return PULL.withWorkingDir(root).run().awaitQuietly();
+        PULL.withWorkingDir(root).run().awaitQuietly();
+        return true;
     }
 
     /**
@@ -734,7 +735,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     public boolean push()
     {
-        return PUSH.withWorkingDir(root).run().awaitQuietly();
+        PUSH.withWorkingDir(root).run().awaitQuietly();
+        return true;
     }
 
     public boolean pushCreatingBranch()
