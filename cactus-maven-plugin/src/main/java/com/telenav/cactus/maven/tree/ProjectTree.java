@@ -56,9 +56,9 @@ import org.apache.maven.project.MavenProject;
 public class ProjectTree
 {
 
-    private final GitCheckout root;
+    final GitCheckout root;
     private final AtomicBoolean upToDate = new AtomicBoolean();
-    private final Cache cache = new Cache();
+    private final ProjectTreeCache cache = new ProjectTreeCache(this);
 
     ProjectTree(GitCheckout root)
     {
@@ -90,7 +90,7 @@ public class ProjectTree
         }
     }
 
-    private synchronized <T> T withCache(Function<Cache, T> func)
+    private synchronized <T> T withCache(Function<ProjectTreeCache, T> func)
     {
         if (upToDate.compareAndSet(false, true))
         {
@@ -160,7 +160,7 @@ public class ProjectTree
 
     public Set<Pom> allProjects()
     {
-        return withCache(Cache::allPoms);
+        return withCache(ProjectTreeCache::allPoms);
     }
 
     public Set<Pom> projectsForGroupId(String groupId)
@@ -366,7 +366,7 @@ public class ProjectTree
 
     public Set<GitCheckout> allCheckouts()
     {
-        return withCache(Cache::allCheckouts);
+        return withCache(ProjectTreeCache::allCheckouts);
     }
 
     public Optional<String> branchFor(GitCheckout checkout)
@@ -498,269 +498,4 @@ public class ProjectTree
         return GitCheckout.depthFirstSort(checkouts);
     }
 
-    final class Cache
-    {
-
-        private final Map<String, Map<String, Pom>> infoForGroupAndArtifact
-                = new ConcurrentHashMap<>();
-        private final Map<GitCheckout, Set<Pom>> projectsByRepository
-                = new ConcurrentHashMap<>();
-        private final Map<Pom, GitCheckout> checkoutForPom = new ConcurrentHashMap<>();
-        private final Map<GitCheckout, Optional<String>> branches = new HashMap<>();
-        private final Map<GitCheckout, Boolean> dirty = new ConcurrentHashMap<>();
-        private final Map<GitCheckout, Branches> allBranches = new ConcurrentHashMap<>();
-        private final Map<String, Optional<String>> branchByGroupId = new HashMap<>();
-        private final Map<GitCheckout, Boolean> detachedHeads = new ConcurrentHashMap<>();
-        private final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
-        private final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
-        private Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
-
-        public Heads remoteHeads(GitCheckout checkout)
-        {
-            return remoteHeads.computeIfAbsent(checkout, ck -> ck.remoteHeads());
-        }
-
-        public Set<GitCheckout> checkoutsContainingGroupId(String groupId)
-        {
-            Set<GitCheckout> all = new HashSet<>();
-            projectsByRepository.forEach((repo, projectSet) ->
-            {
-                for (Pom project : projectSet)
-                {
-                    if (groupId.equals(project.coordinates().groupId))
-                    {
-                        all.add(repo);
-                        break;
-                    }
-                }
-            });
-            return all;
-        }
-
-        public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
-        {
-            return checkoutsForProjectFamily.computeIfAbsent(family,
-                    key ->
-            {
-                Set<GitCheckout> all = new HashSet<>();
-                projectsByRepository.forEach((repo, projectSet) ->
-                {
-                    for (Pom project : projectSet)
-                    {
-                        if (family.equals(ProjectFamily.fromGroupId(
-                                project.groupId().text())))
-                        {
-                            all.add(repo);
-                            break;
-                        }
-                    }
-                });
-                return all;
-            });
-
-        }
-
-        public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-                ProjectFamily family)
-        {
-            Set<GitCheckout> all = new HashSet<>();
-            projectsByRepository.forEach((repo, projectSet) ->
-            {
-                for (Pom project : projectSet)
-                {
-                    ProjectFamily pomFamily = ProjectFamily.familyOf(
-                            project.groupId());
-                    if (family.equals(pomFamily) || family.isParentFamilyOf(
-                            project.coordinates().groupId))
-                    {
-                        all.add(repo);
-                        break;
-                    }
-                }
-            });
-            return all;
-        }
-
-        public Set<GitCheckout> nonMavenCheckouts()
-        {
-            return Collections.unmodifiableSet(nonMavenCheckouts);
-        }
-
-        public boolean isDetachedHead(GitCheckout checkout)
-        {
-            return detachedHeads.computeIfAbsent(checkout,
-                    GitCheckout::isDetachedHead);
-        }
-
-        public Optional<String> mostCommonBranchForGroupId(String groupId)
-        {
-            // Cache these since they are expensive to compute
-            return branchByGroupId.computeIfAbsent(groupId,
-                    this::_mostCommonBranchForGroupId);
-        }
-
-        private Optional<String> _mostCommonBranchForGroupId(String groupId)
-        {
-            // Collect the number of times a branch name is used in a checkout
-            // we have
-            Map<String, Integer> branchNameCounts = new HashMap<>();
-            Set<GitCheckout> seen = new HashSet<>();
-            // Count each checkout exactly once, if it is on a branch
-            checkoutForPom.forEach((pom, checkout) ->
-            {
-                // Filter out any irrelevant or already examined checkouts
-                if (seen.contains(checkout) || !pom.groupId().is(groupId))
-                {
-                    return;
-                }
-                // If we are on a branch, collect its name and add to the number
-                // of times it has been seen
-                branchFor(checkout).ifPresent(branch ->
-                {
-                    seen.add(checkout);
-                    branchNameCounts.compute(branch, (b, old) ->
-                    {
-                        if (old == null)
-                        {
-                            return 1;
-                        }
-                        return old + 1;
-                    });
-                });
-            });
-            // If we found nothing, we're done
-            if (branchNameCounts.isEmpty())
-            {
-                return Optional.empty();
-            }
-            // Reverse sort the map entries by the count
-            List<Map.Entry<String, Integer>> entries = new ArrayList<>(
-                    branchNameCounts.entrySet());
-            Collections.sort(entries, (a, b) ->
-            {
-                return b.getValue().compareTo(a.getValue());
-            });
-            // And take the greatest
-            return Optional.of(entries.get(0).getKey());
-        }
-
-        public Set<Pom> projectsWithin(GitCheckout checkout)
-        {
-            Set<Pom> infos = projectsByRepository.get(checkout);
-            return infos == null
-                   ? Collections.emptySet()
-                   : infos;
-        }
-
-        public Branches branches(GitCheckout checkout)
-        {
-            return allBranches.computeIfAbsent(checkout, co -> co.branches());
-        }
-
-        public Optional<GitCheckout> checkoutFor(Pom info)
-        {
-            return Optional.ofNullable(checkoutForPom.get(info));
-        }
-
-        public boolean isDirty(GitCheckout checkout)
-        {
-            return dirty.computeIfAbsent(checkout, GitCheckout::isDirty);
-        }
-
-        public Set<GitCheckout> allCheckouts()
-        {
-            return Collections.unmodifiableSet(projectsByRepository.keySet());
-        }
-
-        public Optional<String> branchFor(GitCheckout checkout)
-        {
-            return branches.computeIfAbsent(checkout, GitCheckout::branch);
-        }
-
-        public Map<Path, Pom> projectFolders()
-        {
-            Map<Path, Pom> infos = new HashMap<>();
-            allPoms().forEach(pom -> infos.put(pom.path().getParent(), pom));
-            return infos;
-        }
-
-        public Set<Pom> allPoms()
-        {
-            Set<Pom> set = new HashSet<>();
-            projectsByRepository.forEach((repo, infos) -> set.addAll(infos));
-            return set;
-        }
-
-        Optional<Pom> project(String groupId, String artifactId)
-        {
-            Map<String, Pom> map = infoForGroupAndArtifact.get(groupId);
-            if (map == null)
-            {
-                return Optional.empty();
-            }
-            return Optional.ofNullable(map.get(artifactId));
-        }
-
-        void clear()
-        {
-            infoForGroupAndArtifact.clear();
-            projectsByRepository.clear();
-            checkoutForPom.clear();
-            branches.clear();
-            dirty.clear();
-            allBranches.clear();
-            branchByGroupId.clear();
-            nonMavenCheckouts.clear();
-            detachedHeads.clear();
-            checkoutsForProjectFamily.clear();
-            remoteHeads.clear();
-        }
-
-        synchronized void populate()
-        {
-            try
-            {
-                root.allPomFilesInSubtreeParallel(this::cacheOnePomFile);
-            }
-            catch (IOException ex)
-            {
-                Exceptions.chuck(ex);
-            }
-        }
-
-        private final Map<GitCheckout, GitCheckout> repoInternTable = new ConcurrentHashMap<>();
-
-        private GitCheckout intern(GitCheckout co)
-        {
-            GitCheckout result = repoInternTable.putIfAbsent(co, co);
-            if (result == null)
-            {
-                result = co;
-            }
-            return result;
-        }
-
-        private void cacheOnePomFile(Path path)
-        {
-//            System.out.println(
-//                    "C1 " + Thread.currentThread().getName() + "\t" + path
-//                    .getParent().getFileName());
-            Pom.from(path).ifPresent(info ->
-            {
-                Map<String, Pom> subcache
-                        = infoForGroupAndArtifact.computeIfAbsent(
-                                info.groupId().text(),
-                                id -> new ConcurrentHashMap<>());
-                subcache.put(info.coordinates().artifactId.text(), info);
-                GitCheckout.repository(info.path()).ifPresent(co ->
-                {
-                    co = intern(co);
-                    Set<Pom> poms = projectsByRepository.computeIfAbsent(co,
-                            c -> new HashSet<>());
-                    poms.add(info);
-                    checkoutForPom.put(info, co);
-                });
-            });
-        }
-    }
 }
