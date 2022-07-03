@@ -90,6 +90,25 @@
         <plugins>
 
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>--add-reads</arg>
+                        <arg>cactus.maven.plugin=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <additionalOptions>--add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
+                </configuration>
+            </plugin>
+
+            <plugin>
 
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -97,7 +116,8 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>cactus.maven.plugin</Automatic-Module-Name>
+                            <!--<Automatic-Module-Name>cactus.maven.plugin</Automatic-Module-Name>-->
+                            <Add-Opens>cactus.maven.plugin/*=ALL-UNNAMED</Add-Opens>
                         </manifestEntries>
                     </archive>
                 </configuration>

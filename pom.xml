@@ -477,8 +477,9 @@
                         <destDir>cactus</destDir>
                         <additionalOptions>
                             -notimestamp --show-module-contents all --show-packages
-                            all --show-types private
+                            all --show-types private --add-reads cactus.maven.plugin=ALL-UNNAMED
                         </additionalOptions>
+                        
 
                     </configuration>
                     <executions>
