@@ -26,6 +26,7 @@ import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -52,6 +53,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.apache.maven.execution.MavenSession;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -265,7 +267,24 @@ public class LexakaiMojo extends BaseMojo
 
     public LexakaiMojo()
     {
-        super(RunPolicies.POM_PROJECT_ONLY.and(RunPolicies.LAST));
+        super(new FamilyRootRunPolicy());
+    }
+
+    public static class FamilyRootRunPolicy implements RunPolicy
+    {
+        @Override
+        public boolean shouldRun(MavenProject invokedOn, MavenSession session)
+        {
+            if (!"pom".equals(invokedOn.getPackaging()))
+            {
+                return false;
+            }
+            return GitCheckout.repository(invokedOn.getBasedir()).map(co ->
+            {
+                return !co.isSubmoduleRoot() && !co.name().contains("/");
+            }).orElse(false);
+        }
+
     }
 
     @Override
@@ -389,9 +408,9 @@ public class LexakaiMojo extends BaseMojo
     {
         if (checkout.name().isEmpty())
         {
-//            throw new IllegalArgumentException(
-//                    "Cannot use the root project " + checkout
-//                    + " for a lexakai path for " + prj);
+            throw new IllegalArgumentException(
+                    "Cannot use the root project " + checkout
+                    + " for a lexakai path for " + prj);
         }
 
         Path result = path.resolve("docs")
@@ -496,7 +515,8 @@ public class LexakaiMojo extends BaseMojo
 
     private void minimizeSVG(Path folderOrFile) throws IOException
     {
-        if (noMinimize) {
+        if (noMinimize)
+        {
             return;
         }
         if (Files.isDirectory(folderOrFile))
