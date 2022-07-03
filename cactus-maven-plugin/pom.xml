@@ -117,6 +117,7 @@
                     <archive>
                         <manifestEntries>
                             <Add-Opens>cactus.maven.plugin/*=ALL-UNNAMED</Add-Opens>
+                            <Add-Exports>cactus.maven.plugin/*=ALL-UNNAMED</Add-Exports>
                         </manifestEntries>
                     </archive>
                 </configuration>
