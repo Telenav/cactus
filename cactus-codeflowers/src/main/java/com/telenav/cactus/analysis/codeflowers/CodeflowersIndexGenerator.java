@@ -64,6 +64,9 @@ final class CodeflowersIndexGenerator
     {
         String result = template().replaceAll("__PROJECT__", title).replaceAll(
                 "__OPTIONS__", options(ids));
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+        }
         Files.write(dir.resolve("index.html"), result.getBytes(UTF_8), WRITE,
                 TRUNCATE_EXISTING, CREATE);
         unzipAssets();

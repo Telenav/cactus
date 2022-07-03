@@ -4,9 +4,14 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.22</version>
+        <version>1.4.24</version>
     </parent>
     <artifactId>cactus-scope</artifactId>
+    <description>
+        Defines the scopes most mojos in the cactus-maven-plugin use to determine
+        what projects and git repositories to operate on, and the API for
+        project-families.
+    </description>
     <dependencies>
         <dependency>
             <groupId>com.telenav.cactus</groupId>

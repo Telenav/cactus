@@ -15,13 +15,13 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.22</version>
+        <version>1.4.24</version>
     </parent>
 
     <artifactId>cactus-maven-model</artifactId>
 
     <description>
-        The cactus-maven-plugin project codifies Telenav Open Source processes.
+        Models maven poms and artifacts, without depending directly on Maven.
     </description>
 
     <dependencies>

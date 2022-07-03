@@ -7,10 +7,14 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.22</version>
+        <version>1.4.24</version>
     </parent>
 
     <artifactId>cactus-cli</artifactId>
+    
+    <description>
+        Base classes for running CLI commands with a modern API.
+    </description>
 
     <dependencies>
 

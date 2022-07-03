@@ -4,9 +4,12 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.22</version>
+        <version>1.4.24</version>
     </parent>
     <artifactId>cactus-maven-xml</artifactId>
+    <description>
+        Utilities for querying and writing XML with minimal unnecessary changes.
+    </description>
     <dependencies>
         <dependency>
             <groupId>com.mastfrog</groupId>

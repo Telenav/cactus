@@ -40,6 +40,7 @@ import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -290,6 +291,16 @@ public class BumpVersionMojo extends ReplaceMojo
     @Parameter(property = "cactus.dot.bump.families", required = false)
     private String dotRevisionFamilies;
 
+    /**
+     * By default, the prefix for a release branch is <code>release/</code>. It
+     * can be overridden here, or via the system property releaseBranchPrefix -
+     * this is useful when doing release dry-runs where you really do want to
+     * create branches and perhaps push them, but not squat the name the
+     * eventual real release branch will get.
+     */
+    @Parameter(property = "cactus.release.branch.prefix", required = false)
+    String releaseBranchPrefix;
+
     private VersionUpdateFilter filter()
     {
         if (singleFamily)
@@ -384,8 +395,32 @@ public class BumpVersionMojo extends ReplaceMojo
         super.newVersion = updatedVersion.text();
         if (super.newBranchName == null && updatedVersion.flavor() == VersionFlavor.RELEASE)
         {
-            super.newBranchName = "release/" + updatedVersion;
+            super.newBranchName = releaseBranchPrefix() + updatedVersion;
         }
+    }
+
+    private String releaseBranchPrefix()
+    {
+        if (releaseBranchPrefix != null && !releaseBranchPrefix.isBlank())
+        {
+            String result = releaseBranchPrefix.trim();
+            if (result.charAt(result.length() - 1) != '/')
+            {
+                result += "/";
+            }
+            return result;
+        }
+        String prop = System.getProperty("releaseBranchPrefix");
+        if (prop != null && !prop.isBlank())
+        {
+            String result = releaseBranchPrefix.trim();
+            if (result.charAt(result.length() - 1) != '/')
+            {
+                result += "/";
+            }
+            return result;
+        }
+        return System.getProperty("releaseBranchPrefix", "release") + "/";
     }
 
     private PomVersion newVersion(Pom pom)
@@ -403,7 +438,7 @@ public class BumpVersionMojo extends ReplaceMojo
                         + familyOf(pom) + " from " + pom);
             }
 
-        VersionChangeMagnitude mag = magnitude();
+        VersionChangeMagnitude mag = magnitude(familyOf(pom));
         VersionFlavorChange flavor = flavor();
         PomVersion oldVersion = pom.version();
         PomVersion updatedVersion = oldVersion.updatedWith(mag, flavor)
@@ -412,11 +447,6 @@ public class BumpVersionMojo extends ReplaceMojo
                                 + "+ " + flavor + " to version "
                                 + oldVersion + " does not change anything"));
         return updatedVersion;
-    }
-
-    private Optional<PomVersion> findVersionOfFamily(ProjectTree tree)
-    {
-        return findVersionOfFamily(tree, projectFamily());
     }
 
     private Optional<PomVersion> findVersionOfFamily(ProjectTree tree,
@@ -551,7 +581,7 @@ public class BumpVersionMojo extends ReplaceMojo
                         else
                         {
                             nue = v.updatedWith(
-                                    magnitude(),
+                                    magnitude(fam),
                                     flavor())
                                     .get();
                         }
@@ -568,7 +598,7 @@ public class BumpVersionMojo extends ReplaceMojo
                     findVersionOfFamily(tree, family).ifPresent(ffv ->
                     {
                         PomVersion newFamilyVersion = ffv.updatedWith(
-                                magnitude(),
+                                magnitude(family),
                                 flavor()).get();
                         versionForFamily.put(family, ffv);
                         replacer.withFamilyVersionChange(family,
@@ -584,7 +614,7 @@ public class BumpVersionMojo extends ReplaceMojo
                     findVersionOfFamily(tree, family).ifPresent(ffv ->
                     {
                         PomVersion newFamilyVersion = ffv.updatedWith(
-                                magnitude(),
+                                magnitude(family),
                                 flavor()).get();
 
                         versionForFamily.put(family, ffv);
@@ -630,7 +660,13 @@ public class BumpVersionMojo extends ReplaceMojo
                     // so we don't generate substitution changes in checkouts we did not
                     // make changes in
                     Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+
                     Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
+
+                    boolean addOwners = !owners.contains(tree.root()) && tree
+                            .root()
+                            .isSubmoduleRoot();
+
                     if (updateDocs)
                     {
                         computeReleaseBranchNames(owners, tree,
@@ -657,13 +693,18 @@ public class BumpVersionMojo extends ReplaceMojo
                                         versionForFamily,
                                         releaseBranchNames, log);
                             }
+                            if (addOwners)
+                            {
+                                releaseBranchNames.put(tree.root(), longest(
+                                        releaseBranchNames));
+                            }
 
                             // XXX check that the branch does not exist
                             // If it does, roll back everything
                             // Or optionally, delete it if it does?
                         }
                         generateCommit(owners, replacer, releaseBranchNames,
-                                rollback);
+                                rollback, tree);
                     }
                     // Ensures the tree's cache is cleared at the tail even if this
                     // throws
@@ -700,7 +741,7 @@ public class BumpVersionMojo extends ReplaceMojo
         familiesHere.retainAll(familyVersion.keySet());
         if (!familiesHere.isEmpty())
         {
-            StringBuilder sb = new StringBuilder("release/");
+            StringBuilder sb = new StringBuilder(releaseBranchPrefix());
             if (familiesHere.size() == 1)
             {
                 sb.append(familyVersion.get(familiesHere.iterator()
@@ -710,7 +751,7 @@ public class BumpVersionMojo extends ReplaceMojo
             {
                 for (ProjectFamily pf : familiesHere)
                 {
-                    if (sb.length() > "release/".length())
+                    if (sb.length() > releaseBranchPrefix().length())
                     {
                         sb.append('_');
                     }
@@ -803,8 +844,13 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private void generateCommit(Set<GitCheckout> owners,
             VersionReplacementFinder replacer,
-            Map<GitCheckout, String> m, Rollback rollback) throws Exception
+            Map<GitCheckout, String> m, Rollback rollback, ProjectTree tree)
+            throws Exception
     {
+        if (owners.isEmpty())
+        {
+            return;
+        }
         BuildLog lg = log().child("commit");
         lg.warn("Begin commit of " + owners.size() + " repositories");
         CommitMessage msg = new CommitMessage(BumpVersionMojo.class,
@@ -874,5 +920,32 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             lg.info("Commited " + checkout.name());
         }
+        if (createReleaseBranch && !owners.contains(tree.root()) && tree.root()
+                .isSubmoduleRoot())
+        {
+            String bestBranch = longest(m);
+            if (!isPretend())
+            {
+                tree.root()
+                        .createAndSwitchToBranch(bestBranch, Optional.empty());
+                tree.root().addAll();
+                tree.root().commit(msg.toString());
+                rollback.addRollbackTask(() ->
+                {
+                    tree.root().deleteBranch(bestBranch, this.developmentBranch,
+                            true);
+                });
+            }
+        }
+    }
+
+    private static String longest(Map<GitCheckout, String> m)
+    {
+        assert !m.isEmpty();
+        List<String> l = new ArrayList<>(m.values());
+        // Assume the longest branch name is the aggregate one
+        Collections.sort(l, (a, b) -> Integer
+                .compare(b.length(), a.length()));
+        return l.get(0);
     }
 }

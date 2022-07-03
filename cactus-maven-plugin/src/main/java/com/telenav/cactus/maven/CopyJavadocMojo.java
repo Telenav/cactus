@@ -90,6 +90,9 @@ public class CopyJavadocMojo extends BaseMojo
     @Parameter(property = "cactus.do-not-deploy",
                defaultValue = "false")
     private boolean doNotDeploy;
+    
+    @Parameter(property = "cactus.copy.javadoc.skip")
+    private boolean skip;
 
     public CopyJavadocMojo(RunPolicy policy)
     {
@@ -103,6 +106,10 @@ public class CopyJavadocMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if (skip) {
+            log.info("Copy javadoc is skipped");
+            return;
+        }
         if (isSkipped(project))
         {
             log.info(

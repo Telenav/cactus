@@ -65,9 +65,16 @@ public class BuildMetadataMojo extends BaseMojo
             defaultValue = "target/classes/project.properties")
     private String projectPropertiesDestination;
 
+    @Parameter(property = "cactus.build.metadata.skip", required = false)
+    private boolean skip;
+    
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if (skip) {
+            log.info("Build metadata is skipped");
+            return;
+        }
         if ("pom".equals(project.getPackaging()))
         {
             log.info("Not writing project metadata for a non-java project.");

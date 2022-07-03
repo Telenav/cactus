@@ -4,9 +4,12 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.22</version>
+        <version>1.4.24</version>
     </parent>
     <artifactId>cactus-graph</artifactId>
+    <description>
+        API for generating dependency graphs from Maven projects.
+    </description>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -19,13 +22,10 @@
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>util-fileformat</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
     </dependencies>
-    <name>cactus-graph</name>
 </project>
