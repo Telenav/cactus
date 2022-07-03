@@ -40,6 +40,7 @@ import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -692,7 +693,7 @@ public class BumpVersionMojo extends ReplaceMojo
                             // Or optionally, delete it if it does?
                         }
                         generateCommit(owners, replacer, releaseBranchNames,
-                                rollback);
+                                rollback, tree);
                     }
                     // Ensures the tree's cache is cleared at the tail even if this
                     // throws
@@ -832,8 +833,13 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private void generateCommit(Set<GitCheckout> owners,
             VersionReplacementFinder replacer,
-            Map<GitCheckout, String> m, Rollback rollback) throws Exception
+            Map<GitCheckout, String> m, Rollback rollback, ProjectTree tree)
+            throws Exception
     {
+        if (owners.isEmpty())
+        {
+            return;
+        }
         BuildLog lg = log().child("commit");
         lg.warn("Begin commit of " + owners.size() + " repositories");
         CommitMessage msg = new CommitMessage(BumpVersionMojo.class,
@@ -902,6 +908,22 @@ public class BumpVersionMojo extends ReplaceMojo
                 checkout.commit(msg.toString());
             }
             lg.info("Commited " + checkout.name());
+        }
+        if (createReleaseBranch && !owners.contains(tree.root()) && tree.root()
+                .isSubmoduleRoot())
+        {
+            List<String> l = new ArrayList<>(m.values());
+            // Assume the longest branch name is the aggregate one
+            Collections.sort(l, (a, b) -> Integer
+                    .compare(b.length(), a.length()));
+            String bestBranch = l.get(0);
+            if (!isPretend())
+            {
+                tree.root()
+                        .createAndSwitchToBranch(bestBranch, Optional.empty());
+                tree.root().addAll();
+                tree.root().commit(msg.toString());
+            }
         }
     }
 }
