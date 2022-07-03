@@ -38,6 +38,7 @@
                     <archive>
                         <manifestEntries>
                             <Main-Class>com.telenav.cactus.metadata.BuildMetadataUpdater</Main-Class>
+                            <Automatic-Module-Name>cactus.metadata</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

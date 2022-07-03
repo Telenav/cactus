@@ -27,7 +27,7 @@
 
     <properties>
         <enforcer.skip>true</enforcer.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <!--<maven.javadoc.skip>true</maven.javadoc.skip>-->
         <mastfrog.version>2.8.3</mastfrog.version>
         <!-- this must be overridden here only to use the previous version,
              or it will fail trying to process itself while it is being built -->
@@ -111,6 +111,14 @@
                     <goalPrefix>cactus</goalPrefix>
                 </configuration>
                 <executions>
+                    <execution>
+                        <id>mojo-descriptor-compile-time</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                    
                     <execution>
                         <id>mojo-descriptor</id>
                         <phase>process-classes</phase>
