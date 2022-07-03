@@ -12,4 +12,11 @@ module cactus.maven.plugin {
     requires java.net.http;
     requires java.xml;
     requires maven.plugin.annotations;
+    exports com.telenav.cactus.maven.commit;
+    exports com.telenav.cactus.maven;
+    exports com.telenav.cactus.maven.common;
+    exports com.telenav.cactus.maven.mojobase;
+    exports com.telenav.cactus.maven.shared;
+    exports com.telenav.cactus.maven.tree;
+    exports com.telenav.cactus.maven.trigger;
 }
