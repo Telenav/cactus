@@ -118,6 +118,7 @@
                         <manifestEntries>
                             <Add-Opens>cactus.maven.plugin/*=ALL-UNNAMED</Add-Opens>
                             <Add-Exports>cactus.maven.plugin/*=ALL-UNNAMED</Add-Exports>
+                            <Add-Exports>cactus.maven.plugin/*=com.google.guice</Add-Exports>
                         </manifestEntries>
                     </archive>
                 </configuration>
