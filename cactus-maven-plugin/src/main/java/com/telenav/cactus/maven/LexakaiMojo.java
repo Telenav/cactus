@@ -389,9 +389,9 @@ public class LexakaiMojo extends BaseMojo
     {
         if (checkout.name().isEmpty())
         {
-            throw new IllegalArgumentException(
-                    "Cannot use the root project " + checkout
-                    + " for a lexakai path for " + prj);
+//            throw new IllegalArgumentException(
+//                    "Cannot use the root project " + checkout
+//                    + " for a lexakai path for " + prj);
         }
 
         Path result = path.resolve("docs")
