@@ -923,6 +923,10 @@ public class BumpVersionMojo extends ReplaceMojo
                         .createAndSwitchToBranch(bestBranch, Optional.empty());
                 tree.root().addAll();
                 tree.root().commit(msg.toString());
+                rollback.addRollbackTask(() -> {
+                    tree.root().deleteBranch(bestBranch, this.developmentBranch,
+                            true);
+                });
             }
         }
     }
