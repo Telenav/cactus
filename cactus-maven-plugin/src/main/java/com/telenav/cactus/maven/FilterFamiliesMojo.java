@@ -13,6 +13,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toCollection;
@@ -62,8 +63,8 @@ public class FilterFamiliesMojo extends BaseMojo
                 .getAllProjects())
                 .stream().filter(x ->
                 {
-                    ProjectFamily fam = ProjectFamily.fromGroupId(project
-                            .getGroupId());
+                    ProjectFamily fam 
+                            = fromGroupId(x.getGroupId());
                     return !families.contains(fam);
                 }).collect(toCollection(ArrayList::new));
         for (String prop : properties.split(","))
@@ -76,7 +77,7 @@ public class FilterFamiliesMojo extends BaseMojo
                     if (isVerbose())
                     {
                         log.info("Inject " + prop + "=true into " + prj
-                                .getArtifactId());
+                                .getArtifactId() + " for " + families());
                     }
                     prj.getProperties().setProperty(prop, "true");
                 }
