@@ -461,6 +461,12 @@
                 </plugin>
 
                 <!-- Documentation -->
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>4.0.0-M1</version>
+                </plugin>
 
                 <plugin>
 
