@@ -17,6 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.refactoring;
 
+import com.mastfrog.function.state.Bool;
+import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
 import com.telenav.cactus.maven.model.ArtifactId;
@@ -25,7 +27,10 @@ import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.maven.model.MavenVersioned;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
+import com.telenav.cactus.maven.model.VersionChangeMagnitude;
+import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.internal.PomFile;
+import com.telenav.cactus.maven.model.published.PublishChecker;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
@@ -33,25 +38,25 @@ import com.telenav.cactus.maven.xml.XMLElementRemoval;
 import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
 import com.telenav.cactus.util.SectionedMessage;
 import com.telenav.cactus.util.SectionedMessage.MessageSection;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import org.w3c.dom.Document;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.xml.XMLReplacer.writeXML;
-import static com.telenav.cactus.scope.ProjectFamily.familyOf;
+import static java.util.Collections.emptySet;
 
 /**
  * Accepts a mapping of versions to change for individual POM files and/or
@@ -86,12 +91,20 @@ public class VersionReplacementFinder
     private boolean pretend;
     private VersionUpdateFilter filter;
     private boolean needResolve = true;
+    private boolean bumpAlreadyPublishedPoms;
+    private PublishChecker publishChecker = new PublishChecker();
 
     public VersionReplacementFinder(Poms poms)
     {
         categories = new PomCategorizer(poms);
         potentialPropertyChanges = VersionIndicatingProperties
                 .create(categories);
+    }
+
+    public VersionReplacementFinder withPublishChecker(PublishChecker checker)
+    {
+        this.publishChecker = notNull("checker", checker);
+        return this;
     }
 
     public VersionReplacementFinder withSuperpomBumpPolicy(
@@ -133,6 +146,12 @@ public class VersionReplacementFinder
         {
             return withSinglePomChange(pom, newVersion);
         }).orElse(this);
+    }
+
+    public VersionReplacementFinder bumpUnpublishedPoms()
+    {
+        this.bumpAlreadyPublishedPoms = true;
+        return this;
     }
 
     public Optional<VersionChange> versionChangeFor(Pom pom)
@@ -183,37 +202,6 @@ public class VersionReplacementFinder
     }
 
     /**
-     * Iterate all the version mismatches, passing each one's pom and the
-     * version (may be null) we are trying to change it to.
-     *
-     * @param c A biconsumer
-     */
-    private void eachVersionMismatch(BiPredicate<Pom, VersionChange> c)
-    {
-        // Need a defensive copy because we may not just remove from
-        // but add to the collection while iterating
-        for (Iterator<Pom> it = new HashSet<>(versionMismatches).iterator(); it
-                .hasNext();)
-        {
-            Pom pom = it.next();
-            // Something we called may have already triggered removal
-            if (!versionMismatches.contains(pom))
-            {
-                continue;
-            }
-            VersionChange change = this.pomVersionChanges.get(pom);
-            if (change == null)
-            {
-                change = this.familyVersionChanges.get(familyOf(pom));
-            }
-            if (change == null || c.test(pom, change))
-            {
-                versionMismatches.remove(pom);
-            }
-        }
-    }
-
-    /**
      * Main entry point for computing version changes.
      */
     private void resolveVersionMismatchesAndFinalizeUpdateSet()
@@ -238,11 +226,72 @@ public class VersionReplacementFinder
         // which have children, so those children get the fact that their
         // parent version needs updating recorded in the next round, and
         // so forth, until no change has been made
-        new VersionUpdateFinder(changeCollector(), categories,
+        Set<Pom> conflicted = collectConflictPoms();
+
+        VersionUpdateFinder finder = new VersionUpdateFinder(changeCollector(),
+                categories,
                 potentialPropertyChanges,
-                familyVersionChanges, superpomBumpPolicy, versionMismatchPolicy)
-                .go();
+                familyVersionChanges, superpomBumpPolicy, versionMismatchPolicy);
+        finder.go();
+        // We want to let it do any changes that are dictated by policy first,
+        // and then if there are still conflicted poms that have not been
+        // bumped, only bump those.
+        if (this.bumpAlreadyPublishedPoms && !conflicted.isEmpty())
+        {
+            conflicted.removeAll(this.pomVersionChanges.keySet());
+            conflicted.removeAll(this.parentVersionChanges.keySet());
+            // Ensure the remaining versions are bumped
+            if (!conflicted.isEmpty())
+            {
+                Bool changes = Bool.create();
+                for (Pom p : conflicted)
+                {
+                    p.version().updatedWith(
+                            VersionChangeMagnitude.DOT,
+                            VersionFlavorChange.UNCHANGED).ifPresent(v ->
+                            {
+                                p.version().to(v).ifPresent(vv ->
+                                {
+                                    pomVersionChanges.put(p, vv);
+                                    changes.set();
+                                });
+
+                            });
+                }
+                if (changes.getAsBoolean())
+                {
+                    finder.go();
+                }
+            }
+        }
         needResolve = false;
+    }
+
+    private Set<Pom> collectConflictPoms()
+    {
+        if (!bumpAlreadyPublishedPoms)
+        {
+            return emptySet();
+        }
+        try
+        {
+            Set<Pom> result = new HashSet<>();
+            for (Pom p : categories.allPoms())
+            {
+                switch (publishChecker.check(p))
+                {
+                    case PUBLISHED_DIFFERENT:
+                        result.add(p);
+                        System.out.println("CONFLICT " + p);
+                        break;
+                }
+            }
+            return result;
+        }
+        catch (IOException | InterruptedException | URISyntaxException ex)
+        {
+            return Exceptions.chuck(ex);
+        }
     }
 
     private VersionChangeUpdatesCollector changeCollector()

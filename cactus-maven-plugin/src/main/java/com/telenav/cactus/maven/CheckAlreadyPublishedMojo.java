@@ -2,26 +2,16 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.SharedDataMojo;
-import com.telenav.cactus.maven.publishcheck.PublishChecker;
-import com.telenav.cactus.maven.publishcheck.PublishedState;
+import com.telenav.cactus.maven.model.published.PublishChecker;
+import com.telenav.cactus.maven.model.published.PublishedState;
 import com.telenav.cactus.maven.shared.SharedDataKey;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.file.Files;
-import java.time.Duration;
 import javax.inject.Inject;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
 
 /**
@@ -66,7 +56,8 @@ public class CheckAlreadyPublishedMojo extends SharedDataMojo
         log.info("Check if " + project.getArtifactId()
                 + " is already published");
 
-        PublishedState state = checker.check(project);
+        PublishedState state = checker.check(MavenArtifactCoordinatesWrapper
+                .wrap(project));
         switch (state)
         {
             case NOT_PUBLISHED:

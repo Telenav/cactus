@@ -301,6 +301,19 @@ public class BumpVersionMojo extends ReplaceMojo
     @Parameter(property = "cactus.release.branch.prefix", required = false)
     String releaseBranchPrefix;
 
+    /**
+     * If set, will scan all poms and check with Maven Central (or someplace
+     * else) to determine if each pom has already been published in its current
+     * version, and if so, if the published pom is identical, and if it has been
+     * and they are not, queue it up for a version bump. This is needed when
+     * releasing so as not to attempt to publish things that have already been
+     * published, or cause newly published libraries to depend the versions
+     * expressed in the already published poms when those are not what they were
+     * actually built against.
+     */
+    @Parameter(property = "cactus.bump.unpublished", defaultValue = "false")
+    boolean bumpUnpublished;
+
     private VersionUpdateFilter filter()
     {
         if (singleFamily)
@@ -540,6 +553,10 @@ public class BumpVersionMojo extends ReplaceMojo
                         .withVersionMismatchPolicy(mismatchPolicy())
                         .withSuperpomBumpPolicy(superpomBumpPolicy())
                         .withFilter(filter());
+        if (bumpUnpublished)
+        {
+            replacer.bumpUnpublishedPoms();
+        }
         log.info(
                 "Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
         if (explicitVersion != null && scope().canBeMultiFamily())

@@ -1,4 +1,4 @@
-package com.telenav.cactus.maven.publishcheck;
+package com.telenav.cactus.maven.model.published;
 
 /**
  * Publication state.

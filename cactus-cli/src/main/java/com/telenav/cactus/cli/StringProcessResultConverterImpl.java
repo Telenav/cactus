@@ -62,7 +62,7 @@ final class StringProcessResultConverterImpl implements
         stdout = new OutputReader(process.getInputStream()).start();
         // Note:  This really needs to be thenApplyAsync(), or you sometimes get
         // immediately called back before the process has *started*.
-        return completionStageForProcess(process).thenApplyAsync(proc ->
+        return completionStageForProcess(process).thenApply(proc ->
         {
             log.debug(() ->
             {
