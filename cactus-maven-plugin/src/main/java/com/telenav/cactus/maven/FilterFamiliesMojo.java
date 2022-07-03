@@ -73,6 +73,11 @@ public class FilterFamiliesMojo extends BaseMojo
             {
                 for (MavenProject prj : projectsToSetPropertiesFor)
                 {
+                    if (isVerbose())
+                    {
+                        log.info("Inject " + prop + "=true into " + prj
+                                .getArtifactId());
+                    }
                     prj.getProperties().setProperty(prop, "true");
                 }
             }

@@ -19,6 +19,10 @@ public class FamilyRootRunPolicy implements RunPolicy
         {
             return false;
         }
+        if (invokedOn.getModules().isEmpty())
+        {
+            return false;
+        }
         return GitCheckout.repository(invokedOn.getBasedir())
                 .map(co ->
                 {
