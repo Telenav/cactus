@@ -25,8 +25,6 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
-import com.telenav.cactus.maven.trigger.RunPolicy;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -53,7 +51,6 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.apache.maven.execution.MavenSession;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -269,7 +266,6 @@ public class LexakaiMojo extends BaseMojo
     {
         super(new FamilyRootRunPolicy());
     }
-
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
@@ -513,12 +509,13 @@ public class LexakaiMojo extends BaseMojo
             }
         }
         else
-        {
-            String text = Files.readString(folderOrFile);
-            String revised = XML_COMMENT.matcher(text).replaceAll("") + '\n';
-            Files.write(folderOrFile, revised.getBytes(UTF_8), WRITE,
-                    TRUNCATE_EXISTING);
-        }
+            if (Files.exists(folderOrFile))
+            {
+                String text = Files.readString(folderOrFile);
+                String revised = XML_COMMENT.matcher(text).replaceAll("") + '\n';
+                Files.write(folderOrFile, revised.getBytes(UTF_8), WRITE,
+                        TRUNCATE_EXISTING);
+            }
     }
 
     private void runLexakai(List<String> args, MavenProject project,
