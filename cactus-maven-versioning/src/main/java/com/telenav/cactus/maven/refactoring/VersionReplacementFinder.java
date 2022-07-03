@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.refactoring;
 
+import com.mastfrog.function.state.Bool;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
@@ -26,6 +27,8 @@ import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.maven.model.MavenVersioned;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
+import com.telenav.cactus.maven.model.VersionChangeMagnitude;
+import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.published.PublishChecker;
 import com.telenav.cactus.maven.model.resolver.Poms;
@@ -230,6 +233,9 @@ public class VersionReplacementFinder
                 potentialPropertyChanges,
                 familyVersionChanges, superpomBumpPolicy, versionMismatchPolicy);
         finder.go();
+        // We want to let it do any changes that are dictated by policy first,
+        // and then if there are still conflicted poms that have not been
+        // bumped, only bump those.
         if (this.bumpAlreadyPublishedPoms && !conflicted.isEmpty())
         {
             conflicted.removeAll(this.pomVersionChanges.keySet());
@@ -237,7 +243,25 @@ public class VersionReplacementFinder
             // Ensure the remaining versions are bumped
             if (!conflicted.isEmpty())
             {
-                finder.go();
+                Bool changes = Bool.create();
+                for (Pom p : conflicted)
+                {
+                    p.version().updatedWith(
+                            VersionChangeMagnitude.DOT,
+                            VersionFlavorChange.UNCHANGED).ifPresent(v ->
+                            {
+                                p.version().to(v).ifPresent(vv ->
+                                {
+                                    pomVersionChanges.put(p, vv);
+                                    changes.set();
+                                });
+
+                            });
+                }
+                if (changes.getAsBoolean())
+                {
+                    finder.go();
+                }
             }
         }
         needResolve = false;
@@ -258,6 +282,7 @@ public class VersionReplacementFinder
                 {
                     case PUBLISHED_DIFFERENT:
                         result.add(p);
+                        System.out.println("CONFLICT " + p);
                         break;
                 }
             }
