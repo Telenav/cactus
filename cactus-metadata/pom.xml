@@ -22,7 +22,8 @@
     <artifactId>cactus-metadata</artifactId>
     <description>
         The cactus-metadata project generates build metadata consumed by
-        KivaKit and other projects.
+        KivaKit and other projects, specifically build.properties and
+        project.properties files generated into target/classes.
     </description>
 
     <build>

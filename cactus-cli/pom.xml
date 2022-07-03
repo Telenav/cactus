@@ -11,6 +11,10 @@
     </parent>
 
     <artifactId>cactus-cli</artifactId>
+    
+    <description>
+        Base classes for running CLI commands with a modern API.
+    </description>
 
     <dependencies>
 

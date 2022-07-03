@@ -325,6 +325,62 @@ public class Pom implements Comparable<Pom>, MavenArtifactCoordinates
         return sb.toString();
     }
 
+    private String[] nameDescription;
+
+    private String[] nameAndDescription()
+    {
+        if (nameDescription != null)
+        {
+            return nameDescription;
+        }
+        PomFile pf = PomFile.of(this);
+        try
+        {
+            String[] result = new String[]
+            {
+                artifactId().text(), "-none-"
+            };
+            return nameDescription = pf.inContext(doc ->
+            {
+                pf.nodeQuery("/project/name").ifPresent(nd ->
+                {
+                    String txt = nd.getTextContent();
+                    if (txt != null && !txt.isBlank())
+                    {
+                        result[0] = txt.trim();
+                    }
+                });
+                pf.nodeQuery("/project/description").ifPresent(nd ->
+                {
+                    String txt = nd.getTextContent();
+                    if (txt != null && !txt.isBlank())
+                    {
+                        result[1] = txt.trim();
+                    }
+                });
+                return result;
+            });
+        }
+        catch (Exception ex)
+        {
+            return Exceptions.chuck(ex);
+        }
+    }
+
+    public String name()
+    {
+        return nameAndDescription()[0] == null
+               ? artifactId().text()
+               : nameAndDescription()[0];
+    }
+
+    public String description()
+    {
+        return nameAndDescription()[1] == null
+               ? "-none-"
+               : nameAndDescription()[1];
+    }
+
     private Boolean hasExplicitVersion;
 
     public boolean hasExplicitVersion()

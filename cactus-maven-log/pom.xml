@@ -11,6 +11,10 @@
     </parent>
 
     <artifactId>cactus-maven-log</artifactId>
+    <description>
+        A wrapper around Maven's SLF4J to provide some convenience features
+        such as provenance prefixes and ThreadLocal mapping of loggers.
+    </description>
 
     <dependencies>
 

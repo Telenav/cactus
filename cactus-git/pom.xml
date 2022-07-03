@@ -12,6 +12,10 @@
 
     <artifactId>cactus-git</artifactId>
 
+    <description>
+        API for manipulating Git repositories by invoking a command-line Git binary.
+    </description>
+
     <dependencies>
 
         <dependency>

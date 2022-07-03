@@ -21,7 +21,7 @@
     <artifactId>cactus-maven-model</artifactId>
 
     <description>
-        The cactus-maven-plugin project codifies Telenav Open Source processes.
+        Models maven poms and artifacts, without depending directly on Maven.
     </description>
 
     <dependencies>

@@ -7,6 +7,11 @@
         <version>1.4.24</version>
     </parent>
     <artifactId>cactus-maven-versioning</artifactId>
+    <description>
+        API for manipulating versions consistently across large trees
+        of maven projects with an eye to ensuring the result is consistent
+        and buildable.
+    </description>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
