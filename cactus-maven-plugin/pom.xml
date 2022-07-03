@@ -97,10 +97,12 @@
                         <arg>cactus.maven.plugin=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
+                <version>${maven-compiler-plugin.version}</version>
             </plugin>
             
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
                     <additionalOptions>--add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
                 </configuration>
@@ -123,6 +125,7 @@
 
             <plugin>
 
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
                     <goalPrefix>cactus</goalPrefix>

@@ -67,6 +67,9 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
     @Parameter(property = "cactus.tolerate.version.inconsistencies.families",
             required = false)
     private String tolerateVersionInconsistenciesIn;
+    
+    @Parameter(property="cactus.codeflowers.skip")
+    private boolean skipped;
 
     private Set<ProjectFamily> tolerateVersionInconsistenciesIn()
     {
@@ -81,6 +84,10 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
+        if (skipped) {
+            log.info("Codeflowers is skipped");
+            return;
+        }
         Map<ProjectFamily, Set<Pom>> all = allPoms(tree, checkouts);
         for (Map.Entry<ProjectFamily, Set<Pom>> e : all.entrySet())
         {

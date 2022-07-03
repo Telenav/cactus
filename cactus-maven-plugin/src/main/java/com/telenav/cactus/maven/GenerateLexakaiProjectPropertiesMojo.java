@@ -53,6 +53,9 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
     @Parameter(property = "cactus.cleanup", defaultValue = "false")
     private boolean cleanup;
 
+    @Parameter(property = "cactus.generate.lexakai.skip", defaultValue = "false")
+    private boolean skip;
+    
     public GenerateLexakaiProjectPropertiesMojo()
     {
         super(RunPolicies.LAST);
@@ -61,6 +64,10 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if (skip) {
+            log.info("Cactus lexakai properties generation is skipped.");
+            return;
+        }
         if (!"pom".equals(project.getPackaging()))
         {
             log.info(

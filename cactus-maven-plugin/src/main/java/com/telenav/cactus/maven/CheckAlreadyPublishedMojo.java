@@ -38,18 +38,27 @@ public class CheckAlreadyPublishedMojo extends SharedDataMojo
 {
     private static final SharedDataKey<HttpClient> HTTP_CLIENT_KEY = SharedDataKey
             .of(HttpClient.class);
-    
-    @Parameter(property="cactus.url.base", defaultValue="https://repo1.maven.org/maven2/")
+
+    @Parameter(property = "cactus.url.base",
+            defaultValue = "https://repo1.maven.org/maven2/")
     private String urlBase = "https://repo1.maven.org/maven2/";
-    
-    @Parameter(property="cactus.published.warn", defaultValue="false")
+
+    @Parameter(property = "cactus.published.warn", defaultValue = "false")
     private boolean warnOnAlreadyPublished;
+
+    @Parameter(property = "cactus.publish.check.skip", required = false)
+    private boolean skip;
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        log
-                .info("Check if " + project.getArtifactId() + " is already published");
+        if (skip)
+        {
+            log.info("Artifact publication check is skipped");
+            return;
+        }
+        log.info("Check if " + project.getArtifactId()
+                + " is already published");
         HttpRequest request = HttpRequest.newBuilder(downloadUrl(project)
                 .toURI()).GET().timeout(
                         Duration.ofSeconds(60)).build();
@@ -97,9 +106,12 @@ public class CheckAlreadyPublishedMojo extends SharedDataMojo
                     .getArtifactId() + ":" + project.getVersion()
                     + " was already published, and the contents differs from the local copy.  "
                     + "Its version needs to be bumped.";
-            if (warnOnAlreadyPublished) {
+            if (warnOnAlreadyPublished)
+            {
                 log.warn(msg);
-            } else {
+            }
+            else
+            {
                 fail(msg);
             }
         }
