@@ -1,7 +1,7 @@
-package com.telenav.cactus.maven.publishcheck;
+package com.telenav.cactus.maven.model.published;
 
-import com.telenav.cactus.maven.shared.SharedData;
-import com.telenav.cactus.maven.shared.SharedDataKey;
+import com.telenav.cactus.maven.model.DiskResident;
+import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -11,38 +11,46 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.time.Duration;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.apache.maven.project.MavenProject;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
+ * Can test against maven central if an artifact was published by comparing its
+ * pom with any published one.
  *
- * @author timb
+ * @author Tim Boudreau
  */
-@Singleton
 public class PublishChecker
 {
     private static final String DEFAULT_REPO = "https://repo1.maven.org/maven2/";
-    private static final SharedDataKey<HttpClient> HTTP_CLIENT_KEY = SharedDataKey
-            .of(HttpClient.class);
+    private static HttpClient client;
+    private final String baseUrl;
 
-    @Inject
-    SharedData sharedData;
-
-    private HttpClient client()
+    private static synchronized HttpClient client()
     {
-        return sharedData.computeIfAbsent(HTTP_CLIENT_KEY,
-                HttpClient::newHttpClient);
+        return client == null
+               ? (client = HttpClient.newHttpClient())
+               : client;
     }
 
-    public PublishedState check(MavenProject project) throws IOException, InterruptedException, URISyntaxException
+    public PublishChecker(String repo)
     {
-        return check(DEFAULT_REPO, project);
+        this.baseUrl = repo;
     }
 
-    public PublishedState check(String urlBase, MavenProject project) throws IOException, InterruptedException, URISyntaxException
+    public PublishChecker()
+    {
+        this(DEFAULT_REPO);
+    }
+
+    public <A extends MavenArtifactCoordinates & DiskResident> PublishedState check(
+            A project) throws IOException, InterruptedException, URISyntaxException
+    {
+        return check(baseUrl, project);
+    }
+
+    public <A extends MavenArtifactCoordinates & DiskResident> PublishedState check(
+            String urlBase, A project) throws IOException, InterruptedException, URISyntaxException
     {
         HttpRequest request = HttpRequest.newBuilder(downloadUrl(urlBase,
                 project)
@@ -72,17 +80,19 @@ public class PublishChecker
         }
     }
 
-    private URL downloadUrl(String urlBase, MavenProject project) throws MalformedURLException
+    private <A extends MavenArtifactCoordinates & DiskResident> URL downloadUrl(
+            String urlBase, A project) throws MalformedURLException
     {
         return new URL(
-                urlBase + project.getGroupId().replace('.', '/') + '/' + project
-                .getArtifactId() + '/' + project.getVersion() + '/' + project
-                .getArtifactId() + "-" + project.getVersion() + ".pom");
+                urlBase + project.groupId().text().replace('.', '/') + '/' + project
+                .artifactId() + '/' + project.version() + '/' + project
+                .artifactId() + "-" + project.version() + ".pom");
     }
 
-    private String pomText(MavenProject project) throws IOException
+    private <A extends MavenArtifactCoordinates & DiskResident> String pomText(
+            A project) throws IOException
     {
-        return new String(Files.readAllBytes(project.getFile().toPath()), UTF_8)
+        return new String(Files.readAllBytes(project.path()), UTF_8)
                 .trim();
     }
 

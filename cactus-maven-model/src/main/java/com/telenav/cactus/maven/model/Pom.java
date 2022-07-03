@@ -50,7 +50,7 @@ import static java.util.Collections.unmodifiableSet;
 /**
  * @author Tim Boudreau
  */
-public class Pom implements Comparable<Pom>, MavenArtifactCoordinates
+public class Pom implements Comparable<Pom>, MavenArtifactCoordinates, DiskResident
 {
     public static ThrowingOptional<Pom> in(Path pomFileOrDir)
     {
