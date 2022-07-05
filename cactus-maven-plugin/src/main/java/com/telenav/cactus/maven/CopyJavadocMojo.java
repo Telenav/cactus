@@ -110,6 +110,10 @@ public class CopyJavadocMojo extends BaseMojo
             log.info("Copy javadoc is skipped");
             return;
         }
+        if ("true".equals(project.getProperties().get("maven.javadoc.skip"))) {
+            log.info("Copy javadoc is skipped via maven.javadoc.skip");
+            return;
+        }
         if (isSkipped(project))
         {
             log.info(
@@ -140,9 +144,11 @@ public class CopyJavadocMojo extends BaseMojo
 
         if (!javadocExists)
         {
-            fail("No javadoc found at " + javadocPath
-                    + " javadoc must be built before this mojo is run."
-                    + " PROPERTIES:\n" + project.getProperties());
+            log.warn("No javadoc to copy for " + project.getArtifactId());
+            return;
+//            fail("No javadoc found at " + javadocPath
+//                    + " javadoc must be built before this mojo is run."
+//                    + " PROPERTIES:\n" + project.getProperties());
         }
         copyJavadoc(javadocPath, project, log);
     }
