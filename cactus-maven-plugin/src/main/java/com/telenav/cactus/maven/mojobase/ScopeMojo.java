@@ -22,6 +22,7 @@ import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -117,6 +118,11 @@ public abstract class ScopeMojo extends BaseMojo
         super(runFirst
               ? RunPolicies.FIRST
               : RunPolicies.LAST); // once per session
+    }
+
+    protected ScopeMojo(RunPolicy policy)
+    {
+        super(policy);
     }
 
     /**
