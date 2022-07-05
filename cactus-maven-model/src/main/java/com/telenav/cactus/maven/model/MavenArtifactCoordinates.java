@@ -17,6 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.model;
 
+import com.mastfrog.function.optional.ThrowingOptional;
+
 /**
  * A thing that has a group id, an artifact id and a version.
  *
@@ -26,4 +28,37 @@ public interface MavenArtifactCoordinates extends MavenIdentified,
                                                   MavenVersioned
 {
 
+    default MavenArtifactCoordinates withVersion(String ver)
+    {
+        return new MavenArtifactCoordinates()
+        {
+            @Override
+            public GroupId groupId()
+            {
+                return MavenArtifactCoordinates.this.groupId();
+            }
+
+            @Override
+            public ArtifactId artifactId()
+            {
+                return MavenArtifactCoordinates.this.artifactId();
+            }
+
+            @Override
+            public ThrowingOptional<String> resolvedVersion()
+            {
+                if (ver.contains("${"))
+                {
+                    return ThrowingOptional.empty();
+                }
+                return ThrowingOptional.of(ver);
+            }
+
+            @Override
+            public PomVersion version()
+            {
+                return PomVersion.of(ver);
+            }
+        };
+    }
 }

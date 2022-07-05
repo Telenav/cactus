@@ -44,6 +44,10 @@ public class ArtifactIdentifiers implements MavenIdentified
     {
         this(GroupId.of(groupId), ArtifactId.of(artifactId));
     }
+    
+    public ArtifactIdentifiers(String gid, String aid) {
+        this(GroupId.of(gid), ArtifactId.of(aid));
+    }
 
     @Override
     public GroupId groupId()
