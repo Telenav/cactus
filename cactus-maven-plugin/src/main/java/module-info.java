@@ -1,4 +1,4 @@
-module cactus.maven.plugin {
+open module cactus.maven.plugin {
     requires transitive com.telenav.cactus.git;
     requires transitive com.telenav.cactus.maven.log;
     requires transitive cactus.maven.model;
