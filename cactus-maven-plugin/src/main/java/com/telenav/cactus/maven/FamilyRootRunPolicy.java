@@ -13,7 +13,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
-public class FamilyRootRunPolicy implements RunPolicy
+public final class FamilyRootRunPolicy implements RunPolicy
 {
     static Map<Path, Boolean> CACHE = new ConcurrentHashMap<>();
 

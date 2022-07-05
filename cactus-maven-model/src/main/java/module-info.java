@@ -11,5 +11,7 @@ open module cactus.maven.model
     exports com.telenav.cactus.maven.model.internal;
     exports com.telenav.cactus.maven.model.dependencies;
     exports com.telenav.cactus.maven.model.resolver;
+    exports com.telenav.cactus.maven.model.resolver.versions;
     exports com.telenav.cactus.maven.model.published;
+    exports com.telenav.cactus.maven.model.property;
 }

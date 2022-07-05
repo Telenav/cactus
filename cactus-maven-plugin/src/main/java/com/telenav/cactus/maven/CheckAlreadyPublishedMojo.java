@@ -23,7 +23,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_AL
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.INITIALIZE,
+        defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = KEEP_ALIVE,
         name = "check-published", threadSafe = true)
