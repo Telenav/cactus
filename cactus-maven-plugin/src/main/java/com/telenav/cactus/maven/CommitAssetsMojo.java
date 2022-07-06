@@ -5,15 +5,17 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
+import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
 
 /**
  * A mojo specifically for generating a commit in dirty assets repositories.
@@ -27,7 +29,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VERIFY,
         requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = SINGLETON,
+        instantiationStrategy = KEEP_ALIVE,
         name = "commit-assets", threadSafe = true)
 public class CommitAssetsMojo extends SharedProjectTreeMojo
 {
@@ -47,6 +49,9 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
     @Parameter(property = "cactus.gc", defaultValue = "true")
     boolean gc;
 
+    static SharedDataKey<Boolean> DONE = SharedDataKey.of("CommitAssetsMojo",
+            Boolean.class);
+
     public CommitAssetsMojo()
     {
         super(RunPolicies.EVERY);
@@ -55,8 +60,15 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        Optional<Boolean> opt = sharedData().get(DONE);
+        if (opt.isPresent() && opt.get())
+        {
+            return;
+        }
+
         withProjectTree(tree ->
         {
+            sharedData().put(DONE, true);
             Set<GitCheckout> assetsCheckouts = tree.nonMavenCheckouts();
             System.out.println("HAVE " + assetsCheckouts.size() + " checkouts");
 
