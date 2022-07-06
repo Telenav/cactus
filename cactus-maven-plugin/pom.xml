@@ -131,12 +131,6 @@
                     <archive>
                         <manifestFile>${project.basedir}/manifest.mf</manifestFile>
                         <manifestEntries/>
-                        <!--
-                    <manifestEntries>
-                        <Add-Opens>cactus.maven.plugin/*=ALL-UNNAMED cactus.maven.plugin/*=maven.core cactus.maven.plugin/*=maven.plugin.api cactus.maven.plugin/*=maven.settings cactus.maven.plugin/*=plexus.classworlds@2.6.0 cactus.maven.plugin/*=plexus.classworlds com.google.guice/*=ALL-UNNAMED</Add-Opens>
-                        <Add-Exports>cactus.maven.plugin/*=ALL-UNNAMED cactus.maven.plugin/*=com.google.guice cactus.maven.plugin/com.telenav.cactus.maven=com.google.guice cactus.maven.plugin/com.telenav.cactus.maven.trigger=com.google.guice cactus.maven.plugin/*=maven.core cactus.maven.plugin/*=maven.plugin.api cactus.maven.plugin/*=maven.settings cactus.maven.plugin/*=maven.plugin.api</Add-Exports>
-                    </manifestEntries>
-                        -->
                     </archive>
                 </configuration>
 
