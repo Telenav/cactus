@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.trigger.FamilyRootRunPolicy;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.streams.stdio.ThreadMappedStdIO;
 import com.telenav.cactus.util.PathUtils;

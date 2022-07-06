@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.trigger.FamilyRootRunPolicy;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.ResolutionScope;

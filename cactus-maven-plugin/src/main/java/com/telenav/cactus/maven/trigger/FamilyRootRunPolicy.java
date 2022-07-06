@@ -1,4 +1,4 @@
-package com.telenav.cactus.maven;
+package com.telenav.cactus.maven.trigger;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.trigger.RunPolicy;

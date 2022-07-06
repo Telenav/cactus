@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.trigger.FamilyRootRunPolicy;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
