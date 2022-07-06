@@ -42,7 +42,7 @@ public class PrintMessageMojo extends BaseMojo
 
     public PrintMessageMojo()
     {
-        super(RunPolicies.LAST);
+        super(RunPolicies.EVERY);
     }
 
     @Override
