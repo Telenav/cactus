@@ -5,6 +5,7 @@ import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.Heads;
 import com.telenav.cactus.git.SubmoduleStatus;
+import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.scope.ProjectFamily;
 import java.io.IOException;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 
 /**
  * Internal cache for the ProjectTree, so we don't re-execute expensive git
@@ -37,7 +40,7 @@ final class ProjectTreeCache
     final Map<GitCheckout, Boolean> detachedHeads = new ConcurrentHashMap<>();
     final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
     final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
-    Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
+    final Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
     private final ProjectTree outer;
 
     ProjectTreeCache(final ProjectTree outer)
@@ -48,7 +51,7 @@ final class ProjectTreeCache
     public Heads remoteHeads(GitCheckout checkout)
     {
         return remoteHeads.computeIfAbsent(checkout,
-                ck -> ck.remoteHeads());
+                GitCheckout::remoteHeads);
     }
 
     public Set<GitCheckout> checkoutsContainingGroupId(String groupId)
@@ -66,6 +69,24 @@ final class ProjectTreeCache
             }
         });
         return all;
+    }
+
+    public Set<GitCheckout> checkoutsInProjectFamily(Set<ProjectFamily> family)
+    {
+        switch (family.size())
+        {
+            case 0:
+                return new HashSet<>(allCheckouts());
+            case 1:
+                return checkoutsInProjectFamily(family.iterator().next());
+            default:
+                Set<GitCheckout> result = new HashSet<>();
+                for (ProjectFamily f : family)
+                {
+                    result.addAll(checkoutsInProjectFamily(f));
+                }
+                return result;
+        }
     }
 
     public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
@@ -91,18 +112,55 @@ final class ProjectTreeCache
         });
     }
 
+    private static boolean containsParentFamilyOf(GroupId groupId,
+            Set<ProjectFamily> s)
+    {
+        for (ProjectFamily p : s)
+        {
+            if (p.isParentFamilyOf(groupId))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
             ProjectFamily family)
     {
         Set<GitCheckout> all = new HashSet<>();
         projectsByRepository.forEach((repo, projectSet) ->
         {
+            for (Pom p : projectSet)
+            {
+                if (familyOf(p).equals(family)
+                        || family.isParentFamilyOf(p.groupId()))
+                {
+                    all.add(repo);
+                    break;
+                }
+            }
+        });
+        return all;
+    }
+
+    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
+            Set<ProjectFamily> family)
+    {
+        Set<GitCheckout> all = new HashSet<>();
+        projectsByRepository.forEach((repo, projectSet) ->
+        {
+            if (family.isEmpty())
+            {
+                all.add(repo);
+                return;
+            }
             for (Pom project : projectSet)
             {
                 ProjectFamily pomFamily = ProjectFamily.familyOf(project
                         .groupId());
-                if (family.equals(pomFamily) || family.isParentFamilyOf(project
-                        .coordinates().groupId))
+                if (family.contains(pomFamily) || containsParentFamilyOf(project
+                        .groupId(), family))
                 {
                     all.add(repo);
                     break;
@@ -189,7 +247,7 @@ final class ProjectTreeCache
     public Branches branches(GitCheckout checkout)
     {
         return allBranches.computeIfAbsent(checkout,
-                co -> co.branches());
+                GitCheckout::branches);
     }
 
     public Optional<GitCheckout> checkoutFor(Pom info)

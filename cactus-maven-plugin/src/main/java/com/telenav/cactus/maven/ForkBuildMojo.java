@@ -21,6 +21,7 @@ import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
@@ -74,6 +75,7 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
         name = "attempt-merge", threadSafe = true)
+@BaseMojoGoal("attempt-merge")
 public class ForkBuildMojo extends ScopedCheckoutsMojo
 {
 

@@ -101,7 +101,7 @@ public final class ConsistencyChecker2
             Collection<? extends GitCheckout> all)
     {
         Set<GitCheckout> ch = new HashSet<>(all);
-        checkoutsFilter = checkoutsFilter.and(checkout -> ch.contains(checkout));
+        checkoutsFilter = checkoutsFilter.and(ch::contains);
         return this;
     }
 

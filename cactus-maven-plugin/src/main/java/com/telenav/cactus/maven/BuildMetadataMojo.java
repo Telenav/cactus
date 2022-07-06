@@ -20,6 +20,7 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.metadata.BuildMetadata;
 import com.telenav.cactus.metadata.BuildMetadataUpdater;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -54,7 +55,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         defaultPhase = LifecyclePhase.PROCESS_SOURCES,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
-        name = "build-metadata", threadSafe = false)
+        name = "build-metadata", threadSafe = true)
+@BaseMojoGoal("build-metadata")
 public class BuildMetadataMojo extends BaseMojo
 {
 
@@ -65,7 +67,7 @@ public class BuildMetadataMojo extends BaseMojo
             defaultValue = "target/classes/project.properties")
     private String projectPropertiesDestination;
 
-    @Parameter(property = "cactus.build.metadata.skip", required = false)
+    @Parameter(property = "cactus.build.metadata.skip")
     private boolean skip;
     
     @Override

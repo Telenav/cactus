@@ -10,6 +10,8 @@ public final class CactusCommonPropertyNames
 {
     public static final String PLUGIN_FAMILY_NAME = "cactus";
 
+    public static final String PLUGIN_NAME = PLUGIN_FAMILY_NAME + "-maven-plugin";
+
     private static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
     /**
      * Property for verbose mode, consumed by BaseMojo.
@@ -29,6 +31,13 @@ public final class CactusCommonPropertyNames
      * by ScopeMojo.
      */
     public static final String FAMILY = PREFIX + "family";
+
+    /**
+     * Family, to override the detected family of the target project and provide
+     * multiple families the mojo applies to.
+     */
+    public static final String FAMILIES = PREFIX + "families";
+
     /**
      * Property for inclusion of the root checkout in the set of things to be
      * modified regardless of what its family is detected as, consumed by

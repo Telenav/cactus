@@ -75,7 +75,7 @@ public class ProjectTree
     public static ThrowingOptional<ProjectTree> from(Path fileOrFolder)
     {
         return ThrowingOptional.from(GitCheckout.repository(fileOrFolder))
-                .flatMapThrowing(repo -> repo.submoduleRoot())
+                .flatMapThrowing(GitCheckout::submoduleRoot)
                 .map(ProjectTree::new);
     }
 
@@ -408,12 +408,24 @@ public class ProjectTree
 
     public Set<GitCheckout> nonMavenCheckouts()
     {
-        return withCache(c -> c.nonMavenCheckouts());
+        return withCache(ProjectTreeCache::nonMavenCheckouts);
     }
 
     public Set<GitCheckout> checkoutsContainingGroupId(String groupId)
     {
         return withCache(c -> c.checkoutsContainingGroupId(groupId));
+    }
+
+    public Set<GitCheckout> checkoutsInProjectFamily(Set<ProjectFamily> family)
+    {
+        return withCache(c -> c.checkoutsInProjectFamily(family));
+    }
+
+    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
+            Set<ProjectFamily> family)
+    {
+        return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(
+                family));
     }
 
     public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
@@ -450,7 +462,7 @@ public class ProjectTree
      */
     public List<GitCheckout> matchCheckouts(Scope scope,
             GitCheckout callingProjectsCheckout, boolean includeRoot,
-            ProjectFamily family, String callingProjectsGroupId)
+            Set<ProjectFamily> family, String callingProjectsGroupId)
     {
         Set<GitCheckout> checkouts;
         switch (scope)

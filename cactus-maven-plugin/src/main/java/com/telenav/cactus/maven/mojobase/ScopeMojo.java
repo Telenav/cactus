@@ -23,13 +23,14 @@ import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.trigger.RunPolicy;
+import com.telenav.cactus.scope.Scoped;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.util.Optional;
+import java.util.Set;
 
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.FAMILY;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.INCLUDE_ROOT;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SCOPE;
 
@@ -41,7 +42,7 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SCOPE;
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused")
-public abstract class ScopeMojo extends BaseMojo
+public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
 {
     /**
      * Defines the scope this mojo operates on - used by mojos which may operate
@@ -87,13 +88,6 @@ public abstract class ScopeMojo extends BaseMojo
     @Parameter(property = INCLUDE_ROOT, defaultValue = "true")
     private boolean includeRoot;
 
-    /**
-     * Override the project family, using this value instead of one derived from
-     * the project's group id. Only relevant for scopes concerned with families.
-     */
-    @Parameter(property = FAMILY, defaultValue = "")
-    protected String family;
-
     private Scope scopeValue;
     private GitCheckout myCheckout;
 
@@ -104,6 +98,11 @@ public abstract class ScopeMojo extends BaseMojo
     protected ScopeMojo()
     {
         this(false);
+    }
+
+    public boolean isFamilyScope()
+    {
+        return scope().appliesFamily();
     }
 
     /**
@@ -117,7 +116,7 @@ public abstract class ScopeMojo extends BaseMojo
     {
         super(runFirst
               ? RunPolicies.FIRST
-              : RunPolicies.LAST); // once per session
+              : RunPolicies.LAST_CONTAINING_GOAL); // once per session
     }
 
     protected ScopeMojo(RunPolicy policy)
@@ -132,14 +131,14 @@ public abstract class ScopeMojo extends BaseMojo
      * @param project The project the mojo is being invoked against
      * @param myCheckout A git checkout
      * @param scope The scope
-     * @param family The project family
+     * @param families The project family
      * @param includeRoot Whether or not the include-root property was set
      * @param pretend If true, we are in pretend-mode - log but do not do
      * @throws Exception If something goes wrong
      */
     protected abstract void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
-            Scope scope, ProjectFamily family, boolean includeRoot,
+            Scope scope, Set<ProjectFamily> families, boolean includeRoot,
             boolean pretend) throws Exception;
 
     /**
@@ -169,21 +168,6 @@ public abstract class ScopeMojo extends BaseMojo
     }
 
     /**
-     * Returns the project family passed explicitly, which should override that
-     * of the target project when searching for git repositories to match, if
-     * set.
-     *
-     * @return A string or null
-     */
-    @Override
-    protected final String overrideProjectFamily()
-    {
-        return family == null
-               ? null
-               : family.trim();
-    }
-
-    /**
      * Delegates to execute().
      *
      * @param log A log
@@ -193,7 +177,7 @@ public abstract class ScopeMojo extends BaseMojo
     @Override
     protected final void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        execute(log, project, myCheckout, scopeValue, projectFamily(),
+        execute(log, project, myCheckout, scopeValue, families(),
                 includeRoot, isPretend());
     }
 
@@ -202,9 +186,10 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @return A scope
      */
-    protected Scope scope()
+    @Override
+    public final Scope scope()
     {
-        return scopeValue;
+        return scopeValue == null ? Scope.find(scope) : scopeValue;
     }
 
     /**

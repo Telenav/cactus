@@ -19,6 +19,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -55,6 +56,7 @@ import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
         name = "finish-attempt-merge", threadSafe = true)
+@BaseMojoGoal("finish-attempt-merge")
 public class MergeForkBuildMojo extends ScopedCheckoutsMojo
 {
     private final String DID_NOT_RUN_MESSAGE

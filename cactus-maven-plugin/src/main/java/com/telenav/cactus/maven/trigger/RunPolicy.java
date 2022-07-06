@@ -17,14 +17,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.trigger;
 
-import java.util.Objects;
-import org.apache.maven.execution.MavenSession;
+import com.telenav.cactus.maven.mojobase.BaseMojo;
 import org.apache.maven.project.MavenProject;
 
 /**
  * Policy that determines whether a BaseMojo's execution method should be run.
  * We have a lot of mojos which operate on one or more git checkouts, not
  * per-project, and either need to be run at the start or end of a build.
+ * <p>
+ * Many of our mojos are more associated with git repositories than with
+ * projects, and should be run at most once per-repository, per-build, or only
+ * against specific projects such as those in Git submodule roots. RunPolicy
+ * provides the control needed to get granular control over what to run against
+ * without polluting every mojo class with such logic.
+ * </p>
  *
  * @see RunPolicies
  * @author Tim Boudreau
@@ -32,93 +38,46 @@ import org.apache.maven.project.MavenProject;
 public interface RunPolicy
 {
 
-    boolean shouldRun(MavenProject invokedOn, MavenSession session);
+    /**
+     * Determine if the mojo's execution logic should be performed on the
+     * particular project passed in, on behalf of the passed mojo.
+     *
+     * @param mojo A mojo
+     * @param invokedOn The project it is being invoked against
+     * @return Whether or not to proceed.
+     */
+    boolean shouldRun(BaseMojo mojo, MavenProject invokedOn);
 
     default RunPolicy and(RunPolicy other)
     {
         // For logging purposes, we need a reasonable implementation of
-        // toString(), so use a local class.
-        return new RunPolicy()
-        {
-            @Override
-            public boolean shouldRun(MavenProject prj,
-                    MavenSession sess)
-            {
-                return other.shouldRun(prj, sess)
-                        && RunPolicy.this.shouldRun(prj, sess);
-            }
-
-            @Override
-            public String toString()
-            {
-                return "(" + RunPolicy.this + " and " + other + ")";
-            }
-        };
+        // toString(), so use a concrete class.
+        return new AndedRunPolicy(this, other);
     }
 
     default RunPolicy or(RunPolicy other)
     {
         // For logging purposes, we need a reasonable implementation of
-        // toString(), so use a local class.
-        return new RunPolicy()
-        {
-            @Override
-            public boolean shouldRun(MavenProject prj,
-                    MavenSession sess)
-            {
-                return other.shouldRun(prj, sess)
-                        || RunPolicy.this.shouldRun(prj, sess);
-            }
-
-            @Override
-            public String toString()
-            {
-                return "(" + RunPolicy.this + " or " + other + ")";
-            }
-        };
+        // toString(), so use a concrete class.
+        return new OrRunPolicy(this, other);
     }
 
     default RunPolicy negate()
     {
-        return new RunPolicy()
-        {
-            @Override
-            public boolean shouldRun(MavenProject prj,
-                    MavenSession sess)
-            {
-                return !RunPolicy.this.shouldRun(prj, sess);
-            }
-
-            @Override
-            public RunPolicy negate()
-            {
-                return RunPolicy.this;
-            }
-
-            @Override
-            public String toString()
-            {
-                return "!" + RunPolicy.this;
-            }
-        };
+        // For logging purposes, we need a reasonable implementation of
+        // toString(), so use a concrete class.
+        return new NegatedRunPolicy(this);
     }
 
+    /**
+     * Create an instance that only runs on a specific packaging type such as
+     * "maven-plugin" or "nbm".
+     *
+     * @param packaging The packaging type
+     * @return A RunPolicy
+     */
     static RunPolicy forPackaging(String packaging)
     {
-        return new RunPolicy()
-        {
-            @Override
-            public boolean shouldRun(MavenProject prj,
-                    MavenSession sess)
-            {
-                return Objects.equals(packaging, prj.getPackaging());
-            }
-
-            @Override
-            public String toString()
-            {
-                return "packaging=" + packaging;
-            }
-        };
+        return new PackagingSpecificRunPolicy(packaging);
     }
 }

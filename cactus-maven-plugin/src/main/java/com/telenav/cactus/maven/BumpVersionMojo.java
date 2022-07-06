@@ -24,12 +24,14 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.model.VersionChange;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.refactoring.SuperpomBumpPolicy;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -59,6 +61,7 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_C
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 import static com.telenav.cactus.scope.Scope.FAMILY;
 import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
+import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -79,6 +82,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "bump-version", threadSafe = true)
+@BaseMojoGoal("bump-version")
 public class BumpVersionMojo extends ReplaceMojo
 {
     // Some matchers to allow friendly string forms of enum constants
@@ -244,7 +248,7 @@ public class BumpVersionMojo extends ReplaceMojo
      * fail the build (you can always do it one by one if that's really what you
      * want).
      */
-    @Parameter(property = "cactus.explicit.version", required = false)
+    @Parameter(property = "cactus.explicit.version")
     String explicitVersion;
 
     /**
@@ -280,7 +284,7 @@ public class BumpVersionMojo extends ReplaceMojo
      * updates to more than one family without bumping their version once to set
      * up one set of properties, and again to set up another.
      */
-    @Parameter(property = "cactus.families", required = false)
+    @Parameter(property = "cactus.families")
     String families;
 
     /**
@@ -288,7 +292,7 @@ public class BumpVersionMojo extends ReplaceMojo
      * get a higher-than-dot-magnitude update, pass a comma-delimited list of
      * families that should be a dot-magnitude bump regardless of other things.
      */
-    @Parameter(property = "cactus.dot.bump.families", required = false)
+    @Parameter(property = "cactus.dot.bump.families")
     private String dotRevisionFamilies;
 
     /**
@@ -298,7 +302,7 @@ public class BumpVersionMojo extends ReplaceMojo
      * create branches and perhaps push them, but not squat the name the
      * eventual real release branch will get.
      */
-    @Parameter(property = "cactus.release.branch.prefix", required = false)
+    @Parameter(property = "cactus.release.branch.prefix")
     String releaseBranchPrefix;
 
     /**
@@ -318,8 +322,14 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         if (singleFamily)
         {
+            Set<ProjectFamily> all = families();
+            if (all.isEmpty())
+            {
+                all = singleton(ProjectFamily.familyOf(GroupId.of(project()
+                        .getGroupId())));
+            }
             return VersionUpdateFilter.withinFamilyOrParentFamily(
-                    projectFamily());
+                    all.iterator().next());
         }
         else
         {
@@ -346,6 +356,8 @@ public class BumpVersionMojo extends ReplaceMojo
 
         switch (scope())
         {
+            case FAMILY:
+                break;
             case JUST_THIS:
                 if (createReleaseBranch)
                 {
@@ -355,12 +367,13 @@ public class BumpVersionMojo extends ReplaceMojo
             case ALL_PROJECT_FAMILIES:
             case SAME_GROUP_ID:
             case FAMILY_OR_CHILD_FAMILY:
-                if (families != null && !families.trim().isEmpty())
+                if (families != null && !families.isBlank())
                 {
                     fail("cactus.families can only be used with cactus.scope=family.");
                 }
                 break;
             default:
+                throw new AssertionError(scope());
         }
 
         VersionChangeMagnitude mag = magnitude();
@@ -398,7 +411,7 @@ public class BumpVersionMojo extends ReplaceMojo
         session().getAllProjects().forEach(prj ->
         {
             project.getProperties().put("cactus.version.change.description",
-                    projectFamily() + " " + vc);
+                    ProjectFamily.fromGroupId(project.getGroupId()) + " " + vc);
         });
 
         log.info("Bump version of " + project.getGroupId() + ":" + project
@@ -438,7 +451,8 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private PomVersion newVersion(Pom pom)
     {
-        if (explicitVersion != null && projectFamily().equals(familyOf(pom)))
+        if (explicitVersion != null && families().iterator().next().equals(
+                familyOf(pom)))
         {
             return PomVersion.of(explicitVersion);
         }
@@ -447,19 +461,18 @@ public class BumpVersionMojo extends ReplaceMojo
             {
                 throw new IllegalStateException(
                         "Explicit version can only be used when altering a "
-                        + " SINGLE project family, but have family " + projectFamily() + " plus "
+                        + " SINGLE project family, but have family " + families() + " plus "
                         + familyOf(pom) + " from " + pom);
             }
 
         VersionChangeMagnitude mag = magnitude(familyOf(pom));
         VersionFlavorChange flavor = flavor();
         PomVersion oldVersion = pom.version();
-        PomVersion updatedVersion = oldVersion.updatedWith(mag, flavor)
+        return oldVersion.updatedWith(mag, flavor)
                 .orElseThrow(
                         () -> new IllegalStateException("Applying " + mag + " "
                                 + "+ " + flavor + " to version "
                                 + oldVersion + " does not change anything"));
-        return updatedVersion;
     }
 
     private Optional<PomVersion> findVersionOfFamily(ProjectTree tree,
@@ -478,14 +491,17 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private Set<ProjectFamily> familyWithChildFamilies(ProjectTree tree)
     {
-        ProjectFamily fam = projectFamily();
+        Set<ProjectFamily> fams = families();
         Set<ProjectFamily> relatives = new HashSet<>();
-        tree.allProjects().forEach(pom
-                -> fam.ifParentFamilyOf(pom.groupId(),
-                        () -> relatives.add(ProjectFamily
-                                .familyOf(pom.groupId())))
-        );
-        relatives.add(fam);
+        for (ProjectFamily fam : fams)
+        {
+            tree.allProjects().forEach(pom
+                    -> fam.ifParentFamilyOf(pom.groupId(),
+                            () -> relatives.add(ProjectFamily
+                                    .familyOf(pom.groupId())))
+            );
+            relatives.add(fam);
+        }
         return relatives;
     }
 
@@ -692,8 +708,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
                         runSubstitutions(log, project, myCheckout, tree,
                                 new ArrayList<>(owners), releaseBranchNames,
-                                changedPath -> rewritten.add(
-                                        changedPath));
+                                rewritten::add);
                     }
                     if (commit)
                     {
@@ -805,28 +820,6 @@ public class BumpVersionMojo extends ReplaceMojo
                     "Unrecognized magnitude change flavoer '" + versionChangeMagnitude + "'");
         }
         return mag.get();
-    }
-
-    Set<ProjectFamily> families()
-    {
-        Set<ProjectFamily> result = new HashSet<>();
-
-        if (families != null)
-        {
-            for (String s : families.split(","))
-            {
-                s = s.trim();
-                if (!s.isEmpty())
-                {
-                    result.add(ProjectFamily.named(s));
-                }
-            }
-        }
-        else
-        {
-            result.add(projectFamily());
-        }
-        return result;
     }
 
     VersionFlavorChange flavor()

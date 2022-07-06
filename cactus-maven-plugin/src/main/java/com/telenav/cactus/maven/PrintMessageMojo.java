@@ -3,12 +3,18 @@ package com.telenav.cactus.maven;
 import com.mastfrog.concurrent.ConcurrentLinkedList;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.trigger.RunPolicies;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.maven.execution.MavenExecutionResult;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -17,16 +23,18 @@ import org.apache.maven.project.MavenProject;
 
 /**
  * Simply prints a highly visible message to the console. Uses a JVM shutdown
- * hook to print the message after all maven output.
+ * hook to print the message after all maven output. The message can be set to
+ * be printed always, only on build success or only on build failure.
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VERIFY,
+        defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
         name = "print-message", threadSafe = true)
+@BaseMojoGoal("print-message")
 public class PrintMessageMojo extends BaseMojo
 {
 
@@ -36,13 +44,22 @@ public class PrintMessageMojo extends BaseMojo
     @Parameter(property = "cactus.message", required = true)
     private String message;
 
+    /**
+     * Nullable boolean: If set to true, print the message only if the execution
+     * result HAS exceptions. If set to false, print the message only if the
+     * execution result DOES NOT have exceptions. If unset, the message is
+     * always printed.
+     */
+    @Parameter(property = "cactus.message.on.failure")
+    private Boolean onFailure;
+
     private static final AtomicBoolean HOOK_ADDED = new AtomicBoolean();
-    private static final ConcurrentLinkedList<String> messages = ConcurrentLinkedList
+    private static final ConcurrentLinkedList<PrintableMessage> messages = ConcurrentLinkedList
             .fifo();
 
     public PrintMessageMojo()
     {
-        super(RunPolicies.EVERY);
+        super(RunPolicies.LAST_CONTAINING_GOAL);
     }
 
     @Override
@@ -56,10 +73,10 @@ public class PrintMessageMojo extends BaseMojo
 
     private void addMessage(String msg)
     {
-        messages.push(msg);
+        messages.push(new PrintableMessage(msg, session(), onFailure));
         if (HOOK_ADDED.compareAndSet(false, true))
         {
-            Thread t = new Thread(PrintMessageMojo::emitMessages, getClass()
+            Thread t = new Thread(() -> emitMessages(), getClass()
                     .getName());
             Runtime.getRuntime().addShutdownHook(t);
         }
@@ -69,14 +86,18 @@ public class PrintMessageMojo extends BaseMojo
     {
         // We can be invoked multiple times with the same message in an
         // aggregate build.
-        Set<String> seen = new HashSet<>();
-        List<String> msgs = new LinkedList<>();
+        Set<PrintableMessage> seen = new HashSet<>();
+        List<PrintableMessage> msgs = new LinkedList<>();
         messages.drain(msgs::add);
         boolean first = true;
         if (!msgs.isEmpty())
         {
-            for (String s : msgs)
+            for (PrintableMessage s : msgs)
             {
+                if (!s.shouldPrint())
+                {
+                    continue;
+                }
                 if (seen.add(s))
                 {
                     if (first)
@@ -85,7 +106,7 @@ public class PrintMessageMojo extends BaseMojo
                                 "\n*********************************************************\n\n");
                         first = false;
                     }
-                    emitMessage(s);
+                    emitMessage(s.toString());
                 }
             }
             System.out.println(

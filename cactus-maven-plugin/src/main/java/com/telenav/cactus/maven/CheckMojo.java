@@ -3,7 +3,8 @@ package com.telenav.cactus.maven;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.VersionFlavor;
-import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.FamilyAwareMojo;
 import com.telenav.cactus.maven.tree.ConsistencyChecker2;
 import com.telenav.cactus.maven.tree.Problems;
 import com.telenav.cactus.maven.trigger.RunPolicies;
@@ -47,7 +48,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "check", threadSafe = true)
-public class CheckMojo extends SharedProjectTreeMojo
+@BaseMojoGoal("check")
+public class CheckMojo extends FamilyAwareMojo
 {
     private static final EnumMatcher<VersionFlavor> FLAVOR_MATCHER
             = EnumMatcher.enumMatcher(VersionFlavor.class);
@@ -115,24 +117,9 @@ public class CheckMojo extends SharedProjectTreeMojo
     private boolean checkDirty = true;
 
     /**
-     * The set of families to check - if unset, use cactus.family, and if that
-     * is unset, check all of them.
-     */
-    @Parameter(property = "cactus.families", required = false,
-            alias = "cactus.family")
-    private String families;
-
-    /**
-     * A single family to check.
-     */
-    @Parameter(property = "cactus.family", required = false,
-            alias = "cactus.family")
-    private String family;
-
-    /**
      * If present, check will ensure the given scope is on that branch.
      */
-    @Parameter(property = "cactus.expected.branch", required = false)
+    @Parameter(property = "cactus.expected.branch")
     private String expectedBranch;
 
     /**
@@ -140,14 +127,14 @@ public class CheckMojo extends SharedProjectTreeMojo
      * course. Flag these in a comma delimited list here to make such issues a
      * note rather than a fatal problem.
      */
-    @Parameter(property = "cactus.tolerate.version.inconsistencies.families",
-            required = false)
+    @Parameter(property = "cactus.tolerate.version.inconsistencies.families"
+    )
     private String tolerateVersionInconsistenciesIn;
-    
+
     /**
      * For testing other mojos, it may be useful to skip the sanity check.
      */
-    @Parameter(property="cactus.check.skip", defaultValue="false")
+    @Parameter(property = "cactus.check.skip", defaultValue = "false")
     private boolean skip;
 
     /**
@@ -155,7 +142,7 @@ public class CheckMojo extends SharedProjectTreeMojo
      * <i>flavor</i>, particularly <code>snapshot</code> or
      * <code>release</code>.
      */
-    @Parameter(property = "cactus.version.flavor", required = false)
+    @Parameter(property = "cactus.version.flavor")
     private String versionFlavor;
 
     public CheckMojo()
@@ -166,7 +153,8 @@ public class CheckMojo extends SharedProjectTreeMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        if (skip) {
+        if (skip)
+        {
             return;
         }
         ConsistencyChecker2 c = new ConsistencyChecker2()
@@ -205,29 +193,17 @@ public class CheckMojo extends SharedProjectTreeMojo
         {
             c.checkLocalModifications();
         }
-        flavor().ifPresent(versionFlavor ->
-        {
-            c.enforceVersionFlavor(versionFlavor);
-        });
+        flavor().ifPresent(c::enforceVersionFlavor);
         if (tolerateVersionInconsistenciesIn != null)
         {
             c.tolerateVersionInconsistenciesIn(
                     ProjectFamily.fromCommaDelimited(
                             tolerateVersionInconsistenciesIn, () -> null));
         }
-        if (families != null && !families.isBlank())
+        if (hasExplicitFamilies())
         {
-            ProjectFamily.fromCommaDelimited(families,
-                    () -> family == null
-                          ? null
-                          : ProjectFamily.named(family)).forEach(c::checkFamily);
+            c.checkFamilies(families());
         }
-        else
-            if (family != null && !family.isBlank())
-            {
-                ProjectFamily fam = ProjectFamily.named(family);
-                c.checkFamily(fam);
-            }
 
         withProjectTree(tree ->
         {

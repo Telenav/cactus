@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.trigger.FamilyRootRunPolicy;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.streams.stdio.ThreadMappedStdIO;
 import com.telenav.cactus.util.PathUtils;
@@ -25,10 +24,11 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.DiskResident;
 import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
-import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicies;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -52,8 +52,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -107,6 +105,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.COMPILE,
         instantiationStrategy = SINGLETON,
         name = "lexakai", threadSafe = true)
+@BaseMojoGoal("lexakai")
 public class LexakaiMojo extends BaseMojo
 {
     private static final Pattern XML_COMMENT = Pattern.compile("<!--.*?-->",
@@ -254,7 +253,7 @@ public class LexakaiMojo extends BaseMojo
     /**
      * Lexakai prints voluminous output which we suppress by default.
      */
-    @Parameter(property = "cactus.lexakai.also-skip", required = false)
+    @Parameter(property = "cactus.lexakai.also-skip")
     private String alsoSkip;
 
     static
@@ -275,7 +274,7 @@ public class LexakaiMojo extends BaseMojo
 
     public LexakaiMojo()
     {
-        super(new FamilyRootRunPolicy());
+        super(RunPolicies.FAMILY_ROOTS);
     }
 
     @Override
@@ -390,7 +389,7 @@ public class LexakaiMojo extends BaseMojo
         // $name-assets folder in the submodule root
         return ProjectFamily.familyOf(project.groupId()).assetsPath(
                 checkout.submoduleRoot()
-                        .map(co -> co.checkoutRoot())).map(assetsPath
+                        .map(GitCheckout::checkoutRoot)).map(assetsPath
                 -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
         ).orElseGet(()
                 -> appendProjectLexakaiDocPath(project.path()
