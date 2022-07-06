@@ -18,6 +18,7 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.tree.ConsistencyChecker;
 import com.telenav.cactus.maven.tree.ParentRelativePathChecker;
@@ -47,6 +48,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "check-consistency", threadSafe = true)
+@BaseMojoGoal("check-consistency")
 public class CheckConsistencyMojo extends SharedProjectTreeMojo
 {
 
@@ -62,8 +64,8 @@ public class CheckConsistencyMojo extends SharedProjectTreeMojo
      * Comma-delimited list of artifact ids which should be ignored when
      * checking version consistency.
      */
-    @Parameter(property = "cactus.ignore-in-version-consistency-check",
-            defaultValue = "")
+    @Parameter(property = "cactus.ignore-in-version-consistency-check"
+    )
     private String ignoreInVersionConsistencyCheck = "";
 
     /**

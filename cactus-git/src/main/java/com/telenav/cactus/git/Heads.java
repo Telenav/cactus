@@ -213,12 +213,8 @@ public class Heads implements Iterable<Head>
 
     public boolean isFrom(GitRemotes remote)
     {
-        if (!remoteUrl.isPresent())
-        {
-            return false;
-        }
-        return remoteUrl.get().equals(remote.fetchUrl)
-                || remoteUrl.get().equals(remote.pushUrl);
+        return remoteUrl.filter(s -> s.equals(remote.fetchUrl)
+                || s.equals(remote.pushUrl)).isPresent();
     }
 
     @Override

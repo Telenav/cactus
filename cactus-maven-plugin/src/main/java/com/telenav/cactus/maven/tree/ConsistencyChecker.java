@@ -280,13 +280,13 @@ public class ConsistencyChecker
         }
         if (dirtyNotDirty.containsKey(DIRTY))
         {
-            into.add(new Inconsistency<GitCheckout>(dirtyNotDirty,
+            into.add(new Inconsistency<>(dirtyNotDirty,
                     Inconsistency.Kind.CONTAINS_MODIFIED_SOURCES,
                     GitCheckout::checkoutRoot));
         }
         if (detachedNotDetached.containsKey("detached"))
         {
-            into.add(new Inconsistency<GitCheckout>(detachedNotDetached,
+            into.add(new Inconsistency<>(detachedNotDetached,
                     Inconsistency.Kind.NOT_ON_A_BRANCH,
                     GitCheckout::checkoutRoot));
         }

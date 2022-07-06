@@ -26,7 +26,8 @@ import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.resolver.ArtifactFinder;
-import com.telenav.cactus.scope.ProjectFamily;
+import com.telenav.cactus.maven.shared.SharedData;
+import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
@@ -48,6 +49,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.inject.Inject;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PRETEND;
@@ -67,6 +71,44 @@ public abstract class BaseMojo extends AbstractMojo
 {
     protected static final String MAVEN_CENTRAL_REPO
             = "https://repo1.maven.org/maven2";
+
+    private final ThreadLocal<Boolean> running = ThreadLocal.withInitial(
+            () -> false);
+    private final SharedDataKey<AtomicBoolean> thisMojoWasRunKey
+            = SharedDataKey.of(
+                    getClass().getName(), AtomicBoolean.class);
+
+    /**
+     * Allows type-safe key value pairs to be shared between mojos.
+     */
+    @Inject
+    SharedData sharedData;
+
+    public final SharedData sharedData()
+    {
+        return sharedData;
+    }
+
+    boolean isRunning()
+    {
+        return running.get();
+    }
+
+    public final boolean isFirstRunInThisSession()
+    {
+        if (isRunning())
+        {
+            Optional<AtomicBoolean> opt = sharedData().get(thisMojoWasRunKey);
+            return !opt.isPresent() || !opt.get().get();
+        }
+        return false;
+    }
+
+    public final boolean wasRunInThisSession()
+    {
+        Optional<AtomicBoolean> opt = sharedData().get(thisMojoWasRunKey);
+        return opt.isPresent() && opt.get().get();
+    }
 
     /**
      * Run some code which throws an exception in a context such as
@@ -215,7 +257,7 @@ public abstract class BaseMojo extends AbstractMojo
     protected BaseMojo(boolean oncePerSession)
     {
         this(oncePerSession
-             ? RunPolicies.LAST
+             ? RunPolicies.LAST_CONTAINING_GOAL
              : RunPolicies.FIRST);
     }
 
@@ -245,6 +287,20 @@ public abstract class BaseMojo extends AbstractMojo
         }
     }
 
+    public final String goal()
+    {
+        // Pending: Create an annotation processor based way so we don't
+        // need to duplicate the goal with a runtime annotation.
+        BaseMojoGoal bmg = getClass().getAnnotation(BaseMojoGoal.class);
+        if (bmg != null)
+        {
+            return bmg.value();
+        }
+        log().error("Could not find a goal name in annotations on "
+                + getClass().getName());
+        return "";
+    }
+
     /**
      * Implementation of <code>Mojo.execute()</code>, which delegates to
      * <code>performTasks()</code> after validating the parameters.
@@ -255,15 +311,32 @@ public abstract class BaseMojo extends AbstractMojo
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
-        if (policy.shouldRun(project, mavenSession))
+        AtomicBoolean run = sharedData().computeIfAbsent(thisMojoWasRunKey,
+                AtomicBoolean::new);
+        boolean old = running.get();
+        boolean skipped = false;
+        try
         {
-            run(this::performTasks);
+            running.set(true);
+            if (policy.shouldRun(this, project))
+            {
+                run(this::performTasks);
+            }
+            else
+            {
+                skipped = true;
+                new BuildLog(getClass()).info("Skipping " + getClass()
+                        .getSimpleName() + " mojo per policy " + policy);
+            }
         }
-        else
+        finally
         {
-            new BuildLog(getClass()).info("Skipping " + getClass()
-                    .getSimpleName() + " mojo "
-                    + " per policy " + policy);
+            // Allow for reentrancy, just in case
+            running.set(old);
+            if (!skipped)
+            {
+                run.set(true);
+            }
         }
     }
 
@@ -313,17 +386,6 @@ public abstract class BaseMojo extends AbstractMojo
     }
 
     /**
-     * If this mojo allows the project family to be replaced by a parameter, it
-     * can provide that here.
-     *
-     * @return null by default
-     */
-    protected String overrideProjectFamily()
-    {
-        return null;
-    }
-
-    /**
      * Override to do the work of this mojo.
      *
      * @param log A log
@@ -341,23 +403,6 @@ public abstract class BaseMojo extends AbstractMojo
     protected final MavenProject project()
     {
         return project;
-    }
-
-    /**
-     * Get the project family for the project the mojo is being run against. The
-     * result can be overridden by returning a valid famiily string from
-     * <code>overrideProjectFamily()</code> if necessary.
-     *
-     * @return A project family
-     */
-    protected final ProjectFamily projectFamily()
-    {
-        String overriddenFamily = overrideProjectFamily();
-        if (overriddenFamily == null || overriddenFamily.isEmpty())
-        {
-            return ProjectFamily.fromGroupId(project.getGroupId());
-        }
-        return ProjectFamily.named(overriddenFamily);
     }
 
     protected final ThrowingOptional<ProjectTree> projectTree(
@@ -394,7 +439,7 @@ public abstract class BaseMojo extends AbstractMojo
      *
      * @return A session
      */
-    protected final MavenSession session()
+    public final MavenSession session()
     {
         return mavenSession;
     }
@@ -417,13 +462,16 @@ public abstract class BaseMojo extends AbstractMojo
             }
             fail("Branch name unset");
         }
-        //noinspection ConstantConditions
-        if (branchName.isBlank() || !branchName.startsWith("-") && branchName
-                .contains(" ")
-                && !branchName.contains("\"") && !branchName.contains("'"))
-        {
-            fail("Illegal branch name format: '" + branchName + "'");
-        }
+        else
+            if (branchName.isBlank()
+                    || branchName.contains(":")
+                    || branchName.startsWith("-")
+                    || branchName.contains(" ")
+                    || branchName.contains("\"")
+                    || branchName.contains("'"))
+            {
+                fail("Illegal branch name format: '" + branchName + "'");
+            }
     }
 
     protected final boolean isVerbose()
@@ -544,6 +592,10 @@ public abstract class BaseMojo extends AbstractMojo
         if (mavenSession == null)
         {
             throw new MojoFailureException("MavenSession was not injected");
+        }
+        if (sharedData == null)
+        {
+            fail("SharedData was not injected");
         }
         internalSubclassValidateParameters(log, project);
         validateParameters(log, project);

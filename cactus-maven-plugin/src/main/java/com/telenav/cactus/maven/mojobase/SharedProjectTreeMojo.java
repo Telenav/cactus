@@ -14,7 +14,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
-public abstract class SharedProjectTreeMojo extends SharedDataMojo
+public abstract class SharedProjectTreeMojo extends BaseMojo
 {
     protected SharedProjectTreeMojo(RunPolicy policy)
     {

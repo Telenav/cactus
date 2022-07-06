@@ -1,9 +1,10 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.mojobase.SharedDataMojo;
 import com.telenav.cactus.maven.model.published.PublishChecker;
 import com.telenav.cactus.maven.model.published.PublishedState;
+import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import java.net.http.HttpClient;
 import javax.inject.Inject;
@@ -27,7 +28,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_AL
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = KEEP_ALIVE,
         name = "check-published", threadSafe = true)
-public class CheckAlreadyPublishedMojo extends SharedDataMojo
+@BaseMojoGoal("check-published")
+public class CheckAlreadyPublishedMojo extends BaseMojo
 {
     private static final SharedDataKey<HttpClient> HTTP_CLIENT_KEY = SharedDataKey
             .of(HttpClient.class);
@@ -39,7 +41,7 @@ public class CheckAlreadyPublishedMojo extends SharedDataMojo
     @Parameter(property = "cactus.published.warn", defaultValue = "false")
     private boolean warnOnAlreadyPublished;
 
-    @Parameter(property = "cactus.publish.check.skip", required = false)
+    @Parameter(property = "cactus.publish.check.skip")
     private boolean skip;
 
     @Inject

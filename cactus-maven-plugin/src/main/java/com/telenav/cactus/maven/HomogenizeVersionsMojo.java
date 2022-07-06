@@ -2,6 +2,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.resolver.Poms;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.refactoring.PropertyHomogenizer;
 import com.telenav.cactus.maven.trigger.RunPolicies;
@@ -26,6 +27,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "homogenize-versions", threadSafe = true)
+@BaseMojoGoal("homogenize-versions")
 public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
 {
     public HomogenizeVersionsMojo()

@@ -21,6 +21,7 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -44,6 +45,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "update-assets-checkouts", threadSafe = true)
+@BaseMojoGoal("update-assets-checkouts")
 public class BringAssetsBranchesToHeadMojo extends BaseMojo
 {
     /**

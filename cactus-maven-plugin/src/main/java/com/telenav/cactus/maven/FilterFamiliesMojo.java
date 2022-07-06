@@ -1,7 +1,8 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.FamilyAwareMojo;
 import com.telenav.cactus.scope.ProjectFamily;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,8 +15,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toCollection;
 
 /**
@@ -35,16 +34,11 @@ import static java.util.stream.Collectors.toCollection;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.PER_LOOKUP,
         name = "filter-families", threadSafe = true)
-public class FilterFamiliesMojo extends BaseMojo
+@BaseMojoGoal("filter-families")
+public class FilterFamiliesMojo extends FamilyAwareMojo
 {
 
-    @Parameter(property = "cactus.family", required = false)
-    private String family;
-
-    @Parameter(property = "cactus.families", required = false)
-    private String families;
-
-    @Parameter(property = "cactus.properties", required = false)
+    @Parameter(property = "cactus.properties")
     private String properties;
 
     @Parameter(property = "cactus.filter.skip.superpoms", defaultValue = "true")
@@ -53,7 +47,7 @@ public class FilterFamiliesMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        if (properties == null || properties.isBlank())
+        if (properties == null || properties.isBlank() || !hasExplicitFamilies())
         {
             return;
         }
@@ -94,24 +88,5 @@ public class FilterFamiliesMojo extends BaseMojo
                 }
             }
         }
-    }
-
-    private Set<ProjectFamily> families()
-    {
-        if (family != null || families != null)
-        {
-            if (families != null)
-            {
-                return ProjectFamily.fromCommaDelimited(families,
-                        () -> family == null
-                              ? null
-                              : ProjectFamily.named(family));
-            }
-            if (family != null && !family.isBlank())
-            {
-                return singleton(ProjectFamily.named(family.trim()));
-            }
-        }
-        return emptySet();
     }
 }

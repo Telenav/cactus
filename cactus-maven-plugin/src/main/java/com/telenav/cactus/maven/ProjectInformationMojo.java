@@ -20,6 +20,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
@@ -37,6 +38,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
                                            requiresDependencyResolution = ResolutionScope.NONE,
                                            instantiationStrategy = SINGLETON,
                                            name = "project-information", threadSafe = true)
+@BaseMojoGoal("project-information")
 public class ProjectInformationMojo extends BaseMojo
 {
     @Override

@@ -5,25 +5,22 @@ import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.scope.ProjectFamily;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.scope.Scope.FAMILY;
-import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -35,13 +32,14 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "merge", threadSafe = true)
+@BaseMojoGoal("merge")
 public class MergeBranchMojo extends ScopedCheckoutsMojo
 {
     /**
      * Name of the branch to merge <b>from</b> - if unset, uses the current
      * branch.
      */
-    @Parameter(property = "cactus.merge.from", required = false)
+    @Parameter(property = "cactus.merge.from")
     String mergeFrom;
 
     /**
@@ -54,7 +52,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
      * A second branch to merge into - e.g. merge a release branch back to
      * "develop" but first also merge it into release/current.
      */
-    @Parameter(property = "cactus.also.merge.into", required = false)
+    @Parameter(property = "cactus.also.merge.into")
     String alsoMergeInto;
 
     /**
@@ -62,14 +60,6 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = "cactus.delete.merged.branch", defaultValue = "false")
     boolean deleteMergedBranch;
-
-    /**
-     * The set of families to merge, comma-delimited. If unset, the value of
-     * cactus.family is used; if that is also unset, the family of the current
-     * project is used.
-     */
-    @Parameter(property = "cactus.families", required = false)
-    String families;
 
     /**
      * If true, create a git tag named from the latter portion of the target
@@ -96,7 +86,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
             case FAMILY:
                 break;
             default:
-                if (families != null && !families.isBlank())
+                if (families().isEmpty())
                 {
                     fail("Cannot use cactus.families exception cactus.scope=family");
                 }
@@ -105,13 +95,6 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts) throws Exception
-    {
-        _execute(log, project, myCheckout, tree, applyFamilies(tree, checkouts));
-    }
-
-    private void _execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
@@ -249,10 +232,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                 }
                 // If something is missing, that just means it was not touched
                 // in whatever performed the changes
-                if (branchToMergeFrom.isPresent())
-                {
-                    toMergeFrom.put(checkout, branchToMergeFrom.get());
-                }
+                branchToMergeFrom.ifPresent(branch -> toMergeFrom.put(checkout, branch));
 
                 branches.find(mergeInto, true).ifPresent(
                         branchToMergeTo
@@ -305,26 +285,6 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private List<GitCheckout> applyFamilies(ProjectTree tree,
-            List<GitCheckout> orig)
-    {
-        if (families == null || scope() != FAMILY)
-        {
-            return orig;
-        }
-        Set<ProjectFamily> fams = families();
-        if (fams.equals(singleton(projectFamily())))
-        {
-            return orig;
-        }
-        Set<GitCheckout> result = new LinkedHashSet<>();
-        for (ProjectFamily fam : fams)
-        {
-            result.addAll(tree.checkoutsInProjectFamily(fam));
-        }
-        return new ArrayList<>(result);
-    }
-
     private String tagName(Branch fromBranch)
     {
         String nm = fromBranch.name();
@@ -334,10 +294,5 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
             return nm.substring(ix + 1);
         }
         return nm;
-    }
-
-    private Set<ProjectFamily> families()
-    {
-        return ProjectFamily.fromCommaDelimited(families, super::projectFamily);
     }
 }

@@ -21,6 +21,7 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
@@ -47,6 +48,7 @@ import static com.telenav.cactus.util.PathUtils.copyFolderTree;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.PER_LOOKUP,
         name = "copy-javadoc", threadSafe = true)
+@BaseMojoGoal("copy-javadoc")
 public class CopyJavadocMojo extends BaseMojo
 {
 
@@ -133,7 +135,7 @@ public class CopyJavadocMojo extends BaseMojo
         boolean javadocExists = Files.exists(javadocPath);
         if (isPom && !javadocExists)
         {
-            if (!RunPolicies.LAST.shouldRun(project, session()))
+            if (!RunPolicies.LAST.shouldRun(this, project))
             {
                 log.info(
                         "No javadoc, but " + project.getArtifactId()
@@ -171,7 +173,7 @@ public class CopyJavadocMojo extends BaseMojo
                         .repository(project.getBasedir()))
                 .flatMapThrowing(checkout
                         -> family.assetsPath(checkout.submoduleRoot()
-                .map(co -> co.checkoutRoot())).map(assetsPath
+                .map(GitCheckout::checkoutRoot)).map(assetsPath
                         -> deriveJavadocDestination(assetsPath, project,
                         checkout)
                 )).ifPresentOrElse(dest ->

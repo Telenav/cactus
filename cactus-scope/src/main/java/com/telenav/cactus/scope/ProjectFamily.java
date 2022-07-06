@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -130,7 +130,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
     {
         if (what != null && !what.isBlank())
         {
-            Set<ProjectFamily> result = new HashSet<>();
+            Set<ProjectFamily> result = new LinkedHashSet<>();
             for (String part : what.split(","))
             {
                 part = part.trim();

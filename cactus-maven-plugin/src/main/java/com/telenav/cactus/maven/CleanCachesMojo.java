@@ -20,6 +20,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.util.PathUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -48,6 +49,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "clean-caches", threadSafe = true)
+@BaseMojoGoal("clean-caches")
 public class CleanCachesMojo extends BaseMojo
 {
     private static final Set<Path> seen = ConcurrentHashMap.newKeySet();

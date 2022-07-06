@@ -23,25 +23,22 @@ import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.scope.ProjectFamily;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.telenav.cactus.git.GitCheckout.isGitCommitId;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
@@ -118,6 +115,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "checkout", threadSafe = true)
+@BaseMojoGoal("checkout")
 public class CheckoutMojo extends ScopedCheckoutsMojo
 {
 
@@ -564,52 +562,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             defaultValue = "false")
     boolean permitLocalChanges = false;
 
-    /**
-     * Hotfix for multiple families.
-     */
-    @Parameter(property = "cactus.families", required = false)
-    String families;
-
-    private List<GitCheckout> applyFamilies(ProjectTree tree,
-            List<GitCheckout> old) throws MojoExecutionException
-    {
-        // Pending - this belongs in ScopeMojo, and all mojos need updating
-        // to deal with family being a potential set of families.
-        // This is quick and dirty to get a release out.
-        if (families != null && !families.isBlank())
-        {
-            Set<ProjectFamily> fams = new HashSet<>();
-            for (String fam : families.split(","))
-            {
-                if (!fam.isBlank())
-                {
-                    fams.add(ProjectFamily.named(fam.trim()));
-                }
-            }
-            Set<GitCheckout> checkouts = new LinkedHashSet<>();
-            for (ProjectFamily fam : fams)
-            {
-                checkouts.addAll(tree.checkoutsInProjectFamily(fam));
-            }
-            if (checkouts.isEmpty())
-            {
-                fail("No checkouts in families " + fams);
-            }
-            log.info("Using " + " for " + families + ": " + checkouts);
-            return new ArrayList<>(checkouts);
-        }
-        return old;
-    }
-
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
-    {
-        _execute(log, project, myCheckout, tree, applyFamilies(tree, checkouts));
-    }
-
-    private void _execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
@@ -1001,13 +955,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
         if (overrideBranchSubmodule != null && !checkout.isSubmoduleRoot())
         {
-            String relPath = checkout.submoduleRelativePath().map(p -> p
-                    .toString()).orElse("---");
-            if (overrideBranchSubmodule.equals(checkout.name()) || relPath
-                    .equals(overrideBranchSubmodule))
-            {
-                return true;
-            }
+            String relPath = checkout.submoduleRelativePath().map(Path::toString).orElse("---");
+            return overrideBranchSubmodule.equals(checkout.name()) || relPath
+                    .equals(overrideBranchSubmodule);
         }
         return false;
     }
@@ -1016,8 +966,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     {
         if (overrideBranchSubmodule != null && !checkout.isSubmoduleRoot())
         {
-            String relPath = checkout.submoduleRelativePath().map(p -> p
-                    .toString()).orElse("---");
+            String relPath = checkout.submoduleRelativePath().map(Path::toString).orElse("---");
             if (overrideBranchSubmodule.equals(checkout.name()) || relPath
                     .equals(overrideBranchSubmodule))
             {
@@ -1036,8 +985,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     }
 
     private void validateBehaviorsCanRun(List<BranchingBehavior> changers)
-            throws Exception, MojoExecutionException
-    {
+            throws Exception {
         // Checks if there are local modifications or other reasons something
         // would fail if we tried to make the changes
         List<String> problems = new ArrayList<>();

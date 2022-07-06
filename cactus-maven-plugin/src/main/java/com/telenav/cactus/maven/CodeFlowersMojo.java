@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.trigger.FamilyRootRunPolicy;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
@@ -25,7 +24,9 @@ import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.analysis.codeflowers.CodeflowersJsonGenerator;
 import com.telenav.cactus.analysis.MavenProjectsScanner;
 import com.telenav.cactus.analysis.WordCount;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.scope.ProjectFamily;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
@@ -35,15 +36,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
 
 import static java.util.Collections.emptySet;
 
@@ -59,6 +57,7 @@ import static java.util.Collections.emptySet;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.SINGLETON,
         name = "codeflowers", threadSafe = true)
+@BaseMojoGoal("codeflowers")
 public class CodeFlowersMojo extends ScopedCheckoutsMojo
 {
     /**
@@ -66,22 +65,18 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
      * omit all inter-element whitespace.
      */
     @Parameter(property = "cactus.indent", defaultValue = "false")
-    private boolean indent = false;
+    private boolean indent;
 
-    @Parameter(property = "cactus.tolerate.version.inconsistencies.families",
-            required = false)
+    @Parameter(property = "cactus.tolerate.version.inconsistencies.families"
+    )
     private String tolerateVersionInconsistenciesIn;
 
     @Parameter(property = "cactus.codeflowers.skip")
     private boolean skipped;
 
-    @Parameter(property = "cactus.families", required = false)
-    private String families;
-
-    @Inject
-    public CodeFlowersMojo(FamilyRootRunPolicy policy)
+    public CodeFlowersMojo()
     {
-        super(policy);
+        super(RunPolicies.FAMILY_ROOTS);
     }
 
     private Set<ProjectFamily> tolerateVersionInconsistenciesIn()
@@ -94,13 +89,6 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts) throws Exception
-    {
-        _execute(log, project, myCheckout, tree, applyFamilies(tree, checkouts));
-    }
-
-    private void _execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
@@ -125,7 +113,8 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             }
             ProjectFamily fam = e.getKey();
             fam.assetsPath(myCheckout.submoduleRoot()
-                    .map(co -> co.checkoutRoot())).ifPresentOrElse(assetsRoot ->
+                    .map(GitCheckout::checkoutRoot)).ifPresentOrElse(
+                    assetsRoot ->
             {
                 Path codeflowersPath = assetsRoot.resolve("docs").resolve(
                         version).resolve("codeflowers")
@@ -142,37 +131,6 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
                 log.warn("Could not find an assets root for family " + fam);
             });
         }
-    }
-
-    private List<GitCheckout> applyFamilies(ProjectTree tree,
-            List<GitCheckout> old) throws MojoExecutionException
-    {
-        // Pending - this belongs in ScopeMojo, and all mojos need updating
-        // to deal with family being a potential set of families.
-        // This is quick and dirty to get a release out.
-        if (families != null && !families.isBlank())
-        {
-            Set<ProjectFamily> fams = new HashSet<>();
-            for (String fam : families.split(","))
-            {
-                if (!fam.isBlank())
-                {
-                    fams.add(ProjectFamily.named(fam.trim()));
-                }
-            }
-            Set<GitCheckout> checkouts = new LinkedHashSet<>();
-            for (ProjectFamily fam : fams)
-            {
-                checkouts.addAll(tree.checkoutsInProjectFamily(fam));
-            }
-            if (checkouts.isEmpty())
-            {
-                fail("No checkouts in families " + fams);
-            }
-            log.info("Using " + " for " + families + ": " + checkouts);
-            return new ArrayList<>(checkouts);
-        }
-        return old;
     }
 
     private Map<ProjectFamily, Set<Pom>> allPoms(ProjectTree tree,

@@ -4,6 +4,7 @@ import com.mastfrog.util.strings.AlignedText;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +36,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "lexakai-generate", threadSafe = true)
+@BaseMojoGoal("lexakai-generate")
 public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
 {
     private static final String HEAD = "#\n"

@@ -4,6 +4,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.trigger.RunPolicies;
@@ -31,6 +32,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_AL
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = KEEP_ALIVE,
         name = "commit-assets", threadSafe = true)
+@BaseMojoGoal("commit-assets")
 public class CommitAssetsMojo extends SharedProjectTreeMojo
 {
 
@@ -111,10 +113,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                     if (push)
                     {
                         log.info("Push " + co.logggingName());
-                        ifNotPretending(() ->
-                        {
-                            co.push();
-                        });
+                        ifNotPretending(co::push);
                     }
                     ifNotPretending(tree::invalidateCache);
                 }

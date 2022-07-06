@@ -537,7 +537,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
             boolean force)
     {
         Optional<String> currentBranch = this.branch();
-        if (!currentBranch.isPresent() || !currentBranch.get().equals(
+        if (currentBranch.isEmpty() || !currentBranch.get().equals(
                 branchToMoveTo))
         {
             this.switchToBranch(branchToMoveTo);
@@ -605,6 +605,39 @@ public final class GitCheckout implements Comparable<GitCheckout>
             return submoduleRoot.isPresent() && root.equals(submoduleRoot.get());
         }
         return false;
+    }
+
+    public boolean isRoot()
+    {
+        Path par = checkoutRoot().getParent();
+        if (par == null)
+        {
+            return true;
+        }
+        return PathUtils.findGitCheckoutRoot(par, true).isEmpty();
+    }
+
+    public boolean isSubmodule()
+    {
+        Optional<GitCheckout> par = PathUtils.findParentWithChild(checkoutRoot()
+                .getParent(), PathUtils.FileKind.FILE,
+                ".gitmodules")
+                .flatMap(GitCheckout::repository);
+        return par.map(co ->
+        {
+            return co.submodules().map(subs ->
+            {
+                for (SubmoduleStatus stat : subs)
+                {
+                    if (stat.repository().isPresent() && equals(stat
+                            .repository().get()))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }).orElse(false);
+        }).orElse(false);
     }
 
     public boolean merge(String branch)

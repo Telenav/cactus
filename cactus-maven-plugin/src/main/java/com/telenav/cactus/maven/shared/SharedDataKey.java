@@ -38,9 +38,10 @@ public final class SharedDataKey<T>
         this.name = Checks.notNull("name", name);
     }
 
-    public static <T> SharedDataKey<T> of(String name, Class<T> type)
+    @SuppressWarnings("unchecked")
+    public static <T> SharedDataKey<T> of(String name, Class<? super T> type)
     {
-        return new SharedDataKey<>(type, name);
+        return new SharedDataKey<>((Class<T>) type, name);
     }
 
     @SuppressWarnings("unchecked")

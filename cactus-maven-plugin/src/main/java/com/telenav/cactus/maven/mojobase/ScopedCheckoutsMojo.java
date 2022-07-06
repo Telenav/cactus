@@ -29,6 +29,7 @@ import com.telenav.cactus.maven.trigger.RunPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -139,13 +140,13 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
 
     @Override
     protected final void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, Scope scope, ProjectFamily family,
+            GitCheckout myCheckout, Scope scope, Set<ProjectFamily> families,
             boolean includeRoot, boolean pretend) throws Exception
     {
-        withProjectTree(tree ->
+        withProjectTree(false, tree ->
         {
             List<GitCheckout> checkouts = tree.matchCheckouts(scope,
-                    myCheckout, includeRoot, projectFamily(), project
+                    myCheckout, includeRoot, families, project
                             .getGroupId());
 
             log.ifDebug(() ->

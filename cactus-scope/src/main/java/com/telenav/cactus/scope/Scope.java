@@ -90,7 +90,7 @@ public enum Scope
         }
     }
 
-    public static Scope find(String prop) throws Exception
+    public static Scope find(String prop)
     {
         if (prop == null)
         {
