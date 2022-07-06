@@ -124,12 +124,6 @@ final class VersionChangeUpdatesCollector
                 pom));
         boolean result = oldChange != null;
         hasChanges |= result;
-        if (result)
-        {
-            System.out.println(
-                    "REMOVE VER CHANGE " + pom.artifactId() + oldChange);
-
-        }
         return ChangeResult.changeResult(result);
     }
 
@@ -140,10 +134,6 @@ final class VersionChangeUpdatesCollector
                 pom));
         boolean result = oldChange != null;
         hasChanges |= result;
-        if (result)
-        {
-            System.out.println("removeParentVersionChange " + pom);
-        }
         return ChangeResult.changeResult(result);
     }
 
@@ -226,7 +216,7 @@ final class VersionChangeUpdatesCollector
 
     private void logFiltering(Supplier<String> msg)
     {
-        System.out.println(msg.get());
+//        System.out.println(msg.get());
     }
 
     enum ChangeResult

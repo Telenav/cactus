@@ -52,6 +52,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -266,6 +268,22 @@ public class LexakaiMojo extends BaseMojo
             })
     private String lexakaiRepository = MAVEN_CENTRAL_REPO;
 
+    static
+    {
+        try
+        {
+            // Attempt to work around classloading issues when instantiated
+            // via maven -> guice using the module path, by getting it preloaded
+            // by the right classloader
+            Object o = LexakaiMojo.class.getClassLoader().loadClass(
+                    "com.telenav.cactus.maven.MavenArtifactCoordinatesWrapper");
+        }
+        catch (ClassNotFoundException ex)
+        {
+            ex.printStackTrace(System.out);
+        }
+    }
+
     public LexakaiMojo()
     {
         super(new FamilyRootRunPolicy());
@@ -292,7 +310,8 @@ public class LexakaiMojo extends BaseMojo
         });
         if (!skip)
         {
-            ifNotPretending(() -> {
+            ifNotPretending(() ->
+            {
                 runLexakai(args, project, log);
             });
         }

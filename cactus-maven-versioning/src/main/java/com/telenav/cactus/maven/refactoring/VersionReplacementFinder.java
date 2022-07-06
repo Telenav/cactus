@@ -282,7 +282,6 @@ public class VersionReplacementFinder
                 {
                     case PUBLISHED_DIFFERENT:
                         result.add(p);
-                        System.out.println("CONFLICT " + p);
                         break;
                 }
             }
