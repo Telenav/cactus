@@ -38,6 +38,15 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
     @Parameter(property = "cactus.push", defaultValue = "false")
     boolean push;
 
+    /**
+     * If true, after committing, run <code>git gc --aggressive</code> - this
+     * can make a substantial difference in how long the post-push back-end work
+     * takes on Github's end before the push is complete and the connection is
+     * closed.
+     */
+    @Parameter(property = "cactus.gc", defaultValue = "true")
+    boolean gc;
+
     public CommitAssetsMojo()
     {
         super(RunPolicies.FIRST);
@@ -77,6 +86,12 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                         co.addAll();
                         co.commit(cm);
                     });
+                    if (gc)
+                    {
+                        log.info(
+                                "git gc --aggresive to improve push performance");
+                        ifNotPretending(co::gc);
+                    }
                     if (push)
                     {
                         log.info("Push " + co.logggingName());
