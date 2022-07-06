@@ -257,17 +257,6 @@ public class LexakaiMojo extends BaseMojo
     @Parameter(property = "cactus.lexakai.also-skip", required = false)
     private String alsoSkip;
 
-    /**
-     * The repository to download lexakai from (central by default).
-     */
-    @Parameter(property = "cactus.lexakai-repository",
-            defaultValue = MAVEN_CENTRAL_REPO)
-    @SuppressWarnings(
-            {
-                "FieldCanBeLocal", "FieldMayBeFinal"
-            })
-    private String lexakaiRepository = MAVEN_CENTRAL_REPO;
-
     static
     {
         try
