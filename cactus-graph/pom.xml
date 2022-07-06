@@ -6,10 +6,17 @@
         <artifactId>cactus</artifactId>
         <version>1.4.26</version>
     </parent>
+
     <artifactId>cactus-graph</artifactId>
+
     <description>
         API for generating dependency graphs from Maven projects.
     </description>
+
+    <properties>
+        <java.module.name>cactus.graph</java.module.name>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

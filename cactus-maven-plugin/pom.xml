@@ -32,6 +32,7 @@
         <!-- this must be overridden here only to use the previous version,
         or it will fail trying to process itself while it is being built -->
         <cactus.maven.plugin.versions>${cactus.previous.version}</cactus.maven.plugin.versions>
+        <java.module.name>cactus.maven.plugin</java.module.name>
     </properties>
 
     <dependencies>
@@ -120,20 +121,6 @@
                 <configuration>
                     <additionalOptions>--add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
                 </configuration>
-            </plugin>
-
-            <plugin>
-
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <manifestFile>${project.basedir}/manifest.mf</manifestFile>
-                        <manifestEntries/>
-                    </archive>
-                </configuration>
-
             </plugin>
 
             <plugin>
