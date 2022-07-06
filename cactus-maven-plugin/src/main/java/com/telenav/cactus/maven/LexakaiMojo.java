@@ -17,15 +17,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.trigger.FamilyRootRunPolicy;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.util.streams.stdio.ThreadMappedStdIO;
 import com.telenav.cactus.util.PathUtils;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.DiskResident;
+import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
+import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -49,6 +52,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -156,7 +161,8 @@ public class LexakaiMojo extends BaseMojo
             finally
             {
                 Thread.currentThread().setContextClassLoader(ldr);
-                Path dir = output(project());
+                Path dir = output(MavenArtifactCoordinatesWrapper
+                        .wrap(project()));
                 // If we're on a project that generated nothing (some poms),
                 // don't leave behind an empty directory for it
                 //noinspection resource
@@ -262,6 +268,22 @@ public class LexakaiMojo extends BaseMojo
             })
     private String lexakaiRepository = MAVEN_CENTRAL_REPO;
 
+    static
+    {
+        try
+        {
+            // Attempt to work around classloading issues when instantiated
+            // via maven -> guice using the module path, by getting it preloaded
+            // by the right classloader
+            Object o = LexakaiMojo.class.getClassLoader().loadClass(
+                    "com.telenav.cactus.maven.MavenArtifactCoordinatesWrapper");
+        }
+        catch (ClassNotFoundException ex)
+        {
+            ex.printStackTrace(System.out);
+        }
+    }
+
     public LexakaiMojo()
     {
         super(new FamilyRootRunPolicy());
@@ -270,7 +292,7 @@ public class LexakaiMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        Path outputDir = output(project);
+        Path outputDir = output(MavenArtifactCoordinatesWrapper.wrap(project));
         List<String> args = new ArrayList<>(Arrays.asList(
                 "-update-readme=" + updateReadme,
                 "-overwrite-resources=" + overwriteResources,
@@ -288,7 +310,10 @@ public class LexakaiMojo extends BaseMojo
         });
         if (!skip)
         {
-            runLexakai(args, project, log);
+            ifNotPretending(() ->
+            {
+                runLexakai(args, project, log);
+            });
         }
     }
 
@@ -354,16 +379,17 @@ public class LexakaiMojo extends BaseMojo
         return false;
     }
 
-    Path output(MavenProject project)
+    <A extends MavenArtifactCoordinates & DiskResident> Path output(A project)
     {
-        return GitCheckout.repository(project.getBasedir())
+        return GitCheckout.repository(project.path())
                 .map(co -> outputFolder(project, co))
                 .orElseGet(
-                        () -> project.getBasedir().toPath().resolve("target")
+                        () -> project.path().resolve("target")
                                 .resolve("lexakai"));
     }
 
-    Path outputFolder(MavenProject project, GitCheckout checkout)
+    <A extends MavenArtifactCoordinates & DiskResident> Path outputFolder(
+            A project, GitCheckout checkout)
     {
         // If the output folder was explicitly specified, use it.
         if (outputFolder != null)
@@ -373,17 +399,18 @@ public class LexakaiMojo extends BaseMojo
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
-        return ProjectFamily.fromGroupId(project.getGroupId()).assetsPath(
+        return ProjectFamily.familyOf(project.groupId()).assetsPath(
                 checkout.submoduleRoot()
                         .map(co -> co.checkoutRoot())).map(assetsPath
                 -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
         ).orElseGet(()
-                -> appendProjectLexakaiDocPath(project.getBasedir().toPath()
+                -> appendProjectLexakaiDocPath(project.path()
                         .resolve("target").resolve(
                         "lexakai"), project, checkout));
     }
 
-    private Path appendProjectLexakaiDocPath(Path path, MavenProject prj,
+    private <A extends MavenArtifactCoordinates & DiskResident> Path appendProjectLexakaiDocPath(
+            Path path, A prj,
             GitCheckout checkout)
     {
         if (checkout.name().isEmpty())
@@ -394,7 +421,7 @@ public class LexakaiMojo extends BaseMojo
         }
 
         Path result = path.resolve("docs")
-                .resolve(prj.getVersion())
+                .resolve(prj.version().text())
                 .resolve("lexakai")
                 .resolve(checkout.name());
 
@@ -477,7 +504,7 @@ public class LexakaiMojo extends BaseMojo
         return sb.append("\n").toString();
     }
 
-    private Path lexakaiJar() throws MojoFailureException
+    private Path lexakaiJar() throws Exception
     {
         return downloadArtifact("com.telenav.lexakai", "lexakai", lexakaiVersion)
                 .get();

@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>cactus-cli</artifactId>
-    
+
     <description>
         Base classes for running CLI commands with a modern API.
     </description>
@@ -32,5 +32,28 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
+                        fails without it. -->
+                        <manifestEntries>
+                            <Add-Opens>cactus.cli/*=ALL-UNNAMED cactus.cli/*=maven.core cactus.cli/*=maven.plugin.api cactus.cli/*=maven.settings cactus.cli/*=plexus.classworlds@2.6.0 cactus.cli/*=plexus.classworlds</Add-Opens>
+                            <Add-Exports>cactus.cli/*=ALL-UNNAMED cactus.cli/*=com.google.guice cactus.cli/*=maven.core cactus.cli/*=maven.plugin.api cactus.cli/*=maven.settings cactus.cli/*=maven.plugin.api</Add-Exports>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

@@ -22,7 +22,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.INITIALIZE,
+        defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "homogenize-versions", threadSafe = true)

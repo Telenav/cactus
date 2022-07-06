@@ -4,7 +4,7 @@ open module cactus.maven.versioning {
     requires com.mastfrog.preconditions;
     requires cactus.maven.model;
     requires cactus.maven.scope;
-    requires com.telenav.cactus.util;
+    requires cactus.util;
     requires cactus.maven.xml;
     requires java.xml;
 

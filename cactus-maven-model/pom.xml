@@ -59,6 +59,8 @@
                         fails without it. -->
                         <manifestEntries>
                             <Automatic-Module-Name>cactus.maven.model</Automatic-Module-Name>
+                            <Add-Opens>cactus.maven.model/*=ALL-UNNAMED cactus.maven.plugin/*=maven.core cactus.maven.model/*=maven.plugin.api cactus.maven.model/*=maven.settings cactus.maven.model/*=plexus.classworlds@2.6.0 cactus.maven.model/*=plexus.classworlds com.google.guice/*=ALL-UNNAMED</Add-Opens>
+                            <Add-Exports>cactus.maven.model/*=ALL-UNNAMED cactus.maven.model/*=com.google.guice cactus.maven.model/*=maven.core cactus.maven.plugin/*=maven.plugin.api cactus.maven.model/*=maven.settings cactus.maven.model/*=maven.plugin.api</Add-Exports>
                         </manifestEntries>
                     </archive>
                 </configuration>

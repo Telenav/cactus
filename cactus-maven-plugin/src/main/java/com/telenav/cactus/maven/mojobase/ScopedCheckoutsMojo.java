@@ -25,6 +25,7 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,6 +59,16 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
     protected ScopedCheckoutsMojo(boolean runFirst)
     {
         super(runFirst);
+    }
+
+    /**
+     * Create a new mojo.
+     *
+     * @param policy The policy for when this mojo should be run.
+     */
+    public ScopedCheckoutsMojo(RunPolicy policy)
+    {
+        super(policy);
     }
 
     /**

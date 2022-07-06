@@ -31,7 +31,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.INITIALIZE,
+        defaultPhase = LifecyclePhase.PRE_SITE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "lexakai-generate", threadSafe = true)

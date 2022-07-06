@@ -10,15 +10,19 @@ import java.nio.file.Path;
 import org.apache.maven.project.MavenProject;
 
 /**
+ * Wraps a MavenProject in implementations of MavenArtifactCoordinates and
+ * DiskResident so it can be consumed by PublishChecker.
  *
- * @author timb
+ * @author Tim Boudreau
  */
-final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoordinates,
+public final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoordinates,
                                                        DiskResident
 {
+    // This class should not be public, but making it non-public breaks
+    // reflection-based loading from the module path.
     private final MavenProject project;
 
-    MavenArtifactCoordinatesWrapper(MavenProject project)
+    public MavenArtifactCoordinatesWrapper(MavenProject project)
     {
         this.project = project;
     }

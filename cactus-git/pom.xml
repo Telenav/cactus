@@ -24,5 +24,28 @@
         </dependency>
 
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
+                        fails without it. -->
+                        <manifestEntries>
+                            <Automatic-Module-Name>cactus.git</Automatic-Module-Name>
+                            <Add-Opens>cactus.git/*=ALL-UNNAMED cactus.git/*=maven.core cactus.git/*=maven.plugin.api cactus.git/*=maven.settings cactus.git/*=plexus.classworlds@2.6.0 cactus.git/*=plexus.classworlds com.google.guice/*=ALL-UNNAMED</Add-Opens>
+                            <Add-Exports>cactus.git/*=ALL-UNNAMED cactus.git/*=com.google.guice cactus.git/*=maven.core cactus.git/*=maven.plugin.api cactus.git/*=maven.settings cactus.git/*=maven.plugin.api</Add-Exports>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
+            </plugin>   
+            
+        </plugins>
+    </build>
 </project>

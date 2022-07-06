@@ -205,6 +205,10 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
             ThrowingOptional<Path> submoduleRoot)
     {
         String envVar = System.getenv(assetsEnvironmentVariable());
+        if (envVar == null) {
+            // for testing
+            envVar = System.getProperty(assetsEnvironmentVariable());
+        }
         Path path = null;
         if (envVar != null)
         {
@@ -224,7 +228,7 @@ public final class ProjectFamily implements Comparable<ProjectFamily>
                     name + ASSETS_CHECKOUT_SUFFIX));
         });
     }
-
+    
     /**
      * Case insensitive comparison on the text value.
      *
