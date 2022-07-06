@@ -12,7 +12,6 @@
 **/*.ids
 **/.DS_Store
 **/nbactions.xml
-**/manifest.mf
 **/nb-configuration.xml
 **/Err.log
 **/Err.log.*
