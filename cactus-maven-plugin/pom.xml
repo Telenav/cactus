@@ -134,6 +134,8 @@
                             <Add-Opens>cactus.maven.plugin/*=maven.core</Add-Opens>
                             <Add-Opens>cactus.maven.plugin/*=maven.plugin.api</Add-Opens>
                             <Add-Opens>cactus.maven.plugin/*=maven.settings</Add-Opens>
+                            <Add-Opens>cactus.maven.plugin/*=plexus.classworlds@2.6.0</Add-Opens>
+                            <Add-Opens>cactus.maven.plugin/*=plexus.classworlds</Add-Opens>
                             <Add-Opens>com.google.guice/*=ALL-UNNAMED</Add-Opens>
                             <Add-Exports>cactus.maven.plugin/*=ALL-UNNAMED</Add-Exports>
                             <Add-Exports>cactus.maven.plugin/*=com.google.guice</Add-Exports>

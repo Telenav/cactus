@@ -9,7 +9,7 @@ open module cactus.maven.plugin {
     requires transitive cactus.maven.xml;
     requires transitive cactus.metadata;
     requires transitive cactus.source.analysis;
-    requires transitive maven.plugin.api;
+    requires maven.plugin.api;
     requires java.net.http;
     requires java.xml;
     requires maven.plugin.annotations;

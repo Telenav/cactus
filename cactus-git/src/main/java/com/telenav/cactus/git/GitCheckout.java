@@ -135,6 +135,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "push");
 
+    public static final GitCommand<String> GC
+            = new GitCommand<>(ProcessResultConverter.strings(),
+                    "gc", "--aggressive");
+
     public static final GitCommand<Boolean> IS_DETACHED_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().testedWith(
                     text -> text.contains("(detached)")),
@@ -225,6 +229,11 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         return PathUtils.findGitCheckoutRoot(dirOrFile, false)
                 .map(GitCheckout::new);
+    }
+
+    public void gc()
+    {
+        GC.withWorkingDir(checkoutRoot()).run().awaitQuietly();
     }
 
     private final BuildLog log = BuildLog.get();
