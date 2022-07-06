@@ -1,10 +1,10 @@
 package com.telenav.cactus.maven.trigger;
 
 import com.telenav.cactus.git.GitCheckout;
-import com.telenav.cactus.maven.trigger.RunPolicy;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Singleton;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
@@ -13,6 +13,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
+@Singleton
 public final class FamilyRootRunPolicy implements RunPolicy
 {
     static Map<Path, Boolean> CACHE = new ConcurrentHashMap<>();

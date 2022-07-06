@@ -43,6 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
 
 import static java.util.Collections.emptySet;
 
@@ -77,9 +78,10 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
     @Parameter(property = "cactus.families", required = false)
     private String families;
 
-    public CodeFlowersMojo()
+    @Inject
+    public CodeFlowersMojo(FamilyRootRunPolicy policy)
     {
-        super(new FamilyRootRunPolicy());
+        super(policy);
     }
 
     private Set<ProjectFamily> tolerateVersionInconsistenciesIn()
