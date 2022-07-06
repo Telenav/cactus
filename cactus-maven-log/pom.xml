@@ -16,6 +16,10 @@
         such as provenance prefixes and ThreadLocal mapping of loggers.
     </description>
 
+    <properties>
+        <java.module.name>cactus.maven.log</java.module.name>
+    </properties>
+
     <dependencies>
 
         <!-- Utility -->

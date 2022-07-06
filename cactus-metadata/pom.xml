@@ -26,6 +26,10 @@
         project.properties files generated into target/classes.
     </description>
 
+    <properties>
+        <java.module.name>cactus.metadata</java.module.name>
+    </properties>
+
     <build>
         <plugins>
 

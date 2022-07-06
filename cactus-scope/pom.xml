@@ -6,12 +6,19 @@
         <artifactId>cactus</artifactId>
         <version>1.4.26</version>
     </parent>
+    
     <artifactId>cactus-scope</artifactId>
+    
     <description>
         Defines the scopes most mojos in the cactus-maven-plugin use to determine
         what projects and git repositories to operate on, and the API for
         project-families.
     </description>
+
+    <properties>
+        <java.module.name>cactus.scope</java.module.name>
+    </properties>
+        
     <dependencies>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
@@ -26,26 +33,5 @@
             <artifactId>util-strings</artifactId>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
 
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
-                        fails without it. -->
-                        <manifestEntries>
-                            <Add-Opens>cactus.scope/*=ALL-UNNAMED cactus.scope/*=maven.core cactus.scope/*=maven.plugin.api cactus.scope/*=maven.settings cactus.scope/*=plexus.classworlds@2.6.0 cactus.scope/*=plexus.classworlds</Add-Opens>
-                            <Add-Exports>cactus.scope/*=ALL-UNNAMED cactus.scope/*=com.google.guice cactus.scope/*=maven.core cactus.scope/*=maven.plugin.api cactus.scope/*=maven.settings cactus.scope/*=maven.plugin.api</Add-Exports>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-
-            </plugin>   
-            
-        </plugins>
-    </build>
 </project>

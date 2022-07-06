@@ -8,6 +8,11 @@
     </parent>
 
     <artifactId>cactus-util</artifactId>
+
+    <properties>
+        <java.module.name>cactus.util</java.module.name>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -41,28 +46,7 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
-                        fails without it. -->
-                        <manifestEntries>
-                            <Add-Opens>cactus.util/*=ALL-UNNAMED cactus.util/*=maven.core cactus.util/*=maven.plugin.api cactus.util/*=maven.settings cactus.util/*=plexus.classworlds@2.6.0 cactus.util/*=plexus.classworlds</Add-Opens>
-                            <Add-Exports>cactus.util/*=ALL-UNNAMED cactus.util/*=com.google.guice cactus.util/*=maven.core cactus.util/*=maven.plugin.api cactus.util/*=maven.settings cactus.util/*=maven.plugin.api</Add-Exports>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-
-            </plugin>   
-            
-        </plugins>
-    </build>
 
 </project>

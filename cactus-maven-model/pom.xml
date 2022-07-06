@@ -24,6 +24,10 @@
         Models maven poms and artifacts, without depending directly on Maven.
     </description>
 
+    <properties>
+        <java.module.name>cactus.maven.model</java.module.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
