@@ -49,7 +49,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
 
     public CommitAssetsMojo()
     {
-        super(RunPolicies.FIRST);
+        super(RunPolicies.EVERY);
     }
 
     @Override
@@ -58,6 +58,8 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
         withProjectTree(tree ->
         {
             Set<GitCheckout> assetsCheckouts = tree.nonMavenCheckouts();
+            System.out.println("HAVE " + assetsCheckouts.size() + " checkouts");
+
             CommitMessage msg = new CommitMessage(CommitAssetsMojo.class,
                     "Update assets");
             Set<GitCheckout> toReallyCommit = new HashSet<>();
@@ -66,7 +68,9 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
             {
                 for (GitCheckout co : assetsCheckouts)
                 {
-                    if (co.isDirty())
+                    boolean dirty = tree.isDirty(co) || co.hasUntrackedFiles();
+                    System.out.println("CHECK " + co + " dirty " + dirty);
+                    if (dirty)
                     {
                         toReallyCommit.add(co);
                         log.info("Have dirty assets checkout " + co
@@ -100,6 +104,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                             co.push();
                         });
                     }
+                    ifNotPretending(tree::invalidateCache);
                 }
             }
         });

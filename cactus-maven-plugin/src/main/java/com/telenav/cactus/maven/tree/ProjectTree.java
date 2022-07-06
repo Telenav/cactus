@@ -18,14 +18,12 @@
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.Heads;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.scope.Scope;
-import java.io.IOException;
 import java.nio.file.Files;
 
 import java.nio.file.Path;
@@ -42,7 +40,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;

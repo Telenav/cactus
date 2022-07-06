@@ -4,6 +4,7 @@ import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.Heads;
+import com.telenav.cactus.git.SubmoduleStatus;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.scope.ProjectFamily;
 import java.io.IOException;
@@ -258,6 +259,13 @@ final class ProjectTreeCache
         try
         {
             outer.root.allPomFilesInSubtreeParallel(this::cacheOnePomFile);
+            outer.root.submodules().ifPresent(statii ->
+            {
+                for (SubmoduleStatus stat : statii)
+                {
+                    stat.repository().ifPresent(nonMavenCheckouts::add);
+                }
+            });
         }
         catch (IOException ex)
         {

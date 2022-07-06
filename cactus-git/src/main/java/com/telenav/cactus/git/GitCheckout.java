@@ -139,6 +139,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "gc", "--aggressive");
 
+    public static final GitCommand<Boolean> HAS_UNKNOWN_FILES
+            = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
+                    str -> str.length() > 0),
+                    "ls-files", "--others", "--no-empty-directory",
+                    "--exclude-standard");
+
     public static final GitCommand<Boolean> IS_DETACHED_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().testedWith(
                     text -> text.contains("(detached)")),
@@ -499,6 +505,11 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean isDirty()
     {
         return IS_DIRTY.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    public boolean hasUntrackedFiles()
+    {
+        return HAS_UNKNOWN_FILES.withWorkingDir(root).run().awaitQuietly();
     }
 
     public boolean checkoutOneFile(Path path)
