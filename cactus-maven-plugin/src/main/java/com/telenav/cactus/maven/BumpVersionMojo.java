@@ -426,14 +426,14 @@ public class BumpVersionMojo extends ReplaceMojo
         String prop = System.getProperty("releaseBranchPrefix");
         if (prop != null && !prop.isBlank())
         {
-            String result = releaseBranchPrefix.trim();
+            String result = prop.trim();
             if (result.charAt(result.length() - 1) != '/')
             {
                 result += "/";
             }
             return result;
         }
-        return System.getProperty("releaseBranchPrefix", "release") + "/";
+        return "release/";
     }
 
     private PomVersion newVersion(Pom pom)
