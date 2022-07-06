@@ -25,4 +25,27 @@
             <artifactId>cactus-maven-log</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
+                        fails without it. -->
+                        <manifestEntries>
+                            <Add-Opens>cactus.source.analysis/*=ALL-UNNAMED cactus.source.analysis/*=maven.core cactus.source.analysis/*=maven.plugin.api cactus.source.analysis/*=maven.settings cactus.source.analysis/*=plexus.classworlds@2.6.0 cactus.source.analysis/*=plexus.classworlds</Add-Opens>
+                            <Add-Exports>cactus.source.analysis/*=ALL-UNNAMED cactus.source.analysis/*=com.google.guice cactus.source.analysis/*=maven.core cactus.source.analysis/*=maven.plugin.api cactus.source.analysis/*=maven.settings cactus.source.analysis/*=maven.plugin.api</Add-Exports>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
+            </plugin>   
+            
+        </plugins>
+    </build>
+
 </project>

@@ -15,12 +15,14 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
-final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoordinates,
+public final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoordinates,
                                                        DiskResident
 {
+    // This class should not be public, but making it non-public breaks
+    // reflection-based loading from the module path.
     private final MavenProject project;
 
-    MavenArtifactCoordinatesWrapper(MavenProject project)
+    public MavenArtifactCoordinatesWrapper(MavenProject project)
     {
         this.project = project;
     }

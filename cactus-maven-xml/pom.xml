@@ -16,4 +16,27 @@
             <artifactId>function</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
+                        fails without it. -->
+                        <manifestEntries>
+                            <Add-Opens>cactus.maven.xml/*=ALL-UNNAMED cactus.maven.xml/*=maven.core cactus.maven.xml/*=maven.plugin.api cactus.maven.xml/*=maven.settings cactus.maven.xml/*=plexus.classworlds@2.6.0 cactus.maven.xml/*=plexus.classworlds</Add-Opens>
+                            <Add-Exports>cactus.maven.xml/*=ALL-UNNAMED cactus.maven.xml/*=com.google.guice cactus.maven.xml/*=maven.core cactus.maven.xml/*=maven.plugin.api cactus.maven.xml/*=maven.settings cactus.maven.xml/*=maven.plugin.api</Add-Exports>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
+            </plugin>   
+            
+        </plugins>
+    </build>
+    
 </project>

@@ -16,12 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-open module com.telenav.cactus.cli
+open module cactus.cli
 {
     requires com.mastfrog.concurrent;
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
-    requires com.telenav.cactus.maven.log;
-    requires com.telenav.cactus.util;
+    requires cactus.maven.log;
+    requires cactus.util;
     exports com.telenav.cactus.cli;
 }
