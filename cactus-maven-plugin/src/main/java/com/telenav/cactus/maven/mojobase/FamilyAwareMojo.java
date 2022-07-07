@@ -2,7 +2,6 @@ package com.telenav.cactus.maven.mojobase;
 
 import com.telenav.cactus.maven.trigger.RunPolicy;
 import com.telenav.cactus.scope.ProjectFamily;
-import java.util.Collections;
 import java.util.Set;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -29,7 +28,7 @@ public abstract class FamilyAwareMojo extends SharedProjectTreeMojo implements
      * </p>
      */
     @Parameter(property = FAMILY)
-    protected String family;
+    public String family;
 
     /**
      * Override the project family, using a comma-delimted list of values
@@ -41,7 +40,7 @@ public abstract class FamilyAwareMojo extends SharedProjectTreeMojo implements
      * </p>
      */
     @Parameter(property = FAMILIES)
-    protected String families;
+    public String families;
 
     protected FamilyAwareMojo(RunPolicy policy)
     {
@@ -66,24 +65,18 @@ public abstract class FamilyAwareMojo extends SharedProjectTreeMojo implements
     @Override
     public final Set<ProjectFamily> families()
     {
-        if ((families == null || families.isEmpty()) && (family == null || families
-                .isEmpty()))
+        if (families != null && !families.isBlank())
         {
-            return Collections.emptySet();
+            return ProjectFamily.fromCommaDelimited(families,
+                    () -> (family == null || family.isBlank())
+                          ? null
+                          : ProjectFamily.named(family));
         }
         else
-            if (families != null && !families.isBlank())
+            if (family != null && !family.isBlank())
             {
-                return ProjectFamily.fromCommaDelimited(families,
-                        () -> (family == null || family.isBlank())
-                              ? null
-                              : ProjectFamily.named(family));
+                return singleton(ProjectFamily.named(family.trim()));
             }
-            else
-                if (family != null && !family.isBlank())
-                {
-                    return singleton(ProjectFamily.named(family.trim()));
-                }
         return singleton(ProjectFamily.fromGroupId(project().getGroupId()));
     }
 }

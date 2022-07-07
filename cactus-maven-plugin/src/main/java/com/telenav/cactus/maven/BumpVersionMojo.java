@@ -279,16 +279,6 @@ public class BumpVersionMojo extends ReplaceMojo
     String developmentBranch;
 
     /**
-     * Allows to bump the version of multiple families in one pass - if you have
-     * properties for the versions of things from multiple families in your
-     * superpoms, this allows a single update to those superpoms to take care of
-     * updates to more than one family without bumping their version once to set
-     * up one set of properties, and again to set up another.
-     */
-    @Parameter(property = "cactus.families")
-    String families;
-
-    /**
      * In the case that multiple families are being updated, but only one should
      * get a higher-than-dot-magnitude update, pass a comma-delimited list of
      * families that should be a dot-magnitude bump regardless of other things.
@@ -368,10 +358,6 @@ public class BumpVersionMojo extends ReplaceMojo
             case ALL_PROJECT_FAMILIES:
             case SAME_GROUP_ID:
             case FAMILY_OR_CHILD_FAMILY:
-                if (families != null && !families.isBlank())
-                {
-                    fail("cactus.families can only be used with cactus.scope=family.");
-                }
                 break;
             default:
                 throw new AssertionError(scope());
@@ -484,10 +470,10 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private Set<ProjectFamily> allFamilies(ProjectTree tree)
     {
-        Set<ProjectFamily> families = new HashSet<>();
-        tree.allProjects().forEach(pom -> families.add(ProjectFamily
+        Set<ProjectFamily> allFamilies = new HashSet<>();
+        tree.allProjects().forEach(pom -> allFamilies.add(ProjectFamily
                 .familyOf(pom.groupId())));
-        return families;
+        return allFamilies;
     }
 
     private Set<ProjectFamily> familyWithChildFamilies(ProjectTree tree)
@@ -587,8 +573,8 @@ public class BumpVersionMojo extends ReplaceMojo
 
         if (isVerbose())
         {
-            log.info("BumpVersion " + scope() + " " + families() + " for "
-                    + families + " and " + family);
+            log.info("BumpVersion " + scope() + " " + families() + " for '"
+                    + super.families + "' and '" + super.family + "'");
         }
 
         // Set up version changes for the right things based on the scope:
