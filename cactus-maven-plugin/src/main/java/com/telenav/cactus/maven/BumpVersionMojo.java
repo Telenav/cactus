@@ -40,6 +40,7 @@ import com.telenav.cactus.maven.refactoring.VersionMismatchPolicy;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicyOutcome;
 import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
+import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -98,6 +99,9 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private static final EnumMatcher<SuperpomBumpPolicy> SUPERPOM_POLICY_MATCHER
             = EnumMatcher.enumMatcher(SuperpomBumpPolicy.class);
+
+    private static final SharedDataKey<Object> versionBumpKey
+            = SharedDataKey.of("versionBump", Object.class);
 
     /**
      * The magnitude of the decimal to change (subsequent ones will be zeroed).
@@ -540,11 +544,29 @@ public class BumpVersionMojo extends ReplaceMojo
         }
     }
 
+    private boolean wasRun()
+    {
+        synchronized (BumpVersionMojo.class)
+        {
+            Optional<Object> opt = sharedData().get(versionBumpKey);
+            if (!opt.isPresent())
+            {
+                sharedData().put(versionBumpKey, new Object());
+                return false;
+            }
+            return true;
+        }
+    }
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
+        if (wasRun())
+        {
+            log.info("Version bump was already run.");
+        }
         log.info("Checking repositories' state");
         checkCheckoutStates("Some git checkouts are not in a usable "
                 + "state for generating version changes", tree, checkouts);
