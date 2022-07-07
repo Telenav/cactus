@@ -312,7 +312,7 @@
                         fails without it. -->
                         <manifestEntries>
                             <Add-Opens>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=plexus.classworlds</Add-Opens>
-                            <Add-Exports>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=com.google.guice ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=maven.plugin.api</Add-Exports>
+                            <Add-Exports>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=com.google.guice ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=plexus.classworlds ${java.module.name}/*=plexus.classworlds@2.6.0</Add-Exports>
                         </manifestEntries>
                     </archive>
                 </configuration>
