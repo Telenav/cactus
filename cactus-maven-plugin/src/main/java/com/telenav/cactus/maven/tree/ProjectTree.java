@@ -57,6 +57,20 @@ public class ProjectTree
     private final AtomicBoolean upToDate = new AtomicBoolean();
     private final ProjectTreeCache cache = new ProjectTreeCache(this);
 
+    static
+    {
+        try
+        {
+            // Force this into the maven classloader as well
+            Object o = ProjectTree.class.getClassLoader().loadClass(
+                    "com.telenav.cactus.maven.tree.ProjectTree$1");
+        }
+        catch (ClassNotFoundException ex)
+        {
+            ex.printStackTrace(System.out);
+        }
+    }
+
     ProjectTree(GitCheckout root)
     {
         this.root = root;
