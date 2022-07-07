@@ -17,6 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.git.Branches;
+import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
@@ -87,11 +89,28 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
                 {
                     continue;
                 }
+                Branches branches = checkout.branches();
+                if (!branches.currentBranch().isPresent())
+                {
+                    continue;
+                }
+                Branch curr = branches.currentBranch().get();
+                if (!branches.hasRemoteForLocalOrLocalForRemote(curr))
+                {
+                    log.info("No tracking remote branch for " + curr
+                            + " of " + checkout.loggingName()
+                            + " - skipping.");
+                    continue;
+                }
                 checkout.submoduleRelativePath().ifPresent(path ->
                 {
                     relativePaths.put(path, assetsBranch);
                     checkout.setSubmoduleBranch(path.toString(), assetsBranch);
                     toUse.add(checkout);
+                    if (isVerbose())
+                    {
+                        log.info("Will pull " + checkout.loggingName());
+                    }
                 });
             }
             if (toUse.isEmpty())
