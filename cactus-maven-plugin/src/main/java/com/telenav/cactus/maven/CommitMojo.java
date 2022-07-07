@@ -23,6 +23,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.LinkedHashSet;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -81,6 +82,10 @@ public class CommitMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
+    
+    public CommitMojo() {
+        super(RunPolicies.INITIAL);
+    }
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
