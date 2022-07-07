@@ -474,6 +474,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         return FETCH_ALL.withWorkingDir(root).run().awaitQuietly();
     }
+    
+    public boolean noPomInRoot() {
+        return !hasPomInRoot();
+    }
 
     public boolean hasPomInRoot()
     {

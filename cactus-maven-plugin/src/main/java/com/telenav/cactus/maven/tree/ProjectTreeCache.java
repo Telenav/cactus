@@ -322,7 +322,7 @@ final class ProjectTreeCache
                 for (SubmoduleStatus stat : statii)
                 {
                     stat.checkout()
-                            .filter(GitCheckout::hasPomInRoot)
+                            .filter(GitCheckout::noPomInRoot)
                             .ifPresent(nonMavenCheckouts::add);
                 }
             });
