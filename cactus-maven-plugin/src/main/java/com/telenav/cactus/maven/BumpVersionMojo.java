@@ -40,6 +40,7 @@ import com.telenav.cactus.maven.refactoring.VersionMismatchPolicy;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicyOutcome;
 import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
+import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,7 +186,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(true);
+        super(RunPolicies.FIRST);
     }
 
     /**
