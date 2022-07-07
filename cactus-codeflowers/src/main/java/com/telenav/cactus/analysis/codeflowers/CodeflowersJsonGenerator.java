@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.analysis.codeflowers;
 
 import com.telenav.cactus.analysis.ProjectScanConsumer;
@@ -146,7 +145,6 @@ public final class CodeflowersJsonGenerator implements ProjectScanConsumer
                 wcOut.write(wc.toString().getBytes(UTF_8));
             }
         }
-        System.out.println(jsonFile);
     }
 
     private static final class HFolder implements Comparable<HFolder>

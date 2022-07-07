@@ -97,6 +97,9 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             log.info("Codeflowers is skipped");
             return;
         }
+        ifVerbose(() -> {
+            log.info("Codeflowers on " + project.getArtifactId() + " with " + scope() + " and " + families());
+        });
         Map<ProjectFamily, Set<Pom>> all = allPoms(tree, checkouts);
         for (Map.Entry<ProjectFamily, Set<Pom>> e : all.entrySet())
         {
@@ -121,8 +124,9 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
                         .resolve("site").resolve("data");
                 log.info(
                         "Will generate codeflowers for '" + fam + "' into " + codeflowersPath);
+                
                 MavenProjectsScanner scanner = new MavenProjectsScanner(log
-                        .child("scanProjects"), new WordCount(), e.getValue());
+                        .child("scanProjects"), new WordCount(), e.getValue(), isVerbose());
                 CodeflowersJsonGenerator gen = new CodeflowersJsonGenerator(fam
                         .toString(), codeflowersPath, indent, isPretend());
                 scanner.scan(gen);
