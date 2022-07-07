@@ -417,7 +417,7 @@ public final class ConsistencyChecker2
                 co.updateRemoteHeads();
                 if (co.needsPull())
                 {
-                    into.add("Remote changes exist for " + co.logggingName()
+                    into.add("Remote changes exist for " + co.loggingName()
                             + " which have not been pulled into "
                             + co.checkoutRoot());
                 }
@@ -473,7 +473,7 @@ public final class ConsistencyChecker2
                                     sb.append("\n  * ").append(b);
                                     emitted = true;
                                 }
-                                sb.append("\n    * ").append(co.logggingName());
+                                sb.append("\n    * ").append(co.loggingName());
                             }
                         }
                     }
@@ -496,7 +496,7 @@ public final class ConsistencyChecker2
                                         .get(b))
                                 {
                                     sb.append("\n    * ").append(co
-                                            .logggingName()).append(
+                                            .loggingName()).append(
                                                     " is on branch ").append(b);
                                 }
                                 into.add(sb.toString());
@@ -531,7 +531,7 @@ public final class ConsistencyChecker2
                     {
                         into.add("Checkout is not a superpom set, but contains "
                                 + "more than one family: " + families + " in "
-                                + checkout.logggingName() + " @ "
+                                + checkout.loggingName() + " @ "
                                 + checkout.checkoutRoot());
                     }
                 });
@@ -553,7 +553,7 @@ public final class ConsistencyChecker2
                     if (!co.equals(tree.root()) && tree.isDirty(co))
                     {
                         into.add("Have local modifications in " + co
-                                .logggingName() + ": " + co.checkoutRoot());
+                                .loggingName() + ": " + co.checkoutRoot());
                     }
                 }
             }
@@ -570,7 +570,7 @@ public final class ConsistencyChecker2
                     if (!tree.branches(co).currentBranch().isPresent())
                     {
                         into.add("Have detached head state in " + co
-                                .logggingName() + ": " + co.checkoutRoot());
+                                .loggingName() + ": " + co.checkoutRoot());
                     }
                 }
             }

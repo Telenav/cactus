@@ -88,8 +88,8 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                     {
                         toReallyCommit.add(co);
                         log.info("Have dirty assets checkout " + co
-                                .logggingName());
-                        sect.bulletPoint(co.logggingName());
+                                .loggingName());
+                        sect.bulletPoint(co.loggingName());
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                 String cm = msg.toString();
                 for (GitCheckout co : toReallyCommit)
                 {
-                    log.info("Commit " + co.logggingName());
+                    log.info("Commit " + co.loggingName());
                     ifNotPretending(() ->
                     {
                         co.addAll();
@@ -112,7 +112,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                     }
                     if (push)
                     {
-                        log.info("Push " + co.logggingName());
+                        log.info("Push " + co.loggingName());
                         ifNotPretending(co::push);
                     }
                     ifNotPretending(tree::invalidateCache);

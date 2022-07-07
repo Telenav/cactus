@@ -23,12 +23,14 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.util.LinkedHashSet;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -111,14 +113,34 @@ public class CommitMojo extends ScopedCheckoutsMojo
         }
 
         CommitMessage msg = new CommitMessage(CommitMojo.class, commitMessage);
-        addCommitMessageDetail(msg, checkouts);
-
-        log.info("Begin commit with message '" + commitMessage + "'");
-        for (GitCheckout at : checkouts)
+        Set<GitCheckout> toCommit = new LinkedHashSet<>();
+        StringBuilder nameList = new StringBuilder();
+        for (GitCheckout co : checkouts)
         {
-            log.info("add/commit " + (at.name().isEmpty()
-                                      ? "(root)"
-                                      : at.name()));
+            if (co.hasUncommitedChanges())
+            {
+                toCommit.add(co);
+            }
+            if (nameList.length() > 0)
+            {
+                nameList.append(", ");
+            }
+            nameList.append(co.loggingName());
+        }
+        if (toCommit.isEmpty())
+        {
+            log.warn("Nothing to commit among " + nameList);
+            return;
+        }
+        addCommitMessageDetail(msg, toCommit);
+
+        if (isVerbose())
+        {
+            log.info("Begin commit with message '" + commitMessage + "'");
+        }
+        for (GitCheckout at : toCommit)
+        {
+            log.info("add/commit " + at.loggingName());
             if (!isPretend())
             {
                 if (!skipAdd)
@@ -130,7 +152,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
         }
         if (push)
         {
-            for (GitCheckout co : checkouts)
+            for (GitCheckout co : toCommit)
             {
                 switch (co.needsPush())
                 {

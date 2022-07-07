@@ -135,6 +135,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "push");
 
+    public static final GitCommand<String> PUSH_ALL
+            = new GitCommand<>(ProcessResultConverter.strings(),
+            "push", "--all");
+
     public static final GitCommand<String> GC
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "gc", "--aggressive");
@@ -658,7 +662,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
                         .run().awaitQuietly()));
     }
 
-    public String logggingName()
+    public String loggingName()
     {
         String n = name();
         if (n.isEmpty())
@@ -789,6 +793,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean push()
     {
         PUSH.withWorkingDir(root).run().awaitQuietly();
+        return true;
+    }
+
+    public boolean pushAll()
+    {
+        PUSH_ALL.withWorkingDir(root).run().awaitQuietly();
         return true;
     }
 

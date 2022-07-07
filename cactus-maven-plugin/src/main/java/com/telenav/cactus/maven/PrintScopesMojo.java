@@ -136,7 +136,7 @@ public class PrintScopesMojo extends BaseMojo
             }
             System.out.println(
                     "\n----- scope '" + scope + "' for family '" + family + "' in "
-                    + co.logggingName() + " -----");
+                    + co.loggingName() + " -----");
             List<GitCheckout> matched = tree.matchCheckouts(scope, co, true,
                     singleton(family), project.getGroupId());
             for (GitCheckout gc : matched)
