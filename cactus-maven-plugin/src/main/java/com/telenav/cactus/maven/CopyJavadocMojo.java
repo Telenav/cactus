@@ -170,7 +170,7 @@ public class CopyJavadocMojo extends BaseMojo
     {
         ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         ThrowingOptional.from(GitCheckout
-                        .repository(project.getBasedir()))
+                        .checkout(project.getBasedir()))
                 .flatMapThrowing(checkout
                         -> family.assetsPath(checkout.submoduleRoot()
                 .map(GitCheckout::checkoutRoot)).map(assetsPath
@@ -248,7 +248,7 @@ public class CopyJavadocMojo extends BaseMojo
         {
             // Do not try to copy javadoc for the root project, only child
             // families
-            result = GitCheckout.repository(project.getBasedir())
+            result = GitCheckout.checkout(project.getBasedir())
                     .map(GitCheckout::isSubmoduleRoot).orElse(false);
         }
         return result;

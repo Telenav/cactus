@@ -219,20 +219,20 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Set<GitCheckout> result = new HashSet<>();
         for (Path p : paths)
         {
-            GitCheckout.repository(p).ifPresent(result::add);
+            GitCheckout.checkout(p).ifPresent(result::add);
         }
         return result;
     }
 
-    public static Optional<GitCheckout> repository(Path dirOrFile)
+    public static Optional<GitCheckout> checkout(Path dirOrFile)
     {
         return PathUtils.findGitCheckoutRoot(dirOrFile, false)
                 .map(GitCheckout::new);
     }
 
-    public static Optional<GitCheckout> repository(File dir)
+    public static Optional<GitCheckout> checkout(File dir)
     {
-        return repository(dir.toPath());
+        return checkout(dir.toPath());
     }
 
     public static Optional<GitCheckout> submodulesRoot(Path dirOrFile)
@@ -626,15 +626,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Optional<GitCheckout> par = PathUtils.findParentWithChild(checkoutRoot()
                 .getParent(), PathUtils.FileKind.FILE,
                 ".gitmodules")
-                .flatMap(GitCheckout::repository);
+                .flatMap(GitCheckout::checkout);
         return par.map(co ->
         {
             return co.submodules().map(subs ->
             {
                 for (SubmoduleStatus stat : subs)
                 {
-                    if (stat.repository().isPresent() && equals(stat
-                            .repository().get()))
+                    if (stat.checkout().isPresent() && equals(stat
+                            .checkout().get()))
                     {
                         return true;
                     }

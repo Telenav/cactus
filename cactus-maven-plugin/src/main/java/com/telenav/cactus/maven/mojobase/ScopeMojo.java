@@ -207,7 +207,7 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
             throws Exception
     {
         scopeValue = Scope.find(scope);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project
+        Optional<GitCheckout> checkout = GitCheckout.checkout(project
                 .getBasedir());
         if (checkout.isEmpty())
         {

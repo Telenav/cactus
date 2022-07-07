@@ -369,7 +369,7 @@ public class LexakaiMojo extends BaseMojo
 
     <A extends MavenArtifactCoordinates & DiskResident> Path output(A project)
     {
-        return GitCheckout.repository(project.path())
+        return GitCheckout.checkout(project.path())
                 .map(co -> outputFolder(project, co))
                 .orElseGet(
                         () -> project.path().resolve("target")
@@ -562,7 +562,7 @@ public class LexakaiMojo extends BaseMojo
                 // Committing child repos may have generated changes in the
                 // set of commits the submodule root points to, so make sure
                 // we generate a final commit here so it points to our updates
-                GitCheckout.repository(project.getBasedir())
+                GitCheckout.checkout(project.getBasedir())
                         .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
                         .toOptional())
                         .ifPresent(root ->

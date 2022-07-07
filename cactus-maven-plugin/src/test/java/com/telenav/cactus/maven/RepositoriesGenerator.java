@@ -165,7 +165,7 @@ public class RepositoriesGenerator
                 ProjectInfoKind.INTERMEDIATE);
         synthetic.add(rootInfo);
         c.accept(submodulesRepo, rootInfo);
-        GitCheckout rootCheckout = GitCheckout.repository(submodulesRepo).get();
+        GitCheckout rootCheckout = GitCheckout.checkout(submodulesRepo).get();
         c.accept(submodulesRepo, rootInfo);
         rootCheckout.addAll();
         rootCheckout.commit("Initial content for root repo");

@@ -43,7 +43,7 @@ public abstract class SharedProjectTreeMojo extends BaseMojo
         if (session().getAllProjects().size() > 1)
         {
             MavenProject prj = project();
-            Optional<GitCheckout> co = GitCheckout.repository(prj.getBasedir());
+            Optional<GitCheckout> co = GitCheckout.checkout(prj.getBasedir());
             if (!co.isPresent())
             {
                 return TreeHolder.KEY;

@@ -26,7 +26,7 @@ import java.util.Set;
 
 import static com.mastfrog.function.optional.ThrowingOptional.empty;
 import static com.mastfrog.function.optional.ThrowingOptional.from;
-import static com.telenav.cactus.git.GitCheckout.repository;
+import static com.telenav.cactus.git.GitCheckout.checkout;
 import static java.nio.file.Files.exists;
 
 /**
@@ -66,10 +66,10 @@ public final class ParentRelativePathChecker
                                     new NonExistentParentProblem(pom,
                                             parentCoords));
                         }
-                        return from(repository(pom.path()))
+                        return from(GitCheckout.checkout(pom.path()))
                                 .flatMapThrowing(pomOwningCheckout ->
                                 {
-                                    return from(repository(relPath))
+                                    return from(GitCheckout.checkout(relPath))
                                             .flatMapThrowing(parentCheckout ->
                                             {
                                                 if (!pomOwningCheckout.equals(
