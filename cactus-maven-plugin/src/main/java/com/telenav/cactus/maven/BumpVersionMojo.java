@@ -316,8 +316,8 @@ public class BumpVersionMojo extends ReplaceMojo
      * expressed in the already published poms when those are not what they were
      * actually built against.
      */
-    @Parameter(property = "cactus.bump.unpublished", defaultValue = "false")
-    boolean bumpUnpublished;
+    @Parameter(property = "cactus.bump.published", defaultValue = "false")
+    boolean bumpPublished;
 
     private VersionUpdateFilter filter()
     {
@@ -570,7 +570,7 @@ public class BumpVersionMojo extends ReplaceMojo
                         .withVersionMismatchPolicy(mismatchPolicy())
                         .withSuperpomBumpPolicy(superpomBumpPolicy())
                         .withFilter(filter());
-        if (bumpUnpublished)
+        if (bumpPublished)
         {
             replacer.bumpUnpublishedPoms();
         }
@@ -726,7 +726,7 @@ public class BumpVersionMojo extends ReplaceMojo
                                         versionForFamily,
                                         releaseBranchNames, log);
                             }
-                            if (addOwners)
+                            if (addOwners && !releaseBranchNames.isEmpty())
                             {
                                 releaseBranchNames.put(tree.root(), longest(
                                         releaseBranchNames));
