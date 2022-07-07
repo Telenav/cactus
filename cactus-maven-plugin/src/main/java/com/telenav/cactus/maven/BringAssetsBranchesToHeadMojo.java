@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
@@ -62,8 +61,8 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
     private boolean pull;
 
     /**
-     * Create a new commit in the submodule root that anchors the submodules on the head commit you have changed them
-     * to.
+     * Create a new commit in the submodule root that anchors the submodules on
+     * the head commit you have changed them to.
      */
     @Parameter(property = "cactus.assets-commit", defaultValue = "true")
     private boolean commit;
@@ -84,18 +83,20 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
             Set<GitCheckout> toUse = new LinkedHashSet<>();
             for (GitCheckout checkout : nonMavenCheckouts)
             {
+                if (checkout.hasPomInRoot())
+                {
+                    continue;
+                }
                 checkout.submoduleRelativePath().ifPresent(path ->
                 {
-                    if (checkout.hasPomInRoot()) {
-                        return;
-                    }
                     relativePaths.put(path, assetsBranch);
                     checkout.setSubmoduleBranch(path.toString(), assetsBranch);
                     toUse.add(checkout);
                 });
             }
-            if (toUse.isEmpty()) {
-                log.warn("Nothing to pull");
+            if (toUse.isEmpty())
+            {
+                log.warn("Nothing to update");
                 return;
             }
             if (pull)
