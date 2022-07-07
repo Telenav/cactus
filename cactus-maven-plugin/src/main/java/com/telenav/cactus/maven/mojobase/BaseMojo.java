@@ -313,17 +313,16 @@ public abstract class BaseMojo extends AbstractMojo
         AtomicBoolean run = sharedData().computeIfAbsent(thisMojoWasRunKey,
                 AtomicBoolean::new);
         boolean old = running.get();
-        boolean skipped = false;
         try
         {
             running.set(true);
             if (policy.shouldRun(this, project))
             {
+                run.set(true);
                 run(this::performTasks);
             }
             else
             {
-                skipped = true;
                 new BuildLog(getClass()).info("Skipping " + getClass()
                         .getSimpleName() + " mojo per policy " + policy);
             }
@@ -332,10 +331,6 @@ public abstract class BaseMojo extends AbstractMojo
         {
             // Allow for reentrancy, just in case
             running.set(old);
-            if (!skipped)
-            {
-                run.set(true);
-            }
         }
     }
 
@@ -350,7 +345,8 @@ public abstract class BaseMojo extends AbstractMojo
      */
     public <T> T fail(String message)
     {
-        return Exceptions.chuck(new MojoExecutionException(this, message, message));
+        return Exceptions.chuck(new MojoExecutionException(this, message,
+                message));
     }
 
     /**
