@@ -302,30 +302,6 @@
 
             </plugin>
             
-            <plugin>
-
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <!-- This is absolutely unnecessary, and the maven javadoc plugin
-                        fails without it. -->
-                        <manifestEntries>
-                            <Add-Opens>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=plexus.classworlds</Add-Opens>
-                            <Add-Exports>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=com.google.guice ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=plexus.classworlds ${java.module.name}/*=plexus.classworlds@2.6.0</Add-Exports>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
         </plugins>
 
         <pluginManagement>
@@ -342,8 +318,19 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
+
+                    <configuration>
+                        <archive>
+                            <!-- This is absolutely unnecessary, and the maven javadoc plugin
+                            fails without it. -->
+                            <manifestEntries>
+                                <Add-Opens>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=plexus.classworlds</Add-Opens>
+                                <Add-Exports>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=com.google.guice ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=plexus.classworlds ${java.module.name}/*=plexus.classworlds@2.6.0</Add-Exports>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
-            
+
             </plugins>
 
         </pluginManagement>
