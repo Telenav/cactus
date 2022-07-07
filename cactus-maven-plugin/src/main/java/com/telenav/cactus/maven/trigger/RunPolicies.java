@@ -184,7 +184,7 @@ public enum RunPolicies implements RunPolicy
                 return false;
             }
         }
-        return GitCheckout.repository(basedir)
+        return GitCheckout.checkout(basedir)
                 .map(co ->
                 {
                     if (!basedir.equals(co.checkoutRoot()))

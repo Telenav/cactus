@@ -317,7 +317,7 @@ public class ConsistencyChecker
                 boolean found = false;
                 for (Pom pom : tree.allProjects())
                 {
-                    GitCheckout co = GitCheckout.repository(pom.path()).get();
+                    GitCheckout co = GitCheckout.checkout(pom.path()).get();
                     if (co.equals(checkout))
                     {
                         if (pom.groupId().is(targetGroupId))

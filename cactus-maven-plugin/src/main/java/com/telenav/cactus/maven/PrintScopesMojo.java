@@ -126,7 +126,7 @@ public class PrintScopesMojo extends BaseMojo
     public void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         ProjectTree tree = tree(project);
-        GitCheckout co = GitCheckout.repository(project.getBasedir()).get();
+        GitCheckout co = GitCheckout.checkout(project.getBasedir()).get();
         ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         for (Scope scope : Scope.values())
         {

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.telenav.cactus.git.GitCheckout.repository;
+import static com.telenav.cactus.git.GitCheckout.checkout;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -93,7 +93,7 @@ public class BuildMetadataMojo extends BaseMojo
                 UTF_8, WRITE, TRUNCATE_EXISTING, CREATE);
         List<String> args = new ArrayList<>(8);
         args.add(propsFile.getParent().toString());
-        Optional<GitCheckout> checkout = repository(project.getBasedir());
+        Optional<GitCheckout> checkout = checkout(project.getBasedir());
         if (checkout.isEmpty())
         {
             log.warn("Did not find a git checkout for " + project.getBasedir());
