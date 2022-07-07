@@ -190,7 +190,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(RunPolicies.FIRST);
+        super(RunPolicies.INITIAL);
     }
 
     /**
