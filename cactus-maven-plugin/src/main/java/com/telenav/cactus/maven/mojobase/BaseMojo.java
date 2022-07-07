@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
-import org.apache.maven.plugins.annotations.Mojo;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PRETEND;
@@ -349,9 +348,9 @@ public abstract class BaseMojo extends AbstractMojo
      * point of any method that returns something
      * @throws MojoExecutionException always, using the passed message
      */
-    public <T> T fail(String message) throws MojoExecutionException
+    public <T> T fail(String message)
     {
-        throw new MojoExecutionException(this, message, message);
+        return Exceptions.chuck(new MojoExecutionException(this, message, message));
     }
 
     /**

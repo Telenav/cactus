@@ -44,6 +44,18 @@ public class FilterFamiliesMojo extends FamilyAwareMojo
     @Parameter(property = "cactus.filter.skip.superpoms", defaultValue = "true")
     private boolean skipSuperpoms;
 
+    @Parameter(property = "cactus.families.required", defaultValue = "false")
+    private boolean familiesRequired;
+
+    protected void validateParameters(BuildLog log, MavenProject project) throws Exception
+    {
+        if (familiesRequired && !hasExplicitFamilies())
+        {
+            fail("cactus.families.required is set. -Dcactus.families or "
+                    + "-Dcactus.family must be set");
+        }
+    }
+
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {

@@ -99,7 +99,6 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
             if (!relativePaths.isEmpty() && commit && tree.root()
                     .hasUncommitedChanges())
             {
-                System.out.println("ADD " + relativePaths.keySet());
                 tree.root().add(relativePaths.keySet());
                 tree.root().commit(
                         "Put assets projects on branch '" + assetsBranch + "'");
