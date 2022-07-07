@@ -931,7 +931,7 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             lg.info("Commited " + checkout.name());
         }
-        if (createReleaseBranch && !owners.contains(tree.root()) && tree.root()
+        if (!owners.isEmpty() && createReleaseBranch && !owners.contains(tree.root()) && tree.root()
                 .isSubmoduleRoot())
         {
             String bestBranch = longest(m);
