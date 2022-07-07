@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven.apidiff;
 
+import com.sun.tools.javac.api.JavacTaskImpl;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.util.PathUtils;
 import java.io.File;
@@ -118,7 +119,7 @@ public class ApiCollector
             mgr.setLocation(SOURCE_OUTPUT, singleton(sourceOut));
             mgr.setLocation(CLASS_OUTPUT, singleton(sourceOut));
 
-            JavaCompiler.CompilationTask task = compiler.getTask(dl, mgr, dl,
+            JavacTaskImpl task = (JavacTaskImpl) compiler.getTask(dl, mgr, dl,
                     options(), Collections.emptyList(),
                     javaSources(mgr, sourceRoots));
             

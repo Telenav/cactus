@@ -114,7 +114,7 @@
                 </configuration>
                 <version>${maven-compiler-plugin.version}</version>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
@@ -124,6 +124,21 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Add-Opens>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=plexus.classworlds jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED jdk.compiler/com.sun.tools.javac.api=${java.module.name} jdk.compiler/com.sun.tools.javac.file=${java.module.name}  jdk.compiler/com.sun.tools.javac.main=${java.module.name}  jdk.compiler/com.sun.tools.javac.model=${java.module.name}  jdk.compiler/com.sun.tools.javac.parser=${java.module.name}  jdk.compiler/com.sun.tools.javac.processing=${java.module.name}  jdk.compiler/com.sun.tools.javac.tree=${java.module.name} jdk.compiler/com.sun.tools.javac.util=${java.module.name}</Add-Opens>
+                            <Add-Exports>${java.module.name}/*=ALL-UNNAMED ${java.module.name}/*=com.google.guice ${java.module.name}/*=maven.core ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=maven.settings ${java.module.name}/*=maven.plugin.api ${java.module.name}/*=plexus.classworlds ${java.module.name}/*=plexus.classworlds@2.6.0 jdk.compiler/com.sun.tools.javac.api=${java.module.name}  jdk.compiler/com.sun.tools.javac.file=${java.module.name}  jdk.compiler/com.sun.tools.javac.main=${java.module.name}  jdk.compiler/com.sun.tools.javac.model=${java.module.name}  jdk.compiler/com.sun.tools.javac.parser=${java.module.name}  jdk.compiler/com.sun.tools.javac.processing=${java.module.name}  jdk.compiler/com.sun.tools.javac.tree=${java.module.name}  jdk.compiler/com.sun.tools.javac.util=${java.module.name} jdk.compiler/com.sun.tools.javac.api=${java.module.name} jdk.compiler/com.sun.tools.javac.file=${java.module.name}  jdk.compiler/com.sun.tools.javac.main=${java.module.name}  jdk.compiler/com.sun.tools.javac.model=${java.module.name}  jdk.compiler/com.sun.tools.javac.parser=${java.module.name}  jdk.compiler/com.sun.tools.javac.processing=${java.module.name}  jdk.compiler/com.sun.tools.javac.tree=${java.module.name} jdk.compiler/com.sun.tools.javac.util=${java.module.name}</Add-Exports>
+
+
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
 
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
@@ -131,8 +146,8 @@
                     <goalPrefix>cactus</goalPrefix>
                 </configuration>
                 <executions>
-                    <!-- We need this for release, so that we can use compile, but 
-                         but not install, to pre-generate the plugin descriptor so that 
+                    <!-- We need this for release, so that we can use compile, but
+                         but not install, to pre-generate the plugin descriptor so that
                          the rest of the build, which will use this plugin from
                          target/classes, does not fail because there is no plugin.xml
                          in META-INF.  Harmless to do it earlier, since we're not using
@@ -145,7 +160,7 @@
                             <goal>descriptor</goal>
                         </goals>
                     </execution>
-                    
+
                     <execution>
                         <id>mojo-descriptor</id>
                         <phase>process-classes</phase>
