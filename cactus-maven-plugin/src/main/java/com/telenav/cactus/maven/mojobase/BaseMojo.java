@@ -122,7 +122,7 @@ public abstract class BaseMojo extends AbstractMojo
 
     protected static final class ArtifactFetcher
     {
-        private String type = "jar";
+        private String extension = "jar";
 
         private String repositoryUrl = MAVEN_CENTRAL_REPO;
 
@@ -131,6 +131,8 @@ public abstract class BaseMojo extends AbstractMojo
         private final String artifactId;
 
         private final String version;
+        
+        private String classifier;
 
         private final BuildLog log;
 
@@ -158,7 +160,8 @@ public abstract class BaseMojo extends AbstractMojo
             Artifact artifact = new DefaultArtifact(
                     notNull("groupId", groupId),
                     notNull("artifactId", artifactId),
-                    notNull("type", type),
+                    classifier,
+                    notNull("type", extension),
                     notNull("version", version));
 
             LocalArtifactRequest request = new LocalArtifactRequest();
@@ -175,7 +178,7 @@ public abstract class BaseMojo extends AbstractMojo
             log.info("Download result for " + artifact + ": " + result);
             if (result != null && result.getFile() != null)
             {
-                log.info("Have local " + artifactId + " " + type + " "
+                log.info("Have local " + artifactId + " " + extension + " "
                         + result.getFile());
                 return result.getFile().toPath();
             }
@@ -211,14 +214,21 @@ public abstract class BaseMojo extends AbstractMojo
          * Set the artifact type, if you want something other than the default
          * of "jar".
          *
-         * @param type A type
+         * @param extension A type
          * @return this
          */
-        public ArtifactFetcher withType(String type)
+        public ArtifactFetcher withExtension(String extension)
         {
-            this.type = notNull("type", type);
+            this.extension = notNull("type", extension);
             return this;
         }
+        
+        public ArtifactFetcher withClassifier(String classifier)
+        {
+            this.classifier = notNull("type", classifier);
+            return this;
+        }
+        
     }
 
     // These are magically injected by Maven:
@@ -364,6 +374,14 @@ public abstract class BaseMojo extends AbstractMojo
             String version)
     {
         return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
+            String version, String classifier)
+    {
+        return new ArtifactFetcher(groupId, artifactId, version, mavenSession)
+                .withClassifier(classifier);
     }
 
     /**
@@ -644,7 +662,7 @@ public abstract class BaseMojo extends AbstractMojo
                     version, mavenSession);
             if (type != null)
             {
-                fetcher.withType(type);
+                fetcher.withExtension(type);
             }
             try
             {
