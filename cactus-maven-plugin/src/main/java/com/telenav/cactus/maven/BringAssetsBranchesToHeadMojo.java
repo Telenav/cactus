@@ -29,6 +29,7 @@ import org.apache.maven.project.MavenProject;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,17 +81,26 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
             Set<GitCheckout> nonMavenCheckouts = tree.nonMavenCheckouts();
 
             Map<Path, String> relativePaths = new HashMap<>();
+            Set<GitCheckout> toUse = new LinkedHashSet<>();
             for (GitCheckout checkout : nonMavenCheckouts)
             {
                 checkout.submoduleRelativePath().ifPresent(path ->
                 {
+                    if (checkout.hasPomInRoot()) {
+                        return;
+                    }
                     relativePaths.put(path, assetsBranch);
                     checkout.setSubmoduleBranch(path.toString(), assetsBranch);
+                    toUse.add(checkout);
                 });
+            }
+            if (toUse.isEmpty()) {
+                log.warn("Nothing to pull");
+                return;
             }
             if (pull)
             {
-                for (GitCheckout checkout : nonMavenCheckouts)
+                for (GitCheckout checkout : toUse)
                 {
                     checkout.pull();
                 }
