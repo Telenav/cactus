@@ -12,6 +12,7 @@ open module cactus.maven.plugin {
     requires maven.plugin.api;
     requires java.net.http;
     requires java.xml;
+    requires java.compiler;
     requires maven.plugin.annotations;
     exports com.telenav.cactus.maven.commit;
     exports com.telenav.cactus.maven;
