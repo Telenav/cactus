@@ -74,7 +74,7 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
      *
      * @see Scope#FAMILY
      */
-    @Parameter(property = SCOPE, defaultValue = "FAMILY")
+    @Parameter(property = SCOPE, defaultValue = "family")
     private String scope;
 
     /**
@@ -148,7 +148,7 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
      *
      * @return true if the root is included
      */
-    protected boolean isIncludeRoot()
+    protected final boolean isIncludeRoot()
     {
         return includeRoot;
     }
@@ -189,7 +189,9 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
     @Override
     public final Scope scope()
     {
-        return scopeValue == null ? Scope.find(scope) : scopeValue;
+        return scopeValue == null
+               ? Scope.find(scope)
+               : scopeValue;
     }
 
     /**
@@ -205,7 +207,7 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
             throws Exception
     {
         scopeValue = Scope.find(scope);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project
+        Optional<GitCheckout> checkout = GitCheckout.checkout(project
                 .getBasedir());
         if (checkout.isEmpty())
         {
@@ -214,7 +216,7 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
         }
         myCheckout = checkout.get();
         onValidateParameters(log, project);
-        if (!scopeValue.appliesFamily() && (family != null && !"".equals(family)))
+        if (!scopeValue.appliesFamily() && hasExplicitFamilies())
         {
             log.warn(
                     "Useless assignment of telanav.family to '" + family + "' when "

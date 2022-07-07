@@ -23,6 +23,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -98,6 +99,10 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
     public ReplaceMojo(boolean runFirst)
     {
         super(runFirst);
+    }
+    
+    public ReplaceMojo(RunPolicy pol) {
+        super(pol);
     }
 
     @Override
@@ -198,7 +203,7 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                 {
                     Files.writeString(file, replaced.replaced, WRITE, TRUNCATE_EXISTING);
                 }
-                System.out.println("Replaced " + replaced.count + " in " + file);
+                log().info("Replaced " + replaced.count + " in " + file);
             }
         }
         catch (IOException e)

@@ -135,7 +135,7 @@ public final class Rollback
         // Uses a trieber stack internally so one can be shared across threads.
         addRollbackTask(() ->
         {
-            ThrowingOptional.from(GitCheckout.repository(path))
+            ThrowingOptional.from(GitCheckout.checkout(path))
                     .ifPresent(repo ->
                     {
                         log.error("Roll back changes in " + path);

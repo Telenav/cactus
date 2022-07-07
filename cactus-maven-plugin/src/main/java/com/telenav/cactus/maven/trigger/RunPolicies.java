@@ -43,6 +43,7 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PLUGIN_N
  */
 public enum RunPolicies implements RunPolicy
 {
+    INITIAL,
     /**
      * Run on first invocation.
      */
@@ -105,6 +106,8 @@ public enum RunPolicies implements RunPolicy
     {
         switch (this)
         {
+            case INITIAL:
+                return mojo.session().getAllProjects().indexOf(invokedOn) == 0;
             case FIRST:
                 return mojo.isFirstRunInThisSession();
             case POM_PROJECT_ONLY:
@@ -184,7 +187,7 @@ public enum RunPolicies implements RunPolicy
                 return false;
             }
         }
-        return GitCheckout.repository(basedir)
+        return GitCheckout.checkout(basedir)
                 .map(co ->
                 {
                     if (!basedir.equals(co.checkoutRoot()))

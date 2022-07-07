@@ -135,6 +135,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "push");
 
+    public static final GitCommand<String> PUSH_ALL
+            = new GitCommand<>(ProcessResultConverter.strings(),
+            "push", "--all");
+
     public static final GitCommand<String> GC
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "gc", "--aggressive");
@@ -215,20 +219,20 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Set<GitCheckout> result = new HashSet<>();
         for (Path p : paths)
         {
-            GitCheckout.repository(p).ifPresent(result::add);
+            GitCheckout.checkout(p).ifPresent(result::add);
         }
         return result;
     }
 
-    public static Optional<GitCheckout> repository(Path dirOrFile)
+    public static Optional<GitCheckout> checkout(Path dirOrFile)
     {
         return PathUtils.findGitCheckoutRoot(dirOrFile, false)
                 .map(GitCheckout::new);
     }
 
-    public static Optional<GitCheckout> repository(File dir)
+    public static Optional<GitCheckout> checkout(File dir)
     {
-        return repository(dir.toPath());
+        return checkout(dir.toPath());
     }
 
     public static Optional<GitCheckout> submodulesRoot(Path dirOrFile)
@@ -470,6 +474,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         return FETCH_ALL.withWorkingDir(root).run().awaitQuietly();
     }
+    
+    public boolean noPomInRoot() {
+        return !hasPomInRoot();
+    }
 
     public boolean hasPomInRoot()
     {
@@ -622,15 +630,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Optional<GitCheckout> par = PathUtils.findParentWithChild(checkoutRoot()
                 .getParent(), PathUtils.FileKind.FILE,
                 ".gitmodules")
-                .flatMap(GitCheckout::repository);
+                .flatMap(GitCheckout::checkout);
         return par.map(co ->
         {
             return co.submodules().map(subs ->
             {
                 for (SubmoduleStatus stat : subs)
                 {
-                    if (stat.repository().isPresent() && equals(stat
-                            .repository().get()))
+                    if (stat.checkout().isPresent() && equals(stat
+                            .checkout().get()))
                     {
                         return true;
                     }
@@ -658,7 +666,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
                         .run().awaitQuietly()));
     }
 
-    public String logggingName()
+    public String loggingName()
     {
         String n = name();
         if (n.isEmpty())
@@ -789,6 +797,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean push()
     {
         PUSH.withWorkingDir(root).run().awaitQuietly();
+        return true;
+    }
+
+    public boolean pushAll()
+    {
+        PUSH_ALL.withWorkingDir(root).run().awaitQuietly();
         return true;
     }
 

@@ -40,6 +40,8 @@ import com.telenav.cactus.maven.refactoring.VersionMismatchPolicy;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicyOutcome;
 import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
+import com.telenav.cactus.maven.shared.SharedDataKey;
+import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,6 +99,9 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private static final EnumMatcher<SuperpomBumpPolicy> SUPERPOM_POLICY_MATCHER
             = EnumMatcher.enumMatcher(SuperpomBumpPolicy.class);
+
+    private static final SharedDataKey<Object> versionBumpKey
+            = SharedDataKey.of("versionBump", Object.class);
 
     /**
      * The magnitude of the decimal to change (subsequent ones will be zeroed).
@@ -185,7 +190,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(true);
+        super(RunPolicies.INITIAL);
     }
 
     /**
@@ -278,16 +283,6 @@ public class BumpVersionMojo extends ReplaceMojo
     String developmentBranch;
 
     /**
-     * Allows to bump the version of multiple families in one pass - if you have
-     * properties for the versions of things from multiple families in your
-     * superpoms, this allows a single update to those superpoms to take care of
-     * updates to more than one family without bumping their version once to set
-     * up one set of properties, and again to set up another.
-     */
-    @Parameter(property = "cactus.families")
-    String families;
-
-    /**
      * In the case that multiple families are being updated, but only one should
      * get a higher-than-dot-magnitude update, pass a comma-delimited list of
      * families that should be a dot-magnitude bump regardless of other things.
@@ -315,8 +310,8 @@ public class BumpVersionMojo extends ReplaceMojo
      * expressed in the already published poms when those are not what they were
      * actually built against.
      */
-    @Parameter(property = "cactus.bump.unpublished", defaultValue = "false")
-    boolean bumpUnpublished;
+    @Parameter(property = "cactus.bump.published", defaultValue = "false")
+    boolean bumpPublished;
 
     private VersionUpdateFilter filter()
     {
@@ -367,10 +362,6 @@ public class BumpVersionMojo extends ReplaceMojo
             case ALL_PROJECT_FAMILIES:
             case SAME_GROUP_ID:
             case FAMILY_OR_CHILD_FAMILY:
-                if (families != null && !families.isBlank())
-                {
-                    fail("cactus.families can only be used with cactus.scope=family.");
-                }
                 break;
             default:
                 throw new AssertionError(scope());
@@ -483,10 +474,10 @@ public class BumpVersionMojo extends ReplaceMojo
 
     private Set<ProjectFamily> allFamilies(ProjectTree tree)
     {
-        Set<ProjectFamily> families = new HashSet<>();
-        tree.allProjects().forEach(pom -> families.add(ProjectFamily
+        Set<ProjectFamily> allFamilies = new HashSet<>();
+        tree.allProjects().forEach(pom -> allFamilies.add(ProjectFamily
                 .familyOf(pom.groupId())));
-        return families;
+        return allFamilies;
     }
 
     private Set<ProjectFamily> familyWithChildFamilies(ProjectTree tree)
@@ -553,11 +544,29 @@ public class BumpVersionMojo extends ReplaceMojo
         }
     }
 
+    private boolean wasRun()
+    {
+        synchronized (BumpVersionMojo.class)
+        {
+            Optional<Object> opt = sharedData().get(versionBumpKey);
+            if (!opt.isPresent())
+            {
+                sharedData().put(versionBumpKey, new Object());
+                return false;
+            }
+            return true;
+        }
+    }
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts) throws Exception
     {
+        if (wasRun())
+        {
+            log.info("Version bump was already run.");
+        }
         log.info("Checking repositories' state");
         checkCheckoutStates("Some git checkouts are not in a usable "
                 + "state for generating version changes", tree, checkouts);
@@ -569,7 +578,7 @@ public class BumpVersionMojo extends ReplaceMojo
                         .withVersionMismatchPolicy(mismatchPolicy())
                         .withSuperpomBumpPolicy(superpomBumpPolicy())
                         .withFilter(filter());
-        if (bumpUnpublished)
+        if (bumpPublished)
         {
             replacer.bumpUnpublishedPoms();
         }
@@ -583,6 +592,13 @@ public class BumpVersionMojo extends ReplaceMojo
                     + "legal if you pass a specific version to change to.");
         }
         Map<ProjectFamily, PomVersion> versionForFamily = new HashMap<>();
+
+        if (isVerbose())
+        {
+            log.info("BumpVersion " + scope() + " " + families() + " for '"
+                    + super.families + "' and '" + super.family + "'");
+        }
+
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
@@ -622,6 +638,11 @@ public class BumpVersionMojo extends ReplaceMojo
                         replacer.withFamilyVersionChange(fam,
                                 v,
                                 nue);
+                        if (isVerbose())
+                        {
+                            log.info(
+                                    "Version for " + fam + " is " + v + " -> " + nue);
+                        }
                     });
                 }
                 break;
@@ -664,6 +685,10 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             if (tree.root().isSubmoduleRoot() && tree.root().hasPomInRoot())
             {
+                if (isVerbose())
+                {
+                    log.info("Including root");
+                }
                 tree.projectOf(tree.root().checkoutRoot().resolve("pom.xml"))
                         .ifPresent(rootPom ->
                         {
@@ -674,6 +699,11 @@ public class BumpVersionMojo extends ReplaceMojo
                                     .withSinglePomChange(rootPom, newRootVersion);
                         });
             }
+            else
+                if (isVerbose())
+                {
+                    log.info("NOT including root");
+                }
         }
         replacer.pretend(isPretend());
         log.info("Applying changes");
@@ -693,6 +723,12 @@ public class BumpVersionMojo extends ReplaceMojo
                     // so we don't generate substitution changes in checkouts we did not
                     // make changes in
                     Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+
+                    if (isVerbose())
+                    {
+                        log.info("Owners:");
+                        owners.forEach(o -> log.info("  * " + o.loggingName()));
+                    }
 
                     Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
 
@@ -725,7 +761,7 @@ public class BumpVersionMojo extends ReplaceMojo
                                         versionForFamily,
                                         releaseBranchNames, log);
                             }
-                            if (addOwners)
+                            if (addOwners && !releaseBranchNames.isEmpty())
                             {
                                 releaseBranchNames.put(tree.root(), longest(
                                         releaseBranchNames));
@@ -751,6 +787,12 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             computeReleaseBranchName(co, tree, familyVersion, releaseBranchNames,
                     log1);
+        }
+        if (isVerbose())
+        {
+            log.info("Have " + releaseBranchNames.size() + " release branches:");
+            releaseBranchNames.forEach((k, v) -> log.info("  * " + k
+                    .loggingName() + " -> " + v));
         }
     }
 
@@ -930,8 +972,9 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             lg.info("Commited " + checkout.name());
         }
-        if (createReleaseBranch && !owners.contains(tree.root()) && tree.root()
-                .isSubmoduleRoot())
+        if (!owners.isEmpty() && createReleaseBranch && !owners.contains(tree
+                .root()) && tree.root()
+                        .isSubmoduleRoot())
         {
             String bestBranch = longest(m);
             if (!isPretend())

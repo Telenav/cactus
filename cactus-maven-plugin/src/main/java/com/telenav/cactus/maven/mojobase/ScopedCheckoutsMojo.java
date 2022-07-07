@@ -89,15 +89,14 @@ public abstract class ScopedCheckoutsMojo extends ScopeMojo
             List<GitCheckout> checkouts) throws Exception;
 
     protected final CommitMessage addCommitMessageDetail(CommitMessage msg,
-            List<GitCheckout> checkouts)
+            Collection<? extends GitCheckout> checkouts)
     {
         return addCommitMessageDetail(msg, checkouts, emptySet());
     }
 
     protected final CommitMessage addCommitMessageDetail(CommitMessage msg,
-            List<GitCheckout> checkouts, Collection<? extends Pom> projects)
+            Collection<? extends GitCheckout> checkouts, Collection<? extends Pom> projects)
     {
-        msg.append("\nMojo: " + getClass().getSimpleName());
         if (!projects.isEmpty())
         {
             try ( CommitMessage.Section<?> sec = msg

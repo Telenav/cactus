@@ -321,7 +321,9 @@ final class ProjectTreeCache
             {
                 for (SubmoduleStatus stat : statii)
                 {
-                    stat.repository().ifPresent(nonMavenCheckouts::add);
+                    stat.checkout()
+                            .filter(GitCheckout::noPomInRoot)
+                            .ifPresent(nonMavenCheckouts::add);
                 }
             });
         }
@@ -355,7 +357,7 @@ final class ProjectTreeCache
                                     .text(),
                                     id -> new ConcurrentHashMap<>());
                     subcache.put(info.coordinates().artifactId.text(), info);
-                    GitCheckout.repository(info.path())
+                    GitCheckout.checkout(info.path())
                             .ifPresent(co ->
                             {
                                 co = intern(co);

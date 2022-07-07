@@ -101,7 +101,7 @@ public final class SubmoduleStatus
         return exists && git.checkoutRoot().equals(path);
     }
 
-    public Optional<GitCheckout> repository()
+    public Optional<GitCheckout> checkout()
     {
         return exists
                ? Optional.of(new GitCheckout(path))

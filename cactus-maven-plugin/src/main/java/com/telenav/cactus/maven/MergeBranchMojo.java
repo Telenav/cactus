@@ -20,7 +20,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import static com.telenav.cactus.scope.Scope.FAMILY;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -126,7 +125,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                 {
                     log.info(
                             "First merge " + from + " into " + also + " in " + checkout
-                                    .logggingName());
+                                    .loggingName());
                     ifNotPretending(() ->
                     {
                         if (also.isRemote())
@@ -145,12 +144,12 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                     });
                     if (push)
                     {
-                        log.info("Push " + checkout.logggingName());
+                        log.info("Push " + checkout.loggingName());
                         ifNotPretending(checkout::push);
                     }
                 }
                 log.info("Merge " + from + " into " + to + " in " + checkout
-                        .logggingName());
+                        .loggingName());
                 ifNotPretending(() ->
                 {
                     // Get on the target branch
@@ -163,7 +162,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                     // Strip any leading feature/ or whatever from the branch name
                     String newTag = tagName(from);
                     log.info(
-                            "Tag " + checkout.logggingName() + " with " + newTag);
+                            "Tag " + checkout.loggingName() + " with " + newTag);
                     ifNotPretending(() ->
                     {
                         // Use tag -f to force - this would be a silly thing to
@@ -175,7 +174,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                 {
                     // Nuke it.
                     log.info("Delete branch " + from + " in " + checkout
-                            .logggingName());
+                            .loggingName());
                     ifNotPretending(() ->
                     {
                         checkout.deleteBranch(from.name(), to.name(), false);

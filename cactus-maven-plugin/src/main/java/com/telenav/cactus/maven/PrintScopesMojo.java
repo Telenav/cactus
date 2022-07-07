@@ -126,7 +126,7 @@ public class PrintScopesMojo extends BaseMojo
     public void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         ProjectTree tree = tree(project);
-        GitCheckout co = GitCheckout.repository(project.getBasedir()).get();
+        GitCheckout co = GitCheckout.checkout(project.getBasedir()).get();
         ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         for (Scope scope : Scope.values())
         {
@@ -136,7 +136,7 @@ public class PrintScopesMojo extends BaseMojo
             }
             System.out.println(
                     "\n----- scope '" + scope + "' for family '" + family + "' in "
-                    + co.logggingName() + " -----");
+                    + co.loggingName() + " -----");
             List<GitCheckout> matched = tree.matchCheckouts(scope, co, true,
                     singleton(family), project.getGroupId());
             for (GitCheckout gc : matched)

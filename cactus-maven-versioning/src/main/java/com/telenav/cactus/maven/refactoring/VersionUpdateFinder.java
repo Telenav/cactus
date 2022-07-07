@@ -305,8 +305,6 @@ class VersionUpdateFinder
                         {
 //                            changes.addVersionMismatch(pom);
                             changed.set(true); // HUH?
-                            System.out.println(
-                                    "PUNT ONE " + pom + " " + pomChange);
                         }
                     }
                     if (familyVersionChange != null)

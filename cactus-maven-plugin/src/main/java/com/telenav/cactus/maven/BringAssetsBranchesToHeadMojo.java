@@ -15,9 +15,10 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.git.Branches;
+import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
@@ -29,6 +30,7 @@ import org.apache.maven.project.MavenProject;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,8 +63,8 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
     private boolean pull;
 
     /**
-     * Create a new commit in the submodule root that anchors the submodules on the head commit you have changed them
-     * to.
+     * Create a new commit in the submodule root that anchors the submodules on
+     * the head commit you have changed them to.
      */
     @Parameter(property = "cactus.assets-commit", defaultValue = "true")
     private boolean commit;
@@ -80,17 +82,45 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
             Set<GitCheckout> nonMavenCheckouts = tree.nonMavenCheckouts();
 
             Map<Path, String> relativePaths = new HashMap<>();
+            Set<GitCheckout> toUse = new LinkedHashSet<>();
             for (GitCheckout checkout : nonMavenCheckouts)
             {
+                if (checkout.hasPomInRoot())
+                {
+                    continue;
+                }
+                Branches branches = checkout.branches();
+                if (!branches.currentBranch().isPresent())
+                {
+                    continue;
+                }
+                Branch curr = branches.currentBranch().get();
+                if (!branches.hasRemoteForLocalOrLocalForRemote(curr))
+                {
+                    log.info("No tracking remote branch for " + curr
+                            + " of " + checkout.loggingName()
+                            + " - skipping.");
+                    continue;
+                }
                 checkout.submoduleRelativePath().ifPresent(path ->
                 {
                     relativePaths.put(path, assetsBranch);
                     checkout.setSubmoduleBranch(path.toString(), assetsBranch);
+                    toUse.add(checkout);
+                    if (isVerbose())
+                    {
+                        log.info("Will pull " + checkout.loggingName());
+                    }
                 });
+            }
+            if (toUse.isEmpty())
+            {
+                log.warn("Nothing to update");
+                return;
             }
             if (pull)
             {
-                for (GitCheckout checkout : nonMavenCheckouts)
+                for (GitCheckout checkout : toUse)
                 {
                     checkout.pull();
                 }
@@ -99,7 +129,6 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
             if (!relativePaths.isEmpty() && commit && tree.root()
                     .hasUncommitedChanges())
             {
-                System.out.println("ADD " + relativePaths.keySet());
                 tree.root().add(relativePaths.keySet());
                 tree.root().commit(
                         "Put assets projects on branch '" + assetsBranch + "'");

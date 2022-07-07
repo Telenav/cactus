@@ -57,6 +57,20 @@ public class ProjectTree
     private final AtomicBoolean upToDate = new AtomicBoolean();
     private final ProjectTreeCache cache = new ProjectTreeCache(this);
 
+    static
+    {
+        try
+        {
+            // Force this into the maven classloader as well
+            Object o = ProjectTree.class.getClassLoader().loadClass(
+                    "com.telenav.cactus.maven.tree.ProjectTree$1");
+        }
+        catch (ClassNotFoundException ex)
+        {
+            ex.printStackTrace(System.out);
+        }
+    }
+
     ProjectTree(GitCheckout root)
     {
         this.root = root;
@@ -74,7 +88,7 @@ public class ProjectTree
 
     public static ThrowingOptional<ProjectTree> from(Path fileOrFolder)
     {
-        return ThrowingOptional.from(GitCheckout.repository(fileOrFolder))
+        return ThrowingOptional.from(GitCheckout.checkout(fileOrFolder))
                 .flatMapThrowing(GitCheckout::submoduleRoot)
                 .map(ProjectTree::new);
     }
@@ -194,7 +208,7 @@ public class ProjectTree
             Map<String, Set<String>> result = new TreeMap<>();
             c.allPoms().forEach(pom ->
             {
-                GitCheckout.repository(pom.path()).ifPresent(checkout ->
+                GitCheckout.checkout(pom.path()).ifPresent(checkout ->
                 {
                     Set<String> branches = result.computeIfAbsent(
                             pom.groupId().text(), g -> new TreeSet<>());
@@ -226,7 +240,7 @@ public class ProjectTree
                 }
                 Map<String, Set<Pom>> infosByBranch = result.computeIfAbsent(
                         pom.groupId().text(), id -> new TreeMap<>());
-                GitCheckout.repository(pom.path()).ifPresent(checkout ->
+                GitCheckout.checkout(pom.path()).ifPresent(checkout ->
                 {
                     c.branchFor(checkout).ifPresent(branch ->
                     {

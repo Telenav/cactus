@@ -60,7 +60,7 @@ public class LexakaiMojoTest
         Path mavenPluginSourceRoot = pth.getParent().getParent();
 
         System.out.println("IT IS " + mavenPluginSourceRoot);
-        GitCheckout.repository(mavenPluginSourceRoot).flatMap(co -> co
+        GitCheckout.checkout(mavenPluginSourceRoot).flatMap(co -> co
                 .submoduleRoot().toOptional())
                 .ifPresent(rootCheckout ->
                 {
