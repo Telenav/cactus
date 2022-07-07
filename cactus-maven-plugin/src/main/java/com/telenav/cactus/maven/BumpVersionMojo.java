@@ -190,7 +190,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(RunPolicies.LAST);
+        super(RunPolicies.LAST_CONTAINING_GOAL);
     }
 
     /**
