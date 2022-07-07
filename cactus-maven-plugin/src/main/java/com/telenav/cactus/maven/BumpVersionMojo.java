@@ -584,6 +584,13 @@ public class BumpVersionMojo extends ReplaceMojo
                     + "legal if you pass a specific version to change to.");
         }
         Map<ProjectFamily, PomVersion> versionForFamily = new HashMap<>();
+
+        if (isVerbose())
+        {
+            log.info("BumpVersion " + scope() + " " + families() + " for "
+                    + families + " and " + family);
+        }
+
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
@@ -623,6 +630,11 @@ public class BumpVersionMojo extends ReplaceMojo
                         replacer.withFamilyVersionChange(fam,
                                 v,
                                 nue);
+                        if (isVerbose())
+                        {
+                            log.info(
+                                    "Version for " + fam + " is " + v + " -> " + nue);
+                        }
                     });
                 }
                 break;
@@ -665,6 +677,10 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             if (tree.root().isSubmoduleRoot() && tree.root().hasPomInRoot())
             {
+                if (isVerbose())
+                {
+                    log.info("Including root");
+                }
                 tree.projectOf(tree.root().checkoutRoot().resolve("pom.xml"))
                         .ifPresent(rootPom ->
                         {
@@ -675,6 +691,11 @@ public class BumpVersionMojo extends ReplaceMojo
                                     .withSinglePomChange(rootPom, newRootVersion);
                         });
             }
+            else
+                if (isVerbose())
+                {
+                    log.info("NOT including root");
+                }
         }
         replacer.pretend(isPretend());
         log.info("Applying changes");
@@ -694,6 +715,12 @@ public class BumpVersionMojo extends ReplaceMojo
                     // so we don't generate substitution changes in checkouts we did not
                     // make changes in
                     Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+
+                    if (isVerbose())
+                    {
+                        log.info("Owners:");
+                        owners.forEach(o -> log.info("  * " + o.loggingName()));
+                    }
 
                     Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
 
@@ -752,6 +779,12 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             computeReleaseBranchName(co, tree, familyVersion, releaseBranchNames,
                     log1);
+        }
+        if (isVerbose())
+        {
+            log.info("Have " + releaseBranchNames.size() + " release branches:");
+            releaseBranchNames.forEach((k, v) -> log.info("  * " + k
+                    .loggingName() + " -> " + v));
         }
     }
 
@@ -931,8 +964,9 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             lg.info("Commited " + checkout.name());
         }
-        if (!owners.isEmpty() && createReleaseBranch && !owners.contains(tree.root()) && tree.root()
-                .isSubmoduleRoot())
+        if (!owners.isEmpty() && createReleaseBranch && !owners.contains(tree
+                .root()) && tree.root()
+                        .isSubmoduleRoot())
         {
             String bestBranch = longest(m);
             if (!isPretend())
