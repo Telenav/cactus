@@ -19,6 +19,7 @@ import org.apache.maven.project.MavenProject;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
 import static com.telenav.cactus.git.GitCheckout.checkout;
 import static com.telenav.cactus.util.PathUtils.deleteFolderTree;
+import static com.telenav.cactus.util.PathUtils.ifExists;
 import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.Math.abs;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -57,14 +58,22 @@ public class CloneMojo extends BaseMojo
         super(RunPolicies.LAST_CONTAINING_GOAL);
     }
 
+    private Path globalTempIfPossible()
+    {
+        // Use the global temp
+        Path result = Paths.get("/tmp");
+        return ifExists(result).orElse(temp());
+    }
+
     private Path cloneDest()
     {
         if (cloneDest != null)
         {
             return Paths.get(cloneDest);
         }
-        return temp().resolve("cactus-clone-" + Long.toString(System
-                .currentTimeMillis(), 36)
+        return globalTempIfPossible().resolve("cactus-clone-" + Long.toString(
+                System
+                        .currentTimeMillis(), 36)
                 + "-" + Integer.toString(abs(ThreadLocalRandom.current()
                         .nextInt()), 36));
     }
@@ -133,7 +142,7 @@ public class CloneMojo extends BaseMojo
                     }
                 });
                 PrintMessageMojo.publishMessage(
-                        "Cloned " + remote.fetchUrl + " into\n\t" + dest,
+                        "Cloned " + remote.fetchUrl + " into\ncheckout-root: " + dest,
                         session(), false);
                 System.out.println(dest);
             });
