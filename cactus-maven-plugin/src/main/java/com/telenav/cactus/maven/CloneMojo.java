@@ -54,7 +54,7 @@ public class CloneMojo extends BaseMojo
 
     public CloneMojo()
     {
-        super(RunPolicies.LAST);
+        super(RunPolicies.LAST_CONTAINING_GOAL);
     }
 
     private Path cloneDest()
