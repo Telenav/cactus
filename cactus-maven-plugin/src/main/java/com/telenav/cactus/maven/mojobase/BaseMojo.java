@@ -358,6 +358,10 @@ public abstract class BaseMojo extends AbstractMojo
         return Exceptions.chuck(new MojoExecutionException(this, message,
                 message));
     }
+    
+    protected Runnable failingWith(String msg) {
+        return () -> fail(msg);
+    }
 
     /**
      * Downloads or finds in the local repo an artifact from maven central
