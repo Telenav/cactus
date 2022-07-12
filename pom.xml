@@ -311,7 +311,7 @@
                 <plugin>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.previous.version}</version>
+                    <version>${cactus.previous.versions}</version>
                 </plugin>
 
                 <plugin>
