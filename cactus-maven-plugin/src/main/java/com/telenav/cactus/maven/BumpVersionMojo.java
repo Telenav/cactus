@@ -19,7 +19,6 @@ package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.git.Branches;
-import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
@@ -27,24 +26,30 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
+import com.telenav.cactus.maven.model.VersionChange;
+import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.refactoring.SuperpomBumpPolicy;
-import com.telenav.cactus.scope.ProjectFamily;
-import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.util.EnumMatcher;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicy;
 import com.telenav.cactus.maven.refactoring.VersionMismatchPolicyOutcome;
 import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import com.telenav.cactus.maven.shared.SharedDataKey;
+import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
+import com.telenav.cactus.scope.ProjectFamily;
+import com.telenav.cactus.util.EnumMatcher;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,11 +58,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
@@ -67,19 +67,17 @@ import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Computes the new version of projects in the requested scope and updates pom
- * files and documentation files.
+ * Computes the new version of projects in the requested scope and updates pom files and documentation files.
  * <p>
- * If the new version is a release version, the release branch name is
- * automatically computed unless passed explicitly.
+ * If the new version is a release version, the release branch name is automatically computed unless passed explicitly.
  * </p><p>
- * Assumes three-decimal semantic versioning versions, e.g. 1.5.3 corresponding
- * to major-version, minor-version, dot-version.
+ * Assumes three-decimal semantic versioning versions, e.g. 1.5.3 corresponding to major-version, minor-version,
+ * dot-version.
  * </p>
  *
  * @author Tim Boudreau
  */
-@org.apache.maven.plugins.annotations.Mojo(
+@SuppressWarnings("unused") @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
@@ -104,8 +102,7 @@ public class BumpVersionMojo extends ReplaceMojo
             = SharedDataKey.of("versionBump", Object.class);
 
     /**
-     * The magnitude of the decimal to change (subsequent ones will be zeroed).
-     * Possible values:
+     * The magnitude of the decimal to change (subsequent ones will be zeroed). Possible values:
      * <ul>
      * <li>major</li>
      * <li>minor</li>
@@ -116,12 +113,11 @@ public class BumpVersionMojo extends ReplaceMojo
      * The default is "dot".
      */
     @Parameter(property = "cactus.version.change.magnitude",
-            defaultValue = "dot")
+               defaultValue = "dot")
     String versionChangeMagnitude;
 
     /**
-     * The kind of change to make to the <i>flavor</i> (represented by a suffix
-     * such as "snapshot"). Possible values:
+     * The kind of change to make to the <i>flavor</i> (represented by a suffix such as "snapshot"). Possible values:
      * <ul>
      * <li>to-opposite - if on a snapshot, switch to a release version (no
      * suffix). Caveat: If the suffix is something other than -SNAPSHOT this
@@ -140,13 +136,12 @@ public class BumpVersionMojo extends ReplaceMojo
      * decimal change was requested at all).
      */
     @Parameter(property = "cactus.version.flavor.change",
-            defaultValue = "unchanged")
+               defaultValue = "unchanged")
     String versionFlavor;
 
     /**
-     * Defines what to do in the case of a version mismatch, which occurs when
-     * the version in a pom the mojo expects to be updating from X to Y is not
-     * X. The possible values are:
+     * Defines what to do in the case of a version mismatch, which occurs when the version in a pom the mojo expects to
+     * be updating from X to Y is not X. The possible values are:
      * <ul>
      * <li>skip - make no changes to the version of the file</li>
      * <li>bring-to-target-version - ignore the version in the file and set it
@@ -169,40 +164,28 @@ public class BumpVersionMojo extends ReplaceMojo
      * </ol>
      */
     @Parameter(property = "cactus.version.mismatch.policy",
-            defaultValue = "bump")
+               defaultValue = "bump")
     String versionMismatchPolicy;
 
     /**
-     * By default, this mojo walks the closure of all poms that are affected by
-     * the requested change, and bumps versions of any superpoms with updated
-     * properties, and then walks thorugh all their children updating their
-     * parent versions, so that absolutely everything in the tree expects a
-     * consistent set of versions of things.
+     * By default, this mojo walks the closure of all poms that are affected by the requested change, and bumps versions
+     * of any superpoms with updated properties, and then walks through all their children updating their parent
+     * versions, so that absolutely everything in the tree expects a consistent set of versions of things.
      * <p>
-     * If you want to update one project family _without_ altering any of the
-     * others, set this to true and updates to any poms outside the family will
-     * be skipped, regardless of the consequences for the buildability of the
-     * result.
+     * If you want to update one project family _without_ altering any of the others, set this to true and updates to
+     * any poms outside the family will be skipped, regardless of the consequences for the buildability of the result.
      * </p>
      */
     @Parameter(property = "cactus.version.single.family")
     boolean singleFamily;
 
-    public BumpVersionMojo()
-    {
-        super(RunPolicies.LAST_CONTAINING_GOAL);
-    }
-
     /**
-     * If a superpom is updated, it should get its version bumped (along with
-     * all projects that use that superpom as a parent) so all of its children -
-     * particularly on other machines not where this code is running, which may
-     * have stale local versions of that superpom or its children that would not
-     * contain the updated property.
+     * If a superpom is updated, it should get its version bumped (along with all projects that use that superpom as a
+     * parent) so all of its children - particularly on other machines not where this code is running, which may have
+     * stale local versions of that superpom or its children that would not contain the updated property.
      * <p>
-     * This property describes what to do to the version of a superpom in or out
-     * of a family being updated, which needs its version bumped because of a
-     * property change.
+     * This property describes what to do to the version of a superpom in or out of a family being updated, which needs
+     * its version bumped because of a property change.
      * </p>
      * <p>
      * Possible values:
@@ -231,27 +214,23 @@ public class BumpVersionMojo extends ReplaceMojo
      * both).</li>
      * <li><code>ignore</code> - this is DANGEROUS and will probably result in a
      * source tree that does not build without manually fixing things, or at
-     * best, will result in commiting changes that may result in things building
+     * best, will result in committing changes that may result in things building
      * for you but not for other people until they clean and rebuild everything
      * or download new snapshots. With this option, simply does not make any
      * changes to superpoms unless they are part of the family being updated.
      * </li>
      * </ul>
-     *
      */
     @Parameter(property = "cactus.superpom.bump.policy",
-            defaultValue = "bump-without-changing-flavor")
+               defaultValue = "bump-without-changing-flavor")
     String bumpPolicy;
 
     /**
-     * Explicitly set the version you want to change the family to, overriding
-     * the version change magnitude and similar. In general, this is not needed,
-     * as the plugin will always compute a correct new version based on what you
-     * tell it to do. This property can only be used when updating only a single
-     * project or project family - attempting to apply the same version to a
-     * bunch of heterogenous projects is assumed to be operator error and will
-     * fail the build (you can always do it one by one if that's really what you
-     * want).
+     * Explicitly set the version you want to change the family to, overriding the version change magnitude and similar.
+     * In general, this is not needed, as the plugin will always compute a correct new version based on what you tell it
+     * to do. This property can only be used when updating only a single project or project family - attempting to apply
+     * the same version to a bunch of heterogeneous projects is assumed to be operator error and will fail the build
+     * (you can always do it one by one if that's really what you want).
      */
     @Parameter(property = "cactus.explicit.version")
     String explicitVersion;
@@ -263,15 +242,13 @@ public class BumpVersionMojo extends ReplaceMojo
     boolean updateDocs;
 
     /**
-     * Generate commits with the new version changes for each repository
-     * modified.
+     * Generate commits with the new version changes for each repository modified.
      */
     @Parameter(property = COMMIT_CHANGES, defaultValue = "false")
     boolean commit;
 
     /**
-     * Create a new release branch, if the version is a release and we are in
-     * single-family mode.
+     * Create a new release branch, if the version is a release and we are in single-family mode.
      */
     @Parameter(property = "cactus.create.release.branch", defaultValue = "false")
     boolean createReleaseBranch;
@@ -283,53 +260,255 @@ public class BumpVersionMojo extends ReplaceMojo
     String developmentBranch;
 
     /**
-     * In the case that multiple families are being updated, but only one should
-     * get a higher-than-dot-magnitude update, pass a comma-delimited list of
-     * families that should be a dot-magnitude bump regardless of other things.
+     * In the case that multiple families are being updated, but only one should get a higher-than-dot-magnitude update,
+     * pass a comma-delimited list of families that should be a dot-magnitude bump regardless of other things.
      */
     @Parameter(property = "cactus.dot.bump.families")
     private String dotRevisionFamilies;
 
+    @Parameter(property = "cactus.minor.bump.families")
+    private String minorRevisionFamilies;
+
+    @Parameter(property = "cactus.major.bump.families")
+    private String majorRevisionFamilies;
+
     /**
-     * By default, the prefix for a release branch is <code>release/</code>. It
-     * can be overridden here, or via the system property releaseBranchPrefix -
-     * this is useful when doing release dry-runs where you really do want to
-     * create branches and perhaps push them, but not squat the name the
-     * eventual real release branch will get.
+     * By default, the prefix for a release branch is <code>release/</code>. It can be overridden here, or via the
+     * system property releaseBranchPrefix - this is useful when doing release dry-runs where you really do want to
+     * create branches and perhaps push them, but not squat the name the eventual real release branch will get.
      */
     @Parameter(property = "cactus.release.branch.prefix")
     String releaseBranchPrefix;
 
     /**
-     * If set, will scan all poms and check with Maven Central (or someplace
-     * else) to determine if each pom has already been published in its current
-     * version, and if so, if the published pom is identical, and if it has been
-     * and they are not, queue it up for a version bump. This is needed when
-     * releasing so as not to attempt to publish things that have already been
-     * published, or cause newly published libraries to depend the versions
-     * expressed in the already published poms when those are not what they were
-     * actually built against.
+     * If set, will scan all poms and check with Maven Central (or someplace else) to determine if each pom has already
+     * been published in its current version, and if so, if the published pom is identical, and if it has been and they
+     * are not, queue it up for a version bump. This is needed when releasing so as not to attempt to publish things
+     * that have already been published, or cause newly published libraries to depend the versions expressed in the
+     * already published poms when those are not what they were actually built against.
      */
     @Parameter(property = "cactus.bump.published", defaultValue = "false")
     boolean bumpPublished;
 
-    private VersionUpdateFilter filter()
+    public BumpVersionMojo()
     {
-        if (singleFamily)
+        super(RunPolicies.LAST_CONTAINING_GOAL);
+    }
+
+    @Override
+    protected void execute(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout, ProjectTree tree,
+                           List<GitCheckout> checkouts) throws Exception
+    {
+        if (wasRun())
         {
-            Set<ProjectFamily> all = families();
-            if (all.isEmpty())
+            log.info("Version bump was already run.");
+        }
+        log.info("Checking repositories' state");
+        checkCheckoutStates("Some git checkouts are not in a usable "
+                + "state for generating version changes", tree, checkouts);
+        // PENDING:  Should fail on local modifications
+        log.info("Building index of all pom.xmls");
+        // The thing that will rewrite the pom files
+        VersionReplacementFinder replacer
+                = new VersionReplacementFinder(new Poms(tree.allProjects()))
+                .withVersionMismatchPolicy(mismatchPolicy())
+                .withSuperpomBumpPolicy(superpomBumpPolicy())
+                .withFilter(filter());
+        if (bumpPublished)
+        {
+            replacer.bumpUnpublishedPoms();
+        }
+        log.info(
+                "Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
+        if (explicitVersion != null && scope().canBeMultiFamily())
+        {
+            fail("Cannot use an explicit version with a scope that "
+                    + "can match more than one family, such as '" + scope() + "'."
+                    + " Only '" + FAMILY + "' or '" + FAMILY_OR_CHILD_FAMILY + "' are "
+                    + "legal if you pass a specific version to change to.");
+        }
+        Map<ProjectFamily, PomVersion> versionForFamily = new HashMap<>();
+
+        if (isVerbose())
+        {
+            log.info("BumpVersion " + scope() + " " + families() + " for '"
+                    + super.families + "' and '" + super.family + "'");
+        }
+
+        // Set up version changes for the right things based on the scope:
+        switch (scope())
+        {
+            case JUST_THIS:
+                Pom myPom = Pom.from(project.getFile().toPath()).get();
+
+                PomVersion myNewVersion = newVersion(myPom);
+
+                replacer.withSinglePomChange(myPom, myNewVersion);
+                versionForFamily.put(familyOf(myPom), myNewVersion);
+                break;
+            case SAME_GROUP_ID:
+                tree.projectsForGroupId(project.getGroupId()).forEach(pom ->
+                {
+                    PomVersion nv = newVersion(pom);
+                    replacer.withSinglePomChange(pom, nv);
+                });
+                break;
+            case FAMILY:
+                for (ProjectFamily fam : families())
+                {
+                    findVersionOfFamily(tree, fam).ifPresent(v ->
+                    {
+                        PomVersion nue;
+                        if (explicitVersion != null)
+                        {
+                            nue = PomVersion.of(explicitVersion);
+                        }
+                        else
+                        {
+                            nue = v.updatedWith(
+                                            magnitude(fam),
+                                            flavor())
+                                    .get();
+                        }
+                        versionForFamily.put(fam, nue);
+                        replacer.withFamilyVersionChange(fam,
+                                v,
+                                nue);
+                        if (isVerbose())
+                        {
+                            log.info(
+                                    "Version for " + fam + " is " + v + " -> " + nue);
+                        }
+                    });
+                }
+                break;
+            case FAMILY_OR_CHILD_FAMILY:
+                familyWithChildFamilies(tree).forEach(family ->
+                        findVersionOfFamily(tree, family).ifPresent(ffv ->
+                        {
+                            PomVersion newFamilyVersion = ffv.updatedWith(
+                                    magnitude(family),
+                                    flavor()).get();
+                            versionForFamily.put(family, ffv);
+                            replacer.withFamilyVersionChange(family,
+                                    ffv,
+                                    newFamilyVersion);
+                        }));
+                break;
+            case ALL:
+            case ALL_PROJECT_FAMILIES:
+                allFamilies(tree).forEach(family ->
+                        findVersionOfFamily(tree, family).ifPresent(ffv ->
+                        {
+                            PomVersion newFamilyVersion = ffv.updatedWith(
+                                    magnitude(family),
+                                    flavor()).get();
+
+                            versionForFamily.put(family, ffv);
+                            replacer.withFamilyVersionChange(family,
+                                    ffv,
+                                    newFamilyVersion);
+                        }));
+                break;
+            default:
+                throw new AssertionError(scope());
+        }
+        if (isIncludeRoot())
+        {
+            if (tree.root().isSubmoduleRoot() && tree.root().hasPomInRoot())
             {
-                all = singleton(ProjectFamily.familyOf(GroupId.of(project()
-                        .getGroupId())));
+                if (isVerbose())
+                {
+                    log.info("Including root");
+                }
+                tree.projectOf(tree.root().checkoutRoot().resolve("pom.xml"))
+                        .ifPresent(rootPom ->
+                        {
+                            PomVersion newRootVersion = rootPom.version()
+                                    .updatedWith(magnitude(),
+                                            flavor()).get();
+                            replacer
+                                    .withSinglePomChange(rootPom, newRootVersion);
+                        });
             }
-            return VersionUpdateFilter.withinFamilyOrParentFamily(
-                    all.iterator().next());
+            else if (isVerbose())
+            {
+                log.info("NOT including root");
+            }
         }
-        else
-        {
-            return VersionUpdateFilter.DEFAULT;
-        }
+        replacer.pretend(isPretend());
+        log.info("Applying changes");
+        log.info(replacer.toString());
+        Set<Path> rewritten = replacer.go(log::info);
+
+        Rollback rollback = new Rollback().addFileModifications(rewritten);
+
+        rollback.executeWithRollback(ThrowingRunnable.composable(false)
+                .andAlways(() ->
+                {
+
+                    // Pending:  Construct new MavenProject instances and call
+                    // session().setAllProjects() with them, so the build can proceed if
+                    // possible?
+                    // Use the set of checkouts that contain files that were actually modified,
+                    // so we don't generate substitution changes in checkouts we did not
+                    // make changes in
+                    Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+
+                    if (isVerbose())
+                    {
+                        log.info("Owners:");
+                        owners.forEach(o -> log.info("  * " + o.loggingName()));
+                    }
+
+                    Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
+
+                    boolean addOwners = !owners.contains(tree.root()) && tree
+                            .root()
+                            .isSubmoduleRoot();
+
+                    if (updateDocs)
+                    {
+                        computeReleaseBranchNames(owners, tree,
+                                versionForFamily,
+                                releaseBranchNames, log);
+
+                        runSubstitutions(log, project, myCheckout, tree,
+                                new ArrayList<>(owners), releaseBranchNames,
+                                rewritten::add);
+                    }
+                    if (commit)
+                    {
+                        log.info("Commit is true.");
+                        if (createReleaseBranch)
+                        {
+                            // Ensure we affect the root checkout too.
+                            owners.add(tree.root());
+                            log.info(
+                                    "Create release branch in " + owners.size() + " repositories");
+                            if (releaseBranchNames.isEmpty())
+                            {
+                                computeReleaseBranchNames(owners, tree,
+                                        versionForFamily,
+                                        releaseBranchNames, log);
+                            }
+                            if (addOwners && !releaseBranchNames.isEmpty())
+                            {
+                                releaseBranchNames.put(tree.root(), longest(
+                                        releaseBranchNames));
+                            }
+
+                            // XXX check that the branch does not exist
+                            // If it does, roll back everything
+                            // Or optionally, delete it if it does?
+                        }
+                        generateCommit(owners, replacer, releaseBranchNames,
+                                rollback, tree);
+                    }
+                    // Ensures the tree's cache is cleared at the tail even if this
+                    // throws
+                }).andAlwaysRun(tree::invalidateCache));
     }
 
     @Override
@@ -393,17 +572,15 @@ public class BumpVersionMojo extends ReplaceMojo
                     .orElseThrow(
                             () -> new MojoExecutionException(
                                     "Applying " + mag + " "
-                                    + "+ " + flavor + " to version "
-                                    + oldVersion + " does not change anything"));
+                                            + "+ " + flavor + " to version "
+                                            + oldVersion + " does not change anything"));
         }
 
         VersionChange vc = new VersionChange(oldVersion, updatedVersion);
         // Allow version changes to be logged by things that use them
         session().getAllProjects().forEach(prj ->
-        {
-            project.getProperties().put("cactus.version.change.description",
-                    ProjectFamily.fromGroupId(project.getGroupId()) + " " + vc);
-        });
+                project.getProperties().put("cactus.version.change.description",
+                        ProjectFamily.fromGroupId(project.getGroupId()) + " " + vc));
 
         log.info("Bump version of " + project.getGroupId() + ":" + project
                 .getArtifactId() + " from "
@@ -416,60 +593,75 @@ public class BumpVersionMojo extends ReplaceMojo
         }
     }
 
-    private String releaseBranchPrefix()
+    private static String longest(Map<GitCheckout, String> m)
     {
-        if (releaseBranchPrefix != null && !releaseBranchPrefix.isBlank())
-        {
-            String result = releaseBranchPrefix.trim();
-            if (result.charAt(result.length() - 1) != '/')
-            {
-                result += "/";
-            }
-            return result;
-        }
-        String prop = System.getProperty("releaseBranchPrefix");
-        if (prop != null && !prop.isBlank())
-        {
-            String result = prop.trim();
-            if (result.charAt(result.length() - 1) != '/')
-            {
-                result += "/";
-            }
-            return result;
-        }
-        return "release/";
+        assert !m.isEmpty();
+        List<String> l = new ArrayList<>(m.values());
+        // Assume the longest branch name is the aggregate one
+        l.sort((a, b) -> Integer.compare(b.length(), a.length()));
+        return l.get(0);
     }
 
-    private PomVersion newVersion(Pom pom)
+    VersionFlavorChange flavor()
     {
-        if (explicitVersion != null && families().iterator().next().equals(
-                familyOf(pom)))
-        {
-            return PomVersion.of(explicitVersion);
-        }
-        else
-            if (explicitVersion != null)
-            {
-                throw new IllegalStateException(
-                        "Explicit version can only be used when altering a "
-                        + " SINGLE project family, but have family " + families() + " plus "
-                        + familyOf(pom) + " from " + pom);
-            }
-
-        VersionChangeMagnitude mag = magnitude(familyOf(pom));
-        VersionFlavorChange flavor = flavor();
-        PomVersion oldVersion = pom.version();
-        return oldVersion.updatedWith(mag, flavor)
-                .orElseThrow(
-                        () -> new IllegalStateException("Applying " + mag + " "
-                                + "+ " + flavor + " to version "
-                                + oldVersion + " does not change anything"));
+        return FLAVOR_MATCHER.matchOrThrow(versionFlavor);
     }
 
-    private Optional<PomVersion> findVersionOfFamily(ProjectTree tree,
-            ProjectFamily family)
+    VersionChangeMagnitude magnitude()
     {
-        return family.probableFamilyVersion(tree.allProjects());
+        Optional<VersionChangeMagnitude> mag = MAGNITUDE_MATCHER.match(
+                versionChangeMagnitude);
+        if (mag.isEmpty())
+        {
+            throw new IllegalArgumentException(
+                    "Unrecognized magnitude change flavor '" + versionChangeMagnitude + "'");
+        }
+        return mag.get();
+    }
+
+    VersionChangeMagnitude magnitude(ProjectFamily family)
+    {
+        if (dotRevisionFamilies != null)
+        {
+            for (String s : dotRevisionFamilies.split(","))
+            {
+                if (family.is(s))
+                {
+                    return VersionChangeMagnitude.DOT;
+                }
+            }
+        }
+        if (minorRevisionFamilies != null)
+        {
+            for (String s : minorRevisionFamilies.split(","))
+            {
+                if (family.is(s))
+                {
+                    return VersionChangeMagnitude.MINOR;
+                }
+            }
+        }
+        if (majorRevisionFamilies != null)
+        {
+            for (String s : majorRevisionFamilies.split(","))
+            {
+                if (family.is(s))
+                {
+                    return VersionChangeMagnitude.MAJOR;
+                }
+            }
+        }
+        return magnitude();
+    }
+
+    VersionMismatchPolicy mismatchPolicy()
+    {
+        return MISMATCH_MATCHER.matchOrThrow(versionMismatchPolicy);
+    }
+
+    SuperpomBumpPolicy superpomBumpPolicy()
+    {
+        return SUPERPOM_POLICY_MATCHER.matchOrThrow(this.bumpPolicy);
     }
 
     private Set<ProjectFamily> allFamilies(ProjectTree tree)
@@ -480,24 +672,9 @@ public class BumpVersionMojo extends ReplaceMojo
         return allFamilies;
     }
 
-    private Set<ProjectFamily> familyWithChildFamilies(ProjectTree tree)
-    {
-        Set<ProjectFamily> fams = families();
-        Set<ProjectFamily> relatives = new HashSet<>();
-        for (ProjectFamily fam : fams)
-        {
-            tree.allProjects().forEach(pom
-                    -> fam.ifParentFamilyOf(pom.groupId(),
-                            () -> relatives.add(ProjectFamily
-                                    .familyOf(pom.groupId())))
-            );
-            relatives.add(fam);
-        }
-        return relatives;
-    }
-
+    @SuppressWarnings("SameParameterValue")
     private void checkCheckoutStates(String messageHead,
-            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
+                                     ProjectTree tree, List<GitCheckout> checkouts)
     {
         StringBuilder failMessage = new StringBuilder();
         for (GitCheckout co : checkouts)
@@ -512,30 +689,29 @@ public class BumpVersionMojo extends ReplaceMojo
                 failMessage.append('\n');
                 failMessage.append(nm).append(" is in detached head state");
             }
+            else if (tree.isDirty(co))
+            {
+                if (commit)
+                {
+                    failMessage.append('\n');
+                    failMessage.append(nm).append(
+                            " has local modifications, and a commit has been requested");
+                }
+            }
             else
-                if (tree.isDirty(co))
+            {
+                Optional<Branches.Branch> br = tree.branches(co)
+                        .currentBranch();
+                if (br.isEmpty())
                 {
-                    if (commit)
-                    {
-                        failMessage.append('\n');
-                        failMessage.append(nm).append(
-                                " has local modifications, and a commit has been requested");
-                    }
+                    failMessage.append('\n')
+                            .append(nm)
+                            .append("Is not on the development branch '")
+                            .append(developmentBranch)
+                            .append("' but on '")
+                            .append(br.get());
                 }
-                else
-                {
-                    Optional<Branches.Branch> br = tree.branches(co)
-                            .currentBranch();
-                    if (!br.isPresent())
-                    {
-                        failMessage.append('\n')
-                                .append(nm)
-                                .append("Is not on the development branch '")
-                                .append(developmentBranch)
-                                .append("' but on '")
-                                .append(br.get());
-                    }
-                }
+            }
         }
         if (failMessage.length() > 0)
         {
@@ -544,261 +720,9 @@ public class BumpVersionMojo extends ReplaceMojo
         }
     }
 
-    private boolean wasRun()
-    {
-        synchronized (BumpVersionMojo.class)
-        {
-            Optional<Object> opt = sharedData().get(versionBumpKey);
-            if (!opt.isPresent())
-            {
-                sharedData().put(versionBumpKey, new Object());
-                return false;
-            }
-            return true;
-        }
-    }
-
-    @Override
-    protected void execute(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts) throws Exception
-    {
-        if (wasRun())
-        {
-            log.info("Version bump was already run.");
-        }
-        log.info("Checking repositories' state");
-        checkCheckoutStates("Some git checkouts are not in a usable "
-                + "state for generating version changes", tree, checkouts);
-        // PENDING:  Should fail on local modifications
-        log.info("Building index of all pom.xmls");
-        // The thing that will rewrite the pom files
-        VersionReplacementFinder replacer
-                = new VersionReplacementFinder(new Poms(tree.allProjects()))
-                        .withVersionMismatchPolicy(mismatchPolicy())
-                        .withSuperpomBumpPolicy(superpomBumpPolicy())
-                        .withFilter(filter());
-        if (bumpPublished)
-        {
-            replacer.bumpUnpublishedPoms();
-        }
-        log.info(
-                "Computing changes for " + magnitude() + " " + flavor() + " " + mismatchPolicy());
-        if (explicitVersion != null && scope().canBeMultiFamily())
-        {
-            fail("Cannot use an explicit version with a scope that "
-                    + "can match more than one family, such as '" + scope() + "'."
-                    + " Only '" + FAMILY + "' or '" + FAMILY_OR_CHILD_FAMILY + "' are "
-                    + "legal if you pass a specific version to change to.");
-        }
-        Map<ProjectFamily, PomVersion> versionForFamily = new HashMap<>();
-
-        if (isVerbose())
-        {
-            log.info("BumpVersion " + scope() + " " + families() + " for '"
-                    + super.families + "' and '" + super.family + "'");
-        }
-
-        // Set up version changes for the right things based on the scope:
-        switch (scope())
-        {
-            case JUST_THIS:
-                Pom myPom = Pom.from(project.getFile().toPath()).get();
-
-                PomVersion myNewVersion = newVersion(myPom);
-
-                replacer.withSinglePomChange(myPom, myNewVersion);
-                versionForFamily.put(familyOf(myPom), myNewVersion);
-                break;
-            case SAME_GROUP_ID:
-                tree.projectsForGroupId(project.getGroupId()).forEach(pom ->
-                {
-                    PomVersion nv = newVersion(pom);
-                    replacer.withSinglePomChange(pom, nv);
-                });
-                break;
-            case FAMILY:
-                for (ProjectFamily fam : families())
-                {
-                    findVersionOfFamily(tree, fam).ifPresent(v ->
-                    {
-                        PomVersion nue;
-                        if (explicitVersion != null)
-                        {
-                            nue = PomVersion.of(explicitVersion);
-                        }
-                        else
-                        {
-                            nue = v.updatedWith(
-                                    magnitude(fam),
-                                    flavor())
-                                    .get();
-                        }
-                        versionForFamily.put(fam, nue);
-                        replacer.withFamilyVersionChange(fam,
-                                v,
-                                nue);
-                        if (isVerbose())
-                        {
-                            log.info(
-                                    "Version for " + fam + " is " + v + " -> " + nue);
-                        }
-                    });
-                }
-                break;
-            case FAMILY_OR_CHILD_FAMILY:
-                familyWithChildFamilies(tree).forEach(family ->
-                {
-                    findVersionOfFamily(tree, family).ifPresent(ffv ->
-                    {
-                        PomVersion newFamilyVersion = ffv.updatedWith(
-                                magnitude(family),
-                                flavor()).get();
-                        versionForFamily.put(family, ffv);
-                        replacer.withFamilyVersionChange(family,
-                                ffv,
-                                newFamilyVersion);
-                    });
-                });
-                break;
-            case ALL:
-            case ALL_PROJECT_FAMILIES:
-                allFamilies(tree).forEach(family ->
-                {
-                    findVersionOfFamily(tree, family).ifPresent(ffv ->
-                    {
-                        PomVersion newFamilyVersion = ffv.updatedWith(
-                                magnitude(family),
-                                flavor()).get();
-
-                        versionForFamily.put(family, ffv);
-                        replacer.withFamilyVersionChange(family,
-                                ffv,
-                                newFamilyVersion);
-                    });
-                });
-                break;
-            default:
-                throw new AssertionError(scope());
-        }
-        if (isIncludeRoot())
-        {
-            if (tree.root().isSubmoduleRoot() && tree.root().hasPomInRoot())
-            {
-                if (isVerbose())
-                {
-                    log.info("Including root");
-                }
-                tree.projectOf(tree.root().checkoutRoot().resolve("pom.xml"))
-                        .ifPresent(rootPom ->
-                        {
-                            PomVersion newRootVersion = rootPom.version()
-                                    .updatedWith(magnitude(),
-                                            flavor()).get();
-                            replacer
-                                    .withSinglePomChange(rootPom, newRootVersion);
-                        });
-            }
-            else
-                if (isVerbose())
-                {
-                    log.info("NOT including root");
-                }
-        }
-        replacer.pretend(isPretend());
-        log.info("Applying changes");
-        log.info(replacer.toString());
-        Set<Path> rewritten = replacer.go(log::info);
-
-        Rollback rollback = new Rollback().addFileModifications(rewritten);
-
-        rollback.executeWithRollback(ThrowingRunnable.composable(false)
-                .andAlways(() ->
-                {
-
-                    // Pending:  Construct new MavenProject instances and call 
-                    // session().setAllProjects() with them, so the build can proceed if
-                    // possible?
-                    // Use the set of checkouts that contain files that were actually modified,
-                    // so we don't generate substitution changes in checkouts we did not
-                    // make changes in
-                    Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
-
-                    if (isVerbose())
-                    {
-                        log.info("Owners:");
-                        owners.forEach(o -> log.info("  * " + o.loggingName()));
-                    }
-
-                    Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
-
-                    boolean addOwners = !owners.contains(tree.root()) && tree
-                            .root()
-                            .isSubmoduleRoot();
-
-                    if (updateDocs)
-                    {
-                        computeReleaseBranchNames(owners, tree,
-                                versionForFamily,
-                                releaseBranchNames, log);
-
-                        runSubstitutions(log, project, myCheckout, tree,
-                                new ArrayList<>(owners), releaseBranchNames,
-                                rewritten::add);
-                    }
-                    if (commit)
-                    {
-                        log.info("Commit is true.");
-                        if (createReleaseBranch)
-                        {
-                            // Ensure we affect the root checkout too.
-                            owners.add(tree.root());
-                            log.info(
-                                    "Create release branch in " + owners.size() + " repositories");
-                            if (releaseBranchNames.isEmpty())
-                            {
-                                computeReleaseBranchNames(owners, tree,
-                                        versionForFamily,
-                                        releaseBranchNames, log);
-                            }
-                            if (addOwners && !releaseBranchNames.isEmpty())
-                            {
-                                releaseBranchNames.put(tree.root(), longest(
-                                        releaseBranchNames));
-                            }
-
-                            // XXX check that the branch does not exist
-                            // If it does, roll back everything
-                            // Or optionally, delete it if it does?
-                        }
-                        generateCommit(owners, replacer, releaseBranchNames,
-                                rollback, tree);
-                    }
-                    // Ensures the tree's cache is cleared at the tail even if this
-                    // throws
-                }).andAlwaysRun(tree::invalidateCache));
-    }
-
-    private void computeReleaseBranchNames(Set<GitCheckout> owners,
-            ProjectTree tree, Map<ProjectFamily, PomVersion> familyVersion,
-            Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
-    {
-        for (GitCheckout co : owners)
-        {
-            computeReleaseBranchName(co, tree, familyVersion, releaseBranchNames,
-                    log1);
-        }
-        if (isVerbose())
-        {
-            log.info("Have " + releaseBranchNames.size() + " release branches:");
-            releaseBranchNames.forEach((k, v) -> log.info("  * " + k
-                    .loggingName() + " -> " + v));
-        }
-    }
-
     private void computeReleaseBranchName(GitCheckout co, ProjectTree tree,
-            Map<ProjectFamily, PomVersion> familyVersion,
-            Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
+                                          Map<ProjectFamily, PomVersion> familyVersion,
+                                          Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
     {
         Set<ProjectFamily> familiesHere = new TreeSet<>();
         if (co == tree.root())
@@ -807,10 +731,7 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         else
         {
-            tree.projectsWithin(co).forEach(prj ->
-            {
-                familiesHere.add(familyOf(prj));
-            });
+            tree.projectsWithin(co).forEach(prj -> familiesHere.add(familyOf(prj)));
         }
         familiesHere.retainAll(familyVersion.keySet());
         if (!familiesHere.isEmpty())
@@ -835,68 +756,74 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             releaseBranchNames.put(co, sb.toString());
             String logName = (co.name().isEmpty()
-                              ? "(root)"
-                              : co.name());
+                    ? "(root)"
+                    : co.name());
             log1.info("Release branch for " + logName
                     + " is " + sb);
         }
     }
 
-    private void runSubstitutions(BuildLog log, MavenProject project,
-            GitCheckout myCheckout, ProjectTree tree,
-            List<GitCheckout> checkouts,
-            Map<GitCheckout, String> releaseBranchNames,
-            Consumer<Path> collector) throws Exception
+    private void computeReleaseBranchNames(Set<GitCheckout> owners,
+                                           ProjectTree tree, Map<ProjectFamily, PomVersion> familyVersion,
+                                           Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
     {
-        super.executeCollectingChangedFiles(log, project, myCheckout, tree,
-                checkouts, releaseBranchNames, collector);
-    }
-
-    VersionChangeMagnitude magnitude()
-    {
-        Optional<VersionChangeMagnitude> mag = MAGNITUDE_MATCHER.match(
-                versionChangeMagnitude);
-        if (!mag.isPresent())
+        for (GitCheckout co : owners)
         {
-            throw new IllegalArgumentException(
-                    "Unrecognized magnitude change flavoer '" + versionChangeMagnitude + "'");
+            computeReleaseBranchName(co, tree, familyVersion, releaseBranchNames,
+                    log1);
         }
-        return mag.get();
-    }
-
-    VersionFlavorChange flavor()
-    {
-        return FLAVOR_MATCHER.matchOrThrow(versionFlavor);
-    }
-
-    VersionChangeMagnitude magnitude(ProjectFamily family)
-    {
-        if (dotRevisionFamilies != null)
+        if (isVerbose())
         {
-            for (String s : dotRevisionFamilies.split(","))
+            log.info("Have " + releaseBranchNames.size() + " release branches:");
+            releaseBranchNames.forEach((k, v) -> log.info("  * " + k
+                    .loggingName() + " -> " + v));
+        }
+    }
+
+    private Set<ProjectFamily> familyWithChildFamilies(ProjectTree tree)
+    {
+        Set<ProjectFamily> fams = families();
+        Set<ProjectFamily> relatives = new HashSet<>();
+        for (ProjectFamily fam : fams)
+        {
+            tree.allProjects().forEach(pom
+                    -> fam.ifParentFamilyOf(pom.groupId(),
+                    () -> relatives.add(ProjectFamily
+                            .familyOf(pom.groupId())))
+            );
+            relatives.add(fam);
+        }
+        return relatives;
+    }
+
+    private VersionUpdateFilter filter()
+    {
+        if (singleFamily)
+        {
+            Set<ProjectFamily> all = families();
+            if (all.isEmpty())
             {
-                if (family.is(s))
-                {
-                    return VersionChangeMagnitude.DOT;
-                }
+                all = singleton(ProjectFamily.familyOf(GroupId.of(project()
+                        .getGroupId())));
             }
+            return VersionUpdateFilter.withinFamilyOrParentFamily(
+                    all.iterator().next());
         }
-        return magnitude();
+        else
+        {
+            return VersionUpdateFilter.DEFAULT;
+        }
     }
 
-    VersionMismatchPolicy mismatchPolicy()
+    private Optional<PomVersion> findVersionOfFamily(ProjectTree tree,
+                                                     ProjectFamily family)
     {
-        return MISMATCH_MATCHER.matchOrThrow(versionMismatchPolicy);
-    }
-
-    SuperpomBumpPolicy superpomBumpPolicy()
-    {
-        return SUPERPOM_POLICY_MATCHER.matchOrThrow(this.bumpPolicy);
+        return family.probableFamilyVersion(tree.allProjects());
     }
 
     private void generateCommit(Set<GitCheckout> owners,
-            VersionReplacementFinder replacer,
-            Map<GitCheckout, String> m, Rollback rollback, ProjectTree tree)
+                                VersionReplacementFinder replacer,
+                                Map<GitCheckout, String> m, Rollback rollback, ProjectTree tree)
             throws Exception
     {
         if (owners.isEmpty())
@@ -907,13 +834,14 @@ public class BumpVersionMojo extends ReplaceMojo
         lg.warn("Begin commit of " + owners.size() + " repositories");
         CommitMessage msg = new CommitMessage(BumpVersionMojo.class,
                 "Updated versions of " + replacer.changeCount()
-                + " projects");
+                        + " projects");
 
+        // TODO timb possible bug here... generated sections will always be empty
         List<Section<?>> generatedSections = new ArrayList<>();
         replacer.collectChanges(msg);
         generatedSections.forEach(Section::close);
 
-        try ( Section<CommitMessage> branchesSection = msg.section("Branches"))
+        try (Section<CommitMessage> branchesSection = msg.section("Branches"))
         {
             for (GitCheckout checkout : owners)
             {
@@ -923,8 +851,8 @@ public class BumpVersionMojo extends ReplaceMojo
                     if (branchName != null)
                     {
                         String n = checkout.name().isEmpty()
-                                   ? "(root)"
-                                   : checkout.name();
+                                ? "(root)"
+                                : checkout.name();
                         branchesSection.bulletPoint(
                                 "`" + n + "` - " + branchName);
                     }
@@ -941,8 +869,8 @@ public class BumpVersionMojo extends ReplaceMojo
                 {
                     log().info(
                             "Create and switch to " + branchName + " in "
-                            + " based on " + developmentBranch + " in "
-                            + checkout);
+                                    + " based on " + developmentBranch + " in "
+                                    + checkout);
 
                     ifNotPretending(() ->
                     {
@@ -974,7 +902,7 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         if (!owners.isEmpty() && createReleaseBranch && !owners.contains(tree
                 .root()) && tree.root()
-                        .isSubmoduleRoot())
+                .isSubmoduleRoot())
         {
             String bestBranch = longest(m);
             if (!isPretend())
@@ -984,21 +912,82 @@ public class BumpVersionMojo extends ReplaceMojo
                 tree.root().addAll();
                 tree.root().commit(msg.toString());
                 rollback.addRollbackTask(() ->
-                {
-                    tree.root().deleteBranch(bestBranch, this.developmentBranch,
-                            true);
-                });
+                        tree.root().deleteBranch(bestBranch, this.developmentBranch,
+                                true));
             }
         }
     }
 
-    private static String longest(Map<GitCheckout, String> m)
+    private PomVersion newVersion(Pom pom)
     {
-        assert !m.isEmpty();
-        List<String> l = new ArrayList<>(m.values());
-        // Assume the longest branch name is the aggregate one
-        Collections.sort(l, (a, b) -> Integer
-                .compare(b.length(), a.length()));
-        return l.get(0);
+        if (explicitVersion != null && families().iterator().next().equals(
+                familyOf(pom)))
+        {
+            return PomVersion.of(explicitVersion);
+        }
+        else if (explicitVersion != null)
+        {
+            throw new IllegalStateException(
+                    "Explicit version can only be used when altering a "
+                            + " SINGLE project family, but have family " + families() + " plus "
+                            + familyOf(pom) + " from " + pom);
+        }
+
+        VersionChangeMagnitude mag = magnitude(familyOf(pom));
+        VersionFlavorChange flavor = flavor();
+        PomVersion oldVersion = pom.version();
+        return oldVersion.updatedWith(mag, flavor)
+                .orElseThrow(
+                        () -> new IllegalStateException("Applying " + mag + " "
+                                + "+ " + flavor + " to version "
+                                + oldVersion + " does not change anything"));
+    }
+
+    private String releaseBranchPrefix()
+    {
+        if (releaseBranchPrefix != null && !releaseBranchPrefix.isBlank())
+        {
+            String result = releaseBranchPrefix.trim();
+            if (result.charAt(result.length() - 1) != '/')
+            {
+                result += "/";
+            }
+            return result;
+        }
+        String prop = System.getProperty("releaseBranchPrefix");
+        if (prop != null && !prop.isBlank())
+        {
+            String result = prop.trim();
+            if (result.charAt(result.length() - 1) != '/')
+            {
+                result += "/";
+            }
+            return result;
+        }
+        return "release/";
+    }
+
+    private void runSubstitutions(BuildLog log, MavenProject project,
+                                  GitCheckout myCheckout, ProjectTree tree,
+                                  List<GitCheckout> checkouts,
+                                  Map<GitCheckout, String> releaseBranchNames,
+                                  Consumer<Path> collector) throws Exception
+    {
+        super.executeCollectingChangedFiles(log, project, myCheckout, tree,
+                checkouts, releaseBranchNames, collector);
+    }
+
+    private boolean wasRun()
+    {
+        synchronized (BumpVersionMojo.class)
+        {
+            Optional<Object> opt = sharedData().get(versionBumpKey);
+            if (opt.isEmpty())
+            {
+                sharedData().put(versionBumpKey, new Object());
+                return false;
+            }
+            return true;
+        }
     }
 }

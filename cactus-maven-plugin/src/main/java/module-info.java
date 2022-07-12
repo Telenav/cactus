@@ -15,7 +15,6 @@ open module cactus.maven.plugin {
     requires maven.plugin.annotations;
     requires com.mastfrog.function;
     requires com.mastfrog.strings;
-    requires maven.core;
     exports com.telenav.cactus.maven.commit;
     exports com.telenav.cactus.maven;
     exports com.telenav.cactus.maven.common;
