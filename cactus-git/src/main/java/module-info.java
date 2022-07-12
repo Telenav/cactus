@@ -21,5 +21,6 @@ open module cactus.git {
     requires cactus.maven.log;
     requires cactus.util;
     requires com.mastfrog.function;
+    requires com.mastfrog.preconditions;
     exports com.telenav.cactus.git;
 }
