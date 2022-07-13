@@ -719,13 +719,14 @@ public class BumpVersionMojo extends ReplaceMojo
             fail(failMessage.toString());
         }
     }
-
+    
     private void computeReleaseBranchName(GitCheckout co, ProjectTree tree,
                                           Map<ProjectFamily, PomVersion> familyVersion,
                                           Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
     {
         Set<ProjectFamily> familiesHere = new TreeSet<>();
-        if (co == tree.root())
+        boolean isTreeRoot = co.equals(tree.root());
+        if (isTreeRoot)
         {
             familiesHere.addAll(familyVersion.keySet());
         }
@@ -736,7 +737,8 @@ public class BumpVersionMojo extends ReplaceMojo
         familiesHere.retainAll(familyVersion.keySet());
         if (!familiesHere.isEmpty())
         {
-            StringBuilder sb = new StringBuilder(releaseBranchPrefix());
+            String prefix = releaseBranchPrefix();
+            StringBuilder sb = new StringBuilder(prefix);
             if (familiesHere.size() == 1)
             {
                 sb.append(familyVersion.get(familiesHere.iterator()
@@ -746,7 +748,7 @@ public class BumpVersionMojo extends ReplaceMojo
             {
                 for (ProjectFamily pf : familiesHere)
                 {
-                    if (sb.length() > releaseBranchPrefix().length())
+                    if (sb.length() > prefix.length())
                     {
                         sb.append('_');
                     }
@@ -821,33 +823,33 @@ public class BumpVersionMojo extends ReplaceMojo
         return family.probableFamilyVersion(tree.allProjects());
     }
 
-    private void generateCommit(Set<GitCheckout> owners,
+    private void generateCommit(Set<GitCheckout> ownerSet,
                                 VersionReplacementFinder replacer,
-                                Map<GitCheckout, String> m, Rollback rollback, ProjectTree tree)
+                                Map<GitCheckout, String> branchNameForCheckout, Rollback rollback, ProjectTree tree)
             throws Exception
     {
-        if (owners.isEmpty())
+        if (ownerSet.isEmpty())
         {
             return;
         }
+        List<GitCheckout> owners = GitCheckout.depthFirstSort(ownerSet);
+        
         BuildLog lg = log().child("commit");
         lg.warn("Begin commit of " + owners.size() + " repositories");
         CommitMessage msg = new CommitMessage(BumpVersionMojo.class,
-                "Updated versions of " + replacer.changeCount()
+                "Updated versions in " + replacer.changeCount()
                         + " projects");
 
-        // TODO timb possible bug here... generated sections will always be empty
-        List<Section<?>> generatedSections = new ArrayList<>();
         replacer.collectChanges(msg);
-        generatedSections.forEach(Section::close);
 
+        // Populate the commit message
         try (Section<CommitMessage> branchesSection = msg.section("Branches"))
         {
             for (GitCheckout checkout : owners)
             {
                 if (createReleaseBranch)
                 {
-                    String branchName = m.get(checkout);
+                    String branchName = branchNameForCheckout.get(checkout);
                     if (branchName != null)
                     {
                         String n = checkout.name().isEmpty()
@@ -860,11 +862,13 @@ public class BumpVersionMojo extends ReplaceMojo
             }
         }
 
+        Set<GitCheckout> committed = new HashSet<>();
+        
         for (GitCheckout checkout : owners)
         {
             if (createReleaseBranch)
             {
-                String branchName = m.get(checkout);
+                String branchName = branchNameForCheckout.get(checkout);
                 if (branchName != null)
                 {
                     log().info(
@@ -893,6 +897,7 @@ public class BumpVersionMojo extends ReplaceMojo
                 }
             }
 
+            committed.add(checkout);
             if (!isPretend())
             {
                 checkout.addAll();
@@ -900,11 +905,12 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             lg.info("Commited " + checkout.name());
         }
-        if (!owners.isEmpty() && createReleaseBranch && !owners.contains(tree
-                .root()) && tree.root()
-                .isSubmoduleRoot())
+        if (!owners.isEmpty() 
+                && createReleaseBranch 
+                && !committed.contains(tree.root())
+                && tree.root().isSubmoduleRoot())
         {
-            String bestBranch = longest(m);
+            String bestBranch = branchNameForCheckout.getOrDefault(tree.root(), longest(branchNameForCheckout));
             if (!isPretend())
             {
                 tree.root()
