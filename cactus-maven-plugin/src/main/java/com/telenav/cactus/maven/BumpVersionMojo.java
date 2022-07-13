@@ -626,6 +626,8 @@ public class BumpVersionMojo extends ReplaceMojo
         if (familySet == null || familySet.isBlank()) {
             return emptySet();
         }
+        // Elide quotes injected by bad shell quoting:
+        familySet = familySet.replaceAll("\"", "").replaceAll("'", "");
         Set<ProjectFamily> result = new HashSet<>(5);
         for (String s : familySet.split("[, ]")) {
             s = s.trim();
