@@ -623,7 +623,7 @@ public class BumpVersionMojo extends ReplaceMojo
     {
         if (dotRevisionFamilies != null)
         {
-            for (String s : dotRevisionFamilies.split(","))
+            for (String s : dotRevisionFamilies.split("[, ]"))
             {
                 if (family.is(s))
                 {
@@ -633,7 +633,7 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         if (minorRevisionFamilies != null)
         {
-            for (String s : minorRevisionFamilies.split(","))
+            for (String s : minorRevisionFamilies.split("[, ]"))
             {
                 if (family.is(s))
                 {
@@ -643,7 +643,7 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         if (majorRevisionFamilies != null)
         {
-            for (String s : majorRevisionFamilies.split(","))
+            for (String s : majorRevisionFamilies.split("[, ]"))
             {
                 if (family.is(s))
                 {
