@@ -60,10 +60,15 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
+import static com.telenav.cactus.maven.model.VersionChangeMagnitude.DOT;
+import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MAJOR;
+import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MINOR;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 import static com.telenav.cactus.scope.Scope.FAMILY;
 import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static java.util.Collections.sort;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -101,6 +106,7 @@ public class BumpVersionMojo extends ReplaceMojo
     private static final SharedDataKey<Object> versionBumpKey
             = SharedDataKey.of("versionBump", Object.class);
 
+    private static final String DEFAULT_RELEASE_BRANCH_PREFIX = "release/";
     /**
      * The magnitude of the decimal to change (subsequent ones will be zeroed). Possible values:
      * <ul>
@@ -521,13 +527,6 @@ public class BumpVersionMojo extends ReplaceMojo
             commit = true; // implicit
         }
 
-        if ((family != null && !family.isBlank())
-                && (families != null && !families.isBlank()))
-        {
-            fail("Can use one of family or families, not both, but have '"
-                    + family + "' as well as '" + families + "'");
-        }
-
         switch (scope())
         {
             case FAMILY:
@@ -565,6 +564,9 @@ public class BumpVersionMojo extends ReplaceMojo
             {
                 fail("'" + explicitVersion + "' is not a valid maven version");
             }
+            if (families().size() > 1) {
+                fail("Cannot use an explicit version when updating more than one family.");
+            }
         }
         else
         {
@@ -591,6 +593,7 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             super.newBranchName = releaseBranchPrefix() + updatedVersion;
         }
+        checkFamilyParameters();
     }
 
     private static String longest(Map<GitCheckout, String> m)
@@ -618,38 +621,76 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         return mag.get();
     }
+    
+    private Set<ProjectFamily> projectFamiliesFrom(String familySet) {
+        if (familySet == null || familySet.isBlank()) {
+            return emptySet();
+        }
+        Set<ProjectFamily> result = new HashSet<>(5);
+        for (String s : familySet.split("[, ]")) {
+            s = s.trim();
+            if (!s.isEmpty()) {
+                result.add(ProjectFamily.named(s));
+            }
+        }
+        return result;
+    }
+    
+    private Set<ProjectFamily> dotRevisionFamilies() {
+        return projectFamiliesFrom(dotRevisionFamilies);
+    }
+    
+    private Set<ProjectFamily> minorRevisionFamilies() {
+        return projectFamiliesFrom(minorRevisionFamilies);
+    }
+    
+    private Set<ProjectFamily> majorRevisionFamilies() {
+        return projectFamiliesFrom(majorRevisionFamilies);
+    }
+    
+    private static Set<?> combine(Set<?>... all) {
+        Set<Object> result = new HashSet<>();
+        for (Set<?> s : all) {
+            result.addAll(s);
+        }
+        return result;
+    }
+    
+    private void checkFamilyParameters() {
+        Set<ProjectFamily> dot = dotRevisionFamilies();
+        Set<ProjectFamily> minor = minorRevisionFamilies();
+        Set<ProjectFamily> major = majorRevisionFamilies();
+        Set<?> all = combine(dot, minor, major);
+        if (all.size() != dot.size() + minor.size() + major.size()) {
+            fail("Contradictory revision changes specified"
+                    + " - at least one family is in more than one category.\n"
+                    + "\tDot: " + dot + "\nMinor: " + minor + "\nMajor: " + major);
+        }
+        Set<ProjectFamily> expectedFamilies = families();
+        if (!expectedFamilies.containsAll(all)) {
+            all.removeAll(families());
+            StringBuilder msg = new StringBuilder("Some families are slated for "
+                    + "a dot, minor or major version bump, but are not actually in "
+                    + "the set of cactus.families:");
+            for (Object fam : all) {
+                msg.append("\n  * ").append(fam);
+            }
+            msg.append("\nFamilies specified:");
+            for (ProjectFamily fam : expectedFamilies) {
+                msg.append("\n  * ").append(fam);
+            }
+            fail(msg.toString());
+        }
+    }
 
     VersionChangeMagnitude magnitude(ProjectFamily family)
     {
-        if (dotRevisionFamilies != null)
-        {
-            for (String s : dotRevisionFamilies.split("[, ]"))
-            {
-                if (family.is(s))
-                {
-                    return VersionChangeMagnitude.DOT;
-                }
-            }
-        }
-        if (minorRevisionFamilies != null)
-        {
-            for (String s : minorRevisionFamilies.split("[, ]"))
-            {
-                if (family.is(s))
-                {
-                    return VersionChangeMagnitude.MINOR;
-                }
-            }
-        }
-        if (majorRevisionFamilies != null)
-        {
-            for (String s : majorRevisionFamilies.split("[, ]"))
-            {
-                if (family.is(s))
-                {
-                    return VersionChangeMagnitude.MAJOR;
-                }
-            }
+        if (dotRevisionFamilies().contains(family)) {
+            return DOT;
+        } else if (minorRevisionFamilies().contains(family)) {
+            return MINOR;
+        } else if (majorRevisionFamilies().contains(family)) {
+            return MAJOR;
         }
         return magnitude();
     }
@@ -840,28 +881,15 @@ public class BumpVersionMojo extends ReplaceMojo
                 "Updated versions in " + replacer.changeCount()
                         + " projects");
 
+        // Populate the commit message with details about exactly
+        // what was changed where
         replacer.collectChanges(msg);
 
-        // Populate the commit message
-        try (Section<CommitMessage> branchesSection = msg.section("Branches"))
-        {
-            for (GitCheckout checkout : owners)
-            {
-                if (createReleaseBranch)
-                {
-                    String branchName = branchNameForCheckout.get(checkout);
-                    if (branchName != null)
-                    {
-                        String n = checkout.name().isEmpty()
-                                ? "(root)"
-                                : checkout.name();
-                        branchesSection.bulletPoint(
-                                "`" + n + "` - " + branchName);
-                    }
-                }
-            }
-        }
+        // Populate the commit message with branch information
+        populateCommitMessage(msg, owners, branchNameForCheckout);
 
+        // Ensure we don't commit the root checkout twice - the second time
+        // will fail with no changes.
         Set<GitCheckout> committed = new HashSet<>();
         
         for (GitCheckout checkout : owners)
@@ -871,24 +899,7 @@ public class BumpVersionMojo extends ReplaceMojo
                 String branchName = branchNameForCheckout.get(checkout);
                 if (branchName != null)
                 {
-                    log().info(
-                            "Create and switch to " + branchName + " in "
-                                    + " based on " + developmentBranch + " in "
-                                    + checkout);
-
-                    ifNotPretending(() ->
-                    {
-                        checkout.createAndSwitchToBranch(branchName,
-                                Optional.empty());
-                        rollback.addRollbackTask(() ->
-                        {
-                            log().info(
-                                    "Rollback branch creation for " + branchName + " in " + checkout);
-                            checkout.deleteBranch(branchName,
-                                    developmentBranch,
-                                    true);
-                        });
-                    });
+                    branchOneCheckout(branchName, checkout, rollback);
                 }
                 else
                 {
@@ -897,29 +908,90 @@ public class BumpVersionMojo extends ReplaceMojo
                 }
             }
 
-            committed.add(checkout);
             if (!isPretend())
             {
                 checkout.addAll();
                 checkout.commit(msg.toString());
             }
+            committed.add(checkout);
             lg.info("Commited " + checkout.name());
         }
         if (!owners.isEmpty() 
                 && createReleaseBranch 
+                && isIncludeRoot()
                 && !committed.contains(tree.root())
                 && tree.root().isSubmoduleRoot())
         {
-            String bestBranch = branchNameForCheckout.getOrDefault(tree.root(), longest(branchNameForCheckout));
-            if (!isPretend())
+            createRootCheckout(branchNameForCheckout, tree, msg, rollback);
+        }
+    }
+
+    private void branchOneCheckout(String branchName, GitCheckout checkout,
+            Rollback rollback) throws Exception
+    {
+        log().info(
+                "Create and switch to " + branchName + " in "
+                        + " based on " + developmentBranch + " in "
+                        + checkout);
+        
+        ifNotPretending(() ->
+        {
+            checkout.createAndSwitchToBranch(branchName,
+                    Optional.empty());
+            rollback.addRollbackTask(() ->
             {
-                tree.root()
-                        .createAndSwitchToBranch(bestBranch, Optional.empty());
-                tree.root().addAll();
-                tree.root().commit(msg.toString());
-                rollback.addRollbackTask(() ->
-                        tree.root().deleteBranch(bestBranch, this.developmentBranch,
-                                true));
+                log().info(
+                        "Rollback branch creation for " + branchName + " in " + checkout);
+                checkout.deleteBranch(branchName,
+                        developmentBranch,
+                        true);
+            });
+        });
+    }
+
+    private void createRootCheckout(
+            Map<GitCheckout, String> branchNameForCheckout, ProjectTree tree,
+            CommitMessage msg, Rollback rollback)
+    {
+        String bestBranch = branchNameForCheckout.getOrDefault(tree.root(), longest(branchNameForCheckout));
+        log.info("Create root checkout commit in " + tree.root().checkoutRoot());
+        if (!isPretend())
+        {
+            tree.root()
+                    .createAndSwitchToBranch(bestBranch, Optional.empty());
+            tree.root().addAll();
+            tree.root().commit(msg.toString());
+            rollback.addRollbackTask(() ->
+                    tree.root().deleteBranch(bestBranch, this.developmentBranch,
+                            true));
+        }
+    }
+
+    private void populateCommitMessage(CommitMessage msg,
+            List<GitCheckout> owners,
+            Map<GitCheckout, String> branchNameForCheckout)
+    {
+        // Alpha sort is more friendly for a commit message than
+        // depth-first, which is what we need for doing the actual
+        // committing
+        List<GitCheckout> sortedByName = new ArrayList<>(owners);
+        sort(sortedByName, (a, b) -> {
+            return a.loggingName().compareTo(b.loggingName());
+        });
+        // Populate the commit message
+        try (Section<CommitMessage> branchesSection = msg.section("Branches"))
+        {
+            for (GitCheckout checkout : sortedByName)
+            {
+                if (createReleaseBranch)
+                {
+                    String branchName = branchNameForCheckout.get(checkout);
+                    if (branchName != null)
+                    {
+                        branchesSection.bulletPoint(
+                                "`" + checkout.loggingName() + "` - " + branchName);
+                    }
+                }
             }
         }
     }
@@ -970,7 +1042,7 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             return result;
         }
-        return "release/";
+        return DEFAULT_RELEASE_BRANCH_PREFIX;
     }
 
     private void runSubstitutions(BuildLog log, MavenProject project,
