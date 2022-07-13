@@ -189,11 +189,11 @@ final class DependencyGraphs implements Iterable<Pom>
                     {
                         set = new TreeSet<>();
                     }
-                    set.add(u.coords);
+                    set.add(u.coordinates());
                     return set;
                 });
                 all.add(t.coordinates());
-                all.add(u.coords);
+                all.add(u.coordinates());
             }
             return true;
         }

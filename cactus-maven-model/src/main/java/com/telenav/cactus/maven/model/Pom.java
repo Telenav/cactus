@@ -43,14 +43,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.xml.sax.SAXException;
 
-import static java.util.Collections.emptySet;
+import static com.mastfrog.util.preconditions.Checks.notNull;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 /**
  * @author Tim Boudreau
  */
-public class Pom implements Comparable<Pom>, MavenArtifactCoordinates, DiskResident
+public class Pom implements Comparable<Pom>, MavenArtifactCoordinates,
+                            DiskResident, Iterable<MavenModule>
 {
     public static ThrowingOptional<Pom> in(Path pomFileOrDir)
     {
@@ -104,33 +105,42 @@ public class Pom implements Comparable<Pom>, MavenArtifactCoordinates, DiskResid
         return ThrowingOptional.empty();
     }
 
-    private final Set<String> modules;
+    private final Set<MavenModule> modules;
 
-    private final String packaging;
+    private final Packaging packaging;
 
     private final Path pom;
 
     private final MavenCoordinates coords;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public Pom(Path pom, MavenCoordinates coords, String packaging,
             Set<String> modules)
     {
-        this.pom = pom;
-        this.coords = coords;
-        this.packaging = packaging;
-        this.modules = modules == null || modules.isEmpty()
-                       ? emptySet()
-                       : unmodifiableSet(modules);
+        this.pom = notNull("pom", pom);
+        this.coords = notNull("coords", coords);
+        this.packaging = Packaging.packaging(packaging);
+        Set<MavenModule> mods = MavenModule.fromStrings(this, modules);
+        this.modules = mods.isEmpty()
+                       ? mods
+                       : unmodifiableSet(mods);
     }
 
+    @Override
     public Path path()
     {
         return pom;
     }
 
-    public Set<String> modules()
+    public Set<MavenModule> modules()
     {
         return modules;
+    }
+
+    @Override
+    public Iterator<MavenModule> iterator()
+    {
+        return modules().iterator();
     }
 
     PomFile toPomFile()
@@ -149,14 +159,19 @@ public class Pom implements Comparable<Pom>, MavenArtifactCoordinates, DiskResid
         return coordinates().version();
     }
 
-    public String packaging()
+    public Packaging packaging()
     {
         return packaging;
     }
 
     public boolean isPomProject()
     {
-        return "pom".equals(packaging());
+        return packaging().isPom();
+    }
+
+    public boolean isAggregator()
+    {
+        return isPomProject() && !modules().isEmpty();
     }
 
     private Map<String, String> props;
@@ -312,7 +327,7 @@ public class Pom implements Comparable<Pom>, MavenArtifactCoordinates, DiskResid
         if (isPomProject() && !modules.isEmpty())
         {
             sb.append('(');
-            for (Iterator<String> it = modules.iterator(); it.hasNext();)
+            for (Iterator<MavenModule> it = modules.iterator(); it.hasNext();)
             {
                 sb.append(it.next());
                 if (it.hasNext())
