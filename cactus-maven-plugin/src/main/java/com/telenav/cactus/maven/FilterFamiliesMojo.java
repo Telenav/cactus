@@ -7,7 +7,9 @@ import com.telenav.cactus.scope.ProjectFamily;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,6 +49,7 @@ public class FilterFamiliesMojo extends FamilyAwareMojo
     @Parameter(property = "cactus.families.required", defaultValue = "false")
     private boolean familiesRequired;
 
+    @Override
     protected void validateParameters(BuildLog log, MavenProject project) throws Exception
     {
         if (familiesRequired && !hasExplicitFamilies())
@@ -84,21 +87,58 @@ public class FilterFamiliesMojo extends FamilyAwareMojo
                             = fromGroupId(x.getGroupId());
                     return !families.contains(fam);
                 }).collect(toCollection(ArrayList::new));
-        for (String prop : properties.split(","))
-        {
-            prop = prop.trim();
-            if (!prop.isEmpty())
-            {
+        propertiesToApply().forEach(prop -> {
                 for (MavenProject prj : projectsToSetPropertiesFor)
                 {
-                    if (isVerbose())
+                    prj.getProperties().setProperty(prop, "true");
+                    boolean changed = logicalCombineProperties(prop, true,
+                            prj.getProperties(), false);
+                    if (changed && isVerbose())
                     {
                         log.info("Inject " + prop + "=true into " + prj
                                 .getArtifactId() + " for " + families());
                     }
-                    prj.getProperties().setProperty(prop, "true");
                 }
+        });
+    }
+    
+    private Set<String> propertiesToApply() {
+        Set<String> result = new TreeSet<>();
+        for (String prop : properties.split("[, ]")) {
+            prop = prop.trim();
+            if (!prop.isEmpty()) {
+                result.add(prop);
             }
         }
+        return result;
+    }
+
+    /**
+     * Combine a boolean value to set with the value stored as a string in a
+     * project's properties, if any, and combine logically.
+     *
+     * @param prop The property
+     * @param defaultValue The value to set it to if unset
+     * @param props project roperties
+     * @param or whether to or or and
+     * @param log
+     * @return true if the properties were changed as a result of this operation
+     */
+    private static boolean logicalCombineProperties(String prop,
+            boolean defaultValue,
+            Properties props, boolean or)
+    {
+        String val = props.getProperty(prop);
+        if (val == null)
+        {
+            props.put(prop, Boolean.toString(defaultValue));
+            return true;
+        }
+        boolean eval = Boolean.parseBoolean(val);
+        boolean newValue = or
+                           ? (eval || defaultValue)
+                           : (eval && defaultValue);
+        props.put(prop, Boolean.toString(newValue));
+        return newValue != eval;
     }
 }
