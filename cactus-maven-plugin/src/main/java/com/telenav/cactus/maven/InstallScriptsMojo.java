@@ -137,7 +137,7 @@ public class InstallScriptsMojo extends BaseMojo
 
                 case SIMPLE_BUMP_VERSION:
                     return "\\tBump the version of the Maven project family it is invoked "
-                            + "against,\\n\\tupdating superpom properties with the new version"
+                            + "against,\\n\\tupdating superpom properties with the new version "
                             + "but NOT UPDATING\n\\tTHE VERSIONS OF THOSE SUPERPOMS.\n\n\\t"
                             + "This is suitable for the simple case of updating the version\n\\t"
                             + "of one thing during active development, not for doing a full\n\\t"
