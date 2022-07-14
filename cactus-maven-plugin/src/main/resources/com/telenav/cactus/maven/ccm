@@ -1,0 +1,11 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+MSG="'"-Dcactus.commit-message=${@}"'"
+
+mvn -Dcactus.pretend=true -Dcactus.verbose=true \
+    -Dcactus.scope=all \
+    ${MSG} \
+    -Dcactus.include-root=true \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:commit

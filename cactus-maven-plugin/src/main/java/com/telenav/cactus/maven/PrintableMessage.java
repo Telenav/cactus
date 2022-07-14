@@ -6,6 +6,8 @@ import java.util.Objects;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
+
 /**
  * A printable message used by PrintMessageMojo. Needs to be public to satisfy
  * broken modular classloading. Non-api.
@@ -15,7 +17,7 @@ import org.apache.maven.execution.MavenSession;
 public class PrintableMessage
 {
     // This class runs in a shutdown hook and must NOT trigger any classloading.
-    private final String message;
+    private final CharSequence message;
     /**
      * In embedded mode, in an IDE, our message could be kept alive until IDE
      * shutdown. We do NOT want to leak the maven session for eternity.
@@ -23,11 +25,11 @@ public class PrintableMessage
     private final Reference<MavenSession> sess;
     private final Boolean onFailure;
 
-    public PrintableMessage(String msg, MavenSession sess,
+    public PrintableMessage(CharSequence msg, MavenSession sess,
             Boolean printOnFailure)
     {
         this.sess = new WeakReference<>(sess);
-        this.message = msg;
+        this.message = notNull("msg", msg);
         this.onFailure = printOnFailure;
     }
 
@@ -62,7 +64,7 @@ public class PrintableMessage
 
     public String toString()
     {
-        return message;
+        return message.toString();
     }
 
     @Override

@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+# Installed by __PLUGIN_VERSION_PLACEHOLDER__
+
+LATEST_VERSION=`find ~/.m2/repository/com/telenav/cactus/cactus-maven-plugin -type d | grep '\d\.' | xargs -n 1 basename | sort -V | tail -n 1 | xargs echo -n`
+
+mvn com.telenav.cactus:cactus-maven-plugin:$LATEST_VERSION:install-scripts

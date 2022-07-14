@@ -74,7 +74,7 @@ public class PrintMessageMojo extends BaseMojo
      * @param session The session
      * @param onFailure Whether on success or failure.
      */
-    static void publishMessage(String msg, MavenSession session, boolean onFailure) {
+    static void publishMessage(CharSequence msg, MavenSession session, boolean onFailure) {
         messages.push(new PrintableMessage(msg, session, onFailure));
         if (HOOK_ADDED.compareAndSet(false, true))
         {
@@ -83,7 +83,7 @@ public class PrintMessageMojo extends BaseMojo
         }
     }
 
-    void addMessage(String msg)
+    void addMessage(CharSequence msg)
     {
         messages.push(new PrintableMessage(msg, session(), onFailure));
         if (HOOK_ADDED.compareAndSet(false, true))
