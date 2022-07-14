@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.telenav.cactus.git.GitCheckout.depthFirstSort;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -92,10 +93,13 @@ public class PushMojo extends ScopedCheckoutsMojo
             GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
+        if (isIncludeRoot() && !checkouts.contains(tree.root())) {
+            checkouts.add(tree.root());
+        }
         // Depth first sort, so we process the submodule root last, in
         // case commits to child modules put it into the dirty state.
         List<Map.Entry<GitCheckout, NeedPushResult>> needingPush
-                = GitCheckout.depthFirstSort(collectPushKinds(checkouts));
+                = depthFirstSort(collectPushKinds(checkouts));
         if (needingPush.isEmpty())
         {
             log.info("No projects needing push in " + needingPush);
