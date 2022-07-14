@@ -63,6 +63,7 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_C
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.DOT;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MAJOR;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MINOR;
+import static com.telenav.cactus.maven.model.VersionChangeMagnitude.NONE;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 import static com.telenav.cactus.scope.Scope.FAMILY;
 import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
@@ -265,6 +266,10 @@ public class BumpVersionMojo extends ReplaceMojo
     @Parameter(property = "cactus.development.branch", defaultValue = "develop")
     String developmentBranch;
 
+    
+    @Parameter(property = "cactus.no.bump.families")
+    private String noRevisionFamilies;
+    
     /**
      * In the case that multiple families are being updated, but only one should get a higher-than-dot-magnitude update,
      * pass a comma-delimited list of families that should be a dot-magnitude bump regardless of other things.
@@ -638,6 +643,9 @@ public class BumpVersionMojo extends ReplaceMojo
         return result;
     }
     
+    private Set<ProjectFamily> noRevisionFamilies() {
+        return projectFamiliesFrom(noRevisionFamilies);
+    }
     private Set<ProjectFamily> dotRevisionFamilies() {
         return projectFamiliesFrom(dotRevisionFamilies);
     }
@@ -662,7 +670,8 @@ public class BumpVersionMojo extends ReplaceMojo
         Set<ProjectFamily> dot = dotRevisionFamilies();
         Set<ProjectFamily> minor = minorRevisionFamilies();
         Set<ProjectFamily> major = majorRevisionFamilies();
-        Set<?> all = combine(dot, minor, major);
+        Set<ProjectFamily> none = noRevisionFamilies();
+        Set<?> all = combine(dot, minor, major, none);
         if (all.size() != dot.size() + minor.size() + major.size()) {
             fail("Contradictory revision changes specified"
                     + " - at least one family is in more than one category.\n"
@@ -672,7 +681,7 @@ public class BumpVersionMojo extends ReplaceMojo
         if (!expectedFamilies.containsAll(all)) {
             all.removeAll(families());
             StringBuilder msg = new StringBuilder("Some families are slated for "
-                    + "a dot, minor or major version bump, but are not actually in "
+                    + "a none, dot, minor or major version bump, but are not actually in "
                     + "the set of cactus.families:");
             for (Object fam : all) {
                 msg.append("\n  * ").append(fam);
@@ -687,11 +696,19 @@ public class BumpVersionMojo extends ReplaceMojo
 
     VersionChangeMagnitude magnitude(ProjectFamily family)
     {
-        if (dotRevisionFamilies().contains(family)) {
+        if (noRevisionFamilies().contains(family))
+        {
+            return NONE;
+        }
+        else if (dotRevisionFamilies().contains(family))
+        {
             return DOT;
-        } else if (minorRevisionFamilies().contains(family)) {
+        }
+        else if (minorRevisionFamilies().contains(family))
+        {
             return MINOR;
-        } else if (majorRevisionFamilies().contains(family)) {
+        } else if (majorRevisionFamilies().contains(family))
+        {
             return MAJOR;
         }
         return magnitude();
