@@ -672,7 +672,7 @@ public class BumpVersionMojo extends ReplaceMojo
         Set<ProjectFamily> major = majorRevisionFamilies();
         Set<ProjectFamily> none = noRevisionFamilies();
         Set<?> all = combine(dot, minor, major, none);
-        if (all.size() != dot.size() + minor.size() + major.size()) {
+        if (all.size() != dot.size() + minor.size() + major.size() + none.size()) {
             fail("Contradictory revision changes specified"
                     + " - at least one family is in more than one category.\n"
                     + "\tDot: " + dot + "\nMinor: " + minor + "\nMajor: " + major + "\nNone: " + none);
