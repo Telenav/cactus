@@ -126,6 +126,7 @@ public class PushMojo extends ScopedCheckoutsMojo
                 });
             });
             tree.root().commit(msg.toString());
+            tree.root().push();
         }
     }
 
