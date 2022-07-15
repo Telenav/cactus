@@ -19,6 +19,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.NeedPushResult;
+import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
@@ -93,7 +94,8 @@ public class PushMojo extends ScopedCheckoutsMojo
             GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        if (isIncludeRoot() && !checkouts.contains(tree.root())) {
+        if (isIncludeRoot() && !checkouts.contains(tree.root()))
+        {
             checkouts.add(tree.root());
         }
         // Depth first sort, so we process the submodule root last, in
@@ -107,6 +109,23 @@ public class PushMojo extends ScopedCheckoutsMojo
         else
         {
             pullIfNeededAndPush(log, project, needingPush);
+        }
+        if (isIncludeRoot() && tree.root().needsPush().canBePushed())
+        {
+            tree.root().addAll();
+            CommitMessage msg = new CommitMessage(PushMojo.class,
+                    "Updating heads for push of " + (checkouts.size() - 1)
+                    + " checkouts");
+            msg.section("Submodules", section ->
+            {
+                needingPush.forEach(entry ->
+                {
+                    section.bulletPoint(entry.getKey().loggingName()
+                            + " " + entry.getValue() + " -> " + entry.getKey()
+                            .head().substring(0, 7));
+                });
+            });
+            tree.root().commit(msg.toString());
         }
     }
 

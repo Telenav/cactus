@@ -34,6 +34,11 @@ public enum NeedPushResult
                ? YES
                : NO;
     }
+    
+    @Override
+    public String toString() {
+        return name().toLowerCase().replace('_', '-');
+    }
 
     public boolean canBePushed()
     {
