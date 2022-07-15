@@ -675,7 +675,7 @@ public class BumpVersionMojo extends ReplaceMojo
         if (all.size() != dot.size() + minor.size() + major.size()) {
             fail("Contradictory revision changes specified"
                     + " - at least one family is in more than one category.\n"
-                    + "\tDot: " + dot + "\nMinor: " + minor + "\nMajor: " + major);
+                    + "\tDot: " + dot + "\nMinor: " + minor + "\nMajor: " + major + "\nNone: " + none);
         }
         Set<ProjectFamily> expectedFamilies = families();
         if (!expectedFamilies.containsAll(all)) {
