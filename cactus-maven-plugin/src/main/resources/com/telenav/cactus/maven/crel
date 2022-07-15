@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Installed by cactus __PLUGIN_VERSION_PLACEHOLDER__
+
+mvn \
+    -Dmaven.test.skip.exec=true \
+    --activate-profiles gpg \
+    clean install \
+    javadoc:jar \
+    source:jar \
+    gpg:sign \
+    nexus-staging:deploy
