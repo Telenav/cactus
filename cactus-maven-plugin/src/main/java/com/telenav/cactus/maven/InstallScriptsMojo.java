@@ -98,7 +98,8 @@ public class InstallScriptsMojo extends BaseMojo
         PUSH_ALL_SUBMODULES("cpush"),
         DEVELOPMENT_PREPARATION("cdev"),
         SIMPLE_BUMP_VERSION("cbump"),
-        UPDATE_SCRIPTS("cactus-script-update"),;
+        UPDATE_SCRIPTS("cactus-script-update"),
+        RELEASE_ONE_PROJECT("crel");
         private final String filename;
 
         Scripts(String filename)
@@ -142,6 +143,9 @@ public class InstallScriptsMojo extends BaseMojo
                             + "This is suitable for the simple case of updating the version\n\\t"
                             + "of one thing during active development, not for doing a full\n\\t"
                             + "product release.";
+                case RELEASE_ONE_PROJECT:
+                    return "\\tRelease a single project - whatever pom you run it against - to "
+                            + "ossrh or wherever it is configured to send it.";
                 default:
                     throw new AssertionError(this);
             }
