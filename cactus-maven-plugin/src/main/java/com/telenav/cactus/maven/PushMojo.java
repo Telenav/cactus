@@ -110,7 +110,7 @@ public class PushMojo extends ScopedCheckoutsMojo
         {
             pullIfNeededAndPush(log, project, needingPush);
         }
-        if (isIncludeRoot() && (tree.root().hasUncommitedChanges() || tree.root().hasUntrackedFiles()))
+        if (isIncludeRoot() && (tree.root().hasUncommitedChanges() || tree.root().hasUntrackedFiles() || tree.root().needsPush().canBePushed()))
         {
             tree.root().addAll();
             CommitMessage msg = new CommitMessage(PushMojo.class,
