@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
@@ -40,7 +57,7 @@ import static java.util.stream.Collectors.toCollection;
 public class FilterFamiliesMojo extends FamilyAwareMojo
 {
 
-    @Parameter(property = "cactus.properties")
+    @Parameter(property = "cactus.properties", required = true)
     private String properties;
 
     @Parameter(property = "cactus.filter.skip.superpoms", defaultValue = "true")
@@ -87,26 +104,30 @@ public class FilterFamiliesMojo extends FamilyAwareMojo
                             = fromGroupId(x.getGroupId());
                     return !families.contains(fam);
                 }).collect(toCollection(ArrayList::new));
-        propertiesToApply().forEach(prop -> {
-                for (MavenProject prj : projectsToSetPropertiesFor)
+        propertiesToApply().forEach(prop ->
+        {
+            for (MavenProject prj : projectsToSetPropertiesFor)
+            {
+                prj.getProperties().setProperty(prop, "true");
+                boolean changed = logicalCombineProperties(prop, true,
+                        prj.getProperties(), false);
+                if (changed && isVerbose())
                 {
-                    prj.getProperties().setProperty(prop, "true");
-                    boolean changed = logicalCombineProperties(prop, true,
-                            prj.getProperties(), false);
-                    if (changed && isVerbose())
-                    {
-                        log.info("Inject " + prop + "=true into " + prj
-                                .getArtifactId() + " for " + families());
-                    }
+                    log.info("Inject " + prop + "=true into " + prj
+                            .getArtifactId() + " for " + families());
                 }
+            }
         });
     }
-    
-    private Set<String> propertiesToApply() {
+
+    private Set<String> propertiesToApply()
+    {
         Set<String> result = new TreeSet<>();
-        for (String prop : properties.split("[, ]")) {
+        for (String prop : properties.split("[, ]"))
+        {
             prop = prop.trim();
-            if (!prop.isEmpty()) {
+            if (!prop.isEmpty())
+            {
                 result.add(prop);
             }
         }

@@ -22,9 +22,11 @@ import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.MavenCoordinates;
+import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.ArtifactFinder;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
@@ -120,6 +122,17 @@ public abstract class BaseMojo extends AbstractMojo
         code.toNonThrowing().run();
     }
 
+    /**
+     * Run some code which throws an exception in a context such as
+     * <code>Stream.forEach()</code> where you cannot throw checked exceptions.
+     *
+     * @param code Something to run
+     */
+    protected static <T> T quietly(ThrowingSupplier<T> code)
+    {
+        return code.asSupplier().get();
+    }
+
     protected static final class ArtifactFetcher
     {
         private String extension = "jar";
@@ -131,7 +144,7 @@ public abstract class BaseMojo extends AbstractMojo
         private final String artifactId;
 
         private final String version;
-        
+
         private String classifier;
 
         private final BuildLog log;
@@ -222,13 +235,13 @@ public abstract class BaseMojo extends AbstractMojo
             this.extension = notNull("type", extension);
             return this;
         }
-        
+
         public ArtifactFetcher withClassifier(String classifier)
         {
             this.classifier = notNull("type", classifier);
             return this;
         }
-        
+
     }
 
     // These are magically injected by Maven:
@@ -358,8 +371,9 @@ public abstract class BaseMojo extends AbstractMojo
         return Exceptions.chuck(new MojoExecutionException(this, message,
                 message));
     }
-    
-    protected Runnable failingWith(String msg) {
+
+    protected Runnable failingWith(String msg)
+    {
         return () -> fail(msg);
     }
 
@@ -687,5 +701,9 @@ public abstract class BaseMojo extends AbstractMojo
     {
         return new MavenCoordinates(notNull("project", project).getGroupId(),
                 project.getArtifactId(), project.getVersion());
+    }
+    
+    protected final Pom toPom(MavenProject project) {
+        return Pom.from(project.getFile().toPath()).get();
     }
 }
