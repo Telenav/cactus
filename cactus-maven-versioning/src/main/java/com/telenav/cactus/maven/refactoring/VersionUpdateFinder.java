@@ -524,14 +524,17 @@ class VersionUpdateFinder
                                 }
                                 else
                                 {
-                                    if (changes.changeParentVersion(par,
-                                            categories.parentOf(par).get(), vc)
-                                            .isFiltered())
-                                    {
-                                        // If the filter won't let us change the parent
-                                        // version, we need to insert a new version tag
-                                        // into the pom
-                                        changes.changePomVersion(pom, vc);
+                                    Optional<Pom> parPar = categories.parentOf(pom);
+                                    if (parPar.isPresent()) {
+                                        if (changes.changeParentVersion(par,
+                                                parPar.get(), vc)
+                                                .isFiltered())
+                                        {
+                                            // If the filter won't let us change the parent
+                                            // version, we need to insert a new version tag
+                                            // into the pom
+                                            changes.changePomVersion(pom, vc);
+                                        }
                                     }
                                 }
                                 return true;
