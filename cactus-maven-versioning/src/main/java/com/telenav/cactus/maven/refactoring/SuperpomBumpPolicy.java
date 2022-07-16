@@ -62,6 +62,24 @@ public enum SuperpomBumpPolicy
      */
     BUMP_WITHOUT_CHANGING_FLAVOR;
 
+    public VersionChangeMagnitude magnitudeFor(PomVersion ver)
+    {
+        if (this == IGNORE)
+        {
+            return VersionChangeMagnitude.NONE;
+        }
+        return VersionChangeMagnitude.DOT;
+    }
+
+    public VersionChangeMagnitude minimalMagnitudeFor(PomVersion ver)
+    {
+        if (this == IGNORE)
+        {
+            return VersionChangeMagnitude.NONE.notNone();
+        }
+        return VersionChangeMagnitude.DOT;
+    }
+
     public VersionChangeMagnitude magnitudeFor(VersionChange newFamilyVersion)
     {
         switch (this)
