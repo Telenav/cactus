@@ -150,6 +150,10 @@ public class InstallScriptsMojo extends BaseMojo
                     throw new AssertionError(this);
             }
         }
+        
+        String longName() {
+            return "cactus-" + name().toLowerCase().replace('_', '-');
+        }
 
         public void describe(Path path, StringBuilder into)
         {
