@@ -12,7 +12,6 @@ MSG=$MSG"'"
 echo "Commit: $MSG"
 
 mvn \
-    -Dcactus.verbose=true \
     -Dcactus.scope=all \
     "${MSG}" \
     -Dcactus.include-root=true \

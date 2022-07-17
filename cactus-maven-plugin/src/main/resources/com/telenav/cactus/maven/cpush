@@ -3,6 +3,7 @@
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
 mvn \
+    --quiet \
     -Dcactus.scope=all \
     -Dcactus.update-root=true \
     -Dcactus.include-root=true \
