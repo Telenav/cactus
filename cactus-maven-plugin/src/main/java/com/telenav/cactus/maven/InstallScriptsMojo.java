@@ -9,7 +9,9 @@ import com.telenav.cactus.metadata.BuildMetadata;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
@@ -46,6 +48,10 @@ public class InstallScriptsMojo extends BaseMojo
     @Parameter(property = "cactus.script.destination")
     private String destination;
 
+    @Parameter(property = "cactus.create.aliases", defaultValue="true")
+    @SuppressWarnings("FieldMayBeFinal")
+    private boolean createAliases = true;
+
     InstallScriptsMojo()
     {
         super(RunPolicies.LAST);
@@ -53,6 +59,9 @@ public class InstallScriptsMojo extends BaseMojo
 
     private Path destination() throws MojoExecutionException
     {
+        if (destination != null && !destination.isBlank()) {
+            return Paths.get(destination.trim());
+        }
         Path home = home();
         return ifExists(home.resolve("bin"))
                 .or(() -> ifExists(home.resolve("local").resolve("bin")))
@@ -85,8 +94,9 @@ public class InstallScriptsMojo extends BaseMojo
         PrintMessageMojo.publishMessage(msg, session(), false);
         for (Scripts script : Scripts.values())
         {
-            Path scriptFile = script.install(dest, ver, log, isPretend());
-            script.describe(scriptFile, msg);
+            Path scriptFile = script.install(dest, createAliases, ver, log,
+                    isPretend());
+            script.describe(scriptFile, msg, createAliases);
         }
         msg.insert(0, "Cactus Scripts Have Been Installed\n"
                 + "==================================\n\n");
@@ -96,10 +106,13 @@ public class InstallScriptsMojo extends BaseMojo
     {
         COMMIT_ALL_SUBMODULES("ccm"),
         PUSH_ALL_SUBMODULES("cpush"),
+        PULL_ALL_SUBMODULES("cpull"),
         DEVELOPMENT_PREPARATION("cdev"),
         SIMPLE_BUMP_VERSION("cbump"),
-        UPDATE_SCRIPTS("cactus-script-update"),
-        RELEASE_ONE_PROJECT("crel");
+        LAST_CHANGE_BY_PROJECT("cch"),
+        FAMILY_VERSIONS("cver"),
+        RELEASE_ONE_PROJECT("crel"),
+        UPDATE_SCRIPTS("cactus-script-update");
         private final String filename;
 
         Scripts(String filename)
@@ -128,6 +141,9 @@ public class InstallScriptsMojo extends BaseMojo
                     return "\\tPush all changes in all submodules in one shot, after\n"
                             + "\\tensuring that your local checkouts are all up-to-date.";
 
+                case PULL_ALL_SUBMODULES:
+                    return "\\tPull changes in all submodules";
+
                 case DEVELOPMENT_PREPARATION:
                     return "\\tSwitch to the 'develop' branch in all java project checkouts.";
 
@@ -143,15 +159,30 @@ public class InstallScriptsMojo extends BaseMojo
                             + "This is suitable for the simple case of updating the version\n\\t"
                             + "of one thing during active development, not for doing a full\n\\t"
                             + "product release.";
+
                 case RELEASE_ONE_PROJECT:
                     return "\\tRelease a single project - whatever pom you run it against - to "
                             + "ossrh or wherever it is configured to send it.";
+
+                case LAST_CHANGE_BY_PROJECT:
+                    return "\\tPrints git commit info about the last change that altered a java "
+                            + "\n\\tsource file in a project, or with --all, the entire tree.";
+
+                case FAMILY_VERSIONS:
+                    return "\\Prints the inferred version of each project family in the current\n\\t"
+                            + "project tree.  These versions are what will be the basis used by \n\\t"
+                            + "BumpVersionMojo when computing a new revision.";
                 default:
                     throw new AssertionError(this);
             }
         }
 
-        public void describe(Path path, StringBuilder into)
+        String longName()
+        {
+            return "cactus-" + name().toLowerCase().replace('_', '-');
+        }
+
+        public void describe(Path path, StringBuilder into, boolean aliased)
         {
             if (into.length() > 0)
             {
@@ -164,7 +195,13 @@ public class InstallScriptsMojo extends BaseMojo
             cc[cc.length - 1] = '\n';
             cc[cc.length - 2] = '\n';
             into.append(cc);
-            into.append("\\t").append(path).append("\n\n");
+            into.append("\\t").append(path).append('\n');
+            if (aliased)
+            {
+                into.append("\\t").append(path.getParent().resolve(filename))
+                        .append('\n');
+            }
+            into.append("\n");
             into.append(description());
         }
 
@@ -181,7 +218,8 @@ public class InstallScriptsMojo extends BaseMojo
             return result;
         }
 
-        private Path install(Path toDir, String pluginVersion, BuildLog log,
+        private Path install(Path toDir, boolean createAliases,
+                String pluginVersion, BuildLog log,
                 boolean pretend) throws IOException
         {
             try ( InputStream in = script())
@@ -189,7 +227,8 @@ public class InstallScriptsMojo extends BaseMojo
                 String body = new String(in.readAllBytes(), US_ASCII)
                         .replaceAll("__PLUGIN_VERSION_PLACEHOLDER__",
                                 pluginVersion);
-                Path script = toDir.resolve(filename);
+                Path script = toDir.resolve(longName());
+                Path shorthand = toDir.resolve("./" + filename);
                 if (!pretend)
                 {
                     Files.write(script, body.getBytes(US_ASCII), CREATE,
@@ -204,6 +243,14 @@ public class InstallScriptsMojo extends BaseMojo
                               : "Copied ";
                 log.info(this + ": " + head + toString() + " to " + script);
                 log.debug(body);
+                if (createAliases && this != UPDATE_SCRIPTS)
+                {
+                    if (Files.exists(shorthand, LinkOption.NOFOLLOW_LINKS))
+                    {
+                        Files.delete(shorthand);
+                    }
+                    Files.createSymbolicLink(shorthand, script);
+                }
                 return script;
             }
         }

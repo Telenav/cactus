@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
+import static java.util.Collections.emptyList;
 
 /**
  * @author Tim Boudreau
@@ -1004,10 +1005,13 @@ to ensure we don't collide with quotes or other more common sequences.
                    ? ThrowingOptional.empty()
                    : ThrowingOptional.of(infos);
         }
-        else
+        else if (isSubmodule())
         {
-            return submoduleRoot().flatMapThrowing(GitCheckout::submodules);
+            return submoduleRoot().flatMapThrowing(root -> {
+                return root == this ? ThrowingOptional.empty() : root.submodules();
+            });
         }
+        return ThrowingOptional.empty();
     }
 
     /**

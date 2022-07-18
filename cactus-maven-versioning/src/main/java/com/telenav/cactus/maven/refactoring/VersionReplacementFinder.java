@@ -231,7 +231,10 @@ public class VersionReplacementFinder
         VersionUpdateFinder finder = new VersionUpdateFinder(changeCollector(),
                 categories,
                 potentialPropertyChanges,
-                familyVersionChanges, superpomBumpPolicy, versionMismatchPolicy);
+                familyVersionChanges, 
+                superpomBumpPolicy, 
+                versionMismatchPolicy,
+                publishChecker);
         finder.go();
         // We want to let it do any changes that are dictated by policy first,
         // and then if there are still conflicted poms that have not been

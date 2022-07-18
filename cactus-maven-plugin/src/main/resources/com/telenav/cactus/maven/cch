@@ -1,0 +1,15 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+if [ $1 == '--all' ]; then
+    export LOC=true
+else
+    export LOC=false
+fi
+
+mvn \
+    -Dcactus.scope=all \
+    -Dcactus.local=$LOC \
+    -Dcactus.file.extension=java \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:last-change

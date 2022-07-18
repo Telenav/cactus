@@ -18,11 +18,13 @@
 package com.telenav.cactus.maven.refactoring;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
 import static java.lang.Integer.max;
 
 /**
@@ -69,6 +71,18 @@ public enum PomRole
     public String toString()
     {
         return name().replace('_', '-').toLowerCase();
+    }
+
+    @SuppressWarnings("ManualArrayToCollectionCopy")
+    public static Set<PomRole> setOf(PomRole first, PomRole... more)
+    {
+        // Efficiently creates a set
+        Set<PomRole> result = EnumSet.of(notNull("first", first));
+        for (int i = 0; i < more.length; i++)
+        {
+            result.add(more[i]);
+        }
+        return result;
     }
 
     public static <T extends Comparable<? super T>> void visitMapEntriesSorted(

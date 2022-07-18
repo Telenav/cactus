@@ -62,6 +62,14 @@ final class VersionChangeUpdatesCollector
         this.versionMismatches = versionMismatches;
         this.filter = filter;
     }
+    
+    public boolean hasVersionUpdateFor(Pom pom) {
+        return pomVersionChanges.containsKey(pom);
+    }
+    
+    public boolean hasParentUpdateFor(Pom pom) {
+        return parentVersionChanges.containsKey(pom);
+    }
 
     Map<Pom, VersionChange> pomVersionChanges()
     {

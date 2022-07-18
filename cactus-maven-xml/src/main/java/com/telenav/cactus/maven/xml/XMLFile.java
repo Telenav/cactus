@@ -63,7 +63,7 @@ public class XMLFile
     protected final ThreadLocal<Document> docContext = new ThreadLocal<>();
     private final Path path;
 
-    protected XMLFile(Path path)
+    public XMLFile(Path path)
     {
         this.path = notNull("path", path);
     }

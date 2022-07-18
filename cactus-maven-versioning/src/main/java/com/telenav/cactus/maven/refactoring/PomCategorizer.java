@@ -26,6 +26,7 @@ import com.telenav.cactus.scope.ProjectFamily;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.telenav.cactus.maven.refactoring.PomRole.*;
@@ -66,8 +68,9 @@ public final class PomCategorizer
         this.poms = poms;
         categorizePoms();
     }
-    
-    public Set<ProjectFamily> families() {
+
+    public Set<ProjectFamily> families()
+    {
         return pomsForFamily.keySet();
     }
 
@@ -135,6 +138,28 @@ public final class PomCategorizer
         return result;
     }
 
+    public Set<Pom> pomsWithRoles(PomRole first, PomRole... more)
+    {
+        Set<Pom> result = new HashSet<>();
+        eachPomWithRoleIn(result::add, first, more);
+        return result;
+    }
+
+    public void eachPomWithRoleIn(Consumer<Pom> c, PomRole first,
+            PomRole... more)
+    {
+        Set<PomRole> all = PomRole.setOf(first, more);
+        for (Pom pom : poms)
+        {
+            Set<PomRole> roles = EnumSet.copyOf(rolesForPom.get(pom));
+            roles.retainAll(all);
+            if (!roles.isEmpty())
+            {
+                c.accept(pom);
+            }
+        }
+    }
+
     public Set<Pom> pomsForFamily(ProjectFamily family)
     {
         return pomsForFamily.getOrDefault(family, emptySet());
@@ -194,6 +219,49 @@ public final class PomCategorizer
     public Set<Pom> childrenOf(Pom pom)
     {
         return childPomsByParent.getOrDefault(pom, emptySet());
+    }
+
+    public Set<Pom> descendantsOf(Pom pom)
+    {
+        Set<Pom> seen = new HashSet<>();
+        Set<Pom> result = new HashSet<>();
+        visitDescendantsOf(pom, seen, p ->
+        {
+            result.add(p);
+            return true;
+        });
+        return result;
+    }
+
+    /**
+     * Visit all descendants of a pom, aborting child trees if the passed
+     * predicate returns false.
+     *
+     * @param pom A pom
+     * @param addTo A predicate - if it returns false, descendants of the pom
+     * passed will not be followed any further
+     */
+    public void visitDescendantsOf(Pom pom, Predicate<Pom> addTo)
+    {
+        visitDescendantsOf(pom, new HashSet<>(), addTo);
+    }
+
+    private void visitDescendantsOf(Pom pom, Set<Pom> seen, Predicate<Pom> addTo)
+    {
+        // In a mangled tree with cycles, which it is possible to encounter,
+        // we could endlessly loop, so protect against that
+        if (seen.contains(pom))
+        {
+            return;
+        }
+        seen.add(pom);
+        childrenOf(pom).forEach(desc ->
+        {
+            if (addTo.test(desc))
+            {
+                visitDescendantsOf(desc, seen, addTo);
+            }
+        });
     }
 
     public Set<Pom> roots()
