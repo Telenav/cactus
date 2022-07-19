@@ -4,7 +4,7 @@ VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
 mvn \
     -Dcactus.scope=all-project-families \
-    -cactus.target-branch=develop \
+    -Dcactus.target-branch=develop \
     -Dcactus.update-root=true \
     -Dcactus.include-root=true \
-    com.telenav.cactus:cactus-maven-plugin:${VERSION}:push
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout
