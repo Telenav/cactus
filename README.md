@@ -134,7 +134,7 @@ script or two to get all of the submodules fully "hydrated" and built after a fr
 
 Using submodules, we can create _multiple repositories_ for different libraries or applications.
 
-A git repository with submodules - what we will call a _workspace_ for the rest of this document - 
+A git checkout with submodules - what we will call a _workspace_ for the rest of this document - 
 works like this:
 
   * When we clone it, it contains a `.gitmodules` file (and other metadata under `.git/`) that describes 
@@ -151,11 +151,11 @@ works like this:
   * A workspace can be branched and tagged, just like any other repository - and each branch
     or tag specifies its own set of commits for its submodules. Suppose we want to locally reproduce
     the bits for release 1.10.12?  Just checkout the `release/1.10.12` branch of the workspace, and
-    `git submodule update` all of the child checkouts, and voila we have release 1.10.12.
+    `git submodule update` all of the child checkouts, and voila, we have release 1.10.12.
   * The `.gitmodules` file can optionally list specific _git branches_ that it expects child
     checkouts to be on
 
-So, git submodules are a great tool for managing large trees of projects, building them together,
+Git submodules are a great tool for managing large trees of projects, building them together,
 and giving developers (and continuous build tools) a _batteries included_ way to get set up with
 everything they need to be productive quickly.
 
@@ -176,14 +176,15 @@ straightforward as possible:
      new commits, and if that requires remembering to manually run `git add -A && git ci -m Whatever && git push`
      in the root, it is easy to forget.  So, we want our tooling to do that automatically.
   4. When we branch - say, for a feature or release - we are likely to want to branch _everything_
-     that may be touched in that work, not just one submodule.  _And_ we don't want the submodule
-     root to point to commits on our branch until our work is finished.  So we need a way to
+     that may be touched in that work, not just one submodule.  _And_ we don't want the main 
+     development branch of the workspace 
+     to point to commits on our branch until our work is finished.  So we need a way to
      branch across the workspace _and multiple child repositories_ in one shot - and that tool
      should detect which child repositories do and don't need branching (see discussion of _project
      families_ in the Maven section for how we do that).
   5. Similarly, when we merge, say, a feature or release branch back to the development branch, we
      want to merge _everything affected_, without having to remember all the child checkouts that need
-     merging.
+     merging or possibly miss one.
   6. Cloning and rehydrating a workspace and its children may leave them in [_detached head state_](https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/),
      not on any branch at all.  This is "right thing" when we want to reproduce a build or multi-repository
      state precisely, but not the right thing at all when we are about to do some coding.  The
@@ -224,7 +225,7 @@ complex project trees, requires some discipline to use effectively.  A few pract
       `libfamily/myfamily-filesystems/remote-filesystems/nfs/super-nfs-impl` and `super-nfs-impl`
       parents off a `pom.xml` it its parent directory, and that does the same, all the way down
       to the root, then, say, someone makes a change that breaks compilation but only for _that
-      one thing_ - then every one of those `pom.xml` is something we have to examine.  It is far
+      one thing_ - every one of those `pom.xml` is something we have to examine.  It is far
       more debuggable to have child libraries parent off of _one_ `pom.xml` that is the only place
       where shared configuration could possibly have changed.
   * Manage _sets of_ dependencies through imported dependencies, not inheritance, where possible.
@@ -237,12 +238,12 @@ complex project trees, requires some discipline to use effectively.  A few pract
   * Keep superpoms - _shared configuration_ - in their own separate hierarchy with their own versioning
     * Due to limitations of Maven (see below), we have to explicitly, separately build a superpom
       before we can build anything that uses it as a parent (unless it can get it from Maven central or 
-      use `<relativePath>` which it can't if it's in a different git repository) - even though Maven
+      use `<relativePath>`, which it *must not do* if the parent lives in a different git submodule) - even though Maven
       is about to build it in the same [reactor](https://stackoverflow.com/questions/2050241/what-is-the-reactor-in-maven),
       it will refuse to load the poms that parent off of it.  So, we might as well have these
       in a separate Git submodule with a bill-of-materials and build all of them once, at the start
       of our build process, rather than needing an explicit, _first-build-the-superpom_ step
-      for every single subfamily (Maven 4 _may_ improve this somewhat, but from our testing at present, not
+      for every single project family (Maven 4 _may_ improve this somewhat, but from our testing at present, not
       quite enough to git rid of this advice)
       * This means that building superpoms must (see above) be done separately, but this is only a problem in a
         _cold start_ situation (fresh clone, or empty local Maven repository, or both) or after a change, and generally
@@ -286,6 +287,7 @@ some are improved in (not yet released) Maven 4; some must be lived with:
      that a jar or classes folder is the root of a graph of things needed to build it, and that
      tests are actually a completely different graph of stuff that just happens to be described
      in the same `pom.xml` file.  Alas, it does not understand that.
+
     * In particular, this induces some pain when using the Java Module System, which does not
       play nicely with unit tests to begin with. Frequently this means, if we want to share some
       test logic, being unable to use the standard `test-jar` to share that logic, and instead,
@@ -304,6 +306,12 @@ some are improved in (not yet released) Maven 4; some must be lived with:
      against accidentally releasing code that's not ready for prime-time to the world.  Currently,
      we hold our nose and use it, but we may not continue doing so, and an update to these tools
      may support using `-dev` as an alternative.
+  4. You will notice that you _can_ build your superpoms as part of a build that also builds projects
+     that use them as a parent, _if you have already built them once into your local Maven repository.
+     *BUT* what you are actually building against - using as a parent in those projects - is the
+     old version from your `~/.m2/repository` directory, not the ones being built.  While it is
+     rare for this to be a problem, it is also non-obvious what is wrong when it is.  When in doubt,
+     just manually build your superpoms if you think anything in them has changed, to avoid surprises.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
@@ -339,7 +347,7 @@ So, in the above case, `kivakit`, `kivakit-extensions`, `kivakit-stuff` and `kiv
 separate git submodules, each buildable on its own for contributors or someone doing a quick fix.
 Since all of them contain Maven projects using a `groupId` ending in `.kivakit`, when a developer 
 asks the Cactus tooling to do something to all repositories in the family _kivakit_, it will find any 
-KivaKit projects in the workspace and do whatever is needed.
+git submodules containing KivaKit projects in the workspace and do whatever is needed.
 
 So, for ongoing, intensive development, where it is important to quickly know if our change in, say, `kivakit` 
 broke something in `kivakit-extensions`, `kivakit-stuff` or `kivakit-examples`, we know that quickly.
@@ -362,7 +370,7 @@ to the name of the family wins.
 
 Cactus tooling assumes the following:
 
-  * That it is (usually) operating in a tree of Maven projects
+  * That it is operating in a tree of Maven projects
   * That they are (usually) part of a less granular tree of Git submodules
   * That the _families_ in a given checkout can be derived from the set of `<groupId>` elements of
     all `pom.xml` files within that checkout, using the algorithm described above
@@ -428,7 +436,7 @@ This makes impossible such scenarios as:
 
 Cactus will recognize properties with the suffixes `.version`, `.prev.version`, and `.previous.version`
 as being _version indicating properties_, and will update them appropriately if the portion of the
-property name preceding the prefix is the name of a project family _or the `artifactId` of a specific project_
+property name preceding the suffix is the name of a project family _or the `artifactId` of a specific project_
 underneath the workspace it is building.
 
 In the case of an artifact id, the prefix may be the artifact id verbatim, or may substitute `.` characters
@@ -541,7 +549,7 @@ Doing a release, especially of many projects, tends to involve a predictable set
   * Ensure there are no outstanding changes
   * Ensure that the projects build without test failures
   * Make a clean clone of the root superpom and its contents somewhere, and set up `MAVEN_OPTS` to
-    use a temporary repository instead of `$HOME/.m2/repository`, to guarantee that what our publishing 
+    use a temporary repository instead of `$HOME/.m2/repository`, to guarantee that what is being published 
     can really be built from nothing but an internet connection and installs of Git, Maven and Java
   * Bump the versions of everything that will be published (likely removing `-SNAPSHOT`)
   * Create a release branch
@@ -554,7 +562,11 @@ Doing a release, especially of many projects, tends to involve a predictable set
   * Merge the result back to a development branch
 
 The Cactus plugin contains a number of Mojos that perform these tasks. Their functions are detailed in 
-the Mojo appendix.
+the Mojo appendix.  The most up-to-date documentation can be obtained simply by running
+
+```sh
+mvn com.telenav.cactus:cactus-maven-plugin:help
+```
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
@@ -574,7 +586,7 @@ phases described here to make it easy to release the Telenav Open Source project
  - Checks tool versions
  - Determines the cactus plugin version to use
  - Configures maven to use a temporary repository
- - Prompts for the project families and versions to release
+ - Prompts for the project families and how to alter their versions
  - Installs superpoms
  - Removes project caches
  - Executes the release phases below
@@ -611,8 +623,9 @@ pass the cactus version.
 
 In our case, our workspace contains two projects that do not follow the ordinary
 project-family layout - `lexakai-annotations` and `lexakai` are part of the same family,
-but are versioned independently - so `</tolerateVersionInconsistenciesIn>` simply tells
-the consistency check not to fail when it sees that.
+but are versioned independently, and each is in a separate git submodule - 
+so `</tolerateVersionInconsistenciesIn>` simply tells the consistency check not to 
+fail when it sees that conflicting versions.
 
 ```xml
     <executions>
@@ -653,7 +666,7 @@ to ensure that what is there is suitable for release, including checking
   * That there are no remote modifications that have not been pulled
   * That there are no submodules that contain more than one project family,
     where none is used as a superpom (this indicates that either a new project
-    was misplaced or has a typo in its groupId)
+    was misplaced or has a typo in its `groupId`)
   * That no intermediate bill-of-materials POM files are declared as the `<parent>` of
     any project (many IDEs will configure a newly created project this way, and it
     means that that project will not share plugin and dependency configuration with
@@ -755,9 +768,17 @@ Here we do one of the most far-reaching steps of release:
   5. Loop, repeating the steps from 2-4 until no further changes are generated
   6. Rewrite all of the `pom.xml` files that are to be changed
 
-> Note: Since step 3 checks Maven Central, it is crucial to make sure that any pending
-> updates to superpoms on OSSRH have been propagated to [Maven Central](https://repo1.maven.org/maven2/com/telenav/)
-> before starting a release.
+> Note: Publishing to Maven central takes some time, even after releasing a Nexus repository.
+> If you have recently published anything that might be used in the build, be sure to wait
+> until those artifacts are really available from Maven Central - otherwise, Cactus can check
+> that something is unpublished when it actually has been - it just hasn't shown up yet.
+
+> Also Note: Sonatype's Nexus, that deploys to Maven Central, will sometimes appear to succeed
+> deploying a superpom that has already been published - the repository can be _closed_, and
+> unless you are very fast to refresh its UI, it will appear that you successfully _released_
+> the maven repository, when in fact it was silently dropped, and there is no longer any way
+> to get diagnostics from it.  If a release seems to succeed, but still has not arrived on
+> Maven Central after several hours, that may be the problem.
 
 > There _are_ *non-release only* cases for updating versions of things during development,
 > where we do *not* want to cascade changes across a vast slew of projects, and there are
@@ -822,7 +843,8 @@ Here we do one of the most far-reaching steps of release:
 The set of properties here, where we describe what to do to is worth going through:
 
   * `<scope>family</scope>` - the operation we are doing applies to a list of families
-    specified by `-Dcactus.families=...` on the command line
+    specified by `-Dcactus.families=...` on the command line (a few other scopes are
+    available - `all`, `all-project-families`, `same-group-id` and `just-this`)
   * `<bumpPublished>true</bumpPublished>` - check all superpoms, and bump the version
     of anything that was already published, where the local copy differs from what was
     published - this is critical to avoid either failed deploys, or deploying jars that
