@@ -43,7 +43,7 @@ maintaining and releasing trees of projects that are managed using Git submodule
 
 ### Cactus
 
-[**About Cactus**](#cactus)  
+[**About Cactus**](#about-cactus)  
  * [**Project Families**](#project-families)  
  * [**Managing Versions**](#managing-versions)  
  * [**Version Property Patterns**](#property-patterns)  
@@ -58,7 +58,7 @@ maintaining and releasing trees of projects that are managed using Git submodule
  * [**Release Phases**](#release-phases)  
    * [**Release Phase 0 - Cloning**](#phase-0)  
    * [**Release Phase 1 - Bumping Versions**](#phase-1)  
-   * [**Release Phase 2 - Creating Documentation**](#phase-2)  
+   * [**Release Phase 2 - Publishing Documentation**](#phase-2)  
    * [**Release Phase 3 - Committing**](#phase-3)  
    * [**Release Phase 4 - Publishing**](#phase-4)  
 
@@ -307,7 +307,7 @@ some are improved in (not yet released) Maven 4; some must be lived with:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-<a name = "cactus"></a>
+<a name = "about-cactus"></a>
 ## About Cactus 
 
 Cactus codifies some development practices that originated in [Apache Wicket](https://wicket.apache.org/)
