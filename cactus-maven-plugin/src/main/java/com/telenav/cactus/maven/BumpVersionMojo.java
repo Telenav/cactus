@@ -298,7 +298,7 @@ public class BumpVersionMojo extends ReplaceMojo
      * that have already been published, or cause newly published libraries to depend the versions expressed in the
      * already published poms when those are not what they were actually built against.
      */
-    @Parameter(property = "cactus.bump.published", defaultValue = "false")
+    @Parameter(property = "cactus.bump.published", defaultValue = "true")
     boolean bumpPublished;
 
     public BumpVersionMojo()
