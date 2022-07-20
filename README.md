@@ -116,7 +116,7 @@ and it's helpful to have tooling to resolve those problems and make development 
 straightforward as possible:
 
   1. A submodule root points to a specific commit.  If you're doing ongoing development, you probably want
-     to be at the head of the development branch, not on whatever commit the submodule root pointed to the
+     to be at the head of a development branch, not on whatever commit the submodule root pointed to the
      last time someone pushed to _that_.  So, a tool or script for the task of _get me ready to do development
      on branch x_ that brings everything up to date is helpful (the `cactus-development-prep` script is for that)
   2. If you're doing development that touches multiple sub-checkouts, it is easy to commit and push your
@@ -132,16 +132,20 @@ straightforward as possible:
      root to point to commits on your branch until your work is finished.  So you need a way to
      branch across the submodule root _and multiple child repositories_ in one shot - and that tool
      should detect which child repositories do and don't need branching (see discussion of _project
-     families_ in the Maven section for how we do that.
+     families_ in the Maven section for how we do that).
   5. Similarly, when you merge, say, a feature or release branch back to the development branch, you
      want to merge _everything affected_, not have to remember all the child checkouts that need
      merging.
+  6. Cloning and rehydrating a submodule root and its children may leave them in _detached head_ state,
+     not on any branch at all.  This is the right thing when you want to reproduce a build or multi-repository
+     state precisely, but not the right thing at all when you are about to do some coding.  The
+     development prep script solves this case as well.
 
 So, these, along with some additional issues, are the problems Cactus development tools sets out to 
 solve - to make it easy to work against a tree of git submodules as if it were just a single git
 repository, and make it difficult-to-impossible to break someone else's work when doing so.
 
-In doing so, an important goal is that the results be _portable_ to different projects, different project
+In building these tools, an important goal is that the results be _portable_ to different projects, different project
 layouts on disk and so forth - if you have a git submodule that can only be built when cloned into
 the exact right directory of some other checkout, then you might as well have put it all in one git
 repository to begin with - it defeats the purpose.
@@ -159,7 +163,8 @@ project trees, requires some discipline to use effectively.  A few practices can
       Maven projects to build
       * This is a _bill-of-materials_ - just a list of things you want to tell maven to build, and has
         nothing to say about _how_ those things get built
-    * Avoid mixing these two things unless you have a very shallow tree of projects
+    * Avoid mixing these two things unless you have a very shallow subtree of projects - describing
+      what to do is a fundamentally different kind of information than describing _how to do it_
     * By default, unless you spell it out, declaring a parent in your `pom.xml` 
       _implicitly creates an element `<relativePath>../pom.xml</relativePath>`_.  If that points
       outside the project's git submodule, the result is a git repository that can only be built
@@ -180,7 +185,7 @@ project trees, requires some discipline to use effectively.  A few practices can
       [composition rather than inheritance](https://betterprogramming.pub/inheritance-vs-composition-2fa0cdd2f939)
       approach allows related dependencies to be spelled out in a single place, and updated en-banc
       rather than manually, one-at-a-time
-  * Keep superpoms - _shared configuration_ in their own hierarchy with their own versioning
+  * Keep superpoms - _shared configuration_ - in their own hierarchy with their own versioning
     * Due to limitiations of Maven (see below), you have to explicitly, separately build a superpom
       before you can build anything that uses it as a parent (unless it can get it from Maven central or 
       use `<relativePath>` which it can't if it's in a different git repository) - even though Maven
@@ -188,20 +193,19 @@ project trees, requires some discipline to use effectively.  A few practices can
       it will refuse to load the poms that parent off of it.  So, you might as well have these
       in a separate Git submodule with a bill-of-materials and build all of them once, at the start
       of your build process, rather than need such an explicit _and first build the superpom_ step
-      for every single subfamily.
-    * Building superpoms must (see above) be done separately, but this is only a problem in a
-      _cold start_ situation (fresh clone, or empty local Maven repository, or both), and generally
-      only a problem then when using unpublished versions.
-    * Maven 4 appears to do _somewhat_ better at this, so this guidance may change when it is
-      released
+      for every single subfamily (Maven 4 _may_ improve this somewhat, but from our testing at present, not
+      quite enough to git rid of this advice)
+      * This means that uilding superpoms must (see above) be done separately, but this is only a problem in a
+        _cold start_ situation (fresh clone, or empty local Maven repository, or both) or after a change, and generally
+        only a problem then when using unpublished versions.
   * Keep folder names and artifact ids consistent, at least at the top level
     * There is nothing to stop you from creating a bill-of-materials that says to build the
       Maven project in a folder named `foo`, and having `foo/pom.xml` have the artifact id
-      `bar`.  `<module>` declarations are nearly the only place where Maven relies on the
+      `bar`.  `<module>` declarations are nearly the only place where Maven (sadly) relies on the
       names of folders on disk.  Keeping them consistent or at least suffix-consistent will
       avoid a lot of confusions.
   * Use the maven-enforcer-plugin or similar to ensure conflicting dependency versions are detected early
-  * Use properties to manage versions of dependencies, except in trivial cases
+  * Use Maven _properties_ to manage versions of dependencies, except in trivial cases
     * And *always* use properties to manage versions of inter-project dependencies
   * Inherit or import dependency versions from superpoms' `<dependencyManagement>` sections - don't
     have every project hard-code versions of things
@@ -227,6 +231,17 @@ some are improved in (not yet released) Maven 4; some must be lived with:
      one of those projects has a superpom that has not been built locally, it will fail _even
      though Maven not only can see `pom.xml`, but is in fact about to build it and has all the information
      it needs to supply a parent to the others_.
+  2. Circular test dependencies could work within Maven's model of the universe if it understood
+     that a jar or classes folder is the root of a graph of things needed to build it, and that
+     tests are actually a completely different graph of stuff that just happens to be described
+     in the same `pom.xml` file.  Alas, it does not understand that.
+    * In particular, this induces some pain when using the Java Module System, which does not
+      play nicely with unit tests to begin with. Frequently this means, if you want to share some
+      test logic, being unable to use the standard `test-jar` to share that logic, and instead,
+      needing to create a separate project for tests that exports the shared logic in its main
+      sources, and contains the unit tests that belong with the original project in _its_ test
+      sources (because a test dependency from there to your shared logic would create a notional
+      cicularity)
 
 
 ### Cactus-Specific Practices
@@ -337,6 +352,25 @@ This makes impossible such scenarios as:
     set of dependencies anyone getting it from Maven central will not be the same as what I think
     they are.
 
+#### Property Patterns Cactus Will Recognize
+
+Cactus will recognize properties with the suffixes `.version`, `.prev.version`, and `.previous.version`
+as being _version indicating properties_, and will update them appropriately if the portion of the
+property name preceding the prefix is the name of a project family _or the `artifactId` of a specific project_
+underneath the submodule root it is building.
+
+In the case of an artifact id, the prefix may be the artifact id verbatim, or may substitute `.` characters
+for `-` characters and it will be identified and mapped to the
+referenced project.  So, `cactus.version`, `cactus.maven.plugin.version`, `cactus-maven-plugin.version`
+would all be recognized and updated correctly if you were bumping the version of the Cactus family in
+a tree containing it.
+
+Versions that identify _previous_ versions of things are important for cases where some project is
+used as part of the build process _itself_, and the previous release must be used on some or all
+projects to avoid creating a circular dependency Maven would reject.  In `telenav-build`, Cactus
+and Lexakai are both examples of this phenomenon - the cactus plugin cannot be used to generate
+metadata for itself while it is being compiled, but the previous release can be.
+
 
 #### Bumping a Version
 
@@ -441,7 +475,7 @@ you point it to) and are unaltered from their bits there.  It will also fail the
 are trying to publish something, and it has already been published, but your local copy differs.
 
 
-### Anatomy of A Release-Phase Set
+### Anatomy of A Set of Profiles for Releasing 1-N Project Families
 
 Here is the set of profiles we're using for releases of cactus, kivakit, lexakai and mesakit at
 Telenav - consider them a work-in-progress, not the final word on the Official Right Way to do this - this
