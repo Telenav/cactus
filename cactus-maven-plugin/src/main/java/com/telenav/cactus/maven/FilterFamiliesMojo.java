@@ -140,14 +140,12 @@ public class FilterFamiliesMojo extends FamilyAwareMojo
      *
      * @param prop The property
      * @param defaultValue The value to set it to if unset
-     * @param props project roperties
+     * @param props project properties
      * @param or whether to or or and
-     * @param log
      * @return true if the properties were changed as a result of this operation
      */
-    private static boolean logicalCombineProperties(String prop,
-            boolean defaultValue,
-            Properties props, boolean or)
+    @SuppressWarnings("SameParameterValue")
+    private static boolean logicalCombineProperties(String prop, boolean defaultValue, Properties props, boolean or)
     {
         String val = props.getProperty(prop);
         if (val == null)
