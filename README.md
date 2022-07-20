@@ -755,7 +755,7 @@ Here we do one of the most far-reaching steps of release:
   5. Loop, repeating the steps from 2-4 until no further changes are generated
   6. Rewrite all of the `pom.xml` files that are to be changed
 
-> WARNING: Since step 3 checks Maven Central, it is crucial to make sure that any pending
+> Note: Since step 3 checks Maven Central, it is crucial to make sure that any pending
 > updates to superpoms on OSSRH have been propagated to [Maven Central](https://repo1.maven.org/maven2/com/telenav/)
 > before starting a release.
 
