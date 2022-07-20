@@ -28,206 +28,237 @@ Tools for building projects in Git submodules with Maven
 This repository contains the `cactus-maven-plugin` and related libraries, for building, developing,
 maintaining and releasing trees of projects that are managed using Git submodules and built with Maven.
 
+[**Quick Start**](#quick-start)  
+[**Cactus Scripts**](#cactus-scripts)  
 
-### Quick-Start / TL;DR
+[**Problem Definition**](#problem-definition)  
+[**Maven**](#maven-practices)  
+[**Maven Limitations**](#maven-limitations)  
 
-The `cactus-maven-plugin` lets you perform tasks against sets of git repositories in a tree of
+[**Cactus**](#cactus-practices)  
+ * [**Project Families**](#project-families)  
+ * [**Version Management**](#version-management)  
+ * [**Property Patterns**](#property-patterns)  
+ * [**Bumping Versions**](#bumping)  
+
+[**Maven and Cactus**](#maven-phases-and-cactus)  
+ * [**Documentation**](#documentation)  
+ * [**Orchestration of Mojos**](#orchestrating)  
+   * [**filter-families**](#filter-families)  
+   * [**filter-published**](#filter-published)
+
+[**Releasing**](#releasing)  
+ * [**Release Phase 0 - Cloning**](#release-phase-0)  
+ * [**Release Phase 1 - Bumping Versions**](#release-phase-1)  
+ * [**Release Phase 2 - Creating Documentation**](#release-phase-2)  
+ * [**Release Phase 3 - Committing**](#release-phase-3)  
+ * [**Release Phase 4 - Publishing**](#release-phase-4)  
+
+[**Road Map**](#road-map)
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+## Quick Start  <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
+
+The `cactus-maven-plugin` lets us perform tasks against *sets of git repositories* in a tree of
 projects managed using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules), as
-if they were hosted in a single git repository.  The tools use a concept of _project families_
-(derived from projects' group-id) to determine which repositories to operate on (or can be
-told explicitly to operate on everything or some subset).
+if they were hosted in a single git repository.  Cactus tools use a concept of _project families_.
+Project family names are derived from the Maven `groupId` shared by the projects in the family. For 
+example, `kivakit`, `kivakit-extensions` and `kivakit-stuff` all belong to the project family 
+`kivakit` (from `com.telenav.kivakit`). Project families can be used to specify which repositories 
+to operate on. Tools can be told to operate on all families, one specific family, or some subset of 
+families. For example, `all`, `kivakit`, or `kivakit,mesakit`.
 
-In daily development, what these tools do primarily is ensure consistency and ensure that it is
+In daily development, what these tools primarily do is ensure consistency and ensure that it is
 impossible to, say, commit in one repository and forget about changes in another, or push the root
-but fail to push submodules, which would result in anyone pulling winding up with their checkout
-semi-broken.  So we handle cases like branching all checkouts containing a project family, or
-committing all of them, getting them all on the same branch, and so forth.
+but fail to push submodules, which would result a broken checkout for anyone pulling.  So, Cactus 
+handles cases like branching all checkouts containing a project family, or committing all of them, 
+getting them all on the same branch, and so forth.
 
 Invoking a maven plugin individually is somewhat verbose, so a mojo is included which will install
-scripts that take care of several daily-development problems that come up.
+[scripts](#cactus-scripts) that take care of several daily-development problems that come up.
+To install the scripts, we simply:
 
-To install the basic scripts (more detailed control can always be had by invoking Maven directly
-and passing properties), simply
+  * Put a `~/bin` folder or `~/.local/bin` folder on our `PATH` (if it is preferred to put the scripts 
+    somewhere else, we can pass `-Dcactus.script.destination=[folder]` but `[folder]` must be on
+    our `PATH`)
+  * Run `mvn com.telenav.cactus:cactus-maven-plugin:install-scripts`
 
-  * Have either a `~/bin` folder or a `~/.local/bin` folder on your `PATH`
-  * Run `mvn com.telenav.cactus:cactus-maven-plugin:$VERSION:install-scripts`
-    * If you want to put the scripts somewhere else, pass `-Dcactus.script.destination=/path/to/wherever`
-      but make sure it is on your `PATH`
+> More detailed control can always be had by invoking [Maven mojos](#orchestrating) directly, passing property arguments with -D
 
-Scripts will be installed there, with long, verbose names starting with `cactus-` and symlinked
-to shorter named aliases which do not conflict with any unix command.  Thereafter, simply run
-`cactus-update-scripts` to update them.
+Scripts will be installed there, with easily discovered, verbose names starting with `cactus-` 
+and sym-linked to shorter named aliases which do not conflict with any unix command.  Thereafter, 
+simply run `cactus-update-scripts` to update them.
 
-The set of scripts and their descriptions - which will also be printed out when you install or
-update them - is included at the bottom of this document.
+The set of scripts and their descriptions - which will also be printed out when we install or
+update them - is included [at the bottom of this document](#cactus-scripts).
 
-The cactus plugin also includes tooling for dealing with updating versions across
-multiple projects precisely and accurately, generating Lexakai documentation for
-use with Github Pages and doing full-blown releases while automating the most labor-intensive
-parts of branching and versioning.
+The Cactus plugin also includes tooling for updating versions across multiple projects, generating 
+Lexakai documentation for use with Github Pages and doing full-blown releases while automating the 
+most labor-intensive parts of branching and versioning.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Problem Statement
+## Problem Definition  <a name = "problem-definition"></a>
+ 
+Say we have a bunch of sets of libraries, and we build applications with them - but not just _one_ application.
+These libraries are also Open Source and should be buildable in isolation by a contributor only interested in
+working on a single library. When we release them, we need to ensure that they all build and work together.
 
-Say you have a bunch of sets of libraries, and you build applications with them - but not just _one_ application,
-and the libraries are also open-source and should be buildable in isolation by a contributor only interested in
-a single library - but when you release them, you need to ensure that they all build and work (and tests pass)
-together.
-
-And, you want new developers to have easy ramp-up - just check out one thing from Git and they've got
+We want new developers to have easy ramp-up - just check out one thing from Git and they've got
 everything they need, both to build and to get oriented within the codebase.
 
-Git submodules are a great solution for managing
-a situation like that - you can create a git repository that _contains no code itself_, just submodules
-that contain all of the libraries someone needs to be productive.  That root git repository just
-contains a build script (in the case of Maven, a _bill of materials_ `pom.xml`) that says what to
-build, and perhaps a script or two to get all of the submodules fully hydrated and built after a fresh
-clone.
+Git submodules are a great solution for managing a situation like this - we can create a git repository
+that _contains no code itself_, just submodules that contain all of the libraries someone needs to be 
+productive.  That root git repository just contains a build script (in the case of Maven, a [_bill of 
+materials_](https://reflectoring.io/maven-bom/) `pom.xml`) that says what to build, and perhaps a 
+script or two to get all of the submodules fully "hydrated" and built after a fresh clone.
 
-Not only that, but you can create _multiple such repositories_ for different purposes or applications.
+Using submodules, we can create _multiple repositories_ for different libraries or applications.
 
-A git repository with submodules - what we will call the _submodule root_ for the rest of this 
-document - works like this:
+A git repository with submodules - what we will call a _workspace_ for the rest of this document - 
+works like this:
 
-  * When you clone it, it contains a `.gitmodules` file (and other metadata under `.git/`) that describes 
+  * When we clone it, it contains a `.gitmodules` file (and other metadata under `.git/`) that describes 
     an ad-hoc set of other git repositories to clone and pull from
-  * The first time you clone a submodule root, you need to run `git submodule init` to set up the
-    submodules, create directories for them in your work tree - after this, you have folders for
+  * The first time we clone a workspace, we need to run `git submodule init` to set up the
+    submodules, create directories for them in our work tree - after this, we have folders for
     each checkout, and git metadata, but they are still in a sort of _dehydrated_ state - nothing
     is in them
-  * After you run `git submodule init` the first time, you run `git submodule update` to actually
+  * After we run `git submodule init` the first time, we run `git submodule update` to actually
     populate it
-  * The submodule root lists _the specific commit_ in each repository that was last pushed to it - so it is
+  * The workspace lists _the specific commit_ in each repository that was last pushed to it - so it is
     not just a list of things to clone, but a record of the _state_ of those repositories, so
     that anyone cloning it can reproduce the exact set of bits it pointed to when it was pushed
-  * A submodule root can be branched and tagged, just like any other repository - and each branch
-    or tag is its own set of commits for its submodules - so, want to locally reproduce the bits
-    for release 1.10.12?  Just checkout the `release/1.10.12` branch of the root repo, and
-    `git submodule update` all of the child checkouts, and voila.
+  * A workspace can be branched and tagged, just like any other repository - and each branch
+    or tag specifies its own set of commits for its submodules. Suppose we want to locally reproduce
+    the bits for release 1.10.12?  Just checkout the `release/1.10.12` branch of the workspace, and
+    `git submodule update` all of the child checkouts, and voila we have release 1.10.12.
   * The `.gitmodules` file can optionally list specific _git branches_ that it expects child
     checkouts to be on
 
-So git submodules make a great tool for managing large trees of projects, building them together,
-and giving developers - and continuous build tools - a _batteries included_ way to get set up with
+So, git submodules are a great tool for managing large trees of projects, building them together,
+and giving developers (and continuous build tools) a _batteries included_ way to get set up with
 everything they need to be productive quickly.
 
-But git submodules do create a few [impedance mismatches](https://en.wikipedia.org/wiki/Impedance_matching)
+But git submodules do create a few "[impedance mismatches](https://en.wikipedia.org/wiki/Impedance_matching)"
 and it's helpful to have tooling to resolve those problems and make development as transparent and
 straightforward as possible:
 
-  1. A submodule root points to a specific commit.  If you're doing ongoing development, you probably want
+  1. A submodule root points to a specific commit.  If we're doing ongoing development, we probably want
      to be at the head of a development branch, not on whatever commit the submodule root pointed to the
      last time someone pushed to _that_.  So, a tool or script for the task of _get me ready to do development
      on branch x_ that brings everything up to date is helpful (the `cactus-development-prep` script is for that)
-  2. If you're doing development that touches multiple sub-checkouts, it is easy to commit and push your
-     changes in one, but forget to do it in another.  What you want is a tool that you can say
+  2. If we're doing development that touches multiple sub-checkouts, it is easy to commit and push our
+     changes in one, but forget to do it in another.  What we want is a tool that we can say
      _commit my changes in all of the submodules, using this message_ and have it simply figure out what
      needs committing and do it (the `cactus-commit-all-submodules` or `ccm` script is for that).
      The same goes for pushing.
-  3. When you commit or push, you usually also want to update the submodule root to point to your
+  3. When we commit or push, we usually also want to update the submodule root to point to our
      new commits, and if that requires remembering to manually run `git add -A && git ci -m Whatever && git push`
-     in the root, it is easy to forget.  So, you want your tooling to do that automatically.
-  4. When you branch - say, for a feature or release branch - you are likely to want to branch _everything_
-     that may be touched in that work, not just one submodule.  _And_ you don't want the submodule
-     root to point to commits on your branch until your work is finished.  So you need a way to
+     in the root, it is easy to forget.  So, we want our tooling to do that automatically.
+  4. When we branch - say, for a feature or release - we are likely to want to branch _everything_
+     that may be touched in that work, not just one submodule.  _And_ we don't want the submodule
+     root to point to commits on our branch until our work is finished.  So we need a way to
      branch across the submodule root _and multiple child repositories_ in one shot - and that tool
      should detect which child repositories do and don't need branching (see discussion of _project
      families_ in the Maven section for how we do that).
-  5. Similarly, when you merge, say, a feature or release branch back to the development branch, you
-     want to merge _everything affected_, not have to remember all the child checkouts that need
+  5. Similarly, when we merge, say, a feature or release branch back to the development branch, we
+     want to merge _everything affected_, without having to remember all the child checkouts that need
      merging.
-  6. Cloning and rehydrating a submodule root and its children may leave them in _detached head_ state,
-     not on any branch at all.  This is the right thing when you want to reproduce a build or multi-repository
-     state precisely, but not the right thing at all when you are about to do some coding.  The
-     development prep script solves this case as well.
+  6. Cloning and rehydrating a submodule root and its children may leave them in [_detached head state_](https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/),
+     not on any branch at all.  This is "right thing" when we want to reproduce a build or multi-repository
+     state precisely, but not the right thing at all when we are about to do some coding.  The
+     `cactus-development-prep` script solves this case as well.
 
 So, these, along with some additional issues, are the problems Cactus development tools sets out to 
 solve - to make it easy to work against a tree of git submodules as if it were just a single git
 repository, and make it difficult-to-impossible to break someone else's work when doing so.
 
-In building these tools, an important goal is that the results be _portable_ to different projects, different project
-layouts on disk and so forth - if you have a git submodule that can only be built when cloned into
-the exact right directory of some other checkout, then you might as well have put it all in one git
-repository to begin with - it defeats the purpose.
+In building these tools, an important goal is that the results be _portable_ to different projects, 
+different project layouts on disk, and so forth. If we have a git submodule that can only be built 
+when cloned into the exact right directory of some other checkout, then we might as well have put 
+it all in one git repository to begin with - it defeats the purpose.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### General Maven Practices
+## General Maven Practices  <a name = "maven"></a>
 
-[Apache Maven](https://maven.apache.org/) comes with its own pros and cons and warts, and, in complex
-project trees, requires some discipline to use effectively.  A few practices can be helpful:
+[Apache Maven](https://maven.apache.org/) comes with its own pros and cons and problems, and, in 
+complex project trees, requires some discipline to use effectively.  A few practices can be helpful:
 
-  * Distinguish _bill-of-materials_ from shared configuration:
-    * A `pom.xml` can say it has a _parent_ that it inherits the contents of
+  * Distinguish [_bill-of-materials_](https://reflectoring.io/maven-bom/) POMs (known as BOMs) from shared configuration POMs:
+    * A `pom.xml` can say it has a _parent_ that it inherits from
       * This is shared configuration - sets of dependencies, build and plugin settings, common metadata
     * A `pom.xml` can _also_ contain a `<modules>` section, listing some directories containing other
-      Maven projects to build
-      * This is a _bill-of-materials_ - just a list of things you want to tell maven to build, and has
-        nothing to say about _how_ those things get built
-    * Avoid mixing these two things unless you have a very shallow subtree of projects - describing
-      what to do is a fundamentally different kind of information than describing _how to do it_
-    * By default, unless you spell it out, declaring a parent in your `pom.xml` 
+      Maven projects to build. This is a _bill-of-materials_ - just a list of things we want to tell 
+      Maven to build. It has nothing to say about _how_ those things get built.
+    * We should avoid mixing these two things unless we have a very shallow subtree of projects. Describing
+      what to do is fundamentally different than describing _how to do it_.
+    * By default, unless we spell it out, declaring a parent in our `pom.xml` 
       _implicitly creates an element `<relativePath>../pom.xml</relativePath>`_.  If that points
       outside the project's git submodule, the result is a git repository that can only be built
       if it happens to in the right place on the disk of the person who checked it out.
-  * Avoid deep parentage hierarchies
-    * Each parent a `pom.xml` has is a _place for things to go wrong_ - and one more place you have
-      to look when they do.  So if you have a project tree like
+  * Avoid deep hierarchies
+    * Each parent a `pom.xml` has is a _place for things to go wrong_ - and one more place we have
+      to look when they do.  So if we have a project tree like
       `libfamily/myfamily-filesystems/remote-filesystems/nfs/super-nfs-impl` and `super-nfs-impl`
       parents off a `pom.xml` it its parent directory, and that does the same, all the way down
       to the root, then, say, someone makes a change that breaks compilation but only for _that
-      one thing_ - then every one of those `pom.xml` is something you have to examine.  It is far
+      one thing_ - then every one of those `pom.xml` is something we have to examine.  It is far
       more debuggable to have child libraries parent off of _one_ `pom.xml` that is the only place
       where shared configuration could possibly have changed.
-  * Manage _sets of_ dependencies through `import` dependencies, not inheritance, where possible.
-    * In a _shared configuration_ `pom.xml` (one used as `<parent>` by others), you can include
+  * Manage _sets of_ dependencies through imported dependencies, not inheritance, where possible.
+    * In a _shared configuration_ `pom.xml` (one used as `<parent>` by others), we can include
       the entire `<dependencyManagement>` section of another `pom.xml` simply by including it as
-      a `<dependency>` element in your own `<dependencyManagement>` section.  This
+      a `<dependency>` element in our own `<dependencyManagement>` section.  This
       [composition rather than inheritance](https://betterprogramming.pub/inheritance-vs-composition-2fa0cdd2f939)
-      approach allows related dependencies to be spelled out in a single place, and updated en-banc
-      rather than manually, one-at-a-time
-  * Keep superpoms - _shared configuration_ - in their own hierarchy with their own versioning
-    * Due to limitiations of Maven (see below), you have to explicitly, separately build a superpom
-      before you can build anything that uses it as a parent (unless it can get it from Maven central or 
+      approach allows related dependencies to be spelled out in a single place, and updated en-masse
+      rather than manually, one-at-a-time.
+  * Keep superpoms - _shared configuration_ - in their own separate hierarchy with their own versioning
+    * Due to limitations of Maven (see below), we have to explicitly, separately build a superpom
+      before we can build anything that uses it as a parent (unless it can get it from Maven central or 
       use `<relativePath>` which it can't if it's in a different git repository) - even though Maven
       is about to build it in the same [reactor](https://stackoverflow.com/questions/2050241/what-is-the-reactor-in-maven),
-      it will refuse to load the poms that parent off of it.  So, you might as well have these
+      it will refuse to load the poms that parent off of it.  So, we might as well have these
       in a separate Git submodule with a bill-of-materials and build all of them once, at the start
-      of your build process, rather than need such an explicit _and first build the superpom_ step
+      of our build process, rather than needing an explicit, _first-build-the-superpom_ step
       for every single subfamily (Maven 4 _may_ improve this somewhat, but from our testing at present, not
       quite enough to git rid of this advice)
-      * This means that uilding superpoms must (see above) be done separately, but this is only a problem in a
+      * This means that building superpoms must (see above) be done separately, but this is only a problem in a
         _cold start_ situation (fresh clone, or empty local Maven repository, or both) or after a change, and generally
         only a problem then when using unpublished versions.
   * Keep folder names and artifact ids consistent, at least at the top level
-    * There is nothing to stop you from creating a bill-of-materials that says to build the
+    * There is nothing to stop us from creating a bill-of-materials that says to build the
       Maven project in a folder named `foo`, and having `foo/pom.xml` have the artifact id
       `bar`.  `<module>` declarations are nearly the only place where Maven (sadly) relies on the
       names of folders on disk.  Keeping them consistent or at least suffix-consistent will
       avoid a lot of confusions.
   * Use the maven-enforcer-plugin or similar to ensure conflicting dependency versions are detected early
   * Use Maven _properties_ to manage versions of dependencies, except in trivial cases
-    * And *always* use properties to manage versions of inter-project dependencies
+  * *Always* use properties to manage versions of inter-project dependencies
   * Inherit or import dependency versions from superpoms' `<dependencyManagement>` sections - don't
     have every project hard-code versions of things
   * Avoid redundant or superfluous configuration
     * If a project has the same `groupId` as the parent it names, it should inherit it, not declare it again
     * If a project has the same `version` as the parent it names, it should inherit it, not declare it again
     * Do not declare things where the default is the same as what is declared (ex.: `<packaging>jar</packaging>` or
-      `<type>jar</type>` in dependencies
-  * Avoid redeclaring inherited items - for example, `<developers>` should only be declared in a child
+      `<type>jar</type>` in dependencies)
+  * Avoid re-declaring inherited items - for example, `<developers>` should only be declared in a child
     project if it is _changing_ the value from its parent - otherwise this sort of thing is just noise.
     You can always ask Maven to print out the _effective pom_ using `mvn -Dverbose=true help:effective-pom`
-    to see what you're inheriting and where it comes from.
+    to see what we're inheriting and where it comes from.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Maven Limitiations
+### Maven Limitations <a name = "maven-limitations"></a>
 
 Being the [best of a flawed set of available tools](https://timboudreau.com/blog/maven), Maven
-has some somewhat arbitrary limitations - most of which stem from its designers' naiveity about
+has some somewhat arbitrary limitations - most of which stem from its designers' naiveté about
 how many distinct graphs-of-things are involved in building software.  Some can be worked around,
 some are improved in (not yet released) Maven 4; some must be lived with:
 
-  1. As mentioned above, if you have a bill-of-materials that wants to build some projects, and
+  1. As mentioned above, if we have a bill-of-materials that wants to build some projects, and
      one of those projects has a superpom that has not been built locally, it will fail _even
      though Maven not only can see `pom.xml`, but is in fact about to build it and has all the information
      it needs to supply a parent to the others_.
@@ -236,75 +267,78 @@ some are improved in (not yet released) Maven 4; some must be lived with:
      tests are actually a completely different graph of stuff that just happens to be described
      in the same `pom.xml` file.  Alas, it does not understand that.
     * In particular, this induces some pain when using the Java Module System, which does not
-      play nicely with unit tests to begin with. Frequently this means, if you want to share some
+      play nicely with unit tests to begin with. Frequently this means, if we want to share some
       test logic, being unable to use the standard `test-jar` to share that logic, and instead,
       needing to create a separate project for tests that exports the shared logic in its main
       sources, and contains the unit tests that belong with the original project in _its_ test
-      sources (because a test dependency from there to your shared logic would create a notional
-      cicularity)
-  3. The pro's and cons of `-SNAPSHOT` versions.  Maven's altered behavior when it encounters the
+      sources (because a test dependency from there to our shared logic would create a 
+      circularity)
+  3. The pros and cons of `-SNAPSHOT` versions.  Maven's altered behavior when it encounters the
      magic string `-SNAPSHOT` at the end of a version is likely responsible for most of the
      Maven hatred and loathing out there in the world - it is the reason for what are known as
      _download the internet builds_ (for real fun, try it through the great firewall of China
      to turn what should be a 2 minute build into one that takes 7 hours!).  On the one hand,
-     using a suffix like `-dev` can be an effective substitute to avoid having your build tool
+     using a suffix like `-dev` can be an effective substitute to avoid having our build tool
      behave differently.  On the other hand, when dealing with public repositories such as Maven
      Central, the fact that `-SNAPSHOT` is recognized and treated specially provides added protection
      against accidentally releasing code that's not ready for prime-time to the world.  Currently,
      we hold our nose and use it, but we may not continue doing so, and an update to these tools
      may support using `-dev` as an alternative.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Cactus-Specific Practices
+## Cactus <a name = "cactus"></a>
 
-Cactus development codifies some development practices that originated in [Apache Wicket](https://wicket.apache.org/)
-and proved valuable - specifically, having a sort of _rings of stability_ approach that set
-expectations for users of it.  There, *wicket* was a single _project family_ - Cactus is built
-around the idea that there can be multiple familes that depend on each other.  Its contents
-were broken out into separate stability rings (which libraries might migrate between over time - 
-toward more stable as they improved, toward less stable if they became unmaintained):
+Cactus codifies some development practices that originated in [Apache Wicket](https://wicket.apache.org/)
+and proved valuable - specifically, having [_rings of stability_](https://medium.com/@jonathanlocke/open-source-repository-structure-c1050d5840c6) 
+that set expectations for users.  In Apache Wicket, `wicket` is a single _project family_, consisting of
+`wicket`, `wicket-extensions`, `wicket-examples`, and `wicket-stuff`, in order of stability. Projects in these
+rings migrate towards the core if they become more stable, and away from the core if they become unmaintained.
 
-  * `wicket` - the core library - stable
-  * `wicket-extensions` - contributed or added libraries that built on wicket - likely stable,
-     but not to the same degree
-  * `wicket-stuff` - libraries that built on either of the above, which might or might not be 
-     stable at any given time - stuff that's either experimental or undergoing active development
-  * `wicket-examples` - sample applications
+Cactus is built around this idea and so it supports families of projects that depend on each other. 
+For example, the [KivaKit](https://kivakit.org) project family is built by Cactus, and it is structured 
+in a similar way to Apache Wicket:
 
+  * `kivakit` - the core library (most stable)
+  * `kivakit-extensions` - contributed or added libraries built on `kivakit` (stable)
+  * `kivakit-stuff` - libraries built on `kivakit` and/or `kivakit-extensions` (experimental)
+  * `kivakit-examples` - sample code and applications
 
-#### Project Families
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+### Project Families <a name = "project-families"></a>
 
 Cactus Maven tooling groups things by _project family_ - a string derived from the text after the
-final `.` character in its [Maven group id](https://maven.apache.org/guides/mini/guide-naming-conventions.html)
-with any `-`-delimited tail omitted.  So, if your `groupId` in your pom is `org.foo.snorkel-things`,
-then your _project family_ is `snorkel`.
+final `.` character in its Maven [groupId](https://maven.apache.org/guides/mini/guide-naming-conventions.html)
+with any `-`-delimited tail omitted.  So, if our `groupId` in our pom is `org.foo.snorkel-things`,
+then our _project family_ is `snorkel`.
 
-So, in the above case, each of wicket, wicket-extensions, wicket-stuff and wicket-examples could
-(and probably should) be separate git submodules, buildable on its own for contributors or someone
-doing a quick fix of one thing.  As long as all of them contain Maven projects using a group id
-ending in `.wicket` or `.wicket-whatever`, then when a developer asks the Cactus tooling to do something
-to all repositories in the family _wicket_, it will find all of them and do whatever is needed.
+So, in the above case, `kivakit`, `kivakit-extensions`, `kivakit-stuff` and `kivakit-examples` are
+separate git submodules, each buildable on its own for contributors or someone doing a quick fix.
+Since all of them contain Maven projects using a `groupId` ending in `.kivakit`, when a developer 
+asks the Cactus tooling to do something to all repositories in the family _kivakit_, it will find any 
+KivaKit projects in the workspace and do whatever is needed.
 
-So, for ongoing, intensive development, where it is important to quickly know if your change in, say, `wicket` 
-broke something in -extensions, -stuff or -examples, you know that quickly.
+So, for ongoing, intensive development, where it is important to quickly know if our change in, say, `kivakit` 
+broke something in `kivakit-extensions`, `kivakit-stuff` or `kivakit-examples`, we know that quickly.
 
 That is important because many of the [Mojos](https://maven.apache.org/developers/mojo-api-specification.html)
 in the Cactus Maven Plugin perform git operations, and they decide which git repositories to operate
-on based on the set of _project families_ are expressed in all of the `pom.xml` files in each git
+on based on the set of _project families_ expressed in all of the `pom.xml` files in each git
 submodule.
 
-> *What is the version of a project family?*
-> Implicit in all of this is that projects are versioned _by family_, and all projects _within a family_
-> probably - and probably should - have the same version.  Yet, as mentioned, superpoms may have
-> completed different versions than the family they govern.  And, if you manually meddle with the
-> versions of projects, you can wind up in a state where they are inconsistent.  Also - and we
-> have this situation ourselves, with the `lexakai` and `lexakai-annotations` projects - where
-> the versions diverge intentionally.  In the version-mix scenario, the most prevalent version
-> wins.  In the case that it is a choice between two equally matched versions, the version of the
-> project whose `artifactId` has the least [levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
-> to the name of the family wins.
+Implicit in all of this is that projects are versioned _by family_, and all projects _within a family_
+generally should have the same version.  That said, superpoms may have
+completely different versions than the family(ies) they govern. And projects may have versions
+that diverge intentionally (as in `lexakai` and `lexakai-annotations`).  In a mixed-version scenario, 
+the most prevalent version wins. In the case that it is a choice between two equally matched versions, 
+the version of the project whose `artifactId` is closest (by [levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance))
+to the name of the family wins.
 
-So, Cactus tooling assumes the following:
+> NOTE: When using Cactus, we should try to avoid manually meddling with the versions of projects.
+> This will help to ensure that we don't end up in a state where they are inconsistent. 
+
+Cactus tooling assumes the following:
 
   * That it is (usually) operating in a tree of Maven projects
   * That they are (usually) part of a less granular tree of Git submodules
@@ -313,8 +347,9 @@ So, Cactus tooling assumes the following:
   * That any operation that is scoped to a family or set of families can use that information
     to decide what Git submodules should and should not be acted on
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Version Management
+### Version Management <a name = "version-management"></a>
 
 Versioning software is a hard problem, to say the least.  A version number, name or identifier for a library
 is a _human-created, fallible name_ which might or might not indicate something has actually changed, and
@@ -334,23 +369,23 @@ In order to do that, Cactus makes a few assumptions:
   * That version numbers for projects developed using it are (at least) 3-digit dewey-decimal,
     with an optional `-` separated suffix like Maven's magic `-SNAPSHOT` suffix - roughly 
     [semantic versioning](https://semver.org/) compatible
-  * That all pom files for _java projects_ that are members of a given _project family_ will use
-    the same version string, and should be managed for that
-  * That superpoms - _shared configuration POMs_ may have their own versioning scheme (still 3-digit
+  * That all pom files for _Java projects_ that are members of a given _project family_ will use
+    the same version string, and should be managed by that
+  * That superpoms (_shared configuration POMs_) may have their own versioning scheme (still 3-digit
     as described above, but not necessarily the same string as code-containing POMs use, since these
     are likely to change less often)
-  * Bill-of-materials POMs also may have their own versions - since these are useless as dependencies
+  * Bill-of-materials POMs (BOMs) also may have their own versions - since these are useless as dependencies
     for anything and need not be published, their version is largely irrelevant, but since it is
     difficult to avoid publishing them to Maven central using the Nexus plugin, their versions will
     be bumped if they have been published before when automating version changes
   * That versions of things that may need their versions bumped are managed with Maven _properties_,
     and changing a property will change a dependency's version
 
-Cactus' `BumpVersionMojo` is the heart of version management here, and goes to great lengths to
-_guarantee_ that versioning is accurate and reflects the actual changes you are trying to push or
+Cactus' `bump-version` Mojo is the heart of version management here, and goes to great lengths to
+_guarantee_ that versioning is accurate and reflects the actual changes we are trying to push or
 publish.  Specifically:
 
-  * Superpom pom files are checked against published versions of them from Maven central.  If they exist
+  * Superpoms are checked against versions published on Maven central.  If they exist
     on Maven central and are not identical, then the version of the superpom is bumped.
   * If a superpom's version is changed, then that change will cascade through every POM that references
     it as a parent, if necessary, causing the versions of those POM files (if they declare their
@@ -360,10 +395,12 @@ This makes impossible such scenarios as:
 
   * I change some dependencies in `foo-superpom` to different versions, and then publish `foo` - my
     colleague can't build it because she has a different `foo-superpom` than I do, and in fact the
-    set of dependencies anyone getting it from Maven central will not be the same as what I think
+    set of dependencies for anyone getting it from Maven central will not be the same as what I think
     they are.
 
-#### Property Patterns Cactus Will Recognize
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+### Property Patterns Cactus Will Recognize <a name = "property-patterns"></a>
 
 Cactus will recognize properties with the suffixes `.version`, `.prev.version`, and `.previous.version`
 as being _version indicating properties_, and will update them appropriately if the portion of the
@@ -373,17 +410,18 @@ underneath the submodule root it is building.
 In the case of an artifact id, the prefix may be the artifact id verbatim, or may substitute `.` characters
 for `-` characters and it will be identified and mapped to the
 referenced project.  So, `cactus.version`, `cactus.maven.plugin.version`, `cactus-maven-plugin.version`
-would all be recognized and updated correctly if you were bumping the version of the Cactus family in
+would all be recognized and updated correctly if we were bumping the version of the Cactus family in
 a tree containing it.
 
-Versions that identify _previous_ versions of things are important for cases where some project is
+Versions that identify _previous_ versions of artifacts are important for cases where some project is
 used as part of the build process _itself_, and the previous release must be used on some or all
 projects to avoid creating a circular dependency Maven would reject.  In `telenav-build`, Cactus
 and Lexakai are both examples of this phenomenon - the cactus plugin cannot be used to generate
 metadata for itself while it is being compiled, but the previous release can be.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-#### Bumping a Version
+### Bumping a Version <a name = "bumping"></a>
 
 In general, for reasons described above, editing versions by hand is strongly discouraged - it is
 easy to underestimate the scope of things that need updating as a consequence, while that is exactly
@@ -392,15 +430,17 @@ the sort of task computers excel at.
 There are two aspects to a version - its dewey-decimal portion - the leading group of `.`-delimited
 numbers - and its suffix, or _flavor_.  The `bump-version` mojo can change one or the other or both.
 A change to the decimal portion is defined by the _magnitude_ property - the
- `-Dcactus.version.change.magnitude=` property with a value of none, dot, minor or major - and
-the - `Dcactus.version.flavor.change=` which can be `unchanged`, `to-release` or `to-snapshot`.
-Granular properties for applying different decimal changes to different project families are
+ `-Dcactus.version.change.magnitude=` property with a value of `none`, `dot`, `minor` or `major` - and
+the `-Dcactus.version.flavor.change=` which can be `unchanged`, `to-release` or `to-snapshot`.
+More granular properties for applying different decimal changes to different project families are
 described in detail in the release-profile-3 section.
 
-### Maven Phases and Cactus
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+### Maven Phases and Cactus <a name = "maven-phases"></a>
 
 Maven has a set of predefined [_lifecycle stages_, also known as "phases"](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) -
-validate, compile, test, package, verify, install, deploy, plus a number of pre- and post- phases
+`validate`, `compile`, `test`, `package`, `verify`, `install`, `deploy`, plus a number of pre- and post- phases
 not usually used from the command-line.  These are hard-coded into Maven's API - a plugin cannot
 invent its own.
 
@@ -416,60 +456,84 @@ of any task that might need the consequences of that work_.
 Most of the mojos run in the `validate` phase - the second phase, which is part of any Maven invocation.
 Those that perform git operations - which effectively run against git repositories, but happen to get
 invoked against some project or other - run either on the first project encountered or the last, and
-are otherwise skipped (if you were doing a git `pull` operation, and happened to invoke it against
-the root aggregator project, you would not want to run `git pull` once for every project times the
+are otherwise skipped (if we were doing a git `pull` operation, and happened to invoke it against
+the workspace project, we would not want to run `git pull` once for every project times the
 number of git submodules plus one!).
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Lexakai, Documentation and Assets (Github Pages) Repositories
+### Lexakai, Documentation and Assets (Github Pages) Repositories <a name = "documentation"></a>
 
-The cactus-maven-plugin includes mojos for building documentation using Lexakai, an ideosyncratic
-tool for maintaining and transforming `README.md` files such as this one, and populating _assets
-repositories_ - git submodules under the submodule root that do not contain a `pom.xml` in their
-root, and are published via Github Pages as web sites for the projects.
+The `cactus-maven-plugin` includes Mojos for building Javadoc, and [Lexakai](https://www.lexakai.org) documentation.
+Lexakai is a tool for maintaining documentation indexes, documentation coverage, and UML diagrams (both
+automatic, and curated). Lexakai updates sections of `README.md` files (such as this one) that are 
+visible on Github:
+
+<a href="https://www.lexakai.org/images/kivakit-1.png">
+<img title="kivakit (page 1)" src="https://www.lexakai.org/images/kivakit-1.png" width="100" height="238" alt="kivakit (page 1)">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;
+<a title="kivakit (page 2)" href="https://www.lexakai.org/images/kivakit-2.png">
+<img src="https://www.lexakai.org/images/kivakit-2.png" width="100" height="238" alt="kivakit (page 2)">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;
+<a title="kivakit-application (page 1)" href="https://www.lexakai.org/images/kivakit-application-1.png">
+<img src="https://www.lexakai.org/images/kivakit-application-1.png" width="100" height="238" alt="kivakit-application (page 1)">
+</a>&nbsp;&nbsp;&nbsp;&nbsp;
+<a title="kivakit-application (page 2)" href="https://www.lexakai.org/images/kivakit-application-2.png">
+<img src="https://www.lexakai.org/images/kivakit-application-2.png" width="100" height="238" alt="kivakit-application (page 2)">
+</a>
+
+
+The UML and Javadoc referenced by the automatically-maintained `README.md` indexes are written to 
+content-only repositories (which end in '-assets' by convention). This content can be published via 
+Github Pages, or using some other content system. For details see [http://www.lexakai.org](http://www.lexakai.org).
+
+The branches of cross-repository documentation links are updated by the `replace` Mojo.
 
 The cactus plugin includes some special treatment of assets repositories, which typically have
-a single branch (by default, named `publish`) - mojos which, operate on git repositories will,
+a single branch (by default, named `publish`). Mojos which operate on git repositories will,
 by default, ignore assets repositories except when run with `-Dcactus.scope=all`.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Caveats
+### Caveats <a name = "caveats"></a>&nbsp;
 
 There are some operations that simply *require* more than once Maven invocation - there is no way
 to update the version of a bunch of projects, and then build them in the same Maven process - Maven
 has already loaded the `pom.xml` files for what is being built in-memory, and it will not detect
 that the versions of some of them have changed.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Orchestrating Cactus Operations using Maven Profiles (releasing and similar)
+## Orchestrating Cactus Operations using Maven Profiles (releasing and similar) <a name = "orchestrating"></a>
 
 Doing a release, especially of many projects, tends to involve a predictable set of steps - roughly:
 
-  * Ensure there are no outstanding changes not present on disk
-  * Ensure that what you have on disk actually builds without test failures
-  * Make a clean clone of the root superpom and its contents somewhere, and set up `MAVEN_OPTS` *not*
-    to use `$HOME/.m2/repository`, to guarantee that what your publishing can really be built from
-    nothing but an internet connection and installs of Git, Maven and Java
-  * Bump the versions of everything that will be published (possibly moving from `-SNAPSHOT` to non-snapshot versions)
+  * Ensure that all projects are on their `develop` branches
+  * Ensure there are no outstanding changes
+  * Ensure that the projects build without test failures
+  * Make a clean clone of the root superpom and its contents somewhere, and set up `MAVEN_OPTS` to
+    use a temporary repository instead of `$HOME/.m2/repository`, to guarantee that what our publishing 
+    can really be built from nothing but an internet connection and installs of Git, Maven and Java
+  * Bump the versions of everything that will be published (likely removing `-SNAPSHOT`)
   * Create a release branch
-  * Ensure that the result of that transform really builds
+  * Ensure that the result builds
   * Generate / update / publish any external documentation
   * Build the projects, along with javadoc, source jars and any other artifacts to publish to a Maven repository
-  * Publish the artifacts to a Maven repository
+  * Sign and publish the artifacts to a Maven repository
   * Push the changes to one or more release branches (we use both `release/n.n.n` and `release/current`)
-  * Bump the versions to a new snapshot version
+  * Bump project versions to a new snapshot version
   * Merge the result back to a development branch
 
-The Cactus plugin contains a number of mojos that are a logical either part of, or can assist with,
-those tasks.
+The Cactus plugin contains a number of Mojos that perform these tasks.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### FilterFamiliesMojo (filter-families)
+### filter-families <a name = "filter-families"></a>
 
-The `filter-families` mojo serves as a general swiss-army knife for turning other mojos - including those
+The `com.telenav.cactus:cactus-maven-plugin:filter-families` mojo serves as a general swiss-army knife for turning other mojos - including those
 built into Maven - *off* for projects that are not part of what is being released.  It literally just takes
 a set of _project families_ and a set of _properties to set to true_ - most Maven mojos have a `skip`
-property you can set to tell them _don't run against this project_.
+property we can set to tell them _don't run against this project_.
 
 We can use the `FilterFamiliesMojo` to guarantee we don't accidentally publish anything we don't intend
 to, or do expensive work against projects that are irrelevant to the release - so, when we get ready to
@@ -477,22 +541,24 @@ deploy our jars to Maven central, we just give it the property `skipNexusStaging
 of the properties to set to true for anything *not* part of the project family (or in the superpom
 parent hierarchy of) anything we're publishing.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### FilterDeployingAlreadyPublishedMojo (filter-published)
+### filter-published <a name = "filter-published"></a>
 
-The `filter-published` mojo works similarly, but specifically turns off publishing (and whatever else
-you tell it to) specifically for projects which have already been published to Maven central (or wherever
-you point it to) and are unaltered from their bits there.  It will also fail the build - early - if you
-are trying to publish something, and it has already been published, but your local copy differs.
+The `com.telenav.cactus:cactus-maven-plugin:filter-published` mojo works similarly, but specifically turns off publishing (and whatever else
+we tell it to) specifically for projects which have already been published to Maven central (or wherever
+we point it to) and are unaltered from their bits there.  It will also fail the build - early - if we
+are trying to publish something, and it has already been published, but our local copy differs.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Anatomy of A Set of Profiles for Releasing 1-N Project Families
+## Releasing <a name = "releasing"></a>&nbsp;
 
 Here is the set of profiles we're using for releases of cactus, kivakit, lexakai and mesakit at
 Telenav - consider them a work-in-progress, not the final word on the Official Right Way to do this - this
 is a fairly new project, and subject to change.
 
-The release-phases described here are orchstrated through a `release.sh` script that pauses for
+The release-phases described here are orchestrated through a `release.sh` script that pauses for
 docs review, configures Maven to ignore the local repo and a few other things - but the heavy
 lifting is done by Maven and the cactus plugin.
 
@@ -500,8 +566,9 @@ All of these profiles expect to be invoked with `-Dcactus.families=` set to the 
 families being released.  In our case, since our checkout contains cactus itself, we explicitly
 pass the cactus version.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-#### Release Phase 0 - Check Local Checkout Consistency, Clone into Temp
+### Release Phase 0 - Check Local Checkout Consistency, Clone into Temp <a name = "phase-0"></a>&nbsp;
 
 ```xml
 <plugin>
@@ -549,7 +616,6 @@ not implicitly take the family from whatever project it was invoked against.
                 <goal>check</goal>
             </goals>
             <configuration>
-                <!-- fixme -->
                 <checkRemoteModifications>false</checkRemoteModifications>
             </configuration>
 ```
@@ -560,7 +626,7 @@ to ensure that what is there is suitable for release, including checking
   * That there are no remote modifications that have not been pulled
   * That there are no submodules that contain more than one project family,
     where none is used as a superpom (this strongly indicates that either a new project
-    was misplaced or has a typo in its group-id)
+    was misplaced or has a typo in its groupId)
   * That no intermediate bill-of-materials POM files are declared as the `<parent>` of
     any project (many IDEs will configure a newly created project this way, and it
     means that that project will not share plugin and dependency configuration with
@@ -639,8 +705,9 @@ operator to know what to do next:
 The `print-message` mojo is used in each of the subsequent phases, but will be
 omitted from the rest of this document for brevity.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-#### Release Phase 1 - Bump Versions of Updated and To-Be-Released Projects
+### Release Phase 1 - Bump Versions of Updated and To-Be-Released Projects <a name = "phase-1"></a>&nbsp;
 
 This phase, and the remainder, run in the directory under `/tmp` created in phase 0.
 
@@ -772,9 +839,11 @@ a family, but the changes it is told to apply add up to doing nothing to the ver
 </profile>
 ```
 
-### Release Phase 2 - Publishing Documentation, Testing
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-This is the most intensive step of our bulid, because it involves generating
+### Release Phase 2 - Publishing Documentation, Testing <a name = "phase-2"></a>&nbsp;
+
+This is the most intensive step of our build, because it involves generating
 javadoc and lexakai documentation into _assets checkouts_ that are part of
 our git submodule tree, which contain documentation served by Github Pages.
 
@@ -980,11 +1049,12 @@ unsigned, and this was part of the process of fixing it.
 
 ```
 
-At the end of this phase, the operator is requeested to review the generated
+At the end of this phase, the operator is requested to review the generated
 documentation and make sure things look right before proceeding.
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 3 - Commiting Changes, Updating Metadata and Publishing
+### Release Phase 3 - Committing Changes and Updating Metadata <a name = "phase-3"></a>&nbsp;
 
 A number of our projects use the `cactus-metadata` library, which generates a
 couple of properties files into the sources that describe the project and build,
@@ -1242,14 +1312,13 @@ actually get published.
         </profile>
 ```
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 4 - Commiting Changes, Updating Metadata and Publishing
+### Release Phase 4 - Publishing to Maven Central<a name = "phase-4"></a>&nbsp;
 
 At this point, our release-proper is done;  what remains is pushing changes, merging
 them, and getting the development branch updated, so that everything is in sync
 and ready for future development.
-
-
 
 ```xml
 <profile>
@@ -1372,8 +1441,100 @@ _and_ the updated development branch to be pushed, in each affected repository.
 </profile>
 ```
 
-Future Plans
-============
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+## Cactus Scripts <a name = "cactus-scripts"></a>&nbsp;
+
+At the time of this writing, cactus 1.5.19, this is the set of installed scripts and
+their descriptions, as mentioned in the quick-start section at the top of this document:
+
+### Commit all submodules (ccm)
+
+	$HOME/bin/cactus-commit-all-submodules
+	$HOME/bin/ccm
+
+	Commit all changes in all git submodules in one
+	shot, with one commit message.
+
+
+### Push all submodules (cpush)
+
+	$HOME/bin/cactus-push-all-submodules
+	$HOME/bin/cpush
+
+	Push all changes in all submodules in one shot, after
+	ensuring that your local checkouts are all up-to-date.
+
+
+### Pull all submodules (cpull)
+
+	$HOME/bin/cactus-pull-all-submodules
+	$HOME/bin/cpull
+
+	Pull changes in all submodules
+
+
+### Development preparation (cdev)
+
+	$HOME/bin/cactus-development-preparation
+	$HOME/bin/cdev
+
+	Switch to the 'develop' branch in all java project checkouts.
+
+
+### Simple bump version (cbump)
+
+	$HOME/bin/cactus-simple-bump-version
+	$HOME/bin/cbump
+
+	Bump the version of the Maven project family it is invoked against,
+	updating superpom properties with the new version but NOT UPDATING
+	THE VERSIONS OF THOSE SUPERPOMS.
+
+	This is suitable for the simple case of updating the version
+	of one thing during active development, not for doing a full
+	product release.
+
+
+### Last change by project (cch)
+
+	$HOME/bin/cactus-last-change-by-project
+	$HOME/bin/cch
+
+	Prints git commit info about the last change that altered a java
+	source file in a project, or with --all, the entire tree.
+
+
+### Family versions (cver)
+
+	$HOME/bin/cactus-family-versions
+	$HOME/bin/cver
+
+    Prints the inferred version of each project family in the current
+	project tree.  These versions are what will be the basis used by
+	BumpVersionMojo when computing a new revision.
+
+
+### Release one project (crel)
+
+	$HOME/bin/cactus-release-one-project
+	$HOME/bin/crel
+
+	Release a single project - whatever pom you run it against - to ossrh or wherever it is configured to send it.
+
+
+### Update scripts (cactus-script-update)
+
+	$HOME/bin/cactus-update-scripts
+	$HOME/bin/cactus-script-update
+
+	Finds the latest version of cactus you have installed, and runs
+	its install-scripts target to update/refresh the scripts
+	you are installing right now.
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+## Road Map <a name = "road-map"></a>&nbsp;
 
 ### More Scripts
 
@@ -1381,8 +1542,7 @@ The set of scripts installed by the `install-scripts` mojo is fairly incomplete,
 most take no arguments and do one canned thing.  This should be improved, and scripts
 for common tasks like branching added.
 
-
-### Fully Automated Granular Versioning
+### Fully-Automated Granular Versioning
 
 Updating the versions of entire families of libraries, whether or not any code in
 them or their dependencies has changed is a concession to the reality of managing trees
@@ -1409,109 +1569,11 @@ projects within the codebase - ever.  A requirement of software versions is that
 machine-readable;  the best way to keep that process reliable and mistake-free is if they
 are also machine- - not human - _written_.
 
-
-Cactus Scripts
-==============
-
-At the time of this writing, cactus 1.5.19, this is the set of installed scripts and
-their descriptions, as mentioned in the quick-start section at the top of this document:
-
-Commit all submodules (ccm)
----------------------------
-
-	$HOME/bin/cactus-commit-all-submodules
-	$HOME/bin/ccm
-
-	Commit all changes in all git submodules in one
-	shot, with one commit message.
-
-
-Push all submodules (cpush)
----------------------------
-
-	$HOME/bin/cactus-push-all-submodules
-	$HOME/bin/cpush
-
-	Push all changes in all submodules in one shot, after
-	ensuring that your local checkouts are all up-to-date.
-
-
-Pull all submodules (cpull)
----------------------------
-
-	$HOME/bin/cactus-pull-all-submodules
-	$HOME/bin/cpull
-
-	Pull changes in all submodules
-
-
-Development preparation (cdev)
-------------------------------
-
-	$HOME/bin/cactus-development-preparation
-	$HOME/bin/cdev
-
-	Switch to the 'develop' branch in all java project checkouts.
-
-
-Simple bump version (cbump)
----------------------------
-
-	$HOME/bin/cactus-simple-bump-version
-	$HOME/bin/cbump
-
-	Bump the version of the Maven project family it is invoked against,
-	updating superpom properties with the new version but NOT UPDATING
-	THE VERSIONS OF THOSE SUPERPOMS.
-
-	This is suitable for the simple case of updating the version
-	of one thing during active development, not for doing a full
-	product release.
-
-
-Last change by project (cch)
-----------------------------
-
-	$HOME/bin/cactus-last-change-by-project
-	$HOME/bin/cch
-
-	Prints git commit info about the last change that altered a java
-	source file in a project, or with --all, the entire tree.
-
-
-Family versions (cver)
-----------------------
-
-	$HOME/bin/cactus-family-versions
-	$HOME/bin/cver
-
-\Prints the inferred version of each project family in the current
-	project tree.  These versions are what will be the basis used by
-	BumpVersionMojo when computing a new revision.
-
-
-Release one project (crel)
---------------------------
-
-	$HOME/bin/cactus-release-one-project
-	$HOME/bin/crel
-
-	Release a single project - whatever pom you run it against - to ossrh or wherever it is configured to send it.
-
-
-Update scripts (cactus-script-update)
--------------------------------------
-
-	$HOME/bin/cactus-update-scripts
-	$HOME/bin/cactus-script-update
-
-	Finds the latest version of cactus you have installed, and runs
-	its install-scripts target to update/refresh the scripts
-	you are installing right now.
-
-
+## Building Cactus
 
 > [How to build this project](https://github.com/Telenav/telenav-build/blob/release/1.5.19/documentation/building.md) <!-- [cactus.replacement-branch-name] --> 
+
+## Source Code
 
 [//]: # (end-user-text)
 
