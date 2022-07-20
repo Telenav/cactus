@@ -28,37 +28,51 @@ Tools for building projects in Git submodules with Maven
 This repository contains the `cactus-maven-plugin` and related libraries, for building, developing,
 maintaining and releasing trees of projects that are managed using Git submodules and built with Maven.
 
-[**Quick Start**](#quick-start)  
-[**Cactus Scripts**](#cactus-scripts)  
+### Quick Start <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
 
+[**Cactus Quick Start**](#quick-start)  
+[**Cactus Scripts**](#cactus-scripts)  
+[**Release Script for Telenav Open Source**](https://github.com/Telenav/telenav-build/blob/release/current/documentation/releasing.md)
+
+### Background
+ 
 [**Problem Definition**](#problem-definition)  
 [**Maven**](#maven-practices)  
 [**Maven Limitations**](#maven-limitations)  
 
-[**Cactus**](#cactus-practices)  
+### Cactus
+
+[**About Cactus**](#cactus)  
  * [**Project Families**](#project-families)  
- * [**Version Management**](#version-management)  
- * [**Property Patterns**](#property-patterns)  
+ * [**Managing Versions**](#version-management)  
+ * [**Version Property Patterns**](#property-patterns)  
  * [**Bumping Versions**](#bumping)  
 
-[**Maven and Cactus**](#maven-phases-and-cactus)  
- * [**Documentation**](#documentation)  
- * [**Orchestration of Mojos**](#orchestrating)  
-   * [**filter-families**](#filter-families)  
-   * [**filter-published**](#filter-published)
+### Maven
 
-[**Releasing**](#releasing)  
- * [**Release Phase 0 - Cloning**](#release-phase-0)  
- * [**Release Phase 1 - Bumping Versions**](#release-phase-1)  
- * [**Release Phase 2 - Creating Documentation**](#release-phase-2)  
- * [**Release Phase 3 - Committing**](#release-phase-3)  
- * [**Release Phase 4 - Publishing**](#release-phase-4)  
+[**Cactus and Maven**](#cactus-and-maven)  
+ * [**Documentation**](#documentation)  
+ * [**Releasing**](#releasing)  
+ * [**Release Phases**](#release-phases)  
+   * [**Release Phase 0 - Cloning**](#phase-0)  
+   * [**Release Phase 1 - Bumping Versions**](#phase-1)  
+   * [**Release Phase 2 - Creating Documentation**](#phase-2)  
+   * [**Release Phase 3 - Committing**](#phase-3)  
+   * [**Release Phase 4 - Publishing**](#phase-4)  
+
+### Appendices
+
+[**Cactus Mojos**](#cactus-mojos)
+ * [**filter-families**](#filter-families)  
+ * [**filter-published**](#filter-published)  
+
+[**Cactus Scripts**](#cactus-scripts)  
 
 [**Road Map**](#road-map)
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Quick Start  <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
+## Cactus Quick Start  <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
 
 The `cactus-maven-plugin` lets us perform tasks against *sets of git repositories* in a tree of
 projects managed using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules), as
@@ -287,7 +301,7 @@ some are improved in (not yet released) Maven 4; some must be lived with:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Cactus <a name = "cactus"></a>
+## About Cactus <a name = "cactus"></a>
 
 Cactus codifies some development practices that originated in [Apache Wicket](https://wicket.apache.org/)
 and proved valuable - specifically, having [_rings of stability_](https://medium.com/@jonathanlocke/open-source-repository-structure-c1050d5840c6) 
@@ -349,7 +363,7 @@ Cactus tooling assumes the following:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Version Management <a name = "version-management"></a>
+### Managing Versions <a name = "version-management"></a>
 
 Versioning software is a hard problem, to say the least.  A version number, name or identifier for a library
 is a _human-created, fallible name_ which might or might not indicate something has actually changed, and
@@ -400,7 +414,7 @@ This makes impossible such scenarios as:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Property Patterns Cactus Will Recognize <a name = "property-patterns"></a>
+### Version Property Patterns <a name = "property-patterns"></a>
 
 Cactus will recognize properties with the suffixes `.version`, `.prev.version`, and `.previous.version`
 as being _version indicating properties_, and will update them appropriately if the portion of the
@@ -421,7 +435,7 @@ metadata for itself while it is being compiled, but the previous release can be.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Bumping a Version <a name = "bumping"></a>
+### Bumping Versions <a name = "bumping"></a>
 
 In general, for reasons described above, editing versions by hand is strongly discouraged - it is
 easy to underestimate the scope of things that need updating as a consequence, while that is exactly
@@ -437,7 +451,7 @@ described in detail in the release-profile-3 section.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Maven Phases and Cactus <a name = "maven-phases"></a>
+### Cactus and Maven <a name = "cactus-and-maven"></a>
 
 Maven has a set of predefined [_lifecycle stages_, also known as "phases"](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) -
 `validate`, `compile`, `test`, `package`, `verify`, `install`, `deploy`, plus a number of pre- and post- phases
@@ -462,7 +476,7 @@ number of git submodules plus one!).
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Lexakai, Documentation and Assets (Github Pages) Repositories <a name = "documentation"></a>
+### Documentation <a name = "documentation"></a>
 
 The `cactus-maven-plugin` includes Mojos for building Javadoc, and [Lexakai](https://www.lexakai.org) documentation.
 Lexakai is a tool for maintaining documentation indexes, documentation coverage, and UML diagrams (both
@@ -504,7 +518,7 @@ that the versions of some of them have changed.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Orchestrating Cactus Operations using Maven Profiles (releasing and similar) <a name = "orchestrating"></a>
+## Releasing <a name = "releasing"></a>
 
 Doing a release, especially of many projects, tends to involve a predictable set of steps - roughly:
 
@@ -524,51 +538,45 @@ Doing a release, especially of many projects, tends to involve a predictable set
   * Bump project versions to a new snapshot version
   * Merge the result back to a development branch
 
-The Cactus plugin contains a number of Mojos that perform these tasks.
+The Cactus plugin contains a number of Mojos that perform these tasks. Their functions are detailed in 
+the Mojo appendix.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### filter-families <a name = "filter-families"></a>
+## Release Phases <a name = "releasing"></a>&nbsp;
 
-The `com.telenav.cactus:cactus-maven-plugin:filter-families` mojo serves as a general swiss-army knife for turning other mojos - including those
-built into Maven - *off* for projects that are not part of what is being released.  It literally just takes
-a set of _project families_ and a set of _properties to set to true_ - most Maven mojos have a `skip`
-property we can set to tell them _don't run against this project_.
-
-We can use the `FilterFamiliesMojo` to guarantee we don't accidentally publish anything we don't intend
-to, or do expensive work against projects that are irrelevant to the release - so, when we get ready to
-deploy our jars to Maven central, we just give it the property `skipNexusStagingDeployMojo` as one
-of the properties to set to true for anything *not* part of the project family (or in the superpom
-parent hierarchy of) anything we're publishing.
-
-<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
-
-### filter-published <a name = "filter-published"></a>
-
-The `com.telenav.cactus:cactus-maven-plugin:filter-published` mojo works similarly, but specifically turns off publishing (and whatever else
-we tell it to) specifically for projects which have already been published to Maven central (or wherever
-we point it to) and are unaltered from their bits there.  It will also fail the build - early - if we
-are trying to publish something, and it has already been published, but our local copy differs.
-
-<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
-
-## Releasing <a name = "releasing"></a>&nbsp;
-
-Here is the set of profiles we're using for releases of cactus, kivakit, lexakai and mesakit at
-Telenav - consider them a work-in-progress, not the final word on the Official Right Way to do this - this
+Here is the set of profiles we're using for releases of `cactus`, `kivakit`, `lexakai` and `mesakit` at
+Telenav - consider them a work-in-progress, not the final word on the "Official Right Way" to do this - this
 is a fairly new project, and subject to change.
 
-The release-phases described here are orchestrated through a `release.sh` script that pauses for
-docs review, configures Maven to ignore the local repo and a few other things - but the heavy
-lifting is done by Maven and the cactus plugin.
+### Telenav Open Source Releases
 
-All of these profiles expect to be invoked with `-Dcactus.families=` set to the list of project
+The telenav-build workspace contains a turn-key script called `release.sh` which orchestrates the 
+phases described here to make it easy to release the Telenav Open Source project families. The script:
+
+ - Checks tool versions
+ - Determines the cactus plugin version to use
+ - Configures maven to use a temporary repository
+ - Prompts for the project families and versions to release
+ - Installs superpoms
+ - Removes project caches
+ - Executes the release phases below
+ - Pauses to allow documentation review
+
+```
+cd telenav-build
+./release.sh
+```
+
+For full details on the release script, see [telenav-build/releasing](https://github.com/Telenav/telenav-build/blob/release/current/documentation/releasing.md)
+
+All release phases expect to be invoked with `-Dcactus.families=` set to the list of project
 families being released.  In our case, since our checkout contains cactus itself, we explicitly
 pass the cactus version.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 0 - Check Local Checkout Consistency, Clone into Temp <a name = "phase-0"></a>&nbsp;
+### Release Phase 0 - Check Local Checkout Consistency, Clone into Temporary Workspace <a name = "phase-0"></a>&nbsp;
 
 ```xml
 <plugin>
@@ -599,7 +607,7 @@ the consistency check not to fail when it sees that.
                 <familiesRequired>true</familiesRequired>
 ```
 
-Here, we the `<familiesRequired>` tag tells the filter-families plugin to fail the
+Here, the `<familiesRequired>` tag tells the filter-families plugin to fail the
 build if the set of families being released is not _explicitly_ specified - it should
 not implicitly take the family from whatever project it was invoked against.
 
@@ -607,7 +615,8 @@ not implicitly take the family from whatever project it was invoked against.
                 <properties>
                     cactus.generate.lexakai.skip,
                     cactus.publish.check.skip,
-                    maven.javadoc.skip</properties>
+                    maven.javadoc.skip
+                </properties>
             </configuration>
         </execution>
         <execution>
@@ -620,12 +629,12 @@ not implicitly take the family from whatever project it was invoked against.
             </configuration>
 ```
 
-The consistency check performs a number of checks of the project tree (all disablable)
+The consistency check performs a number of checks of the project tree (all disable-able)
 to ensure that what is there is suitable for release, including checking
 
   * That there are no remote modifications that have not been pulled
   * That there are no submodules that contain more than one project family,
-    where none is used as a superpom (this strongly indicates that either a new project
+    where none is used as a superpom (this indicates that either a new project
     was misplaced or has a typo in its groupId)
   * That no intermediate bill-of-materials POM files are declared as the `<parent>` of
     any project (many IDEs will configure a newly created project this way, and it
@@ -633,15 +642,15 @@ to ensure that what is there is suitable for release, including checking
     the rest of its family)
   * That no checkout containing projects to be released or built is in the _detached head_ git state
   * That all checkouts containing non-superpom projects are on a branch with the same name
-    (otherwise, you might be releasing a mix of a feature branch for one thing and other branches
-    for others - almost never what you want)
+    (otherwise, we might be releasing a mix of a feature branch for one thing and other branches
+    for others - almost never what we want)
   * That there are no poms that declare a parent where `<relativePath>` implicitly or explicitly
     points outside the git submodule they live in (this would result in a project that could
     not be built when checked out on its own, which defeats the purpose of using git submodules
     as a way to _manage_ sets of projects, not dictate what folder layout a developer uses on
     disk)
-  * That there are no uncommited changes in the checkout
-  * That the _version flavor_ or suffix is consistent (you are not releasing a mix of
+  * That there are no uncommitted changes in the checkout
+  * That the _version flavor_ or suffix is consistent (we are not releasing a mix of
     release versions of some things and `-SNAPSHOT` versions of others)
 
 
@@ -659,7 +668,7 @@ to ensure that what is there is suitable for release, including checking
 The `clone` goal simply takes the origin and URL of the submodule root in whatever
 tree it is run in, and
 
-  * Clones it into a new directory in the system temporary directory
+  * Clones it into a new directory under `/tmp`
   * Hydrates all of the submodules
   * Gets all submodules onto the development branch (settable with a property - the default is `develop`)
   * Prints out the directory it was cloned into on stdout, so a script can extract it with 
@@ -667,7 +676,7 @@ tree it is run in, and
 
 The `print-message` mojo allows us to just attach a formatted message that will be printed
 to the console at the end of a Maven run, on success, on failure or always, which allows the
-operator to know what to do next:
+operator to know what to do next (when using the `telenav-build/release.sh` script, this can be ignored):
 
 ```xml
         <execution>
@@ -707,33 +716,37 @@ omitted from the rest of this document for brevity.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 1 - Bump Versions of Updated and To-Be-Released Projects <a name = "phase-1"></a>&nbsp;
+### Release Phase 1 - Bump Project Versions<a name = "phase-1"></a>&nbsp;
 
-This phase, and the remainder, run in the directory under `/tmp` created in phase 0.
+This phase, and the remainder, run in the workspace folder under `/tmp` created in phase 0.
 
 Here we do one of the most far-reaching steps of release:
 
-  1. Bump the versions all projects in all projects being release, getting them all on a
-    release version
-  2. Update properties across all `pom.xml` files that reference any project or family
-    being updated
+  1. Bump the versions of all projects being released, assigning each a
+     `release/[major].[minor].[dot]` version
+  2. Update versioning properties across all `pom.xml` files that reference any project or family
+     being updated
   3. If any of those properties were in superpoms, then
-     * Check if the current version of that superpom has already been published to Maven central
+     * Check if the current version of that superpom has already been published to Maven Central
      * If yes, bump its version
      * If no, omit it from the set of things to deploy
   4. If any of the above resulted in superpom version changes, also update every project that
-    references them in a property or as a parent, bumping those projects' version if there
-    is not one already being made for it
+     references them in a property or as a parent, bumping those projects' version if there
+     is not one already being made for it
   5. Loop, repeating the steps from 2-4 until no further changes are generated
-  6. Actually rewrite all of the `pom.xml` files that are to be changed
+  6. Rewrite all of the `pom.xml` files that are to be changed
+
+> WARNING: Since step 3 checks Maven Central, it is crucial to make sure that any pending
+> updates to superpoms on OSSRH have been propagated to [Maven Central](https://repo1.maven.org/maven2/com/telenav/)
+> before starting a release.
 
 > There _are_ *non-release only* cases for updating versions of things during development,
-> where you do *not* want to cascade changes across a vast slew of projects, and there are
-> two properties you can use to define how such changes are applied: `<bumpPolicy>ignore</bumpPolicy>` (in a
+> where we do *not* want to cascade changes across a vast slew of projects, and there are
+> two properties we can use to define how such changes are applied: `<bumpPolicy>ignore</bumpPolicy>` (in a
 > profile) or `-Dcactus.superpom.bump.policy=ignore` will cause properties in superpoms to
 > be updated, but their versions not altered.  `<singleFamily>true</singleFamily>` or
 > `-Dcactus.version.single.family=true` will not touch superpoms at all.  Both of these
-> options are __really, really, dangerous__ and you want to very clearly understand the
+> options are __very dangerous__ and we want to very clearly understand the
 > inconsistencies they can create.
 
 ```xml
@@ -787,8 +800,7 @@ Here we do one of the most far-reaching steps of release:
                     </execution>
 ```
 
-The set of properties here, where we describe what to do to, potentially, _all_
-of our Maven poms is worth going through here:
+The set of properties here, where we describe what to do to is worth going through:
 
   * `<scope>family</scope>` - the operation we are doing applies to a list of families
     specified by `-Dcactus.families=...` on the command line
@@ -801,8 +813,8 @@ of our Maven poms is worth going through here:
   * `<versionFlavor>to-release</versionFlavor>` - instruct `bump-version` to strip
     `-SNAPSHOT` from any versions that have them
   * `<createReleaseBranch>true</createReleaseBranch>` - create an appropriate release
-    branch in each repository.  This comes with a caveat - both the submodule root
-    and the superpoms submodule straddle _all_ of the _project families_ we have.
+    branch in each repository.  This comes with a caveat - both the workspace root
+    and the superpom submodules straddle _all_ of the _project families_ we have.
     What should be the branch name for those?  For those, we generate a branch
     name from _all_ of the families and versions we're releasing, lexically sorted for
     predictability - e.g. `release/kivakit-1.6.1_lexakai-1.0.9_mesakit-0.9.15`
@@ -810,13 +822,12 @@ of our Maven poms is worth going through here:
 A few properties are not shown above (because our release script asks questions on
 the command-line and populates them):
 
-  1. `-Dcactus.families` / `<families>` - this is literally the list of things being
-     released
+  1. `-Dcactus.families` / `<families>` - this is the list of project families being released
 
   2. What precisely to do *to* the version of each project family.  The default is
         incrementing the _dot revision_ (third decimal).  To do something else, use
         `-Dcactus.version.change.magnitude=major/minor/dot/none` / `<versionChangeMagnitude>`
-        to set what is applied to each project - *or* you can specify explicitly using
+        to set what is applied to each project - *or* we can specify explicitly using
      * `cactus.no.bump.families` / `<noRevisionFamilies>` - set
      some families not to receive a version bump _at all_ (this is fine when going from snapshot
      to release, and not a good idea when going from release to snapshot)
@@ -827,7 +838,7 @@ the command-line and populates them):
      * `cactus.major.bump.families` / `<majorRevisionFamilies>` - set some families to have
        their _major_ version incremented (e.g. 2.9.1 -> 3.0.0)
 
-The bump-version mojo _will fail the build_ if it is told to change the version of
+The `bump-version` Mojo _will fail the build_ if it is told to change the version of
 a family, but the changes it is told to apply add up to doing nothing to the version.
 
 ```xml
@@ -844,13 +855,15 @@ a family, but the changes it is told to apply add up to doing nothing to the ver
 ### Release Phase 2 - Publishing Documentation, Testing <a name = "phase-2"></a>&nbsp;
 
 This is the most intensive step of our build, because it involves generating
-javadoc and lexakai documentation into _assets checkouts_ that are part of
-our git submodule tree, which contain documentation served by Github Pages.
+Javadoc and [Lexakai](https://www.lexakai.org) documentation. The generated
+files are put into _assets repositories_ that are part of our git submodule tree,
+and these assets repositories are served by Github Pages. Lexakai links these
+assets into the `README.md` for each project.
 
 Additionally, it contains a few hacks, because we are using JDK 9's module
 system, but have a few application projects that use the `maven-shade-plugin`
 to create "fat jars" that do not contain a `module-info.class` - and Javadoc
-aggregation gets unfixably broken if you try to combine modular and non-modular
+aggregation gets unfix-ably broken if we try to combine modular and non-modular
 javadoc - so we disable the shade plugin entirely here (it will be enabled
 when we build jars to deploy in phase 4).
 
@@ -915,7 +928,7 @@ what to do.
 This time, we are turning off a whole bunch of things with `filter-families` - if
 we're not going to deploy it, we don't want to generate documentation for it, and
 we definitely don't want to generate spurious diffs in assets repositories for things
-we don't intend to alter or publish - lexakai, in particular, updates `README.md` files
+we don't intend to alter or publish - Lexakai, in particular, updates `README.md` files
 for the projects it operates on, and that could generate changes in projects far beyond
 what we're releasing if not controlled.
 
@@ -929,9 +942,9 @@ what we're releasing if not controlled.
                     </execution>
 ```
 
-Lexakai also insists on some properties-like files existing in `documentation/` subfolders
-of projects;  all of the information in them can also be obtained from a Maven `pom.xml`
-file, so this step just ensures that such files are generated from `pom.xml` contents for
+Lexakai also requires some settings files existing in `documentation/` sub-folders
+of projects;  most of the information in them can also be obtained from a Maven `pom.xml`
+file, so this step just ensures that these files are generated from `pom.xml` contents for
 any projects that don't already have one, since that would be a silly reason to go back
 and start over on a release.
 
@@ -1049,7 +1062,7 @@ unsigned, and this was part of the process of fixing it.
 
 ```
 
-At the end of this phase, the operator is requested to review the generated
+At the end of this phase, the user is requested to review the generated
 documentation and make sure things look right before proceeding.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
@@ -1064,7 +1077,7 @@ can be critical when debugging a production problem and trying to reproduce the
 environment that created it.
 
 So we want to perform a commit (but not a push) before we do our final build that
-is going to be published, so that that metadata reflects the exact commit we are
+is going to be published, so that the metadata reflects the exact commit we are
 building, and reflects the fact that it was built against an unmodified checkout
 of that commit.
 
@@ -1090,15 +1103,15 @@ of that commit.
                             <includeRoot>true</includeRoot>
 ```
 
-You'll see `<includeRoot>true</includeRoot>` in several places - it is used by
+We see `<includeRoot>true</includeRoot>` in several places - it is used by
 a number of Cactus mojos that perform Git operations that change what commit a
 git submodule is on (by committing, or changing branches, or whatever).  Any change
 of a submodule's commit puts the submodule root into a _modified_ state - there is
-a change of commit pointed-to that you could commit or not.
+a change of commit pointed-to that we could commit or not.
 
-Depending on what you are doing, sometimes you want a commit to be automatically
+Depending on what we are doing, sometimes we want a commit to be automatically
 generated (and or for the `branch` fields in `$SUBMODULE_ROOT/.gitmodules` to be
-updated); sometimes you don't.  The default is not to do anything to the root - but
+updated); sometimes we don't.  The default is not to do anything to the root - but
 in this case, we definitely *do* want the root updated along with everything else.
 
 ```xml
@@ -1141,11 +1154,11 @@ in this case, we definitely *do* want the root updated along with everything els
 ```
 
 This simply turns off the Nexus and GPG plugins for superpoms that have already
-been published in identical versions on Maven central (you can't publish the same
+been published in identical versions on Maven central (we can't publish the same
 thing twice, so deployment would fail in sometimes difficult-to-debug ways).
 It also serves as a final sanity check that we are not trying to use a superpom
 we did _not_ bump the version of, but which has changed from its published version
-(the bump version mojo should prevent that, but you can't be too careful).
+(the bump version mojo should prevent that, but we can't be too careful).
 
 ```xml
                             <execution>
@@ -1275,8 +1288,8 @@ library reads are updated with the new commit-id following the commit.
 The above just ensures javadoc and source jars are created and signed.  The next
 step publishes to Maven central.
 
-Note one caveat here:  We *must* set `skipLocalStaging` to true.  If you have an
-aggregator project - a bill-of-materials - which is 
+Note one caveat here:  We *must* set `skipLocalStaging` to true.  If we have an
+aggregator project - a bill-of-materials POM - which is 
 _not also the parent of all of the things built under it_, then the only thing
 that will get published _is_ the bill-of-materials pom, not any of the projects that
 got built.
@@ -1340,7 +1353,7 @@ and ready for future development.
 ```
 
 Note that we use a `-DreleasePush=true` property, provided only from the command-line,
-to enable an operator to dry-run all of the steps of a release without actually pushing
+to enable a user to dry-run all of the steps of a release without actually pushing
 to Github - since cleaning up branches is no fun, and the steps that create branches will
 (intentionally) fail if the branches they would create already exist remotely.
 
@@ -1398,11 +1411,11 @@ to merge them into the `release/current` branch first.
                     </execution>
 ```
 
-Here we use the bump version mojo again, to switch to a snapshot version.  Switching to
-a snapshot version will automatically increment the last decimal - but if you passed
-arguments for altering other decimals when you bumped versions to get onto a release
-version, make sure *not* to pass them here, or you will wind up altering versions in more
-ways than you intend.
+Here we use the `bump-version` Mojo again, to switch to a snapshot version.  Switching to
+a snapshot version will automatically increment the last decimal - but if we passed
+arguments for altering other decimals when we bumped versions to get onto a release
+version, make sure *not* to pass them here, or we will wind up altering versions in more
+ways than we intend.
 
 ```
                     <execution>
@@ -1443,6 +1456,36 @@ _and_ the updated development branch to be pushed, in each affected repository.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
+## Cactus Mojos <a name = "cactus-mojos"></a>
+
+The following are a list of Cactus Mojos used in development and release processes. Mojos are
+invoked with `com.telenav.cactus:cactus-maven-plugin:[mojo-name]`. 
+
+### filter-families <a name = "filter-families"></a>
+
+The `filter-families` Mojo serves as a general swiss-army knife for turning other mojos - including those
+built into Maven - *off* for projects that are not part of what is being released.  It literally just takes
+a set of _project families_ and a set of _properties to set to true_ - most Maven mojos have a `skip`
+property we can set to tell them _don't run against this project_.
+
+We can use the `FilterFamiliesMojo` to guarantee we don't accidentally publish anything we don't intend
+to, or do expensive work against projects that are irrelevant to the release - so, when we get ready to
+deploy our jars to Maven central, we just give it the property `skipNexusStagingDeployMojo` as one
+of the properties to set to true for anything *not* part of the project family (or in the superpom
+parent hierarchy of) anything we're publishing.
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+### filter-published <a name = "filter-published"></a>
+
+The `filter-published` Mojo works similarly, but specifically turns off publishing (and whatever else
+we tell it to) specifically for projects which have already been published to Maven central (or wherever
+we point it to) and are unaltered from their bits there.  It will also fail the build - early - if we
+are trying to publish something, and it has already been published, but our local copy differs.
+
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
 ## Cactus Scripts <a name = "cactus-scripts"></a>&nbsp;
 
 At the time of this writing, cactus 1.5.19, this is the set of installed scripts and
@@ -1463,7 +1506,7 @@ their descriptions, as mentioned in the quick-start section at the top of this d
 	$HOME/bin/cpush
 
 	Push all changes in all submodules in one shot, after
-	ensuring that your local checkouts are all up-to-date.
+	ensuring that our local checkouts are all up-to-date.
 
 
 ### Pull all submodules (cpull)
@@ -1520,7 +1563,7 @@ their descriptions, as mentioned in the quick-start section at the top of this d
 	$HOME/bin/cactus-release-one-project
 	$HOME/bin/crel
 
-	Release a single project - whatever pom you run it against - to ossrh or wherever it is configured to send it.
+	Release a single project - whatever pom we run it against - to ossrh or wherever it is configured to send it.
 
 
 ### Update scripts (cactus-script-update)
@@ -1528,9 +1571,9 @@ their descriptions, as mentioned in the quick-start section at the top of this d
 	$HOME/bin/cactus-update-scripts
 	$HOME/bin/cactus-script-update
 
-	Finds the latest version of cactus you have installed, and runs
+	Finds the latest version of cactus we have installed, and runs
 	its install-scripts target to update/refresh the scripts
-	you are installing right now.
+	we are installing right now.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
@@ -1549,9 +1592,9 @@ them or their dependencies has changed is a concession to the reality of managin
 of hundreds of projects while keeping one's sanity.
 
 But Maven's `import` dependencies - which pulls in an entire `<dependencyManagement>` section
-from another `pom.xml` offers a sane solution - if you want to depend on libraries in the
-family `kivakit`, you just pull in its dependencies - you only need the version of one
-superpom, not everything - and you automatically get a set of dependencies that were tested
+from another `pom.xml` offers a sane solution - if we want to depend on libraries in the
+family `kivakit`, we just pull in its dependencies - we only need the version of one
+superpom, not everything - and we automatically get a set of dependencies that were tested
 and released together, without needing to know anything about the versions of individual
 libraries within that family.
 
@@ -1560,7 +1603,7 @@ without all the churn of releasing identical-but-for-the-version-number things t
 central.
 
 We already have tooling - the `last-change` mojo and the `cactus-last-change-by-project`
-script that will tell you the commit and commit date of the last change made to any file
+script that will tell we the commit and commit date of the last change made to any file
 in a project (filterable by file extension).  And we also have tooling to walk the complete
 dependency graph of a project and determine if anything in _that_ has changed.
 
