@@ -28,7 +28,8 @@ Tools for building projects in Git submodules with Maven
 This repository contains the `cactus-maven-plugin` and related libraries, for building, developing,
 maintaining and releasing trees of projects that are managed using Git submodules and built with Maven.
 
-### Quick Start <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
+<a name = "quick-start"></a>
+### Quick Start &nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
 
 [**Cactus Quick Start**](#quick-start)  
 [**Cactus Scripts**](#cactus-scripts)  
@@ -37,14 +38,14 @@ maintaining and releasing trees of projects that are managed using Git submodule
 ### Background
  
 [**Problem Definition**](#problem-definition)  
-[**Maven**](#maven-practices)  
+[**Maven**](#maven)  
 [**Maven Limitations**](#maven-limitations)  
 
 ### Cactus
 
 [**About Cactus**](#cactus)  
  * [**Project Families**](#project-families)  
- * [**Managing Versions**](#version-management)  
+ * [**Managing Versions**](#managing-versions)  
  * [**Version Property Patterns**](#property-patterns)  
  * [**Bumping Versions**](#bumping)  
 
@@ -53,6 +54,7 @@ maintaining and releasing trees of projects that are managed using Git submodule
 [**Cactus and Maven**](#cactus-and-maven)  
  * [**Documentation**](#documentation)  
  * [**Releasing**](#releasing)  
+ * [**Telenav Open Source Releases**](#telenav-releases)  
  * [**Release Phases**](#release-phases)  
    * [**Release Phase 0 - Cloning**](#phase-0)  
    * [**Release Phase 1 - Bumping Versions**](#phase-1)  
@@ -72,7 +74,8 @@ maintaining and releasing trees of projects that are managed using Git submodule
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Cactus Quick Start  <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
+<a name = "quick-start"></a>
+## Cactus Quick Start  &nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
 
 The `cactus-maven-plugin` lets us perform tasks against *sets of git repositories* in a tree of
 projects managed using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules), as
@@ -113,7 +116,8 @@ most labor-intensive parts of branching and versioning.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Problem Definition  <a name = "problem-definition"></a>
+<a name = "problem-definition"></a>
+## Problem Definition  
  
 Say we have a bunch of sets of libraries, and we build applications with them - but not just _one_ application.
 These libraries are also Open Source and should be buildable in isolation by a contributor only interested in
@@ -196,7 +200,8 @@ it all in one git repository to begin with - it defeats the purpose.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## General Maven Practices  <a name = "maven"></a>
+<a name = "maven"></a>
+## General Maven Practices 
 
 [Apache Maven](https://maven.apache.org/) comes with its own pros and cons and problems, and, in 
 complex project trees, requires some discipline to use effectively.  A few practices can be helpful:
@@ -265,7 +270,8 @@ complex project trees, requires some discipline to use effectively.  A few pract
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Maven Limitations <a name = "maven-limitations"></a>
+<a name = "maven-limitations"></a>
+### Maven Limitations
 
 Being the [best of a flawed set of available tools](https://timboudreau.com/blog/maven), Maven
 has some somewhat arbitrary limitations - most of which stem from its designers' naiveté about
@@ -301,7 +307,8 @@ some are improved in (not yet released) Maven 4; some must be lived with:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## About Cactus <a name = "cactus"></a>
+<a name = "cactus"></a>
+## About Cactus 
 
 Cactus codifies some development practices that originated in [Apache Wicket](https://wicket.apache.org/)
 and proved valuable - specifically, having [_rings of stability_](https://medium.com/@jonathanlocke/open-source-repository-structure-c1050d5840c6) 
@@ -320,7 +327,8 @@ in a similar way to Apache Wicket:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Project Families <a name = "project-families"></a>
+<a name = "project-families"></a>
+### Project Families 
 
 Cactus Maven tooling groups things by _project family_ - a string derived from the text after the
 final `.` character in its Maven [groupId](https://maven.apache.org/guides/mini/guide-naming-conventions.html)
@@ -363,7 +371,8 @@ Cactus tooling assumes the following:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Managing Versions <a name = "version-management"></a>
+<a name = "managing-versions"></a>
+### Managing Versions 
 
 Versioning software is a hard problem, to say the least.  A version number, name or identifier for a library
 is a _human-created, fallible name_ which might or might not indicate something has actually changed, and
@@ -414,7 +423,8 @@ This makes impossible such scenarios as:
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Version Property Patterns <a name = "property-patterns"></a>
+<a name = "property-patterns"></a>
+### Version Property Patterns 
 
 Cactus will recognize properties with the suffixes `.version`, `.prev.version`, and `.previous.version`
 as being _version indicating properties_, and will update them appropriately if the portion of the
@@ -435,7 +445,8 @@ metadata for itself while it is being compiled, but the previous release can be.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Bumping Versions <a name = "bumping"></a>
+<a name = "bumping"></a>
+### Bumping Versions 
 
 In general, for reasons described above, editing versions by hand is strongly discouraged - it is
 easy to underestimate the scope of things that need updating as a consequence, while that is exactly
@@ -451,7 +462,8 @@ described in detail in the release-profile-3 section.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Cactus and Maven <a name = "cactus-and-maven"></a>
+<a name = "cactus-and-maven"></a>
+### Cactus and Maven 
 
 Maven has a set of predefined [_lifecycle stages_, also known as "phases"](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) -
 `validate`, `compile`, `test`, `package`, `verify`, `install`, `deploy`, plus a number of pre- and post- phases
@@ -476,7 +488,8 @@ number of git submodules plus one!).
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Documentation <a name = "documentation"></a>
+<a name = "documentation"></a>
+### Documentation 
 
 The `cactus-maven-plugin` includes Mojos for building Javadoc, and [Lexakai](https://www.lexakai.org) documentation.
 Lexakai is a tool for maintaining documentation indexes, documentation coverage, and UML diagrams (both
@@ -509,7 +522,8 @@ by default, ignore assets repositories except when run with `-Dcactus.scope=all`
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Caveats <a name = "caveats"></a>&nbsp;
+<a name = "caveats"></a>
+### Caveats 
 
 There are some operations that simply *require* more than once Maven invocation - there is no way
 to update the version of a bunch of projects, and then build them in the same Maven process - Maven
@@ -518,7 +532,8 @@ that the versions of some of them have changed.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Releasing <a name = "releasing"></a>
+<a name = "releasing"></a>
+## Releasing 
 
 Doing a release, especially of many projects, tends to involve a predictable set of steps - roughly:
 
@@ -543,12 +558,14 @@ the Mojo appendix.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Release Phases <a name = "releasing"></a>&nbsp;
+<a name = "release-phases"></a>
+## Release Phases
 
 Here is the set of profiles we're using for releases of `cactus`, `kivakit`, `lexakai` and `mesakit` at
 Telenav - consider them a work-in-progress, not the final word on the "Official Right Way" to do this - this
 is a fairly new project, and subject to change.
 
+<a name = "telenav-releases"></a>
 ### Telenav Open Source Releases
 
 The telenav-build workspace contains a turn-key script called `release.sh` which orchestrates the 
@@ -576,7 +593,8 @@ pass the cactus version.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 0 - Check Local Checkout Consistency, Clone into Temporary Workspace <a name = "phase-0"></a>&nbsp;
+<a name = "phase-0"></a>
+### Release Phase 0 - Check Local Checkout Consistency, Clone into Temporary Workspace
 
 ```xml
 <plugin>
@@ -716,7 +734,8 @@ omitted from the rest of this document for brevity.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 1 - Bump Project Versions<a name = "phase-1"></a>&nbsp;
+<a name = "phase-1"></a>
+### Release Phase 1 - Bump Project Versions
 
 This phase, and the remainder, run in the workspace folder under `/tmp` created in phase 0.
 
@@ -852,7 +871,8 @@ a family, but the changes it is told to apply add up to doing nothing to the ver
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 2 - Publishing Documentation, Testing <a name = "phase-2"></a>&nbsp;
+<a name = "phase-2"></a>
+### Release Phase 2 - Publishing Documentation, Testing 
 
 This is the most intensive step of our build, because it involves generating
 Javadoc and [Lexakai](https://www.lexakai.org) documentation. The generated
@@ -1067,7 +1087,8 @@ documentation and make sure things look right before proceeding.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 3 - Committing Changes and Updating Metadata <a name = "phase-3"></a>&nbsp;
+<a name = "phase-3"></a>
+### Release Phase 3 - Committing Changes and Updating Metadata 
 
 A number of our projects use the `cactus-metadata` library, which generates a
 couple of properties files into the sources that describe the project and build,
@@ -1327,7 +1348,8 @@ actually get published.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### Release Phase 4 - Publishing to Maven Central<a name = "phase-4"></a>&nbsp;
+<a name = "phase-4"></a>
+### Release Phase 4 - Publishing to Maven Central
 
 At this point, our release-proper is done;  what remains is pushing changes, merging
 them, and getting the development branch updated, so that everything is in sync
@@ -1456,12 +1478,14 @@ _and_ the updated development branch to be pushed, in each affected repository.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Cactus Mojos <a name = "cactus-mojos"></a>
+<a name = "cactus-mojos"></a>
+## Cactus Mojos 
 
 The following are a list of Cactus Mojos used in development and release processes. Mojos are
 invoked with `com.telenav.cactus:cactus-maven-plugin:[mojo-name]`. 
 
-### filter-families <a name = "filter-families"></a>
+<a name = "filter-families"></a>
+### filter-families 
 
 The `filter-families` Mojo serves as a general swiss-army knife for turning other mojos - including those
 built into Maven - *off* for projects that are not part of what is being released.  It literally just takes
@@ -1476,7 +1500,8 @@ parent hierarchy of) anything we're publishing.
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-### filter-published <a name = "filter-published"></a>
+<a name = "filter-published"></a>
+### filter-published 
 
 The `filter-published` Mojo works similarly, but specifically turns off publishing (and whatever else
 we tell it to) specifically for projects which have already been published to Maven central (or wherever
@@ -1486,7 +1511,8 @@ are trying to publish something, and it has already been published, but our loca
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Cactus Scripts <a name = "cactus-scripts"></a>&nbsp;
+<a name = "cactus-scripts"></a>
+## Cactus Scripts 
 
 At the time of this writing, cactus 1.5.19, this is the set of installed scripts and
 their descriptions, as mentioned in the quick-start section at the top of this document:
@@ -1577,7 +1603,8 @@ their descriptions, as mentioned in the quick-start section at the top of this d
 
 <img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
-## Road Map <a name = "road-map"></a>&nbsp;
+<a name = "road-map"></a>
+## Road Map
 
 ### More Scripts
 
