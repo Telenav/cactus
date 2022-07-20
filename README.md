@@ -242,6 +242,17 @@ some are improved in (not yet released) Maven 4; some must be lived with:
       sources, and contains the unit tests that belong with the original project in _its_ test
       sources (because a test dependency from there to your shared logic would create a notional
       cicularity)
+  3. The pro's and cons of `-SNAPSHOT` versions.  Maven's altered behavior when it encounters the
+     magic string `-SNAPSHOT` at the end of a version is likely responsible for most of the
+     Maven hatred and loathing out there in the world - it is the reason for what are known as
+     _download the internet builds_ (for real fun, try it through the great firewall of China
+     to turn what should be a 2 minute build into one that takes 7 hours!).  On the one hand,
+     using a suffix like `-dev` can be an effective substitute to avoid having your build tool
+     behave differently.  On the other hand, when dealing with public repositories such as Maven
+     Central, the fact that `-SNAPSHOT` is recognized and treated specially provides added protection
+     against accidentally releasing code that's not ready for prime-time to the world.  Currently,
+     we hold our nose and use it, but we may not continue doing so, and an update to these tools
+     may support using `-dev` as an alternative.
 
 
 ### Cactus-Specific Practices
@@ -541,6 +552,34 @@ not implicitly take the family from whatever project it was invoked against.
                 <!-- fixme -->
                 <checkRemoteModifications>false</checkRemoteModifications>
             </configuration>
+```
+
+The consistency check performs a number of checks of the project tree (all disablable)
+to ensure that what is there is suitable for release, including checking
+
+  * That there are no remote modifications that have not been pulled
+  * That there are no submodules that contain more than one project family,
+    where none is used as a superpom (this strongly indicates that either a new project
+    was misplaced or has a typo in its group-id)
+  * That no intermediate bill-of-materials POM files are declared as the `<parent>` of
+    any project (many IDEs will configure a newly created project this way, and it
+    means that that project will not share plugin and dependency configuration with
+    the rest of its family)
+  * That no checkout containing projects to be released or built is in the _detached head_ git state
+  * That all checkouts containing non-superpom projects are on a branch with the same name
+    (otherwise, you might be releasing a mix of a feature branch for one thing and other branches
+    for others - almost never what you want)
+  * That there are no poms that declare a parent where `<relativePath>` implicitly or explicitly
+    points outside the git submodule they live in (this would result in a project that could
+    not be built when checked out on its own, which defeats the purpose of using git submodules
+    as a way to _manage_ sets of projects, not dictate what folder layout a developer uses on
+    disk)
+  * That there are no uncommited changes in the checkout
+  * That the _version flavor_ or suffix is consistent (you are not releasing a mix of
+    release versions of some things and `-SNAPSHOT` versions of others)
+
+
+```xml
         </execution>
         <execution>
             <id>clone-into-temp</id>
@@ -596,6 +635,10 @@ operator to know what to do next:
     </executions>
 </plugin>        
 ```
+
+The `print-message` mojo is used in each of the subsequent phases, but will be
+omitted from the rest of this document for brevity.
+
 
 #### Release Phase 1 - Bump Versions of Updated and To-Be-Released Projects
 
@@ -1328,6 +1371,44 @@ _and_ the updated development branch to be pushed, in each affected repository.
     </build>
 </profile>
 ```
+
+Future Plans
+============
+
+### More Scripts
+
+The set of scripts installed by the `install-scripts` mojo is fairly incomplete, and
+most take no arguments and do one canned thing.  This should be improved, and scripts
+for common tasks like branching added.
+
+
+### Fully Automated Granular Versioning
+
+Updating the versions of entire families of libraries, whether or not any code in
+them or their dependencies has changed is a concession to the reality of managing trees
+of hundreds of projects while keeping one's sanity.
+
+But Maven's `import` dependencies - which pulls in an entire `<dependencyManagement>` section
+from another `pom.xml` offers a sane solution - if you want to depend on libraries in the
+family `kivakit`, you just pull in its dependencies - you only need the version of one
+superpom, not everything - and you automatically get a set of dependencies that were tested
+and released together, without needing to know anything about the versions of individual
+libraries within that family.
+
+So it is possible to have all the benefits of having just a single-version to remember,
+without all the churn of releasing identical-but-for-the-version-number things to Maven
+central.
+
+We already have tooling - the `last-change` mojo and the `cactus-last-change-by-project`
+script that will tell you the commit and commit date of the last change made to any file
+in a project (filterable by file extension).  And we also have tooling to walk the complete
+dependency graph of a project and determine if anything in _that_ has changed.
+
+The only thing one has to give up to do that is manually monkeying with the versions of
+projects within the codebase - ever.  A requirement of software versions is that they be
+machine-readable;  the best way to keep that process reliable and mistake-free is if they
+are also machine- - not human - _written_.
+
 
 Cactus Scripts
 ==============
