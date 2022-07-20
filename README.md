@@ -159,8 +159,8 @@ But git submodules do create a few "[impedance mismatches](https://en.wikipedia.
 and it's helpful to have tooling to resolve those problems and make development as transparent and
 straightforward as possible:
 
-  1. A submodule root points to a specific commit.  If we're doing ongoing development, we probably want
-     to be at the head of a development branch, not on whatever commit the submodule root pointed to the
+  1. A workspace points to a specific commit.  If we're doing ongoing development, we probably want
+     to be at the head of a development branch, not on whatever commit the workspace pointed to the
      last time someone pushed to _that_.  So, a tool or script for the task of _get me ready to do development
      on branch x_ that brings everything up to date is helpful (the `cactus-development-prep` script is for that)
   2. If we're doing development that touches multiple sub-checkouts, it is easy to commit and push our
@@ -168,19 +168,19 @@ straightforward as possible:
      _commit my changes in all of the submodules, using this message_ and have it simply figure out what
      needs committing and do it (the `cactus-commit-all-submodules` or `ccm` script is for that).
      The same goes for pushing.
-  3. When we commit or push, we usually also want to update the submodule root to point to our
+  3. When we commit or push, we usually also want to update the workspace to point to our
      new commits, and if that requires remembering to manually run `git add -A && git ci -m Whatever && git push`
      in the root, it is easy to forget.  So, we want our tooling to do that automatically.
   4. When we branch - say, for a feature or release - we are likely to want to branch _everything_
      that may be touched in that work, not just one submodule.  _And_ we don't want the submodule
      root to point to commits on our branch until our work is finished.  So we need a way to
-     branch across the submodule root _and multiple child repositories_ in one shot - and that tool
+     branch across the workspace _and multiple child repositories_ in one shot - and that tool
      should detect which child repositories do and don't need branching (see discussion of _project
      families_ in the Maven section for how we do that).
   5. Similarly, when we merge, say, a feature or release branch back to the development branch, we
      want to merge _everything affected_, without having to remember all the child checkouts that need
      merging.
-  6. Cloning and rehydrating a submodule root and its children may leave them in [_detached head state_](https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/),
+  6. Cloning and rehydrating a workspace and its children may leave them in [_detached head state_](https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/),
      not on any branch at all.  This is "right thing" when we want to reproduce a build or multi-repository
      state precisely, but not the right thing at all when we are about to do some coding.  The
      `cactus-development-prep` script solves this case as well.
@@ -419,7 +419,7 @@ This makes impossible such scenarios as:
 Cactus will recognize properties with the suffixes `.version`, `.prev.version`, and `.previous.version`
 as being _version indicating properties_, and will update them appropriately if the portion of the
 property name preceding the prefix is the name of a project family _or the `artifactId` of a specific project_
-underneath the submodule root it is building.
+underneath the workspace it is building.
 
 In the case of an artifact id, the prefix may be the artifact id verbatim, or may substitute `.` characters
 for `-` characters and it will be identified and mapped to the
@@ -591,7 +591,7 @@ pass the cactus version.
     </configuration>
 ```
 
-In our case, our submodule root contains two projects that do not follow the ordinary
+In our case, our workspace contains two projects that do not follow the ordinary
 project-family layout - `lexakai-annotations` and `lexakai` are part of the same family,
 but are versioned independently - so `</tolerateVersionInconsistenciesIn>` simply tells
 the consistency check not to fail when it sees that.
@@ -665,7 +665,7 @@ to ensure that what is there is suitable for release, including checking
         </execution>
 ```
 
-The `clone` goal simply takes the origin and URL of the submodule root in whatever
+The `clone` goal simply takes the origin and URL of the workspace in whatever
 tree it is run in, and
 
   * Clones it into a new directory under `/tmp`
@@ -1106,7 +1106,7 @@ of that commit.
 We see `<includeRoot>true</includeRoot>` in several places - it is used by
 a number of Cactus mojos that perform Git operations that change what commit a
 git submodule is on (by committing, or changing branches, or whatever).  Any change
-of a submodule's commit puts the submodule root into a _modified_ state - there is
+of a submodule's commit puts the workspace into a _modified_ state - there is
 a change of commit pointed-to that we could commit or not.
 
 Depending on what we are doing, sometimes we want a commit to be automatically
