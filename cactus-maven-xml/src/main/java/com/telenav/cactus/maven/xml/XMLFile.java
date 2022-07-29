@@ -57,7 +57,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 public class XMLFile
 {
     private static final XPathFactory XPATH_FACTORY = XPathFactory
-            .newDefaultInstance();
+            .newInstance();
     protected static final ThreadLocal<XPath> XPATH
             = ThreadLocal.withInitial(() -> XPATH_FACTORY.newXPath());
     protected final ThreadLocal<Document> docContext = new ThreadLocal<>();
@@ -85,7 +85,7 @@ public class XMLFile
         if (result == null)
         {
             DocumentBuilderFactory dbf = DocumentBuilderFactory
-                    .newDefaultInstance();
+                    .newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             result = db.parse(path.toFile());
         }
