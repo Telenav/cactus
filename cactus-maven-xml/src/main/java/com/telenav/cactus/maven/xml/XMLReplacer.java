@@ -61,7 +61,7 @@ public final class XMLReplacer
         String oldContent = null;
         if (Files.exists(path) && Files.isReadable(path))
         {
-            oldContent = Files.readString(path, UTF_8);
+            oldContent = new String(Files.readAllBytes(path), UTF_8);
         }
         munge = restoreOriginalHead(oldContent, munge);
         Files.write(path, munge.getBytes(UTF_8), WRITE, TRUNCATE_EXISTING);
