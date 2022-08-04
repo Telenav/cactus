@@ -499,6 +499,19 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     @Parameter(property = "cactus.create-branches",
             defaultValue = "false")
     boolean createBranchesIfNeeded;
+    
+    /**
+     * If true, create local branches in the case that a remote branch
+     * with the same name already exists but a local one does not, but
+     * do not create new branches from thin-air.  This can be important
+     * in continuous builds where there may be no tracking branch locally
+     * on a new clone, for the fallback branch.  Has no effect if
+     * createBranchesIfNeeded is true.
+     */
+    @Parameter(property = "cactus.create-local-branches",
+            defaultValue = "false")
+    boolean createLocalBranchesIfNeeded;
+    
 
     /**
      * If we create new branches, push them to the remote immediately.
@@ -750,7 +763,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             if (base.isRemote())
             {
                 // There is no local branch for "develop" or similar
-                if (createBranchesIfNeeded)
+                if (!createBranchesIfNeeded && !createLocalBranchesIfNeeded)
                 {
                     return new FailureBranching(tree, checkout, log,
                             baseBranch, isPretend(),

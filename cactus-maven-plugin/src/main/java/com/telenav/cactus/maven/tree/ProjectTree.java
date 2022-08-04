@@ -458,6 +458,10 @@ public class ProjectTree
     {
         return withCache(c -> c.remoteHeads(checkout));
     }
+    
+    public Set<ProjectFamily> allProjectFamilies() {
+        return withCache(ProjectTreeCache::allProjectFamilies);
+    }
 
     /**
      * Get a depth-first list of checkouts matching this scope, given the passed

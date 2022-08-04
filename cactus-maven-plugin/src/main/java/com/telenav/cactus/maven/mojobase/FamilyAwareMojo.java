@@ -63,7 +63,7 @@ public abstract class FamilyAwareMojo extends SharedProjectTreeMojo implements
     }
 
     @Override
-    public final Set<ProjectFamily> families()
+    public Set<ProjectFamily> families()
     {
         if (families != null && !families.isBlank())
         {

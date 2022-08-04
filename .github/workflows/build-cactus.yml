@@ -1,0 +1,87 @@
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#
+#  © 2022 Telenav, Inc.
+#  Licensed under Apache License, Version 2.0
+#
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#
+# GitHub action that builds code on push or pull request.
+#
+
+defaults:
+  run:
+    shell: bash
+
+env:
+    CACTUS_VERSION: 1.5.18
+
+name: "Build Branch"
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+    branches:
+      - develop
+      - 'release/**'
+      - 'feature/**'
+      - 'hotfix/**'
+  pull_request:
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+    branches:
+      - develop
+      - 'release/**'
+      - 'feature/**'
+      - 'hotfix/**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Set Up Maven
+        uses: stCarolas/setup-maven@v4.3
+        with:
+          maven-version: 3.8.5
+
+      - name: Configure Git
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody"
+
+      - name: Clone Telenav-Superpoms
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b develop
+
+      - name: Checkout Target Superpom Branch If Possible
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && git checkout $GITHUB_REF || echo No ref named $GITHUB_REF in telenav-superpoms - this is normal on a feature branch.
+
+      - name: Clone Cactus
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git"
+        
+      - name: Pull All
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
+
+      - name: Checkout Ref
+        run: cd $GITHUB_WORKSPACE/cactus && git checkout -t origin/$GITHUB_REF_NAME -b build-$GITHUB_RUN_ID
+
+      - name: List Heads
+        run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
+
+      - name: Checkout Ref
+        run: cd $GITHUB_WORKSPACE/cactus && git checkout $GITHUB_SHA
+
+      - name: Build Superpoms
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn -B install
+
+      - name: Build Cactus
+        run: cd $GITHUB_WORKSPACE/cactus && mvn -B install
