@@ -41,11 +41,21 @@ final class ProjectTreeCache
     final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
     final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
     final Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
+    final Set<ProjectFamily> families = new HashSet<>();
     private final ProjectTree outer;
 
     ProjectTreeCache(final ProjectTree outer)
     {
         this.outer = outer;
+    }
+    
+    public Set<ProjectFamily> allProjectFamilies() {
+        if (families.isEmpty()) {
+            allPoms().forEach(pom -> {
+                families.add(ProjectFamily.familyOf(pom));
+            });
+        }
+        return families;
     }
 
     public Heads remoteHeads(GitCheckout checkout)
@@ -310,6 +320,7 @@ final class ProjectTreeCache
         detachedHeads.clear();
         checkoutsForProjectFamily.clear();
         remoteHeads.clear();
+        families.clear();
     }
 
     synchronized void populate()
