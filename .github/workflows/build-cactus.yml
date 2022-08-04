@@ -1,0 +1,72 @@
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#
+#  © 2022 Telenav, Inc.
+#  Licensed under Apache License, Version 2.0
+#
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#
+# GitHub action that builds code on push or pull request.
+#
+
+defaults:
+  run:
+    shell: bash
+
+env:
+    CACTUS_VERSION: 1.5.18
+
+name: "Build Branch"
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+    branches:
+      - develop
+      - 'release/**'
+      - 'feature/**'
+      - 'hotfix/**'
+  pull_request:
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+    branches:
+      - develop
+      - 'release/**'
+      - 'feature/**'
+      - 'hotfix/**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Set Up Maven
+        uses: stCarolas/setup-maven@v4.3
+        with:
+          maven-version: 3.8.5
+
+      - name: Clone Telenav-Superpoms
+        run: git clone https://github.com/Telenav/telenav-superpoms.git
+        
+      - name: Checkout Target Superpom Branch If Possible
+        run: cd $GITHUB_WORKSPACE/telenav-superpoms && git checkout $GITHUB_REF || echo No ref named $GITHUB_REF in telenav-superpoms - this is normal on a feature branch.
+
+      - name: Build Superpoms
+        run: cd $GITHUB_WORKSPACE/telenav-superpoms && mvn -B install
+        
+      - name: Clone Cactus
+        run: git clone https://github.com/Telenav/cactus.git -b $GITHUB_REF
+
+      - name: Build Cactus
+        run: cd $GITHUB_WORKSPACE/cactus && mvn -B install
