@@ -1,0 +1,18 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+# TODO: Horrible but works to get the argument quote correctly:
+
+MSG=-Dcactus.commit-message=
+MSG=$MSG"'"
+MSG=$MSG$@
+MSG=$MSG"'"
+
+echo "Commit: $MSG"
+
+mvn \
+    -Dcactus.scope=all \
+    "${MSG}" \
+    -Dcactus.include-root=true \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:commit

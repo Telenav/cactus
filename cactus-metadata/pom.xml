@@ -16,133 +16,43 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.11</version>
+        <version>1.5.20</version>
     </parent>
 
     <artifactId>cactus-metadata</artifactId>
     <description>
         The cactus-metadata project generates build metadata consumed by
-        KivaKit and other projects.
+        KivaKit and other projects, specifically build.properties and
+        project.properties files generated into target/classes.
     </description>
+
+    <properties>
+        <java.module.name>cactus.metadata</java.module.name>
+    </properties>
 
     <build>
         <plugins>
+
+            <!-- Create Executable JAR -->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Main-Class>com.telenav.cactus.metadata.BuildMetadataUpdater</Main-Class>
+                            <Automatic-Module-Name>cactus.metadata</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <useModulePath>false</useModulePath>
                 </configuration>
-            </plugin>
-
-            <!-- Create Executable JAR -->
-
-            <plugin>
-                <!-- Pending this is killing a mosquito with a sledgehammer -
-                     it appears that this could be done with jar plugin and 
-                     a single main-class manifest entry. -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-
-                        <configuration>
-
-                            <finalName>cactus-metadata-${project.version}</finalName>
-                            <minimizeJar>false</minimizeJar>
-                            <transformers>
-                                <transformer implementation = "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.telenav.cactus.metadata.BuildMetadataUpdater</mainClass>
-                                </transformer>
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>module-info.class</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <artifactSet>
-                                <includes>
-                                    <include>*:*</include>
-                                </includes>
-                            </artifactSet>
-
-                        </configuration>
-
-                    </execution>
-                </executions>
-
-            </plugin>
-
-            <!-- Create Build Metadata -->
-
-            <plugin>
-
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-
-                    <execution>
-
-                        <id>project-metadata</id>
-                        <phase>validate</phase>
-                        <configuration>
-
-                            <target name = "build-metadata">
-
-                                <property name = "project.groupId" value = "${project.groupId}"/>
-                                <property name = "project.artifactId" value = "${project.artifactId}"/>
-                                <property name = "project.version" value = "${project.version}"/>
-                                <property name = "project.name" value = "${project.name}"/>
-                                <condition property = "source.exists">
-                                    <available file = "src" type = "dir"/>
-                                </condition>
-                                <taskdef classpathref = "maven.plugin.classpath" resource = "net/sf/antcontrib/antcontrib.properties"/>
-                                <if>
-                                    <equals arg1 = "${source.exists}" arg2 = "true"/>
-                                    <then>
-                                        <echo file = "src/main/java/project.properties">
-                                            project-name = ${project.name}${line.separator}project-version
-                                            = ${project.version}${line.separator}project-group-id
-                                            = ${project.groupId}${line.separator}project-artifact-id
-                                            = ${project.artifactId}
-                                        </echo>
-                                    </then>
-                                    <else>
-                                        <echo file = "${project.basedir}/project.properties">
-                                            project-name = ${project.name}${line.separator}project-version
-                                            = ${project.version}${line.separator}project-group-id
-                                            = ${project.groupId}${line.separator}project-artifact-id
-                                            = ${project.artifactId}
-                                        </echo>
-                                    </else>
-                                </if>
-
-                            </target>
-
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-
-                    </execution>
-
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>20020829</version>
-                    </dependency>
-                </dependencies>
-
             </plugin>
 
         </plugins>

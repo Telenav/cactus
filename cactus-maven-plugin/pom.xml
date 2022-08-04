@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.11</version>
+        <version>1.5.20</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -27,8 +27,12 @@
 
     <properties>
         <enforcer.skip>true</enforcer.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <mastfrog.version>2.8.2</mastfrog.version>
+        <!--<maven.javadoc.skip>true</maven.javadoc.skip>-->
+        <mastfrog.version>2.8.3</mastfrog.version>
+        <!-- this must be overridden here only to use the previous version,
+        or it will fail trying to process itself while it is being built -->
+        <cactus.maven.plugin.versions>${cactus.previous.version}</cactus.maven.plugin.versions>
+        <java.module.name>cactus.maven.plugin</java.module.name>
     </properties>
 
     <dependencies>
@@ -37,33 +41,30 @@
 
         <dependency>
             <groupId>com.telenav.cactus</groupId>
-            <artifactId>cactus-maven-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-git</artifactId>
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-maven-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-maven-versioning</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-codeflowers</artifactId>
+        </dependency>
 
         <!-- Mastfrog -->
 
         <dependency>
             <groupId>com.mastfrog</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>${mastfrog.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>function</artifactId>
-            <version>${mastfrog.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
-            <version>${mastfrog.version}</version>
         </dependency>
 
         <!-- Maven -->
@@ -83,34 +84,68 @@
             <artifactId>maven-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
 
             <plugin>
-
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>cactus.maven.plugin</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
+                    <compilerArgs>
+                        <arg>--add-reads</arg>
+                        <arg>cactus.maven.plugin=ALL-UNNAMED</arg>
+                    </compilerArgs>
                 </configuration>
-
+                <version>${maven-compiler-plugin.version}</version>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <additionalOptions>--add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
+                </configuration>
             </plugin>
 
             <plugin>
 
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
                     <goalPrefix>cactus</goalPrefix>
                 </configuration>
                 <executions>
+                    <!-- We need this for release, so that we can use compile, but 
+                         but not install, to pre-generate the plugin descriptor so that 
+                         the rest of the build, which will use this plugin from
+                         target/classes, does not fail because there is no plugin.xml
+                         in META-INF.  Harmless to do it earlier, since we're not using
+                         any odd scripting languages.
+                    -->
+                    <execution>
+                        <id>mojo-descriptor-compile-time</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                    
                     <execution>
                         <id>mojo-descriptor</id>
                         <phase>process-classes</phase>

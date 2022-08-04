@@ -17,16 +17,26 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.mojobase;
 
-import com.telenav.cactus.maven.scope.Scope;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.scope.Scope;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicy;
+import com.telenav.cactus.scope.Scoped;
+import java.util.HashSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.util.Optional;
+import java.util.Set;
+
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.INCLUDE_ROOT;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SCOPE;
+import static java.util.Collections.singleton;
 
 /**
  * Base class for once-per-session mojos which operate within a Scope -
@@ -36,7 +46,7 @@ import java.util.Optional;
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused")
-public abstract class ScopeMojo extends BaseMojo
+public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
 {
     /**
      * Defines the scope this mojo operates on - used by mojos which may operate
@@ -68,9 +78,8 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @see Scope#FAMILY
      */
-    @Parameter(property = "cactus.scope", name = "scopeProperty",
-            defaultValue = "FAMILY")
-    private String scopeProperty;
+    @Parameter(property = SCOPE, defaultValue = "family")
+    private String scope;
 
     /**
      * If true, include the submodule root project even if it does not directly
@@ -80,24 +89,10 @@ public abstract class ScopeMojo extends BaseMojo
      * commit than before, in order to ensure that a commit is generated for the
      * submodule parent updating it to point to the new commit(s).
      */
-    @Parameter(property = "cactus.include-root", defaultValue = "true")
+    @Parameter(property = INCLUDE_ROOT, defaultValue = "true")
     private boolean includeRoot;
 
-    /**
-     * Override the project family, using this value instead of one derived from
-     * the project's group id. Only relevant for scopes concerned with families.
-     */
-    @Parameter(property = "cactus.family", defaultValue = "")
-    private String family;
-
-    /**
-     * If true, do not actually make changes, just print what would be done.
-     */
-    @Parameter(property = "cactus.pretend", defaultValue = "false")
-    private boolean pretend;
-
-    private Scope scope;
-
+    private Scope scopeValue;
     private GitCheckout myCheckout;
 
     /**
@@ -107,6 +102,11 @@ public abstract class ScopeMojo extends BaseMojo
     protected ScopeMojo()
     {
         this(false);
+    }
+
+    public boolean isFamilyScope()
+    {
+        return scope().appliesFamily();
     }
 
     /**
@@ -120,7 +120,12 @@ public abstract class ScopeMojo extends BaseMojo
     {
         super(runFirst
               ? RunPolicies.FIRST
-              : RunPolicies.LAST); // once per session
+              : RunPolicies.LAST_CONTAINING_GOAL); // once per session
+    }
+
+    protected ScopeMojo(RunPolicy policy)
+    {
+        super(policy);
     }
 
     /**
@@ -130,14 +135,14 @@ public abstract class ScopeMojo extends BaseMojo
      * @param project The project the mojo is being invoked against
      * @param myCheckout A git checkout
      * @param scope The scope
-     * @param family The project family
+     * @param families The project family
      * @param includeRoot Whether or not the include-root property was set
      * @param pretend If true, we are in pretend-mode - log but do not do
      * @throws Exception If something goes wrong
      */
     protected abstract void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
-            Scope scope, ProjectFamily family, boolean includeRoot,
+            Scope scope, Set<ProjectFamily> families, boolean includeRoot,
             boolean pretend) throws Exception;
 
     /**
@@ -147,21 +152,9 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @return true if the root is included
      */
-    protected boolean isIncludeRoot()
+    protected final boolean isIncludeRoot()
     {
         return includeRoot;
-    }
-
-    /**
-     * Generic "don't really do anything" parameter - if this returns true, the
-     * subclass should not really make changes, but log what it would do as
-     * accurately as possible.
-     *
-     * @return True if we are in pretend mode
-     */
-    protected boolean isPretend()
-    {
-        return pretend;
     }
 
     /**
@@ -179,21 +172,6 @@ public abstract class ScopeMojo extends BaseMojo
     }
 
     /**
-     * Returns the project family passed explicitly, which should override that
-     * of the target project when searching for git repositories to match, if
-     * set.
-     *
-     * @return A string or null
-     */
-    @Override
-    protected final String overrideProjectFamily()
-    {
-        return family == null
-               ? null
-               : family.trim();
-    }
-
-    /**
      * Delegates to execute().
      *
      * @param log A log
@@ -203,8 +181,8 @@ public abstract class ScopeMojo extends BaseMojo
     @Override
     protected final void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        execute(log, project, myCheckout, scope, projectFamily(),
-                includeRoot, pretend);
+        execute(log, project, myCheckout, scopeValue, families(),
+                includeRoot, isPretend());
     }
 
     /**
@@ -212,9 +190,43 @@ public abstract class ScopeMojo extends BaseMojo
      *
      * @return A scope
      */
-    protected Scope scope()
+    @Override
+    public final Scope scope()
     {
-        return scope;
+        return scopeValue == null
+               ? scopeValue = Scope.find(scope)
+               : scopeValue;
+    }
+
+    @Override
+    public Set<ProjectFamily> families()
+    {
+        switch (scope())
+        {
+            case ALL:
+            case ALL_PROJECT_FAMILIES:
+                return withProjectTree(false, ProjectTree::allProjectFamilies)
+                        .orElseGet(super::families);
+            case JUST_THIS:
+            case SAME_GROUP_ID:
+                return singleton(ProjectFamily.fromGroupId(project()
+                        .getGroupId()));
+            case FAMILY_OR_CHILD_FAMILY:
+                ProjectFamily mine = ProjectFamily.fromGroupId(project()
+                        .getGroupId());
+                Set<ProjectFamily> all = new HashSet<>();
+                withProjectTree(false, tree ->
+                {
+                    for (Pom pom : tree.allProjects())
+                    {
+                        mine.isParentFamilyOf(pom);
+                        all.add(ProjectFamily.familyOf(pom));
+                    }
+                });
+                return all;
+            default:
+                return super.families();
+        }
     }
 
     /**
@@ -229,8 +241,8 @@ public abstract class ScopeMojo extends BaseMojo
     protected final void validateParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        scope = Scope.find(scopeProperty);
-        Optional<GitCheckout> checkout = GitCheckout.repository(project
+        scopeValue = Scope.find(scope);
+        Optional<GitCheckout> checkout = GitCheckout.checkout(project
                 .getBasedir());
         if (checkout.isEmpty())
         {
@@ -239,11 +251,11 @@ public abstract class ScopeMojo extends BaseMojo
         }
         myCheckout = checkout.get();
         onValidateParameters(log, project);
-        if (!scope.appliesFamily() && (family != null && !"".equals(family)))
+        if (!scopeValue.appliesFamily() && hasExplicitFamilies())
         {
             log.warn(
                     "Useless assignment of telanav.family to '" + family + "' when "
-                    + "using scope " + scope + " which will not read it.  It is useful "
+                    + "using scope " + scopeValue + " which will not read it.  It is useful "
                     + "only with " + Scope.FAMILY + " and "
                     + Scope.FAMILY_OR_CHILD_FAMILY);
         }

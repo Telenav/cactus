@@ -18,67 +18,80 @@
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicies;
+import java.util.LinkedHashSet;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_MESSAGE;
 
 /**
  * Performs a git commit, with the passed <code>commit-message</code> which
  * <b>must</b> be supplied (try enclosing the -D argument entirely on the
  * command-line, e.g. <code>'-Dcommit-message=Some commit message'</code>).
  * <p>
- * The scope for which commits are generated is FAMILY by default, generating commits for all git sub-repositories of
- * the subrepo parent which share a project family (derived from the project's groupId). Passing ALL will change it to
- * any repos containing modified sources). JUST_THIS will commit only the repository that owns the current project.
+ * The scope for which commits are generated is FAMILY by default, generating
+ * commits for all git sub-repositories of the subrepo parent which share a
+ * project family (derived from the project's groupId). Passing ALL will change
+ * it to any repos containing modified sources). JUST_THIS will commit only the
+ * repository that owns the current project.
  * </p>
  *
  * @author Tim Boudreau
  */
 @SuppressWarnings(
         {
-                "unused", "DuplicatedCode"
+            "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "commit", threadSafe = true)
+@BaseMojoGoal("commit")
 public class CommitMojo extends ScopedCheckoutsMojo
 {
-
     /**
      * The commit message.
      */
-    @Parameter(property = "cactus.commit-message", required = true,
-               name = "commitMessage")
+    @Parameter(property = COMMIT_MESSAGE, required = true)
     private String commitMessage;
 
     /**
-     * If true, push after committing. If no remote branch of the same name as the local branch exists, one will be
-     * created.
+     * If true, do not call <code>git add -A</code> before committing - only
+     * commit that which has been manually staged.
      */
-    @Parameter(property = "cactus.push", defaultValue = "false")
+    @Parameter(property = "cactus.commit.skip.add", defaultValue = "false")
+    private boolean skipAdd;
+
+    /**
+     * If true, push after committing. If no remote branch of the same name as
+     * the local branch exists, one will be created.
+     */
+    @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
+    
+    public CommitMojo() {
+        super(RunPolicies.INITIAL);
+    }
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
-                           GitCheckout myCheckout,
-                           ProjectTree tree, List<GitCheckout> matched) throws Exception
+            GitCheckout myCheckout,
+            ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
-        List<GitCheckout> checkouts = matched.stream().filter(
-                        GitCheckout::hasUncommitedChanges)
-                .collect(Collectors.toCollection(ArrayList::new));
-
         if (checkouts.isEmpty())
         {
             log.warn("No matched checkouts contain local modifications.");
@@ -104,21 +117,47 @@ public class CommitMojo extends ScopedCheckoutsMojo
             }
         }
 
-        log.info("Begin commit with message '" + commitMessage + "'");
-        for (GitCheckout at : checkouts)
+        CommitMessage msg = new CommitMessage(CommitMojo.class, commitMessage);
+        Set<GitCheckout> toCommit = new LinkedHashSet<>();
+        StringBuilder nameList = new StringBuilder();
+        for (GitCheckout co : checkouts)
         {
-            log.info("add/commit " + (at.name().isEmpty()
-                    ? "(root)"
-                    : at.name()));
+            if (co.hasUncommitedChanges())
+            {
+                toCommit.add(co);
+            }
+            if (nameList.length() > 0)
+            {
+                nameList.append(", ");
+            }
+            nameList.append(co.loggingName());
+        }
+        if (toCommit.isEmpty())
+        {
+            log.warn("Nothing to commit among " + nameList);
+            return;
+        }
+        addCommitMessageDetail(msg, toCommit);
+
+        if (isVerbose())
+        {
+            log.info("Begin commit with message '" + commitMessage + "'");
+        }
+        for (GitCheckout at : toCommit)
+        {
+            log.info("add/commit " + at.loggingName());
             if (!isPretend())
             {
-                at.addAll();
-                at.commit(commitMessage);
+                if (!skipAdd)
+                {
+                    at.addAll();
+                }
+                at.commit(msg.toString());
             }
         }
         if (push)
         {
-            for (GitCheckout co : checkouts)
+            for (GitCheckout co : toCommit)
             {
                 switch (co.needsPush())
                 {

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+mvn \
+    --quiet \
+    -Dcactus.scope=ALL \
+    -Dcactus.include-root=false \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:pull

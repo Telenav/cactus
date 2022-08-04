@@ -7,10 +7,18 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.11</version>
+        <version>1.5.20</version>
     </parent>
 
     <artifactId>cactus-git</artifactId>
+
+    <description>
+        API for manipulating Git repositories by invoking a command-line Git binary.
+    </description>
+
+    <properties>
+        <java.module.name>cactus.git</java.module.name>
+    </properties>
 
     <dependencies>
 
@@ -20,5 +28,5 @@
         </dependency>
 
     </dependencies>
-
+    
 </project>

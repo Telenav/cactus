@@ -18,13 +18,14 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.cli.PathUtils;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
+import com.telenav.cactus.util.PathUtils;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -36,7 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static com.telenav.cactus.cli.PathUtils.copyFolderTree;
+import static com.telenav.cactus.util.PathUtils.copyFolderTree;
 
 /**
  * @author Tim Boudreau
@@ -47,6 +48,7 @@ import static com.telenav.cactus.cli.PathUtils.copyFolderTree;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.PER_LOOKUP,
         name = "copy-javadoc", threadSafe = true)
+@BaseMojoGoal("copy-javadoc")
 public class CopyJavadocMojo extends BaseMojo
 {
 
@@ -90,6 +92,9 @@ public class CopyJavadocMojo extends BaseMojo
     @Parameter(property = "cactus.do-not-deploy",
                defaultValue = "false")
     private boolean doNotDeploy;
+    
+    @Parameter(property = "cactus.copy.javadoc.skip")
+    private boolean skip;
 
     public CopyJavadocMojo(RunPolicy policy)
     {
@@ -103,6 +108,14 @@ public class CopyJavadocMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if (skip) {
+            log.info("Copy javadoc is skipped");
+            return;
+        }
+        if ("true".equals(project.getProperties().get("maven.javadoc.skip"))) {
+            log.info("Copy javadoc is skipped via maven.javadoc.skip");
+            return;
+        }
         if (isSkipped(project))
         {
             log.info(
@@ -122,7 +135,7 @@ public class CopyJavadocMojo extends BaseMojo
         boolean javadocExists = Files.exists(javadocPath);
         if (isPom && !javadocExists)
         {
-            if (!RunPolicies.LAST.shouldRun(project, session()))
+            if (!RunPolicies.LAST.shouldRun(this, project))
             {
                 log.info(
                         "No javadoc, but " + project.getArtifactId()
@@ -133,9 +146,11 @@ public class CopyJavadocMojo extends BaseMojo
 
         if (!javadocExists)
         {
-            fail("No javadoc found at " + javadocPath
-                    + " javadoc must be built before this mojo is run."
-                    + " PROPERTIES:\n" + project.getProperties());
+            log.warn("No javadoc to copy for " + project.getArtifactId());
+            return;
+//            fail("No javadoc found at " + javadocPath
+//                    + " javadoc must be built before this mojo is run."
+//                    + " PROPERTIES:\n" + project.getProperties());
         }
         copyJavadoc(javadocPath, project, log);
     }
@@ -153,11 +168,12 @@ public class CopyJavadocMojo extends BaseMojo
     private void copyJavadoc(Path javadocOrigin, MavenProject project,
                              BuildLog log)
     {
-        ProjectFamily family = ProjectFamily.of(project);
+        ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         ThrowingOptional.from(GitCheckout
-                        .repository(project.getBasedir()))
+                        .checkout(project.getBasedir()))
                 .flatMapThrowing(checkout
-                        -> family.assetsPath(checkout).map(assetsPath
+                        -> family.assetsPath(checkout.submoduleRoot()
+                .map(GitCheckout::checkoutRoot)).map(assetsPath
                         -> deriveJavadocDestination(assetsPath, project,
                         checkout)
                 )).ifPresentOrElse(dest ->
@@ -232,7 +248,7 @@ public class CopyJavadocMojo extends BaseMojo
         {
             // Do not try to copy javadoc for the root project, only child
             // families
-            result = GitCheckout.repository(project.getBasedir())
+            result = GitCheckout.checkout(project.getBasedir())
                     .map(GitCheckout::isSubmoduleRoot).orElse(false);
         }
         return result;

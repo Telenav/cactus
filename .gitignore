@@ -12,7 +12,6 @@
 **/*.ids
 **/.DS_Store
 **/nbactions.xml
-**/manifest.mf
 **/nb-configuration.xml
 **/Err.log
 **/Err.log.*
@@ -32,3 +31,12 @@ cactus-metadata/cactus/
 cactus-cli/cactus/
 cactus-git/cactus/
 cactus-maven-log/cactus/
+cactus-graph/cactus/
+cactus-util/cactus/
+/cactus-maven-model/nbproject/
+/cactus-util/nbproject/
+/cactus-codeflowers/cactus/
+/cactus-maven-versioning/cactus/
+/cactus-maven-xml/cactus/
+/cactus-scope/cactus/
+/cactus-maven-plugin/nbproject/

@@ -21,6 +21,7 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -44,6 +45,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "is-dirty", threadSafe = true)
+@BaseMojoGoal("is-dirty")
 public class IsDirtyMojo extends ScopedCheckoutsMojo
 {
     public IsDirtyMojo()

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+mvn -Dcactus.commit-changes=true -Dcactus.superpom.bump.policy=ignore \
+    -Dcactus.commit-changes=true -Dcactus.include-root=true \
+    -Dcactus.push=false \
+    -Dcactus.scope=family com.telenav.cactus:cactus-maven-plugin:${VERSION}:bump-version

@@ -7,10 +7,18 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.11</version>
+        <version>1.5.20</version>
     </parent>
 
     <artifactId>cactus-cli</artifactId>
+
+    <description>
+        Base classes for running CLI commands with a modern API.
+    </description>
+
+    <properties>
+        <java.module.name>cactus.cli</java.module.name>
+    </properties>
 
     <dependencies>
 
@@ -21,6 +29,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cactus-maven-log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cactus-util</artifactId>
         </dependency>
 
     </dependencies>

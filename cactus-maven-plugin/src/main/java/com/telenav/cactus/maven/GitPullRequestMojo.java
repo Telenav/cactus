@@ -20,6 +20,7 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -32,7 +33,7 @@ import java.util.List;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Starts and finishes branches accoding to git flow conventions.
+ * Starts and finishes branches according to git flow branching conventions.
  *
  * @author jonathanl (shibo)
  */
@@ -45,6 +46,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "git-pull-request", threadSafe = true)
+@BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends ScopedCheckoutsMojo
 {
     @Parameter(property = "cactus.authentication-token", required = true)

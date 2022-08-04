@@ -15,12 +15,12 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.metadata.BuildMetadata;
 import com.telenav.cactus.metadata.BuildMetadataUpdater;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.telenav.cactus.git.GitCheckout.repository;
+import static com.telenav.cactus.git.GitCheckout.checkout;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -52,10 +52,11 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        defaultPhase = LifecyclePhase.PROCESS_SOURCES,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
-        name = "build-metadata", threadSafe = false)
+        name = "build-metadata", threadSafe = true)
+@BaseMojoGoal("build-metadata")
 public class BuildMetadataMojo extends BaseMojo
 {
 
@@ -63,18 +64,19 @@ public class BuildMetadataMojo extends BaseMojo
      * The relative path to the destination directory.
      */
     @Parameter(property = "cactus.project-properties-destination",
-               defaultValue = "target/classes/project.properties")
+            defaultValue = "target/classes/project.properties")
     private String projectPropertiesDestination;
 
-    /**
-     * If true, log the contents of generated files.
-     */
-    @Parameter(property = "cactus.verbose", defaultValue = "false")
-    private boolean verbose;
-
+    @Parameter(property = "cactus.build.metadata.skip")
+    private boolean skip;
+    
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
+        if (skip) {
+            log.info("Build metadata is skipped");
+            return;
+        }
         if ("pom".equals(project.getPackaging()))
         {
             log.info("Not writing project metadata for a non-java project.");
@@ -91,7 +93,7 @@ public class BuildMetadataMojo extends BaseMojo
                 UTF_8, WRITE, TRUNCATE_EXISTING, CREATE);
         List<String> args = new ArrayList<>(8);
         args.add(propsFile.getParent().toString());
-        Optional<GitCheckout> checkout = repository(project.getBasedir());
+        Optional<GitCheckout> checkout = checkout(project.getBasedir());
         if (checkout.isEmpty())
         {
             log.warn("Did not find a git checkout for " + project.getBasedir());
@@ -111,13 +113,14 @@ public class BuildMetadataMojo extends BaseMojo
             });
         });
         BuildMetadataUpdater.main(args.toArray(String[]::new));
-        if (verbose)
+        ifVerbose(() ->
         {
             log.info("Wrote project.properties");
             log.info("------------------------");
             log.info("to " + propsFile + "\n");
             log.info(propertiesFileContent + "\n");
-            Path buildProps = propsFile.getParent().resolve("build.properties");
+            Path buildProps = propsFile.getParent().resolve(
+                    "build.properties");
             if (Files.exists(buildProps))
             {
                 log.info("Wrote build.properties");
@@ -129,7 +132,7 @@ public class BuildMetadataMojo extends BaseMojo
             {
                 log.warn("No build file was generated in " + buildProps);
             }
-        }
+        });
     }
 
     private String projectProperties(MavenProject project)

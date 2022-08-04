@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -16,11 +17,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = InstantiationStrategy.PER_LOOKUP,
         name = "copy-aggregated-javadoc", threadSafe = true)
-
+@BaseMojoGoal("copy-aggregated-javadoc")
 public class CopyAggregatedJavadocMojo extends CopyJavadocMojo
 {
     public CopyAggregatedJavadocMojo()
     {
-        super(RunPolicies.POM_PROJECT_ONLY.and(RunPolicies.LAST));
+        super(RunPolicies.FAMILY_ROOTS);
     }
 }

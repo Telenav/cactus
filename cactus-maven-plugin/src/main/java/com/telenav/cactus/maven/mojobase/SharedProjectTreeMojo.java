@@ -14,7 +14,7 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Tim Boudreau
  */
-public abstract class SharedProjectTreeMojo extends SharedDataMojo
+public abstract class SharedProjectTreeMojo extends BaseMojo
 {
     protected SharedProjectTreeMojo(RunPolicy policy)
     {
@@ -43,7 +43,7 @@ public abstract class SharedProjectTreeMojo extends SharedDataMojo
         if (session().getAllProjects().size() > 1)
         {
             MavenProject prj = project();
-            Optional<GitCheckout> co = GitCheckout.repository(prj.getBasedir());
+            Optional<GitCheckout> co = GitCheckout.checkout(prj.getBasedir());
             if (!co.isPresent())
             {
                 return TreeHolder.KEY;

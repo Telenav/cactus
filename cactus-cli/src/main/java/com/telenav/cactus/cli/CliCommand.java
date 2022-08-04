@@ -20,6 +20,7 @@ package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.util.PathUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -147,6 +148,7 @@ public abstract class CliCommand<T> implements Supplier<String>
             commandLine.add(path.toString());
             configureArguments(commandLine);
             ProcessBuilder pb = new ProcessBuilder(commandLine);
+            pb.environment().put("GIT_TERMINAL_PROMPT", "0");
             internalConfigureProcessBuilder(pb);
             Process proc = pb.start();
             onLaunch(proc);

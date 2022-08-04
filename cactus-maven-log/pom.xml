@@ -7,10 +7,18 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.11</version>
+        <version>1.5.20</version>
     </parent>
 
     <artifactId>cactus-maven-log</artifactId>
+    <description>
+        A wrapper around Maven's SLF4J to provide some convenience features
+        such as provenance prefixes and ThreadLocal mapping of loggers.
+    </description>
+
+    <properties>
+        <java.module.name>cactus.maven.log</java.module.name>
+    </properties>
 
     <dependencies>
 

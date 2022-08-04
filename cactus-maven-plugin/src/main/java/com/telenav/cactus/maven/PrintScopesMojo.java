@@ -20,9 +20,9 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
-import com.telenav.cactus.maven.scope.ProjectFamily;
-import com.telenav.cactus.maven.scope.Scope;
-import com.telenav.cactus.maven.shared.SharedData;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.scope.ProjectFamily;
+import com.telenav.cactus.scope.Scope;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -30,15 +30,17 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
+
 /**
- * For debugging - prints all members of each family for each possible scope; if run against an aggregator project, does
- * so once for each child project that is in a distinct family+repository combination. Pass
+ * For debugging - prints all members of each family for each possible scope; if
+ * run against an aggregator project, does so once for each child project that
+ * is in a distinct family+repository combination. Pass
  * <code>-Ddetail=true</code> to print out projects within a given checkout as
  * well, for each family + scope + checkout.
  *
@@ -46,8 +48,9 @@ import java.util.Set;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.COMPILE,
-                                           requiresDependencyResolution = ResolutionScope.COMPILE,
-                                           name = "print-scopes", threadSafe = true)
+        requiresDependencyResolution = ResolutionScope.COMPILE,
+        name = "print-scopes", threadSafe = true)
+@BaseMojoGoal("print-scopes")
 public class PrintScopesMojo extends BaseMojo
 {
     private static final SharedDataKey<ProjectTree> TREE_KEY = SharedDataKey.of(
@@ -66,7 +69,7 @@ public class PrintScopesMojo extends BaseMojo
         private final GitCheckout checkout;
 
         public FamilyAndScope(Scope scope, ProjectFamily family,
-                              GitCheckout checkout)
+                GitCheckout checkout)
         {
             this.scope = scope;
             this.family = family;
@@ -114,18 +117,17 @@ public class PrintScopesMojo extends BaseMojo
     /**
      * If true, list each project underneath each checkout.
      */
-    @Parameter(property = "cactus.detail", defaultValue = "false")
+    // -Ddetail is a maven convention for help and other things that just
+    // print some info.  Please do not change back to cactus.detail.
+    @Parameter(property = "detail", defaultValue = "false")
     private boolean printProjects;
-
-    @Inject
-    private SharedData shared;
 
     @Override
     public void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         ProjectTree tree = tree(project);
-        GitCheckout co = GitCheckout.repository(project.getBasedir()).get();
-        ProjectFamily family = ProjectFamily.of(project);
+        GitCheckout co = GitCheckout.checkout(project.getBasedir()).get();
+        ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
         for (Scope scope : Scope.values())
         {
             if (seen(family, scope, co))
@@ -134,11 +136,9 @@ public class PrintScopesMojo extends BaseMojo
             }
             System.out.println(
                     "\n----- scope '" + scope + "' for family '" + family + "' in "
-                            + (co.name().isEmpty()
-                            ? "(root)"
-                            : co.name()) + " -----");
-            List<GitCheckout> matched = scope.matchCheckouts(tree, co, true,
-                    family, project.getGroupId());
+                    + co.loggingName() + " -----");
+            List<GitCheckout> matched = tree.matchCheckouts(scope, co, true,
+                    singleton(family), project.getGroupId());
             for (GitCheckout gc : matched)
             {
                 String nm = gc.name();
@@ -151,10 +151,11 @@ public class PrintScopesMojo extends BaseMojo
                 {
                     tree.projectsWithin(gc).forEach(prj ->
                     {
-                        if (ProjectFamily.fromGroupId(prj.coords.groupId)
+                        if (ProjectFamily
+                                .fromGroupId(prj.groupId().text())
                                 .equals(family))
                         {
-                            System.out.println("    * " + prj.coords);
+                            System.out.println("    * " + prj.coordinates());
                         }
                     });
                 }
@@ -165,14 +166,16 @@ public class PrintScopesMojo extends BaseMojo
     private boolean seen(ProjectFamily family, Scope scope, GitCheckout co)
     {
         FamilyAndScope test = new FamilyAndScope(scope, family, co);
-        Set<FamilyAndScope> set = shared.computeIfAbsent(SEEN_KEY, HashSet::new);
+        Set<FamilyAndScope> set = sharedData().computeIfAbsent(SEEN_KEY,
+                HashSet::new);
         return !set.add(test);
     }
 
     private ProjectTree tree(MavenProject prj)
     {
         // Cache this, as creating the tree is _very_ expensive.
-        return shared.computeIfAbsent(TREE_KEY, () -> ProjectTree.from(prj)
+        return sharedData().computeIfAbsent(TREE_KEY, () -> ProjectTree
+                .from(prj)
                 .get());
     }
 }

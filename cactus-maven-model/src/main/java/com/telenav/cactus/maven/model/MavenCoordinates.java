@@ -1,17 +1,61 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.model;
 
-import org.w3c.dom.Node;
-
+import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.maven.model.internal.PomFile;
+import com.telenav.cactus.maven.model.property.PropertyResolver;
+import com.telenav.cactus.maven.model.resolver.PomResolver;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import org.w3c.dom.Node;
+
+import static com.mastfrog.util.preconditions.Checks.notNull;
 
 /**
  * @author Tim Boudreau
  */
-public class MavenCoordinates implements Comparable<MavenCoordinates>
+public class MavenCoordinates extends ArtifactIdentifiers implements
+        Comparable<MavenCoordinates>,
+        MavenArtifactCoordinates
 {
-    static final String PLACEHOLDER = "---";
+    public final PomVersion version;
+
+    public MavenCoordinates(Node groupId, Node artifactId, Node version)
+    {
+        this(GroupId.of(groupId), ArtifactId.of(artifactId),
+                PomVersion.of(version));
+    }
+
+    public MavenCoordinates(String groupId, String artifactId,
+            String version)
+    {
+        this(GroupId.of(groupId), ArtifactId.of(artifactId),
+                PomVersion.of(version));
+    }
+
+    public MavenCoordinates(GroupId groupId, ArtifactId artifactId,
+            PomVersion version)
+    {
+        super(notNull("groupId", groupId), notNull("artifactId", artifactId));
+        this.version = notNull("version", version);
+    }
 
     public static Optional<MavenCoordinates> from(Path pomFile)
     {
@@ -26,63 +70,128 @@ public class MavenCoordinates implements Comparable<MavenCoordinates>
         }
     }
 
-    public final String groupId;
-
-    public final String artifactId;
-
-    public final String version;
-
-    public MavenCoordinates(Node groupId, Node artifactId, Node version)
-    {
-        this(textOrPlaceholder(groupId), textOrPlaceholder(artifactId),
-                textOrPlaceholder(version));
-    }
-
-    public MavenCoordinates(String groupId, String artifactId, String version)
-    {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-    }
-
+    /**
+     * Apply a new version returning a new instance if it differs.
+     * 
+     * @param newVersion The new version
+     * @return A maven coordinates
+     */
     public MavenCoordinates withVersion(String newVersion)
     {
+        if (version.is(newVersion))
+        {
+            return this;
+        }
+        return new MavenCoordinates(groupId, artifactId, PomVersion.of(
+                newVersion));
+    }
+    
+    /**
+     * Get the raw PomVersion object from this instance, which may or may
+     * not be a placeholder and may or may not be an unresolved property.
+     * 
+     * @return The version
+     */
+    public PomVersion version() {
+        return version;
+    }
+
+    /**
+     * Apply a new version returning a new instance if it differs.
+     * 
+     * @param newVersion The new version
+     * @return A maven coordinates
+     */
+    public MavenCoordinates withVersion(PomVersion newVersion)
+    {
+        if (version.equals(newVersion))
+        {
+            return this;
+        }
         return new MavenCoordinates(groupId, artifactId, newVersion);
     }
 
-    public Optional<String> version()
+    public MavenCoordinates withGroupId(String newGroupId)
     {
-        return PLACEHOLDER.equals(version)
-               ? Optional.empty()
-               : Optional.of(version);
+        if (groupId.is(newGroupId))
+        {
+            return this;
+        }
+        return new MavenCoordinates(GroupId.of(newGroupId), artifactId,
+                version);
     }
 
-    public MavenCoordinates withResolvedVersion(Supplier<String> versionResolver)
+    public ArtifactIdentifiers toMavenId()
     {
-        if (PLACEHOLDER.equals(version))
+        return new ArtifactIdentifiers(groupId(), artifactId());
+    }
+
+    @Override
+    public GroupId groupId()
+    {
+        return groupId;
+    }
+
+    @Override
+    public ArtifactId artifactId()
+    {
+        return artifactId;
+    }
+
+    public MavenCoordinates toPlainMavenCoordinates()
+    {
+        return this;
+    }
+
+    @Override
+    public boolean isResolved()
+    {
+        return version.isResolved() && groupId.isResolved() && artifactId
+                .isResolved();
+    }
+
+    public MavenCoordinates resolve(Function<String, String> res)
+    {
+        GroupId gid = groupId.resolve(res);
+        ArtifactId aid = artifactId.resolve(res);
+        PomVersion ver = version.resolve(res);
+        if (gid != groupId || aid != artifactId || ver != version)
         {
-            String newVersion = versionResolver.get();
-            if (newVersion != null)
-            {
-                return withVersion(newVersion);
-            }
+            MavenCoordinates nue = new MavenCoordinates(gid, aid, ver);
+            return nue;
         }
         return this;
+    }
+
+    public MavenCoordinates resolve(PropertyResolver res, PomResolver poms)
+    {
+        PomVersion ver = version;
+        if (ver.isPlaceholder())
+        {
+            ver = poms.get(groupId.text(), artifactId.text())
+                    .map(pom ->
+                    {
+                        return pom.coordinates().version;
+                    }).orElse(version);
+        }
+        MavenCoordinates nue = ver == version
+                               ? this
+                               : new MavenCoordinates(groupId, artifactId, ver);
+        return nue.resolve(res);
+    }
+
+    @Override
+    public ThrowingOptional<String> resolvedVersion()
+    {
+        return version.ifResolved();
     }
 
     @Override
     public int compareTo(MavenCoordinates o)
     {
-        int result = groupId.compareTo(o.groupId);
-        if (result == 0)
-        {
-            result = artifactId.compareTo(o.artifactId);
-        }
-        if (result == 0)
-        {
-            result = version.compareTo(o.version);
-        }
-        return result;
+        return groupId.compare(o.groupId,
+                () -> artifactId.compare(o.artifactId,
+                        () -> version.compareTo(o.version)));
     }
 
     @Override
@@ -121,12 +230,5 @@ public class MavenCoordinates implements Comparable<MavenCoordinates>
     public String toString()
     {
         return groupId + ":" + artifactId + ":" + version;
-    }
-
-    static String textOrPlaceholder(Node node)
-    {
-        return node == null
-               ? PLACEHOLDER
-               : node.getTextContent().trim();
     }
 }

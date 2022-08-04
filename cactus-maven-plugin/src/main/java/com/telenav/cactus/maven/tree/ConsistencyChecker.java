@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -107,6 +106,12 @@ public class ConsistencyChecker
         log = log.child("consistency");
         ThrowingOptional<ProjectTree> treeOpt = ProjectTree.from(project
                 .getBasedir().toPath());
+        return checkConsistency(project, log, treeOpt);
+    }
+
+    public Set<Inconsistency<?>> checkConsistency(MavenProject project,
+            BuildLog log, ThrowingOptional<ProjectTree> treeOpt) throws Exception
+    {
         if (!treeOpt.isPresent())
         {
             log.child("checkConsistency").error(
@@ -275,13 +280,13 @@ public class ConsistencyChecker
         }
         if (dirtyNotDirty.containsKey(DIRTY))
         {
-            into.add(new Inconsistency<GitCheckout>(dirtyNotDirty,
+            into.add(new Inconsistency<>(dirtyNotDirty,
                     Inconsistency.Kind.CONTAINS_MODIFIED_SOURCES,
                     GitCheckout::checkoutRoot));
         }
         if (detachedNotDetached.containsKey("detached"))
         {
-            into.add(new Inconsistency<GitCheckout>(detachedNotDetached,
+            into.add(new Inconsistency<>(detachedNotDetached,
                     Inconsistency.Kind.NOT_ON_A_BRANCH,
                     GitCheckout::checkoutRoot));
         }
@@ -312,10 +317,10 @@ public class ConsistencyChecker
                 boolean found = false;
                 for (Pom pom : tree.allProjects())
                 {
-                    GitCheckout co = GitCheckout.repository(pom.pom).get();
+                    GitCheckout co = GitCheckout.checkout(pom.path()).get();
                     if (co.equals(checkout))
                     {
-                        if (targetGroupId.equals(pom.coords.groupId))
+                        if (pom.groupId().is(targetGroupId))
                         {
                             found = true;
                             break;
@@ -341,7 +346,7 @@ public class ConsistencyChecker
         {
             Pom info = Pom.from(checkout.checkoutRoot().resolve("pom.xml"))
                     .get();
-            if (!targetGroupId.equals(info.coords.groupId))
+            if (!targetGroupId.equals(info.groupId()))
             {
                 return false;
             }
@@ -364,10 +369,10 @@ public class ConsistencyChecker
 
     private boolean isVersionRequiredToBeConsistent(Pom info)
     {
-        if (targetGroupId != null && !targetGroupId.equals(info.coords.groupId))
+        if (targetGroupId != null && !targetGroupId.equals(info.groupId().text()))
         {
             return false;
         }
-        return ignoreInVersionConsistencyCheck.contains(info.coords.artifactId);
+        return ignoreInVersionConsistencyCheck.contains(info.artifactId().text());
     }
 }

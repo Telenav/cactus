@@ -20,8 +20,10 @@ package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.maven.trigger.RunPolicy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -34,10 +36,12 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.Collections.emptyMap;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -54,69 +58,77 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "replace", threadSafe = true)
+@BaseMojoGoal("replace")
 public class ReplaceMojo extends ScopedCheckoutsMojo
 {
-    private static final Pattern REPLACE_EXPRESSION = Pattern.compile(
-            "<!--\\s*\\[(?<variable>[A-Za-z\\d]+)\\]\\s*-->");
+    private static final Pattern VARIABLE_EXPRESSION = Pattern.compile(
+            "<!--\\s*\\[(?<variable>[A-Za-z\\d.-]+)]\\s*-->");
+
+    private static class ReplaceResult
+    {
+        String replaced;
+
+        int count;
+    }
 
     private static class Replacement
     {
-        Pattern pattern;
+        String pattern;
 
         String replacement;
 
         Replacement(String pattern, String replacement)
         {
-            this.pattern = Pattern.compile(pattern);
+            this.pattern = pattern;
             this.replacement = replacement;
-        }
-
-        String replaceLast(String text)
-        {
-            // Walk backwards through the text,
-            for (var at = 0; at < text.length(); at++)
-            {
-                var tail = text.substring(text.length() - 1 - at);
-
-                // and if we're looking at our pattern,
-                var matcher = pattern.matcher(tail);
-                if (matcher.lookingAt())
-                {
-                    // the head is the text up to the place we're at,
-                    var head = text.substring(at);
-
-                    // and the tail is the text after our match.
-                    tail = text.substring(matcher.end(0));
-
-                    // Return the substituted string.
-                    return head + replacement + tail;
-                }
-            }
-            throw new RuntimeException("Could not find pattern: " + pattern);
         }
     }
 
-    @Parameter(property = "cactus.version")
-    private String version;
+    @Parameter(property = "cactus.replacement-version")
+    String newVersion;
 
-    @Parameter(property = "cactus.branch-name")
-    private String branchName;
+    @Parameter(property = "cactus.replacement-branch-name")
+    String newBranchName;
 
     private final Map<String, Replacement> variables = new HashMap<>();
+
+    public ReplaceMojo()
+    {
+    }
+
+    public ReplaceMojo(boolean runFirst)
+    {
+        super(runFirst);
+    }
+    
+    public ReplaceMojo(RunPolicy pol) {
+        super(pol);
+    }
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
                            GitCheckout myCheckout, ProjectTree tree,
                            List<GitCheckout> checkouts) throws Exception
     {
+        executeCollectingChangedFiles(log, project, myCheckout, tree, checkouts,
+                emptyMap(), _ignored ->{});
+    }
+
+    void executeCollectingChangedFiles(BuildLog log, MavenProject project,
+                           GitCheckout myCheckout, ProjectTree tree,
+                           List<GitCheckout> checkouts, 
+                           Map<GitCheckout, String> releaseBranchNames, 
+                           Consumer<Path> changed) throws Exception
+    {
         for (var checkout : checkouts)
         {
-            var branchName = this.branchName == null && checkout.branch()
+            var branchName = releaseBranchNames.getOrDefault(checkout, 
+                    this.newBranchName == null && checkout.branch()
                     .isPresent()
                     ? checkout.branch().get()
-                    : this.branchName;
+                    : this.newBranchName);
 
-            if (version == null)
+            if (newVersion == null)
             {
                 throw new RuntimeException(
                         "No replacement version was specified for " + checkout);
@@ -127,10 +139,10 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                         "No replacement branch name was specified and there is no default branch for " + checkout);
             }
 
-            variables.put("version", new Replacement(
-                    "\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", version));
-            variables.put("branch-name", new Replacement(
-                    "(master|develop|feature/.+|hotfix/.+)", branchName));
+            variables.put("cactus.replacement-version", new Replacement(
+                    "\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", newVersion));
+            variables.put("cactus.replacement-branch-name", new Replacement(
+                    "(develop|((release|hotfix|feature)/[a-zA-Z\\d.-]+))", branchName));
 
             if (!isPretend())
             {
@@ -138,10 +150,11 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                 {
                     walk.filter(path -> path.toFile().isFile()).forEach(file ->
                     {
-                        if (file.endsWith(".md") || file.getFileName().equals(
-                                Paths.get("pom.xml")))
+                        var filename = file.getFileName().toString();
+                        if (filename.endsWith(".md") || file.getFileName().equals(Paths.get("pom.xml")))
                         {
                             replaceIn(file);
+                            changed.accept(file);
                         }
                     });
                 }
@@ -149,41 +162,48 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private String replace(String text)
+    private ReplaceResult replace(String text)
     {
         var replaced = new StringBuilder();
-        var matcher = REPLACE_EXPRESSION.matcher(text);
-        while (matcher.find())
+        var result = new ReplaceResult();
+        var count = 0;
+        text.lines().forEach(line ->
         {
-            var variable = matcher.group("variable");
-            var replacement = variables.get(variable);
-            if (replacement == null)
+            var matcher = VARIABLE_EXPRESSION.matcher(line);
+            if (matcher.find())
             {
-                throw new RuntimeException(
-                        "Cannot find replace-next variable: " + variable);
+                var variable = matcher.group("variable");
+                var replacement = variables.get(variable);
+                if (replacement == null)
+                {
+                    throw new RuntimeException("Cannot find replacement variable: " + variable);
+                }
+                result.count++;
+                replaced.append(line.replaceFirst(replacement.pattern, replacement.replacement));
             }
-
-            replaced.append(text.substring(matcher.start()));
-            replaced.append(replacement.replacement);
-            text = text.substring(matcher.end());
-        }
-        replaced.append(text);
-        return replaced.toString();
+            else
+            {
+                replaced.append(line);
+            }
+            replaced.append('\n');
+        });
+        result.replaced = replaced.toString();
+        return result;
     }
 
     private void replaceIn(Path file)
     {
         try
         {
-            var contents = Files.readString(file);
-            var replaced = replace(contents);
-            if (!contents.equals(replaced))
+            var originalContents = Files.readString(file);
+            var replaced = replace(originalContents);
+            if (!originalContents.equals(replaced.replaced))
             {
-                log().info(file + " replaced: " + replaced);
                 if (!isPretend())
                 {
-                    Files.writeString(file, replaced, WRITE, TRUNCATE_EXISTING);
+                    Files.writeString(file, replaced.replaced, WRITE, TRUNCATE_EXISTING);
                 }
+                log().info("Replaced " + replaced.count + " in " + file);
             }
         }
         catch (IOException e)

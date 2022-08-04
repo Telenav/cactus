@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.telenav.cactus</groupId>
+        <artifactId>cactus</artifactId>
+        <version>1.5.20</version>
+    </parent>
+    
+    <artifactId>cactus-scope</artifactId>
+    
+    <description>
+        Defines the scopes most mojos in the cactus-maven-plugin use to determine
+        what projects and git repositories to operate on, and the API for
+        project-families.
+    </description>
+
+    <properties>
+        <java.module.name>cactus.scope</java.module.name>
+    </properties>
+        
+    <dependencies>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-maven-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>util-strings</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

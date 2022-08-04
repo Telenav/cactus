@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- //
- // © 2011-2022 Telenav, Inc.
- // Licensed under Apache License, Version 2.0
- //
- /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- -->
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+// Licensed under Apache License, Version 2.0
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -15,20 +15,40 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.4.11</version>
+        <version>1.5.20</version>
     </parent>
 
     <artifactId>cactus-maven-model</artifactId>
 
     <description>
-        The cactus-maven-plugin project codifies Telenav Open Source processes.
+        Models maven poms and artifacts, without depending directly on Maven.
     </description>
 
     <properties>
-        <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
-        <maven.api.version>3.8.5</maven.api.version>
-        <enforcer.skip>true</enforcer.skip>
+        <java.module.name>cactus.maven.model</java.module.name>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-maven-xml</artifactId>
+        </dependency>        
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -40,14 +60,27 @@
                 <configuration>
                     <archive>
                         <!-- This is absolutely unnecessary, and the maven javadoc plugin
-                             fails without it. -->
+                        fails without it. -->
                         <manifestEntries>
                             <Automatic-Module-Name>cactus.maven.model</Automatic-Module-Name>
+                            <Add-Opens>cactus.maven.model/*=ALL-UNNAMED cactus.maven.plugin/*=maven.core cactus.maven.model/*=maven.plugin.api cactus.maven.model/*=maven.settings cactus.maven.model/*=plexus.classworlds@2.6.0 cactus.maven.model/*=plexus.classworlds com.google.guice/*=ALL-UNNAMED</Add-Opens>
+                            <Add-Exports>cactus.maven.model/*=ALL-UNNAMED cactus.maven.model/*=com.google.guice cactus.maven.model/*=maven.core cactus.maven.plugin/*=maven.plugin.api cactus.maven.model/*=maven.settings cactus.maven.model/*=maven.plugin.api</Add-Exports>
                         </manifestEntries>
                     </archive>
                 </configuration>
 
-            </plugin>            
+            </plugin>   
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <!-- Otherwise the stack trace will be trimmed so aggressively
+                    it's impossible to tell what went wrong in the event of a
+                    thrown exception -->
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+            </plugin>         
         </plugins>
     </build>
 
