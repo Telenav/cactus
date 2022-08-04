@@ -134,6 +134,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "pull");
 
+    public static final GitCommand<String> PULL_REBASE
+            = new GitCommand<>(ProcessResultConverter.strings(),
+                    "pull", "--rebase");
+
     public static final GitCommand<String> PUSH
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "push");
@@ -812,6 +816,12 @@ to ensure we don't collide with quotes or other more common sequences.
         return true;
     }
 
+    public boolean pullWithRebase()
+    {
+        PULL_REBASE.withWorkingDir(root).run().awaitQuietly();
+        return true;
+    }
+
     /**
      * Creates a pull request on Github using the given authentication token,
      * title and body
@@ -1005,12 +1015,16 @@ to ensure we don't collide with quotes or other more common sequences.
                    ? ThrowingOptional.empty()
                    : ThrowingOptional.of(infos);
         }
-        else if (isSubmodule())
-        {
-            return submoduleRoot().flatMapThrowing(root -> {
-                return root == this ? ThrowingOptional.empty() : root.submodules();
-            });
-        }
+        else
+            if (isSubmodule())
+            {
+                return submoduleRoot().flatMapThrowing(root ->
+                {
+                    return root == this
+                           ? ThrowingOptional.empty()
+                           : root.submodules();
+                });
+            }
         return ThrowingOptional.empty();
     }
 

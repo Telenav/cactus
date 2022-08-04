@@ -136,15 +136,16 @@ final class ProjectTreeCache
     }
 
     public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            ProjectFamily family)
+            String groupId)
     {
+        ProjectFamily parent = ProjectFamily.fromGroupId(groupId);
         Set<GitCheckout> all = new HashSet<>();
         projectsByRepository.forEach((repo, projectSet) ->
         {
             for (Pom p : projectSet)
             {
-                if (familyOf(p).equals(family)
-                        || family.isParentFamilyOf(p.groupId()))
+                if (familyOf(p).equals(parent)
+                        || parent.isParentFamilyOf(p.groupId()))
                 {
                     all.add(repo);
                     break;

@@ -252,7 +252,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     {
         for (GitCheckout checkout : checkouts)
         {
-            log.info("Fetch all in " + checkout.name());
+            log.info("Fetch all in " + checkout.loggingName());
             if (!isPretend())
             {
                 checkout.fetchAll();
