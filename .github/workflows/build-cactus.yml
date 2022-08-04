@@ -57,7 +57,7 @@ jobs:
           maven-version: 3.8.5
 
       - name: Configure Git
-        run: cd $GITHUB_WORKSPACE/telenav-superpoms && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody"
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody"
         
       - name: Clone Telenav-Superpoms
         run: cd $GITHUB_WORKSPACE/telenav-superpoms && git clone "https://github.com/Telenav/telenav-build.git" -b develop
