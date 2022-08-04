@@ -67,6 +67,9 @@ jobs:
 
       - name: Clone Cactus
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git"
+        
+      - name: Pull All
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
 
       - name: Checkout Ref
         run: cd $GITHUB_WORKSPACE/cactus && git checkout -t origin/$GITHUB_REF_NAME -b build-$GITHUB_RUN_ID
@@ -75,13 +78,10 @@ jobs:
         run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
 
       - name: Checkout Ref
-        run: cd $GITHUB_WORKSPACE/cactus && git checkout $GITHUB_REF
+        run: cd $GITHUB_WORKSPACE/cactus && git checkout $GITHUB_SHA
 
       - name: Build Superpoms
         run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn -B install
-
-      - name: Pull All
-        run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
 
       - name: Build Cactus
         run: cd $GITHUB_WORKSPACE/cactus && mvn -B install
