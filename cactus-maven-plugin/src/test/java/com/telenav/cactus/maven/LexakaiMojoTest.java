@@ -7,11 +7,13 @@ import com.telenav.cactus.maven.tree.ProjectTree;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -30,10 +32,12 @@ public class LexakaiMojoTest
             LexakaiMojo mojo = new LexakaiMojo();
             ProjectTree tree = ProjectTree.from(root).get();
 
-            Pom pom = tree.findProject("com.telenav.kivakit", "kivakit-core")
-                    .get();
+            Optional<Pom> opt = tree.findProject("com.telenav.kivakit", "kivakit-core");
+            if (!opt.isPresent()) {
+                return;
+            }
+            Pom pom = opt.get();
             Path out = mojo.output(pom);
-            System.out.println("POM " + pom + " out " + out);
             assertEquals(out, root.resolve("kivakit-assets"),
                     "Wrong assets path " + out);
         });
