@@ -325,7 +325,7 @@ that set expectations for users.  In Apache Wicket, `wicket` is a single _projec
 rings migrate towards the core if they become more stable, and away from the core if they become unmaintained.
 
 Cactus is built around this idea and so it supports families of projects that depend on each other. 
-For example, the [KivaKit](https://kivakit.org) project family is built by Cactus, and it is structured 
+For example, the [KivaKit](https://www.kivakit.org) project family is built by Cactus, and it is structured 
 in a similar way to Apache Wicket:
 
   * `kivakit` - the core library (most stable)
