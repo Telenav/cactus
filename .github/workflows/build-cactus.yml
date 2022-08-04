@@ -63,10 +63,10 @@ jobs:
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b develop
 
       - name: Checkout Target Superpom Branch If Possible
-        run: cd $GITHUB_WORKSPACE/telenav-superpoms && git checkout $GITHUB_REF || echo No ref named $GITHUB_REF in telenav-superpoms - this is normal on a feature branch.
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && git checkout $GITHUB_REF || echo No ref named $GITHUB_REF in telenav-superpoms - this is normal on a feature branch.
 
       - name: Build Superpoms
-        run: cd $GITHUB_WORKSPACE/telenav-superpoms && mvn -B install
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn -B install
 
       - name: Clone Cactus
         run: cd $GITHUB_WORKSPACE && git clone https://github.com/Telenav/cactus.git -b $GITHUB_REF
