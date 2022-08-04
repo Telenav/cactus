@@ -55,13 +55,13 @@ jobs:
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: 3.8.5
-          
+
       - name: Collect Timestamp for Temp Branch Name
         run: echo "WHEN=$(date '+%s')" >> $GITHUB_ENV
 
       - name: Configure Git
         run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody"
-        
+
       - name: Clone Telenav-Superpoms
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b develop
 
@@ -73,10 +73,13 @@ jobs:
 
       - name: Clone Cactus
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git"
-        
+
       - name: Pull All
         run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
         
+      - name: List Heads
+        run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
+
       - name: Checkout Ref
         run: cd $GITHUB_WORKSPACE/cactus && git checkout -t $GITHUB_REF -b build-$WHEN
 
