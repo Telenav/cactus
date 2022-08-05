@@ -48,7 +48,7 @@ public class InstallScriptsMojo extends BaseMojo
     @Parameter(property = "cactus.script.destination")
     private String destination;
 
-    @Parameter(property = "cactus.create.aliases", defaultValue="true")
+    @Parameter(property = "cactus.create.aliases", defaultValue = "true")
     @SuppressWarnings("FieldMayBeFinal")
     private boolean createAliases = true;
 
@@ -59,7 +59,8 @@ public class InstallScriptsMojo extends BaseMojo
 
     private Path destination() throws MojoExecutionException
     {
-        if (destination != null && !destination.isBlank()) {
+        if (destination != null && !destination.isBlank())
+        {
             return Paths.get(destination.trim());
         }
         Path home = home();
@@ -108,6 +109,7 @@ public class InstallScriptsMojo extends BaseMojo
         PUSH_ALL_SUBMODULES("cpush"),
         PULL_ALL_SUBMODULES("cpull"),
         DEVELOPMENT_PREPARATION("cdev"),
+        CHANGE_BRANCH("cbranch"),
         SIMPLE_BUMP_VERSION("cbump"),
         LAST_CHANGE_BY_PROJECT("cch"),
         FAMILY_VERSIONS("cver"),
@@ -146,6 +148,20 @@ public class InstallScriptsMojo extends BaseMojo
 
                 case DEVELOPMENT_PREPARATION:
                     return "\\tSwitch to the 'develop' branch in all java project checkouts.";
+
+                case CHANGE_BRANCH:
+                    return "\\tChange branches or create a new branch.  To simply check out an existing feature branch\\n"
+                            + "\\tin all projects that have it, run `cbranch feature/some-branch`.\\n\\n\\t"
+                            + "To *create* a new branch, run `cbranch --new feature/some-branch`.  \\n\\t"
+                            + "If a local branch with the requested name exists for one checkout, that checkout \\n\\t"
+                            + "will simply be switched to it.  If a remote branch with the requeted name exists for a checkout,\\n\\t"
+                            + "but a local one does not, a local tracking branch will be created and switched to for that checkout.\\n\\t"
+                            + "If no local or remote branch exists for a checkout, the default development branch (develop) will be switched to."
+                            + "\\n\\tBy default, the "
+                            + "scope of checkouts affected will be the project family of whatever pom.xml you are running\\n\\t"
+                            + "against, and any child project families of it (if run in the root of a checkout, that may be everything).\\n\\n\\t"
+                            + "Pass `--all` to apply to *every* project family in your tree.\\n\\n\\t"
+                            + "If not passing `--new`, any checkouts that do not have the named branch will be switched to the default development branch.";
 
                 case UPDATE_SCRIPTS:
                     return "\\tFinds the latest version of cactus you have installed, and runs\n\\t"
@@ -218,6 +234,37 @@ public class InstallScriptsMojo extends BaseMojo
             return result;
         }
 
+        private String insertHelpStanza(String script, String pluginVersion)
+        {
+            String desc = description();
+            if (desc != null && !desc.isEmpty())
+            {
+                StringBuilder sb = new StringBuilder(
+                        "\n\nif [ -n \"$1\" ]; then\n")
+                        .append("    if [ '--help' = $1 ]; then\n");
+
+                desc = desc.replaceAll("\\\\n", "\n")
+                        .replaceAll("\\\\t", "\t")
+                        .replaceAll("\"", "\\\"");
+
+                sb.append("        echo '").append(longName()).append(" ")
+                        .append(pluginVersion).append("' 1>&2\n");
+                sb.append("        echo 1>&2\n");
+                for (String line : desc.split("\n"))
+                {
+                    sb.append("        echo '").append(line).append("' 1>&2\n");
+                }
+                sb.append("         exit 0");
+                sb.append("\n    fi");
+                sb.append("\nfi\n");
+                StringBuilder txt = new StringBuilder(script);
+                int ix = script.indexOf('\n');
+                txt.insert(ix + 1, sb);
+                return txt.toString();
+            }
+            return script;
+        }
+
         private Path install(Path toDir, boolean createAliases,
                 String pluginVersion, BuildLog log,
                 boolean pretend) throws IOException
@@ -227,6 +274,9 @@ public class InstallScriptsMojo extends BaseMojo
                 String body = new String(in.readAllBytes(), US_ASCII)
                         .replaceAll("__PLUGIN_VERSION_PLACEHOLDER__",
                                 pluginVersion);
+
+                body = insertHelpStanza(body, pluginVersion);
+
                 Path script = toDir.resolve(longName());
                 Path shorthand = toDir.resolve("./" + filename);
                 if (!pretend)
