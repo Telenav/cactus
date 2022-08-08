@@ -45,21 +45,15 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
-        name = "git-pull-request", threadSafe = true)
-@BaseMojoGoal("git-pull-request")
-public class GitPullRequestMojo extends ScopedCheckoutsMojo
+        name = "git-merge-pull-request", threadSafe = true)
+@BaseMojoGoal("git-merge-pull-request")
+public class GitMergePullRequestMojo extends ScopedCheckoutsMojo
 {
     @Parameter(property = "cactus.authentication-token", required = true)
     private String authenticationToken;
 
-    @Parameter(property = "cactus.title", required = true)
-    private String title;
-
-    @Parameter(property = "cactus.body", required = true)
-    private String body;
-
-    @Parameter(property = "cactus.reviewers", required = true)
-    private String reviewers;
+    @Parameter(property = "cactus.branch-name", required = true)
+    private String branchName;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
@@ -74,7 +68,7 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
 
         for (var checkout : checkouts)
         {
-            checkout.createPullRequest(authenticationToken, reviewers, title, body);
+            checkout.mergePullRequest(authenticationToken, branchName);
         }
     }
 
@@ -85,14 +79,6 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
         if (authenticationToken.isBlank())
         {
             throw new RuntimeException("Must supply github authentication token");
-        }
-        if (title.isBlank())
-        {
-            throw new RuntimeException("Must supply title");
-        }
-        if (body.isBlank())
-        {
-            throw new RuntimeException("Must supply body");
         }
     }
 }

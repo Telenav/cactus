@@ -52,16 +52,15 @@ import java.util.stream.Stream;
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
-import static java.util.Collections.emptyList;
 
 /**
  * @author Tim Boudreau
  */
 @SuppressWarnings(
         {
-            "unused", "UnusedReturnValue", "SwitchStatementWithTooFewBranches",
-            "OptionalUsedAsFieldOrParameterType"
-        })
+                "unused", "UnusedReturnValue", "SwitchStatementWithTooFewBranches",
+                "OptionalUsedAsFieldOrParameterType"
+                , "DuplicatedCode" })
 public final class GitCheckout implements Comparable<GitCheckout>
 {
 
@@ -827,35 +826,88 @@ to ensure we don't collide with quotes or other more common sequences.
      * title and body
      *
      * @param authenticationToken The token to sign into github
+     * @param reviewers A comma-separated list of Github reviewer handles
      * @param title The title of the pull request
      * @param body The body of the pull request
      * @return True if the pull request was created
      */
-    public boolean pullRequest(String authenticationToken, String title,
-            String body)
+    public boolean createPullRequest(String authenticationToken,
+                                     String reviewers,
+                                     String title,
+                                     String body)
     {
         // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
-        var output = new GithubCommand<>(ProcessResultConverter.strings(), root,
+        var output = signIn(authenticationToken);
+
+        var arguments = new ArrayList<String>();
+        arguments.add("pr");
+        arguments.add("create");
+        arguments.add("--title");
+        arguments.add(title);
+        arguments.add("--body");
+        arguments.add(body);
+        for (var reviewer : reviewers.split(","))
+        {
+            arguments.add("--reviewer");
+            arguments.add(reviewer);
+        }
+
+        // Create pull request (gh pr --title "$title" --body "$body" --reviewer yyzhou --reviewer jonathanl-telenav)
+        output += new GithubCommand<>(ProcessResultConverter.strings(), root,
+                arguments.toArray(new String[0])).run()
+                .awaitQuietly();
+
+        log.info(output);
+        return true;
+    }
+
+
+    /**
+     * Merges pull request on Github using the given authentication token
+     *
+     * @param authenticationToken The token to sign into github
+     * @param branchName The name of the branch to merge
+     * @return True if the pull request was merged
+     */
+    public boolean mergePullRequest(String authenticationToken, String branchName)
+    {
+        // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
+        var output = signIn(authenticationToken);
+
+        var arguments = new ArrayList<String>();
+        arguments.add("pr");
+        arguments.add("merge");
+        arguments.add("--auto");
+        arguments.add("--delete-branch");
+        arguments.add("--merge");
+        arguments.add("--squash");
+        arguments.add("--body");
+        arguments.add("Merge " + branchName);
+
+        // Create pull request (gh pr merge --auto --merge --squash --body "Merge feature/reverse-string)
+        output += new GithubCommand<>(ProcessResultConverter.strings(), root,
+                arguments.toArray(new String[0])).run()
+                .awaitQuietly();
+
+        log.info(output);
+        return true;
+    }
+
+    private String signIn(String authenticationToken)
+    {
+        return new GithubCommand<>(ProcessResultConverter.strings(), root,
                 "auth", "login", "--hostname", "github.com", "--with-token")
         {
             @Override
             protected void onLaunch(Process process)
             {
                 super.onLaunch(process);
-                try ( var out = new PrintWriter(process.getOutputStream()))
+                try (var out = new PrintWriter(process.getOutputStream()))
                 {
                     out.println(authenticationToken);
                 }
             }
         }.run().awaitQuietly();
-
-        // Create pull request (gh pr create --title "$title" --body "$body")
-        output += new GithubCommand<>(ProcessResultConverter.strings(), root,
-                "pr", "create", "--title", title, "--body", body).run()
-                .awaitQuietly();
-
-        log.info(output);
-        return true;
     }
 
     public boolean push()
