@@ -580,7 +580,7 @@ is a fairly new project, and subject to change.
 <a name = "telenav-releases"></a>
 ### Telenav Open Source Releases
 
-The telenav-build workspace contains a turn-key script called `release.sh` which orchestrates the 
+The telenav-build workspace contains a turn-key script called `release` which orchestrates the 
 phases described here to make it easy to release the Telenav Open Source project families. The script:
 
  - Checks tool versions
@@ -594,7 +594,7 @@ phases described here to make it easy to release the Telenav Open Source project
 
 ```
 cd telenav-build
-./release.sh
+./release
 ```
 
 For full details on the release script, see [telenav-build/releasing](https://github.com/Telenav/telenav-build/blob/release/current/documentation/releasing.md)
@@ -707,7 +707,7 @@ tree it is run in, and
 
 The `print-message` mojo allows us to just attach a formatted message that will be printed
 to the console at the end of a Maven run, on success, on failure or always, which allows the
-operator to know what to do next (when using the `telenav-build/release.sh` script, this can be ignored):
+operator to know what to do next (when using the `telenav-build/release` script, this can be ignored):
 
 ```xml
         <execution>
