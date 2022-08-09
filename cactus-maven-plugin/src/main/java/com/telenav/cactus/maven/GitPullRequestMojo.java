@@ -50,6 +50,9 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 @BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends ScopedCheckoutsMojo
 {
+    
+    private static final String GITHUB_CLI_TOKEN_ENV_VAR = "GH_TOKEN";
+    
     @Parameter(property = "cactus.authentication-token", required = false)
     private String authenticationToken;
 
@@ -79,16 +82,24 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
         }
     }
     
-    private String authenticationToken() {
-        if (authenticationToken == null || authenticationToken.isBlank()) {
-            String result = getenv("GH_TOKEN");
-            if (result == null || result.isBlank()) {
-                fail("-Dcactus.authentication-token not passed, and GH_TOKEN "
-                        + "environment variable is unset");
-            }
-            return result;
+    private String authenticationToken()
+    {
+        if (authenticationToken == null || authenticationToken.isBlank())
+        {
+            return getTokenFromEnvironment();
         }
         return authenticationToken;
+    }
+    
+    private String getTokenFromEnvironment()
+    {
+        String result = getenv(GITHUB_CLI_TOKEN_ENV_VAR);
+        if (result == null)
+        {
+            fail("-Dcactus.authentication-token not passed, and GH_TOKEN "
+                    + "environment variable is unset");
+        }
+        return result;
     }
 
     @Override
@@ -97,7 +108,8 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
     {
         if (authenticationToken.isBlank())
         {
-            fail("Must supply github authentication token");
+            // Will fail if not present
+            getTokenFromEnvironment();
         }
         if (title.isBlank())
         {
