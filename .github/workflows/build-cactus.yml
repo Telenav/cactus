@@ -54,34 +54,37 @@ jobs:
       - name: Set Up Maven
         uses: stCarolas/setup-maven@v4.3
         with:
-          maven-version: 3.8.5
+          maven-version: 3.8.6
 
       - name: Configure Git
         run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody"
 
-      - name: Clone Telenav-Superpoms
-        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b develop
+      - name: Set Up Target Branch
+        run: echo 'TARGET_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_HEAD_REF" || echo "$GITHUB_REF_NAME") >> $GITHUB_ENV
 
-      - name: Checkout Target Superpom Branch If Possible
-        run: cd $GITHUB_WORKSPACE/telenav-superpom && git checkout $GITHUB_REF || echo No ref named $GITHUB_REF in telenav-superpoms - this is normal on a feature branch.
+      - name: Set Up Base Branch
+        run: echo 'BASE_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_BASE_REF" || echo "develop") >> $GITHUB_ENV
+
+      - name: Clone Telenav-Superpoms
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b $BASE_BRANCH
 
       - name: Clone Cactus
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git"
-        
-      - name: Pull All
+
+      - name: Fetch All
         run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
 
-      - name: Checkout Ref
-        run: cd $GITHUB_WORKSPACE/cactus && git checkout -t origin/$GITHUB_REF_NAME -b build-$GITHUB_RUN_ID
-
-      - name: List Heads
-        run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
+      - name: Ensure Merge Commit Is Available Locally
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch origin $GITHUB_REF
 
       - name: Checkout Ref
         run: cd $GITHUB_WORKSPACE/cactus && git checkout $GITHUB_SHA
 
+      - name: List Heads
+        run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
+
       - name: Build Superpoms
-        run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn -B install
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn --no-transfer-progress --batch-mode install
 
       - name: Build Cactus
-        run: cd $GITHUB_WORKSPACE/cactus && mvn -B install
+        run: cd $GITHUB_WORKSPACE/cactus && mvn --no-transfer-progress --batch-mode install

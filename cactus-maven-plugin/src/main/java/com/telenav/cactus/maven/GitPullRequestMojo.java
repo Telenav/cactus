@@ -58,6 +58,12 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
     @Parameter(property = "cactus.body", required = true)
     private String body;
 
+    @Parameter(property = "cactus.to-branch", required = true)
+    private String toBranch;
+
+    @Parameter(property = "cactus.from-branch", required = true)
+    private String fromBranch;
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
                            GitCheckout myCheckout,
@@ -71,7 +77,7 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
 
         for (var checkout : checkouts)
         {
-            checkout.pullRequest(authenticationToken, title, body);
+            checkout.pullRequest(authenticationToken, fromBranch, toBranch, title, body);
         }
     }
 
