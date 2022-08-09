@@ -30,6 +30,7 @@ import org.apache.maven.project.MavenProject;
 
 import java.util.List;
 
+import static java.lang.System.getenv;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -49,7 +50,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 @BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends ScopedCheckoutsMojo
 {
-    @Parameter(property = "cactus.authentication-token", required = true)
+    @Parameter(property = "cactus.authentication-token", required = false)
     private String authenticationToken;
 
     @Parameter(property = "cactus.title", required = true)
@@ -74,8 +75,20 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
 
         for (var checkout : checkouts)
         {
-            checkout.createPullRequest(authenticationToken, reviewers, title, body);
+            checkout.createPullRequest(authenticationToken(), reviewers, title, body);
         }
+    }
+    
+    private String authenticationToken() {
+        if (authenticationToken == null || authenticationToken.isBlank()) {
+            String result = getenv("GH_TOKEN");
+            if (result == null || result.isBlank()) {
+                fail("-Dcactus.authentication-token not passed, and GH_TOKEN "
+                        + "environment variable is unset");
+            }
+            return result;
+        }
+        return authenticationToken;
     }
 
     @Override
@@ -84,15 +97,15 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
     {
         if (authenticationToken.isBlank())
         {
-            throw new RuntimeException("Must supply github authentication token");
+            fail("Must supply github authentication token");
         }
         if (title.isBlank())
         {
-            throw new RuntimeException("Must supply title");
+            fail("Must supply title");
         }
         if (body.isBlank())
         {
-            throw new RuntimeException("Must supply body");
+            fail("Must supply body");
         }
     }
 }
