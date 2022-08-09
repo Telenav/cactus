@@ -65,7 +65,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * <p>
  * Like other mojos in this plugin, the set of repositories that are altered can
  * be controlled by the <code>cactus.scope</code> property, to apply to all git
- * repositories matching that scope - all subrepositories are scanned, and those
+ * repositories matching that scope - all sub-repositories are scanned, and those
  * containing maven projects matching the scope are selected.
  * </p>
  * <p>
@@ -110,7 +110,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
@@ -120,7 +120,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 public class CheckoutMojo extends ScopedCheckoutsMojo
 {
 
-    private static abstract class BranchingBehavior implements
+    @SuppressWarnings("CodeBlock2Expr") private static abstract class BranchingBehavior implements
             Comparable<BranchingBehavior>
     {
         protected final ProjectTree tree;
@@ -258,6 +258,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             return isRoot && checkout.isSubmoduleRoot();
         }
 
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         boolean isUpdateRoot()
         {
             return updateRoot;
@@ -340,7 +341,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
 
         @Override
-        protected boolean performBranchChange() throws Exception
+        protected boolean performBranchChange()
         {
             checkout.createAndSwitchToBranch(targetBranch, Optional.of(
                     baseBranch));
@@ -372,7 +373,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
 
         @Override
-        void validate(Collection<? super String> problems) throws Exception
+        void validate(Collection<? super String> problems)
         {
             // do nothing
         }
@@ -404,7 +405,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         @Override
         void validate(
-                Collection<? super String> problems) throws Exception
+                Collection<? super String> problems)
         {
             problems.add(failure);
         }
@@ -451,7 +452,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
 
         @Override
-        void validate(Collection<? super String> problems) throws Exception
+        void validate(Collection<? super String> problems)
         {
             // do nothing
         }
@@ -484,7 +485,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
 
         @Override
-        protected boolean performBranchChange() throws Exception
+        protected boolean performBranchChange()
         {
             checkout.switchToBranch(targetBranch);
             return true;
@@ -562,7 +563,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     String overrideBranchSubmodule;
 
     /**
-     * For buliding a PR in a continuous build, there will be one git submodule
+     * For building a PR in a continuous build, there will be one git submodule
      * for which we may be passed a specific git commit ID we need to check out,
      * rather than just putting it on the branch-head.
      * <p>
@@ -585,6 +586,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             defaultValue = "false")
     boolean permitLocalChanges = false;
 
+    @SuppressWarnings({ "CodeBlock2Expr" })
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
@@ -726,8 +728,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         return br.localOrRemoteBranch(baseBranch);
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     private BranchingBehavior branchChangerFor(ProjectTree tree,
-            GitCheckout checkout, BuildLog log) throws Exception
+                                               GitCheckout checkout, BuildLog log)
     {
         // Okay, the states we have to deal with:
         //  - Base branch neither exists remotely nor locally
@@ -776,7 +779,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         Branches br = tree.branches(checkout);
         Optional<Branch> baseOpt = baseBranchFor(checkout, tree);
-        if (!baseOpt.isPresent())
+        if (baseOpt.isEmpty())
         {
             // Do this so we can report ALL failures, not just bail out on
             // the first one.  The validate() method will apply our failure
