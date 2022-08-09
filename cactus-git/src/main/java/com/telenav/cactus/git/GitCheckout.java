@@ -50,6 +50,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.cli.ProcessResultConverter.exitCode;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
 
@@ -265,6 +266,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         this.root = notNull("root", root).normalize();
     }
+    
+    public boolean isNotAtSameHeadAsBranch(String otherBranch) {
+        GitCommand<Boolean> isDirtyRelative
+            = new GitCommand<>(exitCode(code -> code != 0), checkoutRoot(),
+                    "diff", "--quiet", "-r", notNull("otherBranch", otherBranch));
+        return isDirtyRelative.run().awaitQuietly();
+    }
 
     public boolean add(Collection<? extends Path> paths)
     {
@@ -331,6 +339,14 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public Branches branches()
     {
         return ALL_BRANCHES.withWorkingDir(root).run().awaitQuietly();
+    }
+    
+    public Branches branchesContainingCommit(String commitHash)
+    {
+        GitCommand<Branches> targets = new GitCommand<>(strings().trimmed().map(
+                        Branches::from), checkoutRoot(),
+                "branch", "--no-color", "--all", "--contains=" + commitHash);
+        return targets.run().awaitQuietly();
     }
 
     public boolean canMerge(String mergeTo)
@@ -834,7 +850,9 @@ to ensure we don't collide with quotes or other more common sequences.
     public boolean createPullRequest(String authenticationToken,
                                      String reviewers,
                                      String title,
-                                     String body)
+                                     String body,
+                                     String sourceBranch,
+                                     String destBranch)
     {
         // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
         var output = signIn(authenticationToken);
@@ -842,14 +860,20 @@ to ensure we don't collide with quotes or other more common sequences.
         var arguments = new ArrayList<String>();
         arguments.add("pr");
         arguments.add("create");
+        arguments.add("--base");
+        arguments.add(destBranch);
+        arguments.add("--head");
+        arguments.add(sourceBranch);
         arguments.add("--title");
         arguments.add(title);
         arguments.add("--body");
         arguments.add(body);
-        for (var reviewer : reviewers.split(","))
-        {
-            arguments.add("--reviewer");
-            arguments.add(reviewer);
+        if (reviewers != null && !reviewers.isBlank()) {
+            for (var reviewer : reviewers.split(","))
+            {
+                arguments.add("--reviewer");
+                arguments.add(reviewer.trim());
+            }
         }
 
         // Create pull request (gh pr --title "$title" --body "$body" --reviewer yyzhou --reviewer jonathanl-telenav)
