@@ -19,6 +19,7 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import java.net.URI;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
@@ -61,6 +62,24 @@ public interface ProcessResultConverter<T>
                 return thrown != null ? -1 : p.exitValue();
             }));
         };
+    }
+    
+    public static ProcessResultConverter<URI> trailingUriAloneOnLine() {
+        return strings().map(processOutput -> {
+            String[] lines = processOutput.split("\n");
+            for (int i = lines.length - 1; i >= 0; i--)
+            {
+                String ln = lines[i].trim();
+                if (ln.startsWith("https://") && Character.isDigit(ln.charAt(ln
+                        .length() - 1)))
+                {
+                    return URI.create(ln);
+                }
+            }
+            throw new IllegalArgumentException(
+                    "No URI found in process output \n'"
+                    + processOutput + "'");
+        });
     }
 
     default <R> ProcessResultConverter<R> map(Function<T, R> converter)

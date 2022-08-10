@@ -22,5 +22,8 @@ open module cactus.git {
     requires cactus.util;
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.databind;
     exports com.telenav.cactus.git;
+    exports com.telenav.cactus.github;
 }

@@ -26,7 +26,18 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>cactus-cli</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.13.3</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.3</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
 </project>

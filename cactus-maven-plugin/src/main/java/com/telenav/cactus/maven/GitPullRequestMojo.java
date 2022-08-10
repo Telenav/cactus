@@ -24,12 +24,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -43,8 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.lang.System.getenv;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -62,18 +55,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         instantiationStrategy = SINGLETON,
         name = "git-pull-request", threadSafe = true)
 @BaseMojoGoal("git-pull-request")
-public class GitPullRequestMojo extends ScopedCheckoutsMojo
+public class GitPullRequestMojo extends AbstractGithubMojo
 {
-
-    private static final String GITHUB_CLI_PAT_ENV_VAR = "GITHUB_PAT";
-    private static final String GITHUB_CLI_PAT_FILE_ENV_VAR = "GITHUB_PAT_FILE";
-
-    /**
-     * Github authentication token to use with the github cli client. If not
-     * present, the GH_TOKEN environment variable must be set to a valid token.
-     */
-    @Parameter(property = "cactus.authentication-token", required = false)
-    private String authenticationToken;
 
     /**
      * The pull request title.
@@ -277,18 +260,34 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
                                     .hasRemoteForLocalOrLocalForRemote(
                                             branch))
                             {
+                                // The local branch does not exist in remote,
+                                // so schedule a push to create it before we
+                                // try to create a pull request
                                 log.info("Will push to create branch " + branch
-                                        + " on remote.");
-                                sect.bulletPoint(myCheckout.loggingName()
+                                        + " on remote for " + co.loggingName());
+                                sect.bulletPoint(co.loggingName()
                                         + " (no commit, buut creating remote branch "
                                         + branch + ")");
                                 toPush.add(co);
                             }
                             else
-                            {
-                                sect.bulletPoint(myCheckout.loggingName()
-                                        + " (not creating commit)");
-                            }
+                                if (co.needsPush().canBePushed())
+                                {
+                                    // The local branch does exist on the remote, but we
+                                    // have commits locally that have not been pushed
+                                    log.info(
+                                            "Will push unpushed commits for " + co
+                                                    .loggingName()
+                                            + " to remote.");
+                                    sect.bulletPoint(
+                                            co.loggingName() + " (push local commits only)");
+                                    toPush.add(co);
+                                }
+                                else
+                                {
+                                    sect.bulletPoint(myCheckout.loggingName()
+                                            + " (no commit needed)");
+                                }
                         }
                         else
                         {
@@ -369,16 +368,28 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
                                     .hasRemoteForLocalOrLocalForRemote(branch);
                     if (needCreateBranch)
                     {
+                        log.info("Will push " + co.loggingName()
+                                + " to create remote branch for " + branch);
                         tasks.add(() ->
                         {
-                            log.info("Will push " + co.loggingName()
-                                    + " to create remote branch for " + branch);
+                            log.info(logPrefix + "Push " + co.loggingName());
                             if (!isPretend())
                             {
                                 co.pushCreatingBranch();
                             }
                         });
                     }
+                    else
+                        if (co.needsPush().canBePushed())
+                        {
+                            log.info("Will push " + co.loggingName()
+                                    + " - branch already exists, but not all local "
+                                    + "commits exist remotely.");
+                            tasks.add(() ->
+                            {
+                                log.info(logPrefix + "Push " + co.loggingName());
+                            });
+                        }
                 }
             });
         }
@@ -392,7 +403,20 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
         }
         else
         {
-            String token = authenticationToken();
+            if (!commit)
+            {
+                createPullRequestsIn.forEach(co ->
+                {
+                    if (co.isDirty())
+                    {
+                        fail("Commit is false and " + co.loggingName() + " has "
+                                + " local modifications.  Running `gh pr create` in such a "
+                                + "situation will trigger interactive questions and "
+                                + "cannot be automated.");
+                    }
+                });
+            }
+
             // Now add a task for each checkout to the list which will actually
             // create the PR
             createPullRequestsIn.forEach(checkout -> tasks.add(() ->
@@ -415,7 +439,7 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
                     // string to find the entire set of pull requests
                     // created by this run
                     checkout.createPullRequest(
-                            token,
+                            this,
                             reviewers,
                             title,
                             body + "\n" + "SearchNonce: " + searchNonce() + "\n",
@@ -429,8 +453,12 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
             // Actually do the things
             tasks.forEach(Runnable::run);
         }
-        // In an IDE, this mojo can hang around, so clear state
-        searchNonce = null;
+        synchronized (this)
+        {
+            // In an IDE, this mojo can hang around indefinitely, so clear state
+            // aggressively
+            searchNonce = null;
+        }
     }
 
     private Map<GitCheckout, Branch> filterToCheckoutsOnTargetBranch(
@@ -545,7 +573,7 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private String searchNonce()
+    private synchronized String searchNonce()
     {
         // Gets us a random string with a time component, which allows us
         // to include 
@@ -555,58 +583,11 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
                : searchNonce;
     }
 
-    private String authenticationToken() throws IOException
-    {
-        if (authenticationToken == null || authenticationToken.isBlank())
-        {
-            return getTokenFromEnvironment();
-        }
-        return authenticationToken;
-    }
-
-    private String getTokenFromEnvironment() throws IOException
-    {
-        String result = getenv(GITHUB_CLI_PAT_ENV_VAR);
-        if (result == null)
-        {
-            String filePath = getenv(GITHUB_CLI_PAT_FILE_ENV_VAR);
-            if (filePath != null)
-            {
-                Path file = Paths.get(filePath);
-                if (Files.exists(file))
-                {
-                    return Files.readString(file, UTF_8);
-                }
-                else
-                {
-                    throw new IOException(GITHUB_CLI_PAT_FILE_ENV_VAR
-                            + " is set to " + filePath + " but it does not exist.");
-                }
-            }
-            fail("-Dcactus.authentication-token not passed, and GH_TOKEN "
-                    + "environment variable is unset");
-        }
-        return result;
-    }
-
     @Override
-    protected void onValidateParameters(BuildLog log, MavenProject project)
+    protected void onValidateGithubParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        if (authenticationToken == null || authenticationToken.isBlank())
-        {
-            String result = getenv(GITHUB_CLI_PAT_ENV_VAR);
-            if (result == null)
-            {
-                result = getenv(GITHUB_CLI_PAT_FILE_ENV_VAR);
-            }
-            if (result == null)
-            {
-                fail("-Dcactus.authentication-token not passed, and neither "
-                        + GITHUB_CLI_PAT_ENV_VAR + " nor " + GITHUB_CLI_PAT_FILE_ENV_VAR
-                        + " are set in the environment");
-            }
-        }
+        super.onValidateParameters(log, project);
         if (title != null && title.isBlank())
         {
             fail("title / cactus.title is empty");
@@ -615,7 +596,8 @@ public class GitPullRequestMojo extends ScopedCheckoutsMojo
         {
             fail("body / cactus.body is empty");
         }
-        if ((title == null) != (body == null)) {
+        if ((title == null) != (body == null))
+        {
             fail("Either title and body must both be set, or both unset.");
         }
     }

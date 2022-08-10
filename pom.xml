@@ -95,6 +95,7 @@
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven.api.version>3.8.6</maven.api.version>
         <maven.javadoc.plugin.version>3.4.0</maven.javadoc.plugin.version>
+        <jackson.version>2.13.3</jackson.version>
 
         <slf4j.version>1.7.36</slf4j.version>
 
@@ -201,6 +202,19 @@
                 <version>${mastfrog.version}</version>
             </dependency>
 
+            <!-- JSON -->
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
             <!-- Maven -->
 
             <dependency>
@@ -257,7 +271,7 @@
             <plugin>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>cactus-maven-plugin</artifactId>
-                <!-- This has to be the previous version or we 
+                <!-- This has to be the previous version or we
                 create a cycle in the dependency graph -->
                 <version>${cactus.previous.version}</version>
                 <executions>
@@ -284,7 +298,7 @@
                             <goal>descriptor</goal>
                         </goals>
                     </execution>
-                    
+
                     <execution>
                         <id>mojo-descriptor</id>
                         <phase>process-classes</phase>
@@ -301,11 +315,11 @@
                 </executions>
 
             </plugin>
-            
+
         </plugins>
 
         <pluginManagement>
-            
+
             <plugins>
 
                 <plugin>

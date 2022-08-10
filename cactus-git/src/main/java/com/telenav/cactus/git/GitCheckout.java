@@ -18,18 +18,23 @@
 package com.telenav.cactus.git;
 
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.mastfrog.function.throwing.io.IOSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.git.Branches.Branch;
+import com.telenav.cactus.github.GithubCommand;
+import com.telenav.cactus.github.MergePullRequestOptions;
+import com.telenav.cactus.github.MinimalPRItem;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.util.PathUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,6 +58,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCode;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
+import static com.telenav.cactus.cli.ProcessResultConverter.trailingUriAloneOnLine;
 
 /**
  * @author Tim Boudreau
@@ -841,7 +847,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
      * Creates a pull request on Github using the given authentication token,
      * title and body
      *
-     * @param authenticationToken The token to sign into github
+     * @param authenticationToken A supplier that can provide a GitHub 
+     * personal access token, or null if none is needed or can be provided
      * @param reviewers A comma-separated list of Github reviewer handles
      * @param title The title of the pull request - if null, body must also be null
      * @param body The body of the pull request
@@ -849,14 +856,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
      * @param destBranch The target branch for the pull request
      * @return True if the pull request was created
      */
-    public boolean createPullRequest(String authenticationToken,
+    public URI createPullRequest(IOSupplier<String> authenticationToken,
                                      String reviewers,
                                      String title,
                                      String body,
                                      String sourceBranch,
                                      String destBranch)
     {
-
         if ((title == null) != (body == null))
         {
             throw new IllegalArgumentException(
@@ -864,9 +870,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
                     + "non-null, or both null, but got '" + title + "' and '"
                     + body + '\'');
         }
-
-        // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
-        var output = signIn(authenticationToken);
 
         var arguments = new ArrayList<String>();
         arguments.add("pr");
@@ -890,71 +893,81 @@ public final class GitCheckout implements Comparable<GitCheckout>
         {
             for (var reviewer : reviewers.split(","))
             {
-                if (!reviewer.isBlank()) {
+                if (!reviewer.isBlank())
+                {
                     arguments.add("--reviewer");
                     arguments.add(reviewer.trim());
                 }
             }
         }
-        
-        // Create pull request (gh pr --title "$title" --body "$body" --reviewer yyzhou --reviewer jonathanl-telenav)
-        output += new GithubCommand<>(() -> authenticationToken, ProcessResultConverter.strings(), root,
-                                      arguments.toArray(new String[0])).run()
-        .awaitQuietly();
-        
-        log.info(output);
-        return true;
+
+        // (gh pr --title "$title" --body "$body" --reviewer yyzhou --reviewer jonathanl-telenav)
+        //
+        // Use a timeout here, because `gh` has no non-interactive mode, and if it
+        // is trying to ask a question, it will hang forever
+        return new GithubCommand<URI>(authenticationToken, trailingUriAloneOnLine(), root,
+                arguments.toArray(String[]::new)).run().awaitQuietly(Duration
+                .ofMinutes(2));
     }
-    
-    
+
     /**
      * Merges pull request on Github using the given authentication token
      *
-     * @param authenticationToken The token to sign into github
+     * @param personalAcccessTokenSupplier Can supply 
      * @param branchName The name of the branch to merge
+     * @param options The options to pass to the github cli
      * @return True if the pull request was merged
      */
-    public boolean mergePullRequest(String authenticationToken, String branchName)
+    public boolean mergePullRequest(IOSupplier<String> personalAcccessTokenSupplier,
+            String branchName,
+            Set<MergePullRequestOptions> options)
     {
         // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
-        var output = signIn(authenticationToken);
-        
         var arguments = new ArrayList<String>();
         arguments.add("pr");
         arguments.add("merge");
-        arguments.add("--auto");
-        arguments.add("--delete-branch");
-        arguments.add("--merge");
-        arguments.add("--squash");
+        options.forEach(opt -> opt.accept(arguments));
         arguments.add("--body");
         arguments.add("Merge " + branchName);
-        
+
         // Create pull request (gh pr merge --auto --merge --squash --body "Merge feature/reverse-string)
-        output += new GithubCommand<>(() -> authenticationToken, ProcessResultConverter.strings(), root,
-                                      arguments.toArray(new String[0])).run()
-        .awaitQuietly();
-        
-        log.info(output);
+        new GithubCommand<>(personalAcccessTokenSupplier, strings(), root,
+                arguments.toArray(String[]::new)).run().awaitQuietly();
+
         return true;
     }
     
-    private String signIn(String authenticationToken)
+    public List<MinimalPRItem> listPullRequests(
+            IOSupplier<String> personalAcccessTokenSupplier,
+            String destBranchFilter, String prBranchFilter, String searchFilter)
     {
-        return new GithubCommand<>(() -> authenticationToken, ProcessResultConverter.strings(), root,
-                                   "auth", "login", "--hostname", "github.com", "--with-token")
+        var arguments = new ArrayList<String>();
+        arguments.add("pr");
+        arguments.add("list");
+        if (destBranchFilter != null && !destBranchFilter.isBlank())
         {
-            @Override
-            protected void onLaunch(Process process)
-            {
-                super.onLaunch(process);
-                try (var out = new PrintWriter(process.getOutputStream()))
-                {
-                    out.println(authenticationToken);
-                }
-            }
-        }.run().awaitQuietly();
+            arguments.add("--base");
+            arguments.add(destBranchFilter);
+        }
+        if (prBranchFilter != null && !prBranchFilter.isBlank())
+        {
+            arguments.add("--head");
+            arguments.add(prBranchFilter);
+        }
+        if (searchFilter != null && !searchFilter.isBlank())
+        {
+            arguments.add("--search");
+            arguments.add(searchFilter);
+        }
+        arguments.add("--json");
+        arguments.add(
+                "url,title,state,mergeable,body,number,mergeCommit,headRefName,baseRefName");
+
+        return new GithubCommand<>(personalAcccessTokenSupplier,
+                strings().map(MinimalPRItem.parser()), root,
+                arguments.toArray(String[]::new)).run().awaitQuietly();
     }
-    
+
     public boolean push()
     {
         PUSH.withWorkingDir(root).run().awaitQuietly();
