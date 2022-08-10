@@ -843,8 +843,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
      *
      * @param authenticationToken The token to sign into github
      * @param reviewers A comma-separated list of Github reviewer handles
-     * @param title The title of the pull request
+     * @param title The title of the pull request - if null, body must also be null
      * @param body The body of the pull request
+     * @param sourceBranch The origin branch
+     * @param destBranch The target branch for the pull request
      * @return True if the pull request was created
      */
     public boolean createPullRequest(String authenticationToken,
@@ -854,9 +856,18 @@ public final class GitCheckout implements Comparable<GitCheckout>
                                      String sourceBranch,
                                      String destBranch)
     {
+
+        if ((title == null) != (body == null))
+        {
+            throw new IllegalArgumentException(
+                    "Either title and body must both be "
+                    + "non-null, or both null, but got '" + title + "' and '"
+                    + body + '\'');
+        }
+
         // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
         var output = signIn(authenticationToken);
-        
+
         var arguments = new ArrayList<String>();
         arguments.add("pr");
         arguments.add("create");
@@ -864,20 +875,30 @@ public final class GitCheckout implements Comparable<GitCheckout>
         arguments.add(destBranch);
         arguments.add("--head");
         arguments.add(sourceBranch);
-        arguments.add("--title");
-        arguments.add(title);
-        arguments.add("--body");
-        arguments.add(body);
-        if (reviewers != null && !reviewers.isBlank()) {
+        if (title != null)
+        {
+            arguments.add("--title");
+            arguments.add(title);
+            arguments.add("--body");
+            arguments.add(body);
+        }
+        else
+        {
+            arguments.add("-f");
+        }
+        if (reviewers != null && !reviewers.isBlank())
+        {
             for (var reviewer : reviewers.split(","))
             {
-                arguments.add("--reviewer");
-                arguments.add(reviewer.trim());
+                if (!reviewer.isBlank()) {
+                    arguments.add("--reviewer");
+                    arguments.add(reviewer.trim());
+                }
             }
         }
         
         // Create pull request (gh pr --title "$title" --body "$body" --reviewer yyzhou --reviewer jonathanl-telenav)
-        output += new GithubCommand<>(ProcessResultConverter.strings(), root,
+        output += new GithubCommand<>(() -> authenticationToken, ProcessResultConverter.strings(), root,
                                       arguments.toArray(new String[0])).run()
         .awaitQuietly();
         
@@ -909,7 +930,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         arguments.add("Merge " + branchName);
         
         // Create pull request (gh pr merge --auto --merge --squash --body "Merge feature/reverse-string)
-        output += new GithubCommand<>(ProcessResultConverter.strings(), root,
+        output += new GithubCommand<>(() -> authenticationToken, ProcessResultConverter.strings(), root,
                                       arguments.toArray(new String[0])).run()
         .awaitQuietly();
         
@@ -919,7 +940,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
     
     private String signIn(String authenticationToken)
     {
-        return new GithubCommand<>(ProcessResultConverter.strings(), root,
+        return new GithubCommand<>(() -> authenticationToken, ProcessResultConverter.strings(), root,
                                    "auth", "login", "--hostname", "github.com", "--with-token")
         {
             @Override

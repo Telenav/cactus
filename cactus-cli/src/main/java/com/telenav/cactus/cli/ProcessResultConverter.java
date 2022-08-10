@@ -54,6 +54,14 @@ public interface ProcessResultConverter<T>
     {
         return new BooleanProcessResultConverter(pred);
     }
+    
+    public static ProcessResultConverter<Integer> rawExitCode() {
+        return (description, proc) -> {
+            return AwaitableCompletionStage.of(proc.onExit().handle((p, thrown) -> {
+                return thrown != null ? -1 : p.exitValue();
+            }));
+        };
+    }
 
     default <R> ProcessResultConverter<R> map(Function<T, R> converter)
     {
