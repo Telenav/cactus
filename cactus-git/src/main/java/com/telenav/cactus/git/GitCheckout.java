@@ -961,7 +961,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         }
         arguments.add("--json");
         arguments.add(
-                "url,title,state,mergeable,body,number,mergeCommit,headRefName,baseRefName");
+                "url,title,state,mergeable,body,number,headRefName,baseRefName");
 
         return new GithubCommand<>(personalAcccessTokenSupplier,
                 strings().map(MinimalPRItem.parser()), root,

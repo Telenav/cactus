@@ -37,12 +37,12 @@ public class MinimalPRItem
     @JsonCreator
     public MinimalPRItem(
             @JsonProperty("baseRefName") String baseRefName,
-            @JsonProperty("body") String body,
+            @JsonProperty(value="body", required=false) String body,
             @JsonProperty("headRefName") String headRefName,
             @JsonProperty("mergeable") String mergeable,
             @JsonProperty("number") long number,
             @JsonProperty("state") String state,
-            @JsonProperty("title") String title,
+            @JsonProperty(value="title", required = false) String title,
             @JsonProperty("url") String url)
     {
         this.baseRefName = baseRefName;

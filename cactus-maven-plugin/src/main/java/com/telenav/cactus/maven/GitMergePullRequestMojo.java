@@ -25,7 +25,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
-import com.telenav.cactus.maven.trigger.RunPolicy;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -41,6 +41,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import static com.telenav.cactus.github.MergePullRequestOptions.MERGE;
 import static com.telenav.cactus.github.MergePullRequestOptions.REBASE;
+import static com.telenav.cactus.github.MergePullRequestOptions.SQUASH;
 import static java.util.Collections.emptyMap;
 import static java.util.EnumSet.noneOf;
 import static java.util.Optional.empty;
@@ -80,7 +81,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
     /**
      * If true, pass <code>--auto</code> to `gh pr merge`.
      */
-    @Parameter(property = "cactus.pr.auto", defaultValue = "true")
+    @Parameter(property = "cactus.pr.auto", defaultValue = "false")
     private boolean auto;
 
     /**
@@ -99,7 +100,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
     /**
      * If true, pass <code>--squash</code> to `gh pr merge`,
      */
-    @Parameter(property = "cactus.pr.squash", defaultValue = "true")
+    @Parameter(property = "cactus.pr.squash", defaultValue = "false")
     private boolean squash;
 
     /**
@@ -108,6 +109,12 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
      */
     @Parameter(property = "cactus.pr.rebase", defaultValue = "false")
     private boolean rebase;
+
+    /**
+     * If true, pass <code>--auto</code> to `gh pr merge`.
+     */
+    @Parameter(property = "cactus.pr.admin", defaultValue = "false")
+    private boolean admin;
 
     /**
      * The base branch we intend the PR to be merged to - this is not passed to
@@ -129,9 +136,13 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
         validateBranchName(targetBranch, true);
         validateBranchName(baseBranch, false);
         Set<MergePullRequestOptions> opts = options();
-        if (opts.contains(MERGE) && opts.contains(REBASE))
+        Set<MergePullRequestOptions> cannotBeCombined
+                = EnumSet.of(MERGE, SQUASH, REBASE);
+        cannotBeCombined.retainAll(opts);
+        if (cannotBeCombined.size() > 1)
         {
-            fail("MERGE and REBASE are mutually exclusive - pick one or the other. Have " + opts);
+            fail("Only one of MERGE, REBASE and SQUASH may be set to true, but "
+                    + "have the options " + opts);
         }
     }
 
@@ -318,7 +329,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
                 = noneOf(MergePullRequestOptions.class);
         boolean[] items =
         {
-            auto, deleteBranch, merge, squash, rebase
+            auto, deleteBranch, merge, squash, rebase, admin
         };
 
         MergePullRequestOptions[] all = MergePullRequestOptions.values();

@@ -25,6 +25,9 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -97,6 +100,12 @@ public class GitPullRequestMojo extends AbstractGithubMojo
      */
     @Parameter(property = "cactus.target-branch")
     String targetBranch;
+
+    /**
+     * If true, open a browser tab with each new pull request.
+     */
+    @Parameter(property = "cactus.open", defaultValue = "false")
+    boolean open;
 
     private String searchNonce;
 
@@ -247,7 +256,8 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                         createPullRequestsIn.add(co);
                     }
                     else
-                        if (containsPullRequestReadyCommits(myCheckout, co,
+                        if (containsPullRequestReadyCommitsPendingPush(
+                                myCheckout, co,
                                 branch))
                         {
                             log.debug("Have pull-request-ready commits in {0}",
@@ -353,8 +363,11 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             // branch, and if so, include it in our pull request set
             sourceBranchForCheckout.forEach((co, branch) ->
             {
-                if (containsPullRequestReadyCommits(myCheckout, co, branch))
+                if (containsPullRequestReadyCommitsPendingPush(myCheckout, co,
+                        branch))
                 {
+                    // We have some unpushed commits on the branch - push them
+                    // and add it to the target checkouts
                     log.debug(
                             "Have commits for pr in " + co.loggingName() + " on " + branch);
                     createPullRequestsIn.add(co);
@@ -380,16 +393,40 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                         });
                     }
                     else
-                        if (co.needsPush().canBePushed())
+                    {
+                        // See if there is a remote branch with the right name,
+                        // and if so, use it, pushing if anything needs it
+                        Branches branches = tree.branches(co);
+                        branches.find(branch.name(), false).ifPresent(br ->
                         {
-                            log.info("Will push " + co.loggingName()
-                                    + " - branch already exists, but not all local "
-                                    + "commits exist remotely.");
-                            tasks.add(() ->
+                            createPullRequestsIn.add(co);
+                            if (co.needsPush().canBePushed())
                             {
-                                log.info(logPrefix + "Push " + co.loggingName());
-                            });
-                        }
+                                log.info("Will push " + co.loggingName()
+                                        + " - branch already exists, but not all local "
+                                        + "commits exist remotely.");
+                                tasks.add(() ->
+                                {
+                                    log.info(logPrefix + "Push " + co
+                                            .loggingName());
+                                    if (!isPretend())
+                                    {
+                                        co.push();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    // See if there is a remote branch with the right name,
+                    // and if so, use it
+                    Branches branches = tree.branches(co);
+                    branches.find(branch.name(), false).ifPresent(br ->
+                    {
+                        createPullRequestsIn.add(co);
+                    });
                 }
             });
         }
@@ -398,13 +435,16 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         if (createPullRequestsIn.isEmpty())
         {
             log.warn(
-                    logPrefix + "No matched checkouts which are on the target branch and"
+                    logPrefix + "No matched checkouts which are on the target branch and "
                     + "which contain commits that do not already exist remotely.");
         }
         else
         {
             if (!commit)
             {
+                // If we are not committing, but there are changes, we have to
+                // fail - gh will try to interactively ask what to do, which
+                // will appear just to be an indefinite hang of the Maven plugin.
                 createPullRequestsIn.forEach(co ->
                 {
                     if (co.isDirty())
@@ -429,7 +469,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
 
                 log.info(logPrefix + "Create pull request for "
                         + checkout.loggingName() + " from "
-                        + sourceBranch.name() + " to " + targetBranch);
+                        + sourceBranch.name() + " to " + baseBranch);
 
                 if (!isPretend())
                 {
@@ -438,13 +478,22 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                     // body text, so that there is a unique, searchable
                     // string to find the entire set of pull requests
                     // created by this run
-                    checkout.createPullRequest(
+                    URI uri = checkout.createPullRequest(
                             this,
                             reviewers,
                             title,
-                            body + "\n" + "SearchNonce: " + searchNonce() + "\n",
+                            body == null
+                            ? null
+                            : body + "\n" + "SearchNonce: " + searchNonce() + "\n",
                             sourceBranch.name(),
-                            targetBranch);
+                            baseBranch);
+                    if (open)
+                    {
+                        open(uri, log);
+                    }
+                    log.info("Created " + uri);
+                    // Ensure we print the output in quiet mode:
+                    System.out.println(uri);
                 }
             }));
             // Make sure branch info is cleared for any mojo that might use
@@ -458,6 +507,26 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             // In an IDE, this mojo can hang around indefinitely, so clear state
             // aggressively
             searchNonce = null;
+        }
+    }
+
+    private void open(URI uri, BuildLog log)
+    {
+        if (Desktop.isDesktopSupported())
+        {
+            log.info("Opening browser for " + uri);
+            try
+            {
+                Desktop.getDesktop().browse(uri);
+            }
+            catch (IOException ex)
+            {
+                log.error("Exception thrown opening " + uri, ex);
+            }
+        }
+        else
+        {
+            log.error("Desktop not supported in this JVM; cannot open " + uri);
         }
     }
 
@@ -475,7 +544,8 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         return result;
     }
 
-    private boolean containsPullRequestReadyCommits(GitCheckout myCheckout,
+    private boolean containsPullRequestReadyCommitsPendingPush(
+            GitCheckout myCheckout,
             GitCheckout co, Branch sourceBranchForThisCheckout)
     {
         // This will tell us if there are any differences at all, but not
@@ -564,10 +634,15 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                 log.info(
                         "Ignoring matched checkout " + checkout.loggingName() + " for pull "
                         + "request - because we are matching the branch "
-                        + current.get().name()
-                        + " but it is on the branch " + targetProjectsBranch
-                                .get().name());
+                        + targetProjectsBranch.get().name()
+                        + " but it is on the branch " + current.get().name());
                 return Optional.empty();
+            }
+            else
+            {
+                log.info("Will include " + checkout.loggingName()
+                        + " in the pull request set, on branch "
+                        + targetProjectsBranch.get().name());
             }
             return current;
         }
@@ -587,7 +662,6 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        super.onValidateParameters(log, project);
         if (title != null && title.isBlank())
         {
             fail("title / cactus.title is empty");

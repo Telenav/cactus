@@ -14,7 +14,8 @@ public enum MergePullRequestOptions implements Consumer<List<String>>
     DELETE_BRANCH,
     MERGE,
     SQUASH,
-    REBASE;
+    REBASE,
+    ADMIN;
 
     @Override
     public void accept(List<String> args)
