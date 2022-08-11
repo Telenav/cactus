@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mastfrog.function.throwing.io.IOSupplier;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.github.MinimalPRItem;
@@ -197,6 +198,13 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
                 pullRequestsForBranch(baseBranch, branchName, forCheckout));
     }
 
+    protected final List<MinimalPRItem> openPullRequestsForBranch(
+            String baseBranch, String branchName, GitCheckout forCheckout)
+    {
+        return filterNonOpen(log(), forCheckout,
+                pullRequestsForBranch(baseBranch, branchName, forCheckout));
+    }
+
     /**
      * Get the "lead" pull request for a branch - if there are zero pull
      * requests for this branch combination, returns empty; if there is one,
@@ -242,6 +250,24 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
         {
             MinimalPRItem i = it.next();
             if (!i.isOpen() || !i.isMergeable())
+            {
+                log.warn(
+                        "Filter closed or not-mergeable from candidates for " + in
+                                .loggingName() + ": " + i);
+                it.remove();
+            }
+        }
+        return items;
+    }
+
+    private List<MinimalPRItem> filterNonOpen(BuildLog log,
+            GitCheckout in, List<MinimalPRItem> items)
+    {
+        // If the merge would fail, prune it out
+        for (Iterator<MinimalPRItem> it = items.iterator(); it.hasNext();)
+        {
+            MinimalPRItem i = it.next();
+            if (!i.isOpen())
             {
                 log.warn(
                         "Filter closed or not-mergeable from candidates for " + in
@@ -306,5 +332,4 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
                               : baseBranch);
         }
     }
-
 }

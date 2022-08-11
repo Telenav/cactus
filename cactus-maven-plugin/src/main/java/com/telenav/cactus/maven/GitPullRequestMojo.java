@@ -21,14 +21,18 @@ import com.mastfrog.util.strings.RandomStrings;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.git.NeedPushResult;
+import com.telenav.cactus.github.MinimalPRItem;
 import com.telenav.cactus.maven.commit.CommitMessage;
+import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.task.TaskSet;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -38,10 +42,12 @@ import org.apache.maven.project.MavenProject;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 /**
  * Starts and finishes branches according to git flow branching conventions.
@@ -54,8 +60,9 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = LifecyclePhase.VALIDATE,
+        requiresOnline = true,
         requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = SINGLETON,
+        instantiationStrategy = InstantiationStrategy.SINGLETON,
         name = "git-pull-request", threadSafe = true)
 @BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends AbstractGithubMojo
@@ -109,6 +116,30 @@ public class GitPullRequestMojo extends AbstractGithubMojo
 
     private String searchNonce;
 
+    private final Set<GitCheckout> fetched = ConcurrentHashMap.newKeySet();
+
+    @Override
+    protected void onValidateGithubParameters(BuildLog log, MavenProject project)
+            throws Exception
+    {
+        if (Objects.equals(baseBranch, targetBranch))
+        {
+            fail("Base branch and target branch are the same: " + targetBranch);
+        }
+        if (title != null && title.isBlank())
+        {
+            fail("title / cactus.title is empty");
+        }
+        if (body != null && body.isBlank())
+        {
+            fail("body / cactus.body is empty");
+        }
+        if ((title == null) != (body == null))
+        {
+            fail("Either title and body must both be set, or both unset.");
+        }
+    }
+
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
@@ -122,10 +153,10 @@ public class GitPullRequestMojo extends AbstractGithubMojo
 
         tree.branches(myCheckout).currentBranch().ifPresent(br ->
         {
-            if (br.name().equals(targetBranch))
+            if (br.name().equals(baseBranch))
             {
                 fail("Attempting to create a pull request targeting the branch "
-                        + targetBranch + ", but " + coordinatesOf(project) + "'s "
+                        + baseBranch + ", but " + coordinatesOf(project) + "'s "
                         + "checkout is already on that branch.  Either switch to "
                         + "the branch you want to create a pull request from, or "
                         + "run this mojo against a project in the right project family "
@@ -136,24 +167,9 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         // Run the logic with a winnowed-down set of git checkouts which are on a
         // branch with the same name as the branch the target project is on, or if
         // targetBranch was set, on a branch with that name
-        try
-        {
-            createPullRequest(log, project, myCheckout, tree,
-                    filterToCheckoutsOnTargetBranch(log, myCheckout, tree,
-                            checkouts));
-        }
-        finally
-        {
-            searchNonce = null;
-            clearPRCache();
-        }
-    }
-
-    protected void createPullRequest(BuildLog log, MavenProject project,
-            GitCheckout myCheckout,
-            ProjectTree tree, Map<GitCheckout, Branch> sourceBranchForCheckout)
-            throws Exception
-    {
+        Map<GitCheckout, Branch> sourceBranchForCheckout
+                = filterToCheckoutsOnTargetBranch(log, myCheckout, tree,
+                        checkouts);
         // Filtering may have found no checkouts with changes on the target branch
         // at all, in which case, it's fine, but we're done.
         if (sourceBranchForCheckout.isEmpty())
@@ -161,21 +177,48 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             log.error("Nothing to do.");
             return;
         }
+        try
+        {
+            // So we don't scare people in pretend mode
+            BuildLog plog = isPretend()
+                            ? log.child("(pretend)")
+                            : log;
+            createPullRequests(plog, project, myCheckout, tree,
+                    sourceBranchForCheckout);
+        }
+        finally
+        {
+            tree.invalidateCache();
+            clearPRCache();
+            fetched.clear();
+            synchronized (this)
+            {
+                searchNonce = null;
+            }
+        }
+    }
 
-        // We will build a set of tasks to perform in a specific order, so
-        // we can guarantee as much is possible that we do not, say, create
-        // a half-finished set of PRs because a commit or push failed AFTER
-        // we have already created some of them
-        List<Runnable> tasks = new ArrayList<>(sourceBranchForCheckout.size() * 3);
+    protected void createPullRequests(BuildLog log, MavenProject project,
+            GitCheckout myCheckout,
+            ProjectTree tree, Map<GitCheckout, Branch> sourceBranchForCheckout)
+            throws Exception
+    {
+        TaskSet tasks = TaskSet.newTaskSet(log);
 
-        // Collect the set of checkouts that actually need a pull request
-        // performed on them into this set:
-        Set<GitCheckout> createPullRequestsIn = new LinkedHashSet<>();
+        Set<GitCheckout> alreadyHavePRs
+                = checkoutsWithExistingPrs(sourceBranchForCheckout, log);
 
-        // So we don't scare people in pretend mode
-        String logPrefix = isPretend()
-                           ? "(pretend) "
-                           : "";
+        if (alreadyHavePRs.equals(sourceBranchForCheckout.keySet()))
+        {
+            log.warn("Every checkout matched already has an open, mergeable "
+                    + "PR.  Nothing to do");
+            return;
+        }
+        else
+        {
+            alreadyHavePRs.forEach(sourceBranchForCheckout::remove);
+            log.info("Pruned " + alreadyHavePRs);
+        }
 
         // First add a task that will verify that a remote branch we want
         // to make the target of the pull request actually exists for all of
@@ -191,323 +234,177 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         // The point of adding this first is to fail early, before we have
         // committed or pushed anything if the actual PR creation cannot possibly
         // succeed
-        tasks.add(() ->
+        tasks.group("Verify base branch '" + baseBranch + "'", grp ->
         {
-            log.info(
-                    "Verifying existence of " + baseBranch + ", the PR destination, for "
-                    + createPullRequestsIn.size() + " checkouts.");
-            // This set will be populated by the time this runs
-            createPullRequestsIn.forEach(co ->
-            {
-                // If the destination branch does not exist at all on github,
-                // we fail here before any destructive actions have been taken
-                log.info(logPrefix + "Fetch all in " + co.loggingName());
-                if (!isPretend())
-                {
-                    co.fetchAll();
-                }
-                Branches br = tree.branches(co);
-                if (!br.find(baseBranch, false).isPresent())
-                {
-                    fail("No branch named '" + baseBranch + "' in default remote of " + co
-                            .loggingName());
-                }
-            });
+            sourceBranchForCheckout.forEach((co, branch)
+                    -> grp.add(
+                            "Check '" + baseBranch + "' exists in "
+                            + co.loggingName(), () ->
+                    {
+                        log.info("Fetch all in " + co.loggingName());
+                        ensureUpToDateRemoteHeads(co, tree);
+                        Branches br = tree.branches(co);
+                        if (!br.find(baseBranch, false).isPresent())
+                        {
+                            fail("No branch named '" + baseBranch + "' in default remote of "
+                                    + co.loggingName());
+                        }
+                    }));
         });
-        // Our fetches will potentially change any cached Branches instances, since
-        // the remote heads may have changed, and we will test against that to
-        // see if there are any commits we have that don't exist in the remote target
-        // branch.
-        tasks.add(tree::invalidateCache);
 
-        if (commit)
+        Set<GitCheckout> toPush = new LinkedHashSet<>();
+        Set<GitCheckout> dirtyCheckouts = new HashSet<>();
+
+        collectDirtyCheckoutsAndCreateCommitTasks(sourceBranchForCheckout,
+                toPush, dirtyCheckouts, tasks);
+
+        if (!commit && dirtyCheckouts.isEmpty())
         {
-            CommitMessage msg = new CommitMessage(getClass(), title).paragraph(
-                    body);
-            Set<GitCheckout> toPush = new LinkedHashSet<>();
-            try ( var sect = msg.section("Creating Commits In"))
-            {
-                sourceBranchForCheckout.forEach((co, branch) ->
-                {
-                    // See if we have changes to commit
-                    if (co.isDirty() || co.hasUntrackedFiles())
-                    {
-                        log.debug("Dirty or untracked files in {0}", co
-                                .loggingName());
-                        sect.bulletPoint(co.loggingName());
-                        tasks.add(() ->
-                        {
-                            log.info(logPrefix + "Add all in " + co
-                                    .loggingName());
-                            if (!isPretend())
-                            {
-                                co.addAll();
-                            }
-                            log.info(logPrefix + "Commit in " + co
-                                    .loggingName());
-                            if (!isPretend())
-                            {
-                                co.commit(msg.toString());
-                            }
-                        });
-                        // Ensure we only push if *all* of our commit operations
-                        // have succeeded, so we don't push partial patches and
-                        // leave stuff behind
-                        toPush.add(co);
-                        createPullRequestsIn.add(co);
-                    }
-                    else
-                        if (containsPullRequestReadyCommitsPendingPush(
-                                myCheckout, co,
-                                branch))
-                        {
-                            log.debug("Have pull-request-ready commits in {0}",
-                                    co.loggingName());
-                            createPullRequestsIn.add(co);
-                            // If our local branch does not exist yet, we will
-                            // need to create it on the remote before trying to
-                            // create a pull request involving it
-                            if (!tree.branches(co)
-                                    .hasRemoteForLocalOrLocalForRemote(
-                                            branch))
-                            {
-                                // The local branch does not exist in remote,
-                                // so schedule a push to create it before we
-                                // try to create a pull request
-                                log.info("Will push to create branch " + branch
-                                        + " on remote for " + co.loggingName());
-                                sect.bulletPoint(co.loggingName()
-                                        + " (no commit, buut creating remote branch "
-                                        + branch + ")");
-                                toPush.add(co);
-                            }
-                            else
-                                if (co.needsPush().canBePushed())
-                                {
-                                    // The local branch does exist on the remote, but we
-                                    // have commits locally that have not been pushed
-                                    log.info(
-                                            "Will push unpushed commits for " + co
-                                                    .loggingName()
-                                            + " to remote.");
-                                    sect.bulletPoint(
-                                            co.loggingName() + " (push local commits only)");
-                                    toPush.add(co);
-                                }
-                                else
-                                {
-                                    sect.bulletPoint(myCheckout.loggingName()
-                                            + " (no commit needed)");
-                                }
-                        }
-                        else
-                        {
-                            log.debug("No pull-request-ready commits in {0}", co
-                                    .loggingName());
-                        }
-                });
-            }
-            // Now add push tasks, so that it is impossible to push anything
-            // unless all of our commit tasks have already succeeded
-            if (!toPush.isEmpty())
-            {
-                log.debug("Will push " + toPush);
-                tasks.add(() ->
-                {
-                    toPush.forEach(co ->
-                    {
-                        // The remote branch for our feature branch may not exist
-                        // yet, so figure out if we need the push to create it
-                        // or not.
-                        Branches theBranches = tree.branches(co);
-                        Branch src = sourceBranchForCheckout.get(co);
-                        assert src != null;
-                        // If there is no remote, we need, e.g.
-                        // `git push -u origin someLocalBranch`
-                        boolean needCreateBranch
-                                = !theBranches
-                                        .hasRemoteForLocalOrLocalForRemote(src);
-                        // Log exactly what we're going to do for clarity
-                        if (needCreateBranch)
-                        {
-                            log.info(logPrefix + "Push " + co.loggingName()
-                                    + " creating remote branch " + src);
-                        }
-                        else
-                        {
-                            log.info(logPrefix + "Push " + co.loggingName());
-                        }
-                        if (!isPretend())
-                        {
-                            if (needCreateBranch)
-                            {
-                                co.pushCreatingBranch();
-                            }
-                            else
-                            {
-                                co.push();
-                            }
-                        }
-                    });
-                });
-                tasks.add(tree::invalidateCache);
-            }
-            // Provide a smidegn of searchable, unique text that can be
-            // used to search on github and find the entire set of related
-            // pull requests
-            msg.paragraph("SearchNonce: " + searchNonce());
+            fail("Commit is false and " + dirtyCheckouts.size() + " repositories have "
+                    + " local modifications.  Running `gh pr create` in such a "
+                    + "situation will trigger interactive questions and "
+                    + "cannot be automated: " + dirtyCheckouts);
         }
-        else
-        {
-            // If we are not committing anything, then just scan to find any
-            // commits that exist locally but not remotely in the destination
-            // branch, and if so, include it in our pull request set
-            sourceBranchForCheckout.forEach((co, branch) ->
-            {
-                if (containsPullRequestReadyCommitsPendingPush(myCheckout, co,
-                        branch))
-                {
-                    // We have some unpushed commits on the branch - push them
-                    // and add it to the target checkouts
-                    log.debug(
-                            "Have commits for pr in " + co.loggingName() + " on " + branch);
-                    createPullRequestsIn.add(co);
 
-                    // Creating the pr will fail if the branch doesn't exist
-                    // remotely, so add a push task to create it before we do
-                    // the PR if we need to.
-                    Branches theBranches = tree.branches(co);
-                    boolean needCreateBranch
-                            = !theBranches
-                                    .hasRemoteForLocalOrLocalForRemote(branch);
-                    if (needCreateBranch)
-                    {
-                        log.info("Will push " + co.loggingName()
-                                + " to create remote branch for " + branch);
-                        tasks.add(() ->
-                        {
-                            log.info(logPrefix + "Push " + co.loggingName());
-                            if (!isPretend())
-                            {
-                                co.pushCreatingBranch();
-                            }
-                        });
-                    }
-                    else
-                    {
-                        // See if there is a remote branch with the right name,
-                        // and if so, use it, pushing if anything needs it
-                        Branches branches = tree.branches(co);
-                        branches.find(branch.name(), false).ifPresent(br ->
-                        {
-                            createPullRequestsIn.add(co);
-                            if (co.needsPush().canBePushed())
-                            {
-                                log.info("Will push " + co.loggingName()
-                                        + " - branch already exists, but not all local "
-                                        + "commits exist remotely.");
-                                tasks.add(() ->
-                                {
-                                    log.info(logPrefix + "Push " + co
-                                            .loggingName());
-                                    if (!isPretend())
-                                    {
-                                        co.push();
-                                    }
-                                });
-                            }
-                        });
-                    }
+        tasks.group("Push Changes", pushTasks ->
+        {
+            Set<GitCheckout> needingBranchCreation = new HashSet<>();
+            sourceBranchForCheckout.forEach((checkout, branch) ->
+            {
+                if (!toPush.contains(checkout)
+                        && containsPullRequestReadyCommitsPendingPush(myCheckout,
+                                checkout, branch))
+                {
+                    toPush.add(checkout);
                 }
                 else
                 {
-                    // See if there is a remote branch with the right name,
-                    // and if so, use it
-                    Branches branches = tree.branches(co);
-                    branches.find(branch.name(), false).ifPresent(br ->
+                    ensureUpToDateRemoteHeads(checkout, tree);
+                    Branches branches = tree.branches(checkout);
+                    if (!branches.find(branch.name(), false).isPresent())
                     {
-                        createPullRequestsIn.add(co);
-                    });
+                        toPush.add(checkout);
+                        needingBranchCreation.add(checkout);
+                    }
+                    else
+                    {
+                        NeedPushResult np = checkout.needsPush();
+                        if (np.canBePushed())
+                        {
+                            toPush.add(checkout);
+                            if (np.needCreateBranch())
+                            {
+                                needingBranchCreation.add(checkout);
+                            }
+                        }
+                    }
                 }
             });
-        }
-        // If this set is empty, then we don't actually have any changes
-        // to create a pull request from
-        if (createPullRequestsIn.isEmpty())
-        {
-            log.warn(
-                    logPrefix + "No matched checkouts which are on the target branch and "
-                    + "which contain commits that do not already exist remotely.");
-        }
-        else
-        {
-            if (!commit)
+            for (GitCheckout checkout : toPush)
             {
-                // If we are not committing, but there are changes, we have to
-                // fail - gh will try to interactively ask what to do, which
-                // will appear just to be an indefinite hang of the Maven plugin.
-                createPullRequestsIn.forEach(co ->
+                if (needingBranchCreation.contains(checkout))
                 {
-                    if (co.isDirty())
+                    pushTasks.add(
+                            "Push " + checkout.loggingName() + " creating remote branch "
+                            + sourceBranchForCheckout.get(checkout),
+                            () -> ifNotPretending(checkout::pushCreatingBranch));
+                }
+                else
+                {
+                    pushTasks.add("Push branch " + sourceBranchForCheckout.get(
+                            checkout) + " of "
+                            + checkout.loggingName(),
+                            () -> ifNotPretending(checkout::push));
+                }
+            }
+        });
+
+        sourceBranchForCheckout.forEach((checkout, sourceBranch) ->
+        {
+            System.out.println(
+                    "CHERK1 " + checkout.loggingName() + " " + sourceBranch);
+        });
+
+        tasks.group("Really create pull requests", prTasks ->
+        {
+            sourceBranchForCheckout.forEach((checkout, sourceBranch) ->
+            {
+
+                System.out.println(
+                        "CHERK " + checkout.loggingName() + " " + sourceBranch);
+
+                String ttl = "Create pull request for "
+                        + checkout.loggingName() + " from "
+                        + sourceBranch.name() + " to " + baseBranch;
+
+                prTasks.add(ttl, () ->
+                {
+                    if (!isPretend())
                     {
-                        fail("Commit is false and " + co.loggingName() + " has "
-                                + " local modifications.  Running `gh pr create` in such a "
-                                + "situation will trigger interactive questions and "
-                                + "cannot be automated.");
+                        // Really create the pull request.
+                        // We include the search nonce in the tail of the
+                        // body text, so that there is a unique, searchable
+                        // string to find the entire set of pull requests
+                        // created by this run
+                        URI uri = checkout.createPullRequest(
+                                this,
+                                reviewers,
+                                titleOrSyntheticTitle(sourceBranchForCheckout),
+                                bodyOrSyntheticBody(sourceBranchForCheckout),
+                                sourceBranch.name(),
+                                baseBranch);
+                        log.info("Created " + uri);
+                        // Ensure we print the output in quiet mode:
+                        System.out.println(uri);
+                        if (open)
+                        {
+                            open(uri, log);
+                        }
                     }
                 });
-            }
+            });
+        });
 
-            // Now add a task for each checkout to the list which will actually
-            // create the PR
-            createPullRequestsIn.forEach(checkout -> tasks.add(() ->
-            {
-                // We will pass the origin and destination branches to the
-                // github cli to ensure we create from what we think we are
-                Branch sourceBranch = sourceBranchForCheckout.get(
-                        checkout);
-                assert sourceBranch != null;
+        System.out.println("Plan:\n" + tasks);
+        tasks.execute();
+    }
 
-                log.info(logPrefix + "Create pull request for "
-                        + checkout.loggingName() + " from "
-                        + sourceBranch.name() + " to " + baseBranch);
+    private void collectDirtyCheckoutsAndCreateCommitTasks(
+            Map<GitCheckout, Branch> sourceBranchForCheckout,
+            Set<GitCheckout> toPush, Set<GitCheckout> dirtyCheckouts,
+            TaskSet tasks)
+    {
+        CommitMessage msg = new CommitMessage(getClass(),
+                titleOrSyntheticTitle(sourceBranchForCheckout))
+                .paragraph(bodyOrSyntheticBody(sourceBranchForCheckout));
 
-                if (!isPretend())
-                {
-                    // Really create the pull request.
-                    // We include the search nonce in the tail of the
-                    // body text, so that there is a unique, searchable
-                    // string to find the entire set of pull requests
-                    // created by this run
-                    URI uri = checkout.createPullRequest(
-                            this,
-                            reviewers,
-                            title,
-                            body == null
-                            ? null
-                            : body + "\n" + "SearchNonce: " + searchNonce() + "\n",
-                            sourceBranch.name(),
-                            baseBranch);
-                    if (open)
-                    {
-                        open(uri, log);
-                    }
-                    log.info("Created " + uri);
-                    // Ensure we print the output in quiet mode:
-                    System.out.println(uri);
-                }
-            }));
-            // Make sure branch info is cleared for any mojo that might use
-            // the ProjectTree subsequently
-            tasks.add(tree::invalidateCache);
-            // Actually do the things
-            tasks.forEach(Runnable::run);
-        }
-        synchronized (this)
+        try ( Section<?> sect = msg.section("Committing In"))
         {
-            // In an IDE, this mojo can hang around indefinitely, so clear state
-            // aggressively
-            searchNonce = null;
+            for (Map.Entry<GitCheckout, Branch> e : sourceBranchForCheckout
+                    .entrySet())
+            {
+                if (e.getKey().isDirty() || e.getKey().hasUntrackedFiles())
+                {
+                    toPush.add(e.getKey());
+                    dirtyCheckouts.add(e.getKey());
+                    sect.bulletPoint(e.getKey().loggingName() + " - " + e
+                            .getValue().name());
+                }
+            }
+        }
+        if (commit)
+        {
+            tasks.group("Commit any pending changes", grp ->
+            {
+                dirtyCheckouts.forEach(checkout
+                        -> grp.add(
+                                "Commit changes in " + checkout.loggingName(),
+                                () -> ifNotPretending(() ->
+                                {
+                                    checkout.addAll();
+                                    checkout.commit(msg.toString());
+                                })));
+            });
         }
     }
 
@@ -659,21 +556,68 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                : searchNonce;
     }
 
-    @Override
-    protected void onValidateGithubParameters(BuildLog log, MavenProject project)
-            throws Exception
+    void ensureUpToDateRemoteHeads(GitCheckout co, ProjectTree tree)
     {
-        if (title != null && title.isBlank())
+        if (fetched.add(co))
         {
-            fail("title / cactus.title is empty");
-        }
-        if (body != null && body.isBlank())
-        {
-            fail("body / cactus.body is empty");
-        }
-        if ((title == null) != (body == null))
-        {
-            fail("Either title and body must both be set, or both unset.");
+            ifNotPretending(() ->
+            {
+                co.fetchAll();
+                tree.invalidateBranches(co);
+            });
         }
     }
+
+    private Set<GitCheckout> checkoutsWithExistingPrs(
+            Map<GitCheckout, Branch> in, BuildLog log)
+    {
+        // Find all the checkouts that already have an open PR 
+        Set<GitCheckout> result = new HashSet<>(in.size());
+        in.forEach((checkout, branch) ->
+        {
+            List<MinimalPRItem> existingPrs
+                    = openPullRequestsForBranch(
+                            baseBranch, branch.name(), checkout);
+            if (!existingPrs.isEmpty())
+            {
+                result.add(checkout);
+            }
+        });
+        return result;
+    }
+
+    private String titleOrSyntheticTitle(
+            Map<GitCheckout, Branch> sourceBranchForCheckout)
+    {
+        return title == null
+               ? "New pull request in ~" + sourceBranchForCheckout.size() + " projects: " + searchNonce()
+               : title + " " + searchNonce();
+    }
+
+    private String bodyOrSyntheticBody(
+            Map<GitCheckout, Branch> sourceBranchForCheckout)
+    {
+        StringBuilder result = new StringBuilder();
+        if (body != null)
+        {
+            result.append(body);
+        }
+        result.append("\n\n").append("SearchNonce: ").append(searchNonce())
+                .append('\n');
+        appendProjectInfo(sourceBranchForCheckout, result);
+        return result.toString();
+    }
+
+    private void appendProjectInfo(
+            Map<GitCheckout, Branch> sourceBranchForCheckout, StringBuilder into)
+    {
+        into.append("In any or all of");
+        sourceBranchForCheckout.forEach((co, br) ->
+        {
+            into.append(' ').append(co.loggingName()).append(':').append(br
+                    .name());
+        });
+        into.append('.');
+    }
+
 }

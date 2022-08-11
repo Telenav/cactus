@@ -48,10 +48,13 @@ final class ProjectTreeCache
     {
         this.outer = outer;
     }
-    
-    public Set<ProjectFamily> allProjectFamilies() {
-        if (families.isEmpty()) {
-            allPoms().forEach(pom -> {
+
+    public Set<ProjectFamily> allProjectFamilies()
+    {
+        if (families.isEmpty())
+        {
+            allPoms().forEach(pom ->
+            {
                 families.add(ProjectFamily.familyOf(pom));
             });
         }
@@ -382,4 +385,9 @@ final class ProjectTreeCache
                 });
     }
 
+    Void invalidateBranches(GitCheckout co)
+    {
+        this.allBranches.remove(co);
+        return null;
+    }
 }

@@ -64,12 +64,13 @@ public interface ProcessResultConverter<T>
         };
     }
     
-    public static ProcessResultConverter<URI> trailingUriAloneOnLine() {
+    public static ProcessResultConverter<URI> trailingUriWithTrailingDigitAloneOnLine() {
         return strings().map(processOutput -> {
             String[] lines = processOutput.split("\n");
             for (int i = lines.length - 1; i >= 0; i--)
             {
                 String ln = lines[i].trim();
+                // A github pull request url ends in at least one digit
                 if (ln.startsWith("https://") && Character.isDigit(ln.charAt(ln
                         .length() - 1)))
                 {

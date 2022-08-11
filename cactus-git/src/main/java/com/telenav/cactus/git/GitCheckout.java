@@ -58,7 +58,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCode;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
-import static com.telenav.cactus.cli.ProcessResultConverter.trailingUriAloneOnLine;
+import static com.telenav.cactus.cli.ProcessResultConverter.trailingUriWithTrailingDigitAloneOnLine;
 
 /**
  * @author Tim Boudreau
@@ -905,7 +905,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         //
         // Use a timeout here, because `gh` has no non-interactive mode, and if it
         // is trying to ask a question, it will hang forever
-        return new GithubCommand<URI>(authenticationToken, trailingUriAloneOnLine(), root,
+        return new GithubCommand<URI>(authenticationToken, trailingUriWithTrailingDigitAloneOnLine(), root,
                 arguments.toArray(String[]::new)).run().awaitQuietly(Duration
                 .ofMinutes(2));
     }
