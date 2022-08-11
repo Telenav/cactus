@@ -35,6 +35,19 @@ maintaining and releasing trees of projects that are managed using Git submodule
 [**Cactus Scripts**](#cactus-scripts)  
 [**Release Script for Telenav Open Source**](https://github.com/Telenav/telenav-build/blob/release/current/documentation/releasing.md)
 
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+### Build Status <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/gears-32-2x.png 2x"/>
+
+| Repository and Branch       | Build Status                                                                                    |
+|-----------------------------|-------------------------------------------------------------------------------------------------|
+| `cactus develop`            | <img src="https://github.com/Telenav/cactus/actions/workflows/build-develop.yml/badge.svg"/>    |
+| `cactus release/current`    | <img src="https://github.com/Telenav/cactus/actions/workflows/build-release.yml/badge.svg"/>    |
+
+<br/>
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
 ### Background
  
 [**Problem Definition**](#problem-definition)  
