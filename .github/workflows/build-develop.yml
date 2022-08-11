@@ -8,15 +8,14 @@
 #
 # GitHub action that builds code on push or pull request.
 #
-
 defaults:
   run:
     shell: bash
 
 env:
-    CACTUS_VERSION: 1.5.18
+    CACTUS_VERSION: 1.5.22
 
-name: "Build Branch"
+name: "Build Develop"
 
 on:
   workflow_dispatch:
@@ -26,18 +25,12 @@ on:
         - '**/*.md'
     branches:
       - develop
-      - 'release/**'
-      - 'feature/**'
-      - 'hotfix/**'
   pull_request:
     paths-ignore:
         - 'documentation/**'
         - '**/*.md'
     branches:
       - develop
-      - 'release/**'
-      - 'feature/**'
-      - 'hotfix/**'
 
 jobs:
   build:
