@@ -64,6 +64,10 @@
 
         <dependency>
             <groupId>com.mastfrog</groupId>
+            <artifactId>function</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
         </dependency>
 
@@ -114,7 +118,7 @@
                 </configuration>
                 <version>${maven-compiler-plugin.version}</version>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
@@ -131,8 +135,8 @@
                     <goalPrefix>cactus</goalPrefix>
                 </configuration>
                 <executions>
-                    <!-- We need this for release, so that we can use compile, but 
-                         but not install, to pre-generate the plugin descriptor so that 
+                    <!-- We need this for release, so that we can use compile, but
+                         but not install, to pre-generate the plugin descriptor so that
                          the rest of the build, which will use this plugin from
                          target/classes, does not fail because there is no plugin.xml
                          in META-INF.  Harmless to do it earlier, since we're not using
@@ -145,7 +149,7 @@
                             <goal>descriptor</goal>
                         </goals>
                     </execution>
-                    
+
                     <execution>
                         <id>mojo-descriptor</id>
                         <phase>process-classes</phase>

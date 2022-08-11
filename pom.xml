@@ -168,6 +168,11 @@
 
             <dependency>
                 <groupId>com.mastfrog</groupId>
+                <artifactId>abstractions</artifactId>
+                <version>${mastfrog.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mastfrog</groupId>
                 <artifactId>function</artifactId>
                 <version>${mastfrog.version}</version>
             </dependency>

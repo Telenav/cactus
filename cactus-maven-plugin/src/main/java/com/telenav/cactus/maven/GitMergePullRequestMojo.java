@@ -26,7 +26,6 @@ import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -44,8 +43,6 @@ import static com.telenav.cactus.github.MergePullRequestOptions.REBASE;
 import static com.telenav.cactus.github.MergePullRequestOptions.SQUASH;
 import static java.util.Collections.emptyMap;
 import static java.util.EnumSet.noneOf;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -203,7 +200,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
             // don't make a call over the wire twice if we already know the answer
             if (!into.containsKey(co))
             {
-                prItem(log, branchName, co)
+                leadPullRequestForBranch(branchName, co)
                         .ifPresent(item -> into.put(co, item));
             }
         }
@@ -228,14 +225,16 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
             // We were not passed a branch name, so we *must* find a PR using the
             // current branch of myCheckout as its head
             Map<GitCheckout, MinimalPRItem> result = new LinkedHashMap<>(1);
-            prItem(log, branchName, myCheckout).ifPresent(pr -> result.put(
-                    myCheckout, pr));
+            leadPullRequestForBranch(branchName, myCheckout).ifPresent(
+                    pr -> result.put(
+                            myCheckout, pr));
             return result;
         }
         else
         {
             // Try our own checkout preferentially
-            Optional<MinimalPRItem> item = prItem(log, branchName, myCheckout);
+            Optional<MinimalPRItem> item = leadPullRequestForBranch(branchName,
+                    myCheckout);
             // Okay, we may just be in the root project but looking for the
             // named branch in other projects.
             if (!item.isPresent())
@@ -244,7 +243,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
                 {
                     if (!test.equals(myCheckout))
                     {
-                        item = prItem(log, branchName, test);
+                        item = leadPullRequestForBranch(branchName, test);
                         if (item.isPresent())
                         {
                             Map<GitCheckout, MinimalPRItem> result = new LinkedHashMap<>(
@@ -279,47 +278,23 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
         }
     }
 
-    Optional<MinimalPRItem> prItem(BuildLog log, String branchName,
+    private Optional<MinimalPRItem> leadPullRequestForBranch(String branchName,
             GitCheckout forCheckout)
     {
-        // Find a PR for the given branch name in the given checkout
-        List<MinimalPRItem> items = filterNonOpenOrNotMergeable(log, forCheckout,
-                forCheckout.listPullRequests(this,
-                        baseBranch, branchName, null));
-        switch (items.size())
-        {
-            case 0:
-                // Okay, nothing here - that may be fine
-                return empty();
-            case 1:
-                // Exactly one PR associated with this branch - the ideal,
-                // unambiguous case
-                return of(items.get(0));
-            default:
-                // We do NOT pick a PR at random to merge and hope for the best.
-                return fail(
-                        "Ambiguous PRs - more than one PR on " + branchName + " in " + forCheckout
-                                .loggingName()
-                        + ": " + items);
-        }
+        return leadPullRequestForBranch(baseBranch, branchName, forCheckout);
     }
 
-    private List<MinimalPRItem> filterNonOpenOrNotMergeable(BuildLog log,
-            GitCheckout in, List<MinimalPRItem> items)
+    List<MinimalPRItem> pullRequestsForBranch(String branchName,
+            GitCheckout forCheckout)
     {
-        // If the merge would fail, prune it out
-        for (Iterator<MinimalPRItem> it = items.iterator(); it.hasNext();)
-        {
-            MinimalPRItem i = it.next();
-            if (!i.isOpen() || !i.isMergeable())
-            {
-                log.warn(
-                        "Filter closed or not-mergeable from candidates for " + in
-                                .loggingName() + ": " + i);
-                it.remove();
-            }
-        }
-        return items;
+        return pullRequestsForBranch(baseBranch, branchName, forCheckout);
+    }
+
+    List<MinimalPRItem> openAndMergeablePullRequestsForBranch(String branchName,
+            GitCheckout forCheckout)
+    {
+        return openAndMergeablePullRequestsForBranch(baseBranch, branchName,
+                forCheckout);
     }
 
     private Set<MergePullRequestOptions> options()

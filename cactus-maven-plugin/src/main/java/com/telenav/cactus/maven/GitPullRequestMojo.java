@@ -104,7 +104,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     /**
      * If true, open a browser tab with each new pull request.
      */
-    @Parameter(property = "cactus.open", defaultValue = "false")
+    @Parameter(property = "cactus.open", defaultValue = "true")
     boolean open;
 
     private String searchNonce;
@@ -145,6 +145,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         finally
         {
             searchNonce = null;
+            clearPRCache();
         }
     }
 
@@ -165,7 +166,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         // we can guarantee as much is possible that we do not, say, create
         // a half-finished set of PRs because a commit or push failed AFTER
         // we have already created some of them
-        List<Runnable> tasks = new ArrayList<>(sourceBranchForCheckout.size());
+        List<Runnable> tasks = new ArrayList<>(sourceBranchForCheckout.size() * 3);
 
         // Collect the set of checkouts that actually need a pull request
         // performed on them into this set:
