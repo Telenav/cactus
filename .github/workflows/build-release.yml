@@ -12,9 +12,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  CACTUS_VERSION: 1.5.22
-
 name: "Build Release"
 
 on:
@@ -58,6 +55,12 @@ jobs:
       - name: Set Up Base Branch
         run: echo 'BASE_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_BASE_REF" || echo "develop") >> $GITHUB_ENV
 
+      - name: Set Up Target Commit
+        run: echo 'TARGET_COMMIT='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_REF" || echo "$GITHUB_SHA") >> $GITHUB_ENV
+        
+      - name: Set Up Checkout Command
+        run: echo 'CHECKOUT_COMMAND='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "git pull --rebase origin $TARGET_COMMIT" || echo "git checkout $TARGET_COMMIT") >> $GITHUB_ENV
+
       - name: Clone Telenav-Superpoms
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b $BASE_BRANCH
 
@@ -70,8 +73,8 @@ jobs:
       - name: Ensure Merge Commit Is Available Locally
         run: cd $GITHUB_WORKSPACE/cactus && git fetch origin $GITHUB_REF
 
-      - name: Checkout Ref
-        run: cd $GITHUB_WORKSPACE/cactus && git checkout $GITHUB_SHA
+      - name: Move Project to Target Ref
+        run: cd $GITHUB_WORKSPACE/cactus && && echo "Run $CHECKOUT_COMMAND" && eval $CHECKOUT_COMMAND
 
       - name: List Heads
         run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
