@@ -68,7 +68,7 @@ import static java.util.Collections.emptySet;
  * <li>$FAMILY.previous.version</li>
  * <li>$ARTIFACT_ID.version</li>
  * <li>s/$ARTIFACT_ID/-/..version</li>
- * <li>$FAMILY.$ARTFACT_ID.version</li>
+ * <li>$FAMILY.$ARTIFACT_ID.version</li>
  * <li>$ARTIFACT_ID.prev.version</li>
  * <li>s/$ARTIFACT_ID/-/..prev.version</li>
  * </ul>
