@@ -165,11 +165,11 @@ public abstract class CliCommand<T> implements Supplier<String>
             commandLine.add(path.toString());
             configureArguments(commandLine);
 
-            ProcessCallback callback = new ProcessCallback();
+            
 
             NuProcessBuilder pb = new NuProcessBuilder(commandLine);
+            ProcessControl callback = ProcessControl.create(pb);
             pb.environment().put("GIT_TERMINAL_PROMPT", "0");
-            pb.setProcessListener(callback);
 
             internalConfigureProcessBuilder(pb, callback);
             onLaunch(callback);
@@ -203,7 +203,7 @@ public abstract class CliCommand<T> implements Supplier<String>
     }
 
     private void internalConfigureProcessBuilder(NuProcessBuilder bldr,
-            ProcessCallback callback)
+            ProcessControl callback)
     {
         workingDirectory().ifPresent(dir ->
         {

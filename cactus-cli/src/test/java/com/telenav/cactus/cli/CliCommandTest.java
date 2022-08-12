@@ -1,5 +1,7 @@
 package com.telenav.cactus.cli;
 
+import com.telenav.cactus.cli.nuprocess.ProcessState;
+import com.telenav.cactus.cli.nuprocess.internal.ProcessCallback;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 import com.zaxxer.nuprocess.NuProcessHandler;
@@ -9,11 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -57,9 +61,49 @@ public class CliCommandTest
                 "The Test");
 
         String output = cli.run().awaitQuietly();
-        System.out.println("OUTPUT " + output);
         assertEquals("hello The Test\n"
                 + "goodbye The Test\n", output);
+    }
+
+    @Test
+    public void testKilledExits() throws Exception
+    {
+        NuProcessBuilder npb = new NuProcessBuilder("/bin/sleep", "10");
+
+        ProcessCallback cb = new ProcessCallback();
+        npb.setProcessListener(cb);
+
+        for (int i = 0; i < 7 || !cb.state().isRunning(); i++)
+        {
+            Thread.sleep(200);
+            if (i == 1)
+            {
+                npb.start();
+            }
+        }
+
+        AtomicReference<ProcessState> killState = new AtomicReference<>();
+        cb.listen((st, out, err) ->
+        {
+            killState.set(st);
+        });
+        
+        assertTrue(cb.state().isRunning());
+
+        boolean killed = cb.kill();
+        assertTrue(killed, "Not killed: " + cb.state());
+
+        cb.await(Duration.ofSeconds(15));
+        
+        ProcessState finalState = cb.state();
+        assertTrue(finalState.isExited());
+        assertFalse(finalState.isRunning());
+        assertNotEquals(0, finalState.exitCode());
+        
+        assertNotNull(killState.get(), "Listener not notified of exit.  State: " + cb.state());
+        
+        assertEquals(finalState, killState.get());
+        
     }
 
     static class Cli<T> extends CliCommand<T>
@@ -95,24 +139,17 @@ public class CliCommandTest
         @Override
         public void onPreStart(NuProcess np)
         {
-            System.out.println("prestart");
         }
 
         @Override
         public void onStart(NuProcess np)
         {
-            System.out.println("start");
             this.np = np;
         }
 
         @Override
         public void onExit(int i)
         {
-            System.out.println("on exit " + i);
-            System.out.println("output was:");
-            System.out.println(stdout);
-            System.out.println("\nstderr was:");
-            System.out.println(stderr);
         }
 
         private String append(ByteBuffer bb, StringBuilder into)
@@ -128,20 +165,17 @@ public class CliCommandTest
         public void onStdout(ByteBuffer bb, boolean bln)
         {
             String s = append(bb, stdout);
-            System.out.println("OUT: '" + s + "' " + bln);
         }
 
         @Override
         public void onStderr(ByteBuffer bb, boolean bln)
         {
             String s = append(bb, stderr);
-            System.out.println("stdErr '" + s + "'");
         }
 
         @Override
         public boolean onStdinReady(ByteBuffer bb)
         {
-            System.out.println("onStdin");
             return false;
         }
     }
@@ -164,7 +198,6 @@ public class CliCommandTest
                 PosixFilePermission.OWNER_EXECUTE
         );
         Files.setPosixFilePermissions(file, perms);
-        System.out.println("FILE IS " + file);
     }
 
     @AfterAll
