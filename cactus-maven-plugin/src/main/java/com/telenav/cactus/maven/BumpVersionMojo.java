@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.maven.task.Rollback;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;

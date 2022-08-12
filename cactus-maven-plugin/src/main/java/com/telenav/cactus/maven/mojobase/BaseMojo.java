@@ -301,11 +301,11 @@ public abstract class BaseMojo extends AbstractMojo
      * @param code The code to run
      * @throws Exception if something goes wrong
      */
-    protected void ifNotPretending(ThrowingRunnable code) throws Exception
+    protected void ifNotPretending(ThrowingRunnable code)
     {
         if (!pretend)
         {
-            code.run();
+            code.toNonThrowing().run();
         }
     }
 
@@ -702,8 +702,9 @@ public abstract class BaseMojo extends AbstractMojo
         return new MavenCoordinates(notNull("project", project).getGroupId(),
                 project.getArtifactId(), project.getVersion());
     }
-    
-    protected final Pom toPom(MavenProject project) {
+
+    protected final Pom toPom(MavenProject project)
+    {
         return Pom.from(project.getFile().toPath()).get();
     }
 }
