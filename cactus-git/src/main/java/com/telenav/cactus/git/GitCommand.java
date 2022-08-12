@@ -22,6 +22,7 @@ import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
+import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +64,7 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void onLaunch(Process proc)
+    protected void onLaunch(ProcessControl proc)
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);

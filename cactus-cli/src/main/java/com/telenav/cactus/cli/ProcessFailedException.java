@@ -18,6 +18,7 @@
 
 package com.telenav.cactus.cli;
 
+import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import java.util.function.Supplier;
 
 /**
@@ -28,12 +29,12 @@ import java.util.function.Supplier;
 public final class ProcessFailedException extends RuntimeException
 {
 
-    public final Process process;
+    public final ProcessControl process;
     public final String stdout;
     public final String stderr;
     public final String command;
 
-    public ProcessFailedException(Supplier<String> supp, Process process,
+    public ProcessFailedException(Supplier<String> supp, ProcessControl process,
             String stdout, String stderr)
     {
         this.process = process;

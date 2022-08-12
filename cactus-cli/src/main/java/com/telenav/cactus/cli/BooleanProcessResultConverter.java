@@ -19,6 +19,7 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import com.telenav.cactus.cli.nuprocess.ProcessControl;
 
 import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 
@@ -49,7 +50,7 @@ final class BooleanProcessResultConverter implements
 
     @Override
     public AwaitableCompletionStage<Boolean> onProcessStarted(
-            Supplier<String> supp, Process process)
+            Supplier<String> supp, ProcessControl process)
     {
         return completionStageForProcess(process).thenApply(proc ->
         {
