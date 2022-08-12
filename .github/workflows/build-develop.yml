@@ -74,7 +74,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE/cactus && git fetch origin $GITHUB_REF
 
       - name: Move Project to Target Ref
-        run: cd $GITHUB_WORKSPACE/cactus && && echo "Run $CHECKOUT_COMMAND" && eval $CHECKOUT_COMMAND
+        run: cd $GITHUB_WORKSPACE/cactus && echo "Run $CHECKOUT_COMMAND" && eval $CHECKOUT_COMMAND
 
       - name: List Heads
         run: cd $GITHUB_WORKSPACE/cactus && find .git/refs/heads
