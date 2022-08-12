@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
@@ -116,12 +117,21 @@ public class GitPullRequestMojo extends AbstractGithubMojo
 
     private String searchNonce;
 
+    // Ensures we don't run git fetch --all more than once per repo
     private final Set<GitCheckout> fetched = ConcurrentHashMap.newKeySet();
+    // Retain URLs of generated PRs so a "related PRs" section in
+    // subsequent ones' body can reference them
+    private final Set<String> uris = ConcurrentHashMap.newKeySet();
+    // In pretend-mode, we want to log the body and title we would use,
+    // but not be irritating about it
+    private volatile boolean titleLogged;
+    private volatile boolean bodyLogged;
 
     @Override
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
             throws Exception
     {
+        ClassloaderLog._log(project, this);
         if (Objects.equals(baseBranch, targetBranch))
         {
             fail("Base branch and target branch are the same: " + targetBranch);
@@ -151,19 +161,22 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             return;
         }
 
-        tree.branches(myCheckout).currentBranch().ifPresent(br ->
+        if (targetBranch == null)
         {
-            if (br.name().equals(baseBranch))
+            tree.branches(myCheckout).currentBranch().ifPresent(br ->
             {
-                fail("Attempting to create a pull request targeting the branch "
-                        + baseBranch + ", but " + coordinatesOf(project) + "'s "
-                        + "checkout is already on that branch.  Either switch to "
-                        + "the branch you want to create a pull request from, or "
-                        + "run this mojo against a project in the right project family "
-                        + "which is in a checkout that is on the branch you want to "
-                        + "create the pull request from.");
-            }
-        });
+                if (br.name().equals(baseBranch))
+                {
+                    fail("Attempting to create a pull request targeting the branch "
+                            + baseBranch + ", but " + coordinatesOf(project) + "'s "
+                            + "checkout is already on that branch.  Either switch to "
+                            + "the branch you want to create a pull request from, or "
+                            + "run this mojo against a project in the right project family "
+                            + "which is in a checkout that is on the branch you want to "
+                            + "create the pull request from.");
+                }
+            });
+        }
         // Run the logic with a winnowed-down set of git checkouts which are on a
         // branch with the same name as the branch the target project is on, or if
         // targetBranch was set, on a branch with that name
@@ -195,6 +208,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             {
                 searchNonce = null;
             }
+            uris.clear();
         }
     }
 
@@ -208,14 +222,17 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         Set<GitCheckout> alreadyHavePRs
                 = checkoutsWithExistingPrs(sourceBranchForCheckout, log);
 
+        // Every repository we matched already has a pull request using the
+        // target branch - we're done
         if (alreadyHavePRs.equals(sourceBranchForCheckout.keySet()))
         {
             log.warn("Every checkout matched already has an open, mergeable "
-                    + "PR.  Nothing to do");
+                    + "PR.  Nothing to do.");
             return;
         }
         else
         {
+            // Remove an repos where a PR already exists
             alreadyHavePRs.forEach(sourceBranchForCheckout::remove);
             log.info("Pruned " + alreadyHavePRs);
         }
@@ -234,38 +251,62 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         // The point of adding this first is to fail early, before we have
         // committed or pushed anything if the actual PR creation cannot possibly
         // succeed
-        tasks.group("Verify base branch '" + baseBranch + "'", grp ->
+        tasks.group(
+                "Ensure base branch '" + baseBranch + "' exists in all targets",
+                grp ->
         {
+            // This is a corner case, but handle it, as it would be
+            // bad to create some pull requests and then kaboom.
             sourceBranchForCheckout.forEach((co, branch)
                     -> grp.add(
-                            "Check '" + baseBranch + "' exists in "
+                            "Ensure '" + baseBranch + "' exists in "
                             + co.loggingName(), () ->
                     {
+                        // Make sure we really know what the remote head
+                        // is, and if we didn't know locally about the
+                        // destination branch, that we refresh our metadata
+                        // so there's a record of the destination branch when
+                        // we look for it
                         log.info("Fetch all in " + co.loggingName());
+                        // This will also discard the Branches instance cached
+                        // by ProjectTree, so we don't keep any stale lists of branches
                         ensureUpToDateRemoteHeads(co, tree);
+                        // Get the set of all branches our git checkout knows about,
+                        // local or remote
                         Branches br = tree.branches(co);
                         if (!br.find(baseBranch, false).isPresent())
                         {
+                            // And bang, we'red one - we're trying to create a PR
+                            // that wants to be merged to something that doesn't exist
                             fail("No branch named '" + baseBranch + "' in default remote of "
                                     + co.loggingName());
                         }
                     }));
         });
 
+        // Collect repos that need pushes here
         Set<GitCheckout> toPush = new LinkedHashSet<>();
+        // And ones which are dirty here, so we can fail if there
+        // are any and commit=false
         Set<GitCheckout> dirtyCheckouts = new HashSet<>();
 
+        // Do the dirty check and add tasks to our task set for
+        // committing if needed and allowed
         collectDirtyCheckoutsAndCreateCommitTasks(sourceBranchForCheckout,
                 toPush, dirtyCheckouts, tasks);
 
         if (!commit && dirtyCheckouts.isEmpty())
         {
+            // Uh oh - this would toss `gh` into "What should I do?"
+            // interactive mode and Maven would appear to hang forever.
             fail("Commit is false and " + dirtyCheckouts.size() + " repositories have "
                     + " local modifications.  Running `gh pr create` in such a "
                     + "situation will trigger interactive questions and "
                     + "cannot be automated: " + dirtyCheckouts);
         }
 
+        // Create a group for our pushes (if we don't add any child tasks
+        // to it, it won't appear in the plan)
         tasks.group("Push Changes", pushTasks ->
         {
             Set<GitCheckout> needingBranchCreation = new HashSet<>();
@@ -275,12 +316,20 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                         && containsPullRequestReadyCommitsPendingPush(myCheckout,
                                 checkout, branch))
                 {
+                    // Definitely needs a push - the remote has a branch
+                    // for our PR branch, but it does not have all the commits
+                    // we have locally
                     toPush.add(checkout);
                 }
                 else
                 {
+                    // Once again, make sure we have up to date fetch heads (if
+                    // we did this above, it won't be repeated)
                     ensureUpToDateRemoteHeads(checkout, tree);
                     Branches branches = tree.branches(checkout);
+                    // Figure out if the branch doesn't exist remotely,
+                    // and flag it so we can `git push -u origin theBranch`
+                    // instead of just `git push`
                     if (!branches.find(branch.name(), false).isPresent())
                     {
                         toPush.add(checkout);
@@ -289,6 +338,9 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                     else
                     {
                         NeedPushResult np = checkout.needsPush();
+                        // If it needs pushing for any other reason, deal with
+                        // that now.  We MUST not call `gh` with unpushed commits
+                        // on the PR branch or we're dead.
                         if (np.canBePushed())
                         {
                             toPush.add(checkout);
@@ -300,8 +352,11 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                     }
                 }
             });
+            // Now actually add the push tasks
             for (GitCheckout checkout : toPush)
             {
+                // Create a push or push that creates a remote branch,
+                // as needed
                 if (needingBranchCreation.contains(checkout))
                 {
                     pushTasks.add(
@@ -319,25 +374,16 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             }
         });
 
-        sourceBranchForCheckout.forEach((checkout, sourceBranch) ->
-        {
-            System.out.println(
-                    "CHERK1 " + checkout.loggingName() + " " + sourceBranch);
-        });
-
-        tasks.group("Really create pull requests", prTasks ->
+        // Now add the tasks for really creating the PR
+        tasks.group("Create pull requests", prTasks ->
         {
             sourceBranchForCheckout.forEach((checkout, sourceBranch) ->
             {
-
-                System.out.println(
-                        "CHERK " + checkout.loggingName() + " " + sourceBranch);
-
-                String ttl = "Create pull request for "
+                String logMsg = "Create pull request for "
                         + checkout.loggingName() + " from "
                         + sourceBranch.name() + " to " + baseBranch;
 
-                prTasks.add(ttl, () ->
+                prTasks.add(logMsg, () ->
                 {
                     if (!isPretend())
                     {
@@ -353,6 +399,9 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                                 bodyOrSyntheticBody(sourceBranchForCheckout),
                                 sourceBranch.name(),
                                 baseBranch);
+                        // Collect the URI, so subsequent PRs can have
+                        // a list of related PRs
+                        uris.add(uri.toURL().toString());
                         log.info("Created " + uri);
                         // Ensure we print the output in quiet mode:
                         System.out.println(uri);
@@ -365,7 +414,8 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             });
         });
 
-        System.out.println("Plan:\n" + tasks);
+        log.warn("Execution Plan:\n" + tasks);
+        // And run our pile of work
         tasks.execute();
     }
 
@@ -374,10 +424,14 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             Set<GitCheckout> toPush, Set<GitCheckout> dirtyCheckouts,
             TaskSet tasks)
     {
+        // Create a commit message we can use across all commits,
+        // if any
         CommitMessage msg = new CommitMessage(getClass(),
                 titleOrSyntheticTitle(sourceBranchForCheckout))
                 .paragraph(bodyOrSyntheticBody(sourceBranchForCheckout));
 
+        // Decorate the commit message with information about what
+        // we're doing, and populate dirtyCheckouts and toPush
         try ( Section<?> sect = msg.section("Committing In"))
         {
             for (Map.Entry<GitCheckout, Branch> e : sourceBranchForCheckout
@@ -385,13 +439,22 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             {
                 if (e.getKey().isDirty() || e.getKey().hasUntrackedFiles())
                 {
+                    // If we're committing, we definitely need to push - mark
+                    // it as such, as we will test for unpushed commits before
+                    // the commit has run
                     toPush.add(e.getKey());
+                    // Collect this into dirty checkouts, which was passed in
+                    // to us - it is also used to fail in the case we would 
+                    // dump gh into interactive mode because commit=false
                     dirtyCheckouts.add(e.getKey());
-                    sect.bulletPoint(e.getKey().loggingName() + " - " + e
-                            .getValue().name());
+                    // And note what it is we're doing in the commit message
+                    sect.bulletPoint(e.getKey().loggingName()
+                            + " - " + e.getValue().name());
                 }
             }
         }
+
+        // If we need to commit anything, add tasks for that
         if (commit)
         {
             tasks.group("Commit any pending changes", grp ->
@@ -401,7 +464,9 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                                 "Commit changes in " + checkout.loggingName(),
                                 () -> ifNotPretending(() ->
                                 {
+                                    // git add -A
                                     checkout.addAll();
+                                    // git ci -m msg
                                     checkout.commit(msg.toString());
                                 })));
             });
@@ -410,22 +475,28 @@ public class GitPullRequestMojo extends AbstractGithubMojo
 
     private void open(URI uri, BuildLog log)
     {
-        if (Desktop.isDesktopSupported())
+        // Get out of the way of the rest of maven
+        // execution - initializing hunks of AWT is not free.
+        ForkJoinPool.commonPool().submit(() ->
         {
-            log.info("Opening browser for " + uri);
-            try
+            if (Desktop.isDesktopSupported())
             {
-                Desktop.getDesktop().browse(uri);
+                log.info("Opening browser for " + uri);
+                try
+                {
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (IOException ex)
+                {
+                    log.error("Exception thrown opening " + uri, ex);
+                }
             }
-            catch (IOException ex)
+            else
             {
-                log.error("Exception thrown opening " + uri, ex);
+                log.error(
+                        "Desktop not supported in this JVM; cannot open " + uri);
             }
-        }
-        else
-        {
-            log.error("Desktop not supported in this JVM; cannot open " + uri);
-        }
+        });
     }
 
     private Map<GitCheckout, Branch> filterToCheckoutsOnTargetBranch(
@@ -551,13 +622,14 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         // Gets us a random string with a time component, which allows us
         // to include 
         return searchNonce == null
-               ? searchNonce = new RandomStrings().randomChars(12) + "-"
+               ? searchNonce = new RandomStrings().randomChars(10) + "-"
                 + Long.toString(System.currentTimeMillis() / 1000, 36)
                : searchNonce;
     }
 
     void ensureUpToDateRemoteHeads(GitCheckout co, ProjectTree tree)
     {
+        // Avoid doing this repeatedly
         if (fetched.add(co))
         {
             ifNotPretending(() ->
@@ -589,35 +661,87 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     private String titleOrSyntheticTitle(
             Map<GitCheckout, Branch> sourceBranchForCheckout)
     {
-        return title == null
-               ? "New pull request in ~" + sourceBranchForCheckout.size() + " projects: " + searchNonce()
-               : title + " " + searchNonce();
+        String result;
+        if (title == null)
+        {
+            // Get the head commit message from the first matched
+            // repository
+            assert !sourceBranchForCheckout.isEmpty();
+            GitCheckout co = sourceBranchForCheckout.entrySet().iterator()
+                    .next().getKey();
+
+            // Assign it to title, for consistency and to avoid
+            // excessive external process runs
+            result = title = co.commitMessage(sourceBranchForCheckout.get(
+                    co).trackingName());
+        }
+        else
+        {
+            result = title;
+        }
+        // In pretend mode, print out what we would put in the PR
+        if (isPretend() && !titleLogged)
+        {
+            titleLogged = true;
+            System.out.println("TITLE: " + title);
+        }
+        return result;
     }
 
     private String bodyOrSyntheticBody(
             Map<GitCheckout, Branch> sourceBranchForCheckout)
     {
-        StringBuilder result = new StringBuilder();
+        // It's not a commit message, but the metadata and
+        // structure are what we want:
+        CommitMessage msg = new CommitMessage(getClass(),
+                titleOrSyntheticTitle(
+                        sourceBranchForCheckout));
         if (body != null)
         {
-            result.append(body);
+            msg.paragraph(body);
         }
-        result.append("\n\n").append("SearchNonce: ").append(searchNonce())
-                .append('\n');
-        appendProjectInfo(sourceBranchForCheckout, result);
-        return result.toString();
-    }
-
-    private void appendProjectInfo(
-            Map<GitCheckout, Branch> sourceBranchForCheckout, StringBuilder into)
-    {
-        into.append("In any or all of");
-        sourceBranchForCheckout.forEach((co, br) ->
+        if (!uris.isEmpty())
         {
-            into.append(' ').append(co.loggingName()).append(':').append(br
-                    .name());
-        });
-        into.append('.');
+            // Include the URLs of any pull requests we've already
+            // created
+            try ( Section<CommitMessage> sect = msg.section(
+                    "Related Pull Requests"))
+            {
+                for (String u : uris)
+                {
+                    sect.bulletPoint(u);
+                }
+            }
+        }
+
+        // Ensure we describe all of the places one should look
+        // for related pull requests - the first PR created will
+        // not be able to list the related ones
+        try ( Section<CommitMessage> sect = msg.section(
+                "Creating Pull Requests In"))
+        {
+            sourceBranchForCheckout.forEach((checkout, branch) ->
+            {
+                sect.bulletPoint(
+                        checkout.loggingName() + " " + branch + " -> " + baseBranch);
+            });
+        }
+        // We include a "search nonce" for ease of searching; the
+        // invoking project is worth knowing if something goes wrong.
+        try ( Section<CommitMessage> sect = msg.section("Metadata"))
+        {
+            sect.bulletPoint(
+                    "Invoked on " + project().getGroupId() + ":" + project()
+                    .getArtifactId() + ":" + project().getVersion());
+            sect.bulletPoint("SearchNonce: " + searchNonce());
+        }
+        // In pretend mode, print out what we would put in the PR
+        if (isPretend() && !bodyLogged)
+        {
+            bodyLogged = true;
+            System.out.println("BODY:\n" + msg);
+        }
+        return msg.toString();
     }
 
 }
