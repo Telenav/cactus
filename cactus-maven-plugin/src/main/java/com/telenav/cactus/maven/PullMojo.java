@@ -66,10 +66,6 @@ public class PullMojo extends ScopedCheckoutsMojo
             defaultValue = "true")
     private boolean permitLocalModifications;
 
-    private Scope scope;
-
-    private GitCheckout myCheckout;
-
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
