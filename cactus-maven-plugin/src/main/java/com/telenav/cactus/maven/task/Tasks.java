@@ -108,11 +108,11 @@ final class Tasks implements TaskSet
         try
         {
             Rollback rollback = new Rollback();
+            log.accept(name());
             rollback.executeWithRollback(() ->
             {
                 for (Task kid : children)
                 {
-                    log.accept(kid.name());
                     kid.accept(log, rollback);
                 }
             });

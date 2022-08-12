@@ -6,7 +6,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,15 +16,21 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.write;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 /**
+ * Some code that's useful in debugging classloading problems - off by default,
+ * but keeping it for now.
  *
  * @author Tim Boudreau
  */
 final class ClassloaderLog
 {
 
-    private static final boolean enabled = true;
+    private static final boolean enabled = false;
 
     static void log(MavenProject prj, BaseMojo mojo)
     {
@@ -50,6 +55,7 @@ final class ClassloaderLog
         ClassRealm classRealm = pluginDescriptor.getClassRealm();
 
         logUrls(classRealm, prj);
+        logPackages(classRealm, prj);
     }
 
     private static void logPackages(ClassRealm classRealm, MavenProject prj)
@@ -70,9 +76,7 @@ final class ClassloaderLog
         sb.append('\n');
         Path dest = Paths.get("/tmp").resolve(
                 prj.getArtifactId() + "-packages.txt");
-        Files.write(dest, sb.toString().getBytes(UTF_8),
-                StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.CREATE);
+        write(dest, sb.toString().getBytes(UTF_8),WRITE, TRUNCATE_EXISTING,CREATE);
     }
 
     private static void collectPackages(int depth, ClassRealm classRealm,
@@ -91,12 +95,12 @@ final class ClassloaderLog
         {
             collectPackages(depth + 1, cl, prj, pkgs, seen);
         }
-
     }
 
     private static void logUrls(ClassRealm classRealm, MavenProject prj)
             throws IOException
     {
+        // Log both classloader order and easily diffed sorted order
         List<String> urls = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         for (URL url : classRealm.getURLs())
@@ -110,9 +114,7 @@ final class ClassloaderLog
         }
         sb.append('\n');
         Path dest = Paths.get("/tmp").resolve(prj.getArtifactId() + "-urls.txt");
-        Files.write(dest, sb.toString().getBytes(UTF_8),
-                StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.CREATE);
+        write(dest, sb.toString().getBytes(UTF_8),WRITE, TRUNCATE_EXISTING, CREATE);
 
         Collections.sort(urls);
         sb.setLength(0);
@@ -128,8 +130,7 @@ final class ClassloaderLog
         sb.append('\n');
         dest = Paths.get("/tmp").resolve(
                 prj.getArtifactId() + "-urls-sorted.txt");
-        Files.write(dest, sb.toString().getBytes(UTF_8),
-                StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.CREATE);
+        write(dest, sb.toString().getBytes(UTF_8), WRITE,
+                TRUNCATE_EXISTING, CREATE);
     }
 }

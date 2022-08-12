@@ -1,6 +1,5 @@
 package com.telenav.cactus.maven;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mastfrog.function.throwing.io.IOSupplier;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.github.MinimalPRItem;
