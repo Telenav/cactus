@@ -15,16 +15,46 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-open module cactus.git {
+package com.telenav.cactus.maven.task;
 
-    requires cactus.cli;
-    requires cactus.maven.log;
-    requires cactus.util;
-    requires com.mastfrog.function;
-    requires com.mastfrog.preconditions;
-    requires transitive com.fasterxml.jackson.annotation;
-    requires transitive com.fasterxml.jackson.databind;
-    requires transitive com.fasterxml.jackson.core;
-    exports com.telenav.cactus.git;
-    exports com.telenav.cactus.github;
+import com.mastfrog.function.throwing.ThrowingRunnable;
+import java.util.function.Consumer;
+
+import static com.mastfrog.util.preconditions.Checks.notNull;
+
+/**
+ * Implementation of Task.
+ *
+ * @author Tim Boudreau
+ */
+final class TaskImpl implements Task
+{
+    final String name;
+    final ThrowingRunnable run;
+
+    TaskImpl(String name, ThrowingRunnable run)
+    {
+        this.name = notNull("name", name);
+        this.run = notNull("run", run);
+    }
+
+    @Override
+    public void accept(Consumer<String> log, Rollback rb) throws Exception
+    {
+        log.accept(name);
+        run.run();
+    }
+
+    @Override
+    public String name()
+    {
+        return name;
+    }
+
+    @Override
+    public String toString()
+    {
+        return stringify();
+    }
+
 }

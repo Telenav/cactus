@@ -455,6 +455,10 @@ public class ProjectTree
     public Set<ProjectFamily> allProjectFamilies() {
         return withCache(ProjectTreeCache::allProjectFamilies);
     }
+    
+    public void invalidateBranches(GitCheckout co) {
+        withCache(cache -> cache.invalidateBranches(co));
+    }
 
     /**
      * Get a depth-first list of checkouts matching this scope, given the passed

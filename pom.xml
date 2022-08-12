@@ -80,6 +80,7 @@
         <!-- Java -->
 
         <java.version>11</java.version>
+        <jackson.version>2.13.3</jackson.version>
 
         <!-- Mastfrog -->
         <mastfrog.version>2.8.3</mastfrog.version>
@@ -167,6 +168,11 @@
 
             <dependency>
                 <groupId>com.mastfrog</groupId>
+                <artifactId>abstractions</artifactId>
+                <version>${mastfrog.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mastfrog</groupId>
                 <artifactId>function</artifactId>
                 <version>${mastfrog.version}</version>
             </dependency>
@@ -199,6 +205,24 @@
                 <groupId>com.mastfrog</groupId>
                 <artifactId>util-preconditions</artifactId>
                 <version>${mastfrog.version}</version>
+            </dependency>
+
+            <!-- JSON -->
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
 
             <!-- Maven -->
@@ -257,7 +281,7 @@
             <plugin>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>cactus-maven-plugin</artifactId>
-                <!-- This has to be the previous version or we 
+                <!-- This has to be the previous version or we
                 create a cycle in the dependency graph -->
                 <version>${cactus.previous.version}</version>
                 <executions>
@@ -271,41 +295,10 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <configuration>
-                    <goalPrefix>cactus</goalPrefix>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>mojo-descriptor-compile-time</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
-                    
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>generated-helpmojo</id>
-                        <goals>
-                            <goal>helpmojo</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-            </plugin>
-            
         </plugins>
 
         <pluginManagement>
-            
+
             <plugins>
 
                 <plugin>
