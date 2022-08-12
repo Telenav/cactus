@@ -21,8 +21,6 @@ public class ProcessStateTest
         assertTrue(true);
         ProcessState state = ProcessState.INITIAL;
 
-        System.out.println("iniitial " + state);
-
         assertFalse(state.isExited(), state::toString);
         assertFalse(state.isRunning(), state::toString);
         assertEquals(0, state.exitCode());
@@ -32,12 +30,9 @@ public class ProcessStateTest
 
         ProcessState next = state.toState(STARTING);
 
-        System.out.println("now " + next);
-
         assertSame(STARTING, next.state(), next::toString);
 
         next = next.wantingInput();
-        System.out.println("wi " + next);
 
         next = next.toState(RUNNING);
         assertSame(RUNNING, next.state(), next::toString);
@@ -46,7 +41,6 @@ public class ProcessStateTest
         assertFalse(next.wasKilled(), next::toString);
 
         next = next.killed();
-        System.out.println("killed " + next);
         assertSame(RUNNING, next.state(), next::toString);
         assertEquals(0, next.exitCode(), next::toString);
         assertTrue(next.wantsInput(), next::toString);
@@ -63,9 +57,6 @@ public class ProcessStateTest
         assertSame(EXITED, next.state(), next::toString);
         assertFalse(next.wantsInput(), next::toString);
         assertTrue(next.wasKilled(), next::toString);
-
-        System.out.println("EXIT " + next);
-
     }
 
 }
