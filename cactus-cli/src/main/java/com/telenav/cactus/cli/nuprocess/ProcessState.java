@@ -33,7 +33,7 @@ public final class ProcessState
     private static final int STATE_MASK = 0b11;
     private final int value;
     private static final RunningStatus[] STATII = RunningStatus.values();
-    public static final ProcessState INITIAL = new ProcessState(0);
+    public static final ProcessState INITIAL = new ProcessState();
 
     private ProcessState(int value)
     {
@@ -57,15 +57,15 @@ public final class ProcessState
         }
     }
 
-    public ProcessState()
+    ProcessState()
     {
         this(0);
     }
 
     /**
-     * Get the numeric exit code of the process.  Note this will be zero
-     * for a process that is still running - check <code>isExited()</code>
-     * before using.
+     * Get the numeric exit code of the process. Note this will be zero for a
+     * process that is still running - check <code>isExited()</code> before
+     * using.
      *
      * @return An exit code
      */
@@ -73,25 +73,28 @@ public final class ProcessState
     {
         return value >> 16;
     }
-    
+
     /**
-     * Returns an exit code suitable for numeric tests, as with code written
-     * for calls to <code>Process.exitValue()</code>.  Returns -1 if the
-     * process has not started or is running, Integer.MAX_VALUE if it was
-     * killed, and otherwise the actual exit code.  Note that the killed flag
-     * may be set before a process has actually terminated and obtained a
-     * real exit code.
-     * 
+     * Returns an exit code suitable for numeric tests, as with code written for
+     * calls to <code>Process.exitValue()</code>. Returns -1 if the process has
+     * not started or is running, Integer.MAX_VALUE if it was killed, and
+     * otherwise the actual exit code. Note that the killed flag may be set
+     * before a process has actually terminated and obtained a real exit code.
+     *
      * @return An exit code that is non-zero when running and can indicate
      * having been killed
      */
-    public int effectiveExitCode() {
-        if (wasKilled()) {
+    public int effectiveExitCode()
+    {
+        if (wasKilled())
+        {
             return Integer.MAX_VALUE;
-        } else 
-        if (isBeforeStart() || isRunning()) {
-            return -1;
         }
+        else
+            if (isBeforeStart() || isRunning())
+            {
+                return -1;
+            }
         return exitCode();
     }
 
