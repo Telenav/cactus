@@ -122,6 +122,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
             throws Exception
     {
+        ClassloaderLog._log(project, this);
         if (Objects.equals(baseBranch, targetBranch))
         {
             fail("Base branch and target branch are the same: " + targetBranch);
