@@ -69,7 +69,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b $BASE_BRANCH
 
       - name: Clone Cactus
-        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git"
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git" -b $BASE_BRANCH
 
       - name: Fetch All
         run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
