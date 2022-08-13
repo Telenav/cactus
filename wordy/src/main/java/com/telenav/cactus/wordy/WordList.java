@@ -17,9 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.wordy;
 
+import java.util.function.Consumer;
+
 import static com.telenav.cactus.wordy.WordLists.nearestPowerOfTwoLessThan;
 import static java.lang.Long.numberOfTrailingZeros;
-import java.util.function.Consumer;
 
 /**
  * A list of words which can be looked up by index, which can express how many

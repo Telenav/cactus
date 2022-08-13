@@ -17,30 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.wordy;
 
-import static com.telenav.cactus.wordy.WordLists.ADJECTIVES;
-import static com.telenav.cactus.wordy.WordLists.ADVERBS;
-import static com.telenav.cactus.wordy.WordLists.BUILD_NAME_ADJECTIVES;
-import static com.telenav.cactus.wordy.WordLists.BUILD_NAME_NOUNS;
-import static com.telenav.cactus.wordy.WordLists.NOUNS;
-import static com.telenav.cactus.wordy.WordLists.POSESSIVES;
-import static com.telenav.cactus.wordy.WordLists.PREPOSITIONS;
-import static com.telenav.cactus.wordy.WordLists.PRONOUNS;
-import static com.telenav.cactus.wordy.WordLists.VERBS;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
-import static com.telenav.cactus.wordy.WordLists.LARGE_ADJECTIVES;
-import static com.telenav.cactus.wordy.WordLists.LARGE_ADVERBS;
-import static com.telenav.cactus.wordy.WordLists.LARGE_NOUNS;
-import static com.telenav.cactus.wordy.WordLists.LARGE_VERBS;
-import static com.telenav.cactus.wordy.WordLists.shuffler;
-
-import java.util.Random;
-
+import static com.telenav.cactus.wordy.WordLists.*;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.sort;

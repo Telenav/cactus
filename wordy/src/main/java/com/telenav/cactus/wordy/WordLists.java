@@ -19,14 +19,15 @@ package com.telenav.cactus.wordy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import static java.lang.Math.abs;
-import static java.lang.Math.floor;
-import static java.lang.Math.log;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import static java.lang.Math.abs;
+import static java.lang.Math.floor;
+import static java.lang.Math.log;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  *

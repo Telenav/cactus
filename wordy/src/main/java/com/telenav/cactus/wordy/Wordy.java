@@ -17,9 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.wordy;
 
-import static com.telenav.cactus.wordy.Recipe.recipes;
-import static com.telenav.cactus.wordy.WordLists.nearestPowerOfTwoLessThan;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +29,10 @@ import java.util.regex.Pattern;
 import static com.telenav.cactus.wordy.Recipe.SENTENCE_LIKE;
 import static com.telenav.cactus.wordy.Recipe.best;
 import static com.telenav.cactus.wordy.Recipe.recipe;
+import static com.telenav.cactus.wordy.Recipe.recipes;
 import static com.telenav.cactus.wordy.WordLists.find;
+import static com.telenav.cactus.wordy.WordLists.nearestPowerOfTwoLessThan;
 import static com.telenav.cactus.wordy.WordLists.values;
-import static java.lang.Long.parseLong;
 import static java.lang.Long.parseLong;
 import static java.lang.System.exit;
 
