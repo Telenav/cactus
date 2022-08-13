@@ -28,29 +28,35 @@ import static java.lang.Long.numberOfTrailingZeros;
  *
  * @author Tim Boudreau
  */
-public interface WordList {
-
+public interface WordList
+{
     int size();
 
     String word(int index);
 
-    default int bits() {
+    default int bits()
+    {
         return numberOfTrailingZeros(nearestPowerOfTwoLessThan(size()));
     }
 
-    default int indexOf(String word) {
+    default int indexOf(String word)
+    {
         int sz = size();
-        for (int i = 0; i < sz; i++) {
-            if (word.equals(word(i))) {
+        for (int i = 0; i < sz; i++)
+        {
+            if (word.equals(word(i)))
+            {
                 return i;
             }
         }
         return -1;
     }
 
-    default BitsConsumer toBitsConsumer(Consumer<String> c) {
+    default BitsConsumer toBitsConsumer(Consumer<String> c)
+    {
         int bits = bits();
-        return value -> {
+        return value ->
+        {
             long masked = mask() & value;
             int val = (int) masked;
             c.accept(word(val));
@@ -58,9 +64,11 @@ public interface WordList {
         };
     }
 
-    default long mask() {
+    default long mask()
+    {
         long result = 0;
-        for (int i = 0; i <= bits(); i++) {
+        for (int i = 0; i <= bits(); i++)
+        {
             result |= 1 << i;
         }
         return result;

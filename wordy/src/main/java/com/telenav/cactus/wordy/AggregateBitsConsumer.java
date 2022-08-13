@@ -25,29 +25,34 @@ import java.util.function.Consumer;
  *
  * @author Tim Boudreau
  */
-final class AggregateBitsConsumer implements BitsConsumer {
-
+final class AggregateBitsConsumer implements BitsConsumer
+{
     private int consumed;
     private int cursor;
     private final BitsConsumer[] consumers;
 
-    AggregateBitsConsumer(Consumer<String> wordConsumer, WordList[] items) {
+    AggregateBitsConsumer(Consumer<String> wordConsumer, WordList[] items)
+    {
         consumers = new BitsConsumer[items.length];
-        for (int i = 0; i < consumers.length; i++) {
+        for (int i = 0; i < consumers.length; i++)
+        {
             consumers[i] = items[i].toBitsConsumer(wordConsumer);
         }
     }
 
-    public BitsConsumer nextConsumer() {
+    public BitsConsumer nextConsumer()
+    {
         return consumers[cursor++ % consumers.length];
     }
 
-    public int consumed() {
+    public int consumed()
+    {
         return consumed;
     }
 
     @Override
-    public int consume(long value) {
+    public int consume(long value)
+    {
         int result = nextConsumer().consume(value);
         consumed += result;
         return result;

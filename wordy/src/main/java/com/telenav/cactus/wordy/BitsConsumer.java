@@ -23,7 +23,15 @@ package com.telenav.cactus.wordy;
  *
  * @author Tim Boudreau
  */
-public interface BitsConsumer {
-
+public interface BitsConsumer
+{
+    /**
+     * Consume some of the bits of the passed long, returning the number of bits
+     * that should not be offered to a subsequent consumer.
+     *
+     * @param value A value which may be partially or fully consumed
+     *
+     * @return A number of bits less than or equal to 64
+     */
     int consume(long value);
 }

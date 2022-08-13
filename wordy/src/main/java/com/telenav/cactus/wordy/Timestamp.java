@@ -25,8 +25,8 @@ import java.time.Instant;
  *
  * @author Tim Boudreau
  */
-public class Timestamp implements BoundValue {
-
+public final class Timestamp implements BoundValue
+{
     public static final long SECONDS = 1_000;
     public static final long MINUTES = SECONDS * 60;
     public static final long HOURS = MINUTES * 60;
@@ -40,50 +40,62 @@ public class Timestamp implements BoundValue {
     private final long divisor;
     private final long epochEnd;
 
-    public Timestamp(long epochStart, long when, long divisor, long epochEnd) {
+    public Timestamp(long epochStart, long when, long divisor, long epochEnd)
+    {
         this.epochStart = epochStart;
         this.when = when;
         this.divisor = divisor;
         this.epochEnd = epochEnd;
     }
 
-    public Timestamp(Instant epochStart, long divisor, Instant epochEnd) {
+    public Timestamp(Instant epochStart, long divisor, Instant epochEnd)
+    {
         this(epochStart, Instant.now(), divisor, epochEnd);
     }
 
-    public Timestamp(Instant epochStart, Instant when, long divisor, Instant epochEnd) {
-        this(epochStart.toEpochMilli(), when.toEpochMilli(), divisor, epochEnd.toEpochMilli());
+    public Timestamp(Instant epochStart, Instant when, long divisor,
+            Instant epochEnd)
+    {
+        this(epochStart.toEpochMilli(), when.toEpochMilli(), divisor, epochEnd
+                .toEpochMilli());
     }
 
     @Override
-    public long of() {
+    public long of()
+    {
         return (epochEnd - epochStart) / divisor;
     }
 
-    public String value() {
+    public String value()
+    {
         return value(Recipe.DOUBLE_ADJECTIVE_NOUN);
     }
 
-    public String value(Recipe recipe) {
+    public String value(Recipe recipe)
+    {
         return recipe.createPhrase("-", this);
     }
 
     @Override
-    public long n() {
+    public long n()
+    {
         long offset = when - epochStart;
         long result = offset / divisor;
-        if (result < 0) {
+        if (result < 0)
+        {
             throw new IllegalStateException("Invalid result " + result);
         }
         return result;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         Instant endOfEra = Instant.parse("2120-01-01T15:00:00.000Z");
 
         Instant start = Instant.parse("2020-01-01T15:00:00.000Z");
 
-        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+        for (int i = 0; i < Integer.MAX_VALUE; i++)
+        {
 
             Timestamp ts = new Timestamp(start, SECONDS, endOfEra);
 
