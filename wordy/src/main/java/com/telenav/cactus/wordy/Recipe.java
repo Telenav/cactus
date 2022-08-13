@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.wordy;
 
 import static com.telenav.cactus.wordy.WordLists.ADJECTIVES;
@@ -9,17 +26,24 @@ import static com.telenav.cactus.wordy.WordLists.POSESSIVES;
 import static com.telenav.cactus.wordy.WordLists.PREPOSITIONS;
 import static com.telenav.cactus.wordy.WordLists.PRONOUNS;
 import static com.telenav.cactus.wordy.WordLists.VERBS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
 import static com.telenav.cactus.wordy.WordLists.LARGE_ADJECTIVES;
 import static com.telenav.cactus.wordy.WordLists.LARGE_ADVERBS;
 import static com.telenav.cactus.wordy.WordLists.LARGE_NOUNS;
 import static com.telenav.cactus.wordy.WordLists.LARGE_VERBS;
 import static com.telenav.cactus.wordy.WordLists.shuffler;
+
 import java.util.Random;
+
+import static java.lang.System.currentTimeMillis;
+import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 
 /**
  * A list of word lists which can be applied sequentially and repeatedly to a
@@ -50,7 +74,7 @@ public final class Recipe implements Comparable<Recipe> {
             = recipe(LARGE_ADJECTIVES, LARGE_ADJECTIVES, LARGE_NOUNS, LARGE_VERBS, LARGE_ADVERBS);
 
     public static List<? extends Recipe> recipes() {
-        List<Recipe> result = new ArrayList<>(Arrays.asList(
+        List<Recipe> result = new ArrayList<>(asList(
                 DEFAULT, PRONOUN_VERB, PRONOUN_VERB_NOUN,
                 ADJECTIVE_NOUN, DOUBLE_ADJECTIVE_NOUN, SENTENCE_LIKE,
                 VERB_NOUN, ADVERB_VERB, POSSESSIVE_ADJECTIVE_NOUN_ADVERB,
@@ -58,7 +82,7 @@ public final class Recipe implements Comparable<Recipe> {
                 LARGE_SENTENCE_LIKE, LARGE_NOUN_ADJECTIVE,
                 LARGE_NOUN_VERB, LARGE_NOUN_DOUBLE_ADJECTIVE
         ));
-        Collections.sort(result);
+        sort(result);
         return result;
     }
 
@@ -92,8 +116,9 @@ public final class Recipe implements Comparable<Recipe> {
 
     public int bits() {
         int result = 0;
-        for (int i = 0; i < items.length; i++) {
-            result += items[i].bits();
+        for (WordList item : items)
+        {
+            result += item.bits();
         }
         return result;
     }
@@ -114,7 +139,7 @@ public final class Recipe implements Comparable<Recipe> {
     }
     
     public static void main(String[] args) {
-        Random rnd = new Random(System.currentTimeMillis());
+        Random rnd = new Random(currentTimeMillis());
         for (Recipe r : recipes()) {
             System.out.println(r.randomPhrase(rnd));
         }

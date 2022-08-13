@@ -1,7 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.wordy;
 
 import static com.telenav.cactus.wordy.Recipe.recipes;
 import static com.telenav.cactus.wordy.WordLists.nearestPowerOfTwoLessThan;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +28,15 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.telenav.cactus.wordy.Recipe.SENTENCE_LIKE;
+import static com.telenav.cactus.wordy.Recipe.best;
+import static com.telenav.cactus.wordy.Recipe.recipe;
+import static com.telenav.cactus.wordy.WordLists.find;
+import static com.telenav.cactus.wordy.WordLists.values;
+import static java.lang.Long.parseLong;
+import static java.lang.Long.parseLong;
+import static java.lang.System.exit;
 
 /**
  *
@@ -103,8 +130,8 @@ public class Wordy {
                     printHelpAndExit("Have input that does not match " + PAT.pattern()
                             + " in '" + s + "'");
                 }
-                long n = Long.parseLong(m.group(1));
-                long of = Long.parseLong(m.group(2));
+                long n = parseLong(m.group(1));
+                long of = parseLong(m.group(2));
                 if (of < n) {
                     printHelpAndExit("Illegal range " + n + " of " + of + " in '" + s + "'");
                 }
@@ -155,9 +182,9 @@ public class Wordy {
         System.err.println("Examples");
         System.err.println("--------\n");
         System.err.println("  java -jar wordy.jar --verbose --best 0/3 150/1150 233/250 54/58 --delimiter '_'");
-        System.err.println("  java -Dwordy-shuffle-seed=3 -jar wordy.jar 251/30000 13/150 130/256 23/58 730/1010 -r largeadjectives-largeadverbs-largeverbs-posessives-nouns");
+        System.err.println("  java -Dwordy-shuffle-seed=3 -jar wordy.jar 251/30000 13/150 130/256 23/58 730/1010 -s -r largeadjectives-largeadverbs-largeverbs-posessives-nouns");
         System.err.println();
-        System.exit(code);
+        exit(code);
     }
 
     static Recipe parseRecipe(String arg) {
@@ -166,7 +193,7 @@ public class Wordy {
             if (s.isEmpty()) {
                 continue;
             }
-            WordList wl = WordLists.find(s);
+            WordList wl = find(s);
             if (wl == null) {
                 printHelpAndExit(recipeParseListFailure(
                         "Unrecognized word list name '" + s + "'.  Recognized values:"));
@@ -177,11 +204,11 @@ public class Wordy {
             printHelpAndExit(recipeParseListFailure(
                     "No word list names found in '" + arg + "'"));
         }
-        return Recipe.recipe(all.toArray(WordList[]::new));
+        return recipe(all.toArray(WordList[]::new));
     }
 
     static String recipeParseListFailure(String msg) {
-        StringBuilder sb = new StringBuilder(1024);
+        StringBuilder sb = new StringBuilder(1_024);
         sb.append(msg);
         listNames(sb);
         return sb.toString();
@@ -203,7 +230,7 @@ public class Wordy {
     
     static StringBuilder listNamesDetail(StringBuilder sb) {
         Map<String, WordLists> listForName = new TreeMap<>();
-        for (WordLists wl : WordLists.values()) {
+        for (WordLists wl : values()) {
             if (wl.hidden()) {
                 continue;
             }
@@ -232,7 +259,7 @@ public class Wordy {
 
         CommandLineArguments(Recipe recipe, List<BoundValue> values, String delimiter,
                 boolean bestFit, boolean verbose, boolean debug, boolean shuffle) {
-            this.recipe = recipe == null ? Recipe.SENTENCE_LIKE : recipe;
+            this.recipe = recipe == null ? SENTENCE_LIKE : recipe;
             this.values = values;
             this.delimiter = delimiter == null ? "-" : delimiter;
             this.bestFit = bestFit;
@@ -256,11 +283,11 @@ public class Wordy {
         Recipe recipe() {
             Recipe result;
             if (bestFit) {
-                result = Recipe.best(bits());
+                result = best(bits());
             } else if (recipe != null) {
                 result = recipe;
             } else {
-                result = Recipe.SENTENCE_LIKE;
+                result = SENTENCE_LIKE;
             }
             if (verbose) {
                 System.err.println("Using recipe " + result + " of "
