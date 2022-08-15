@@ -436,22 +436,15 @@ public class ProjectTree
     }
 
     public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            Set<ProjectFamily> family)
+            String gid, Set<ProjectFamily> family)
     {
         return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(
-                family));
+                gid));
     }
 
     public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
     {
         return withCache(c -> c.checkoutsInProjectFamily(family));
-    }
-
-    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            ProjectFamily family)
-    {
-        return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(
-                family));
     }
 
     public Heads remoteHeads(GitCheckout checkout)
@@ -461,6 +454,10 @@ public class ProjectTree
     
     public Set<ProjectFamily> allProjectFamilies() {
         return withCache(ProjectTreeCache::allProjectFamilies);
+    }
+    
+    public void invalidateBranches(GitCheckout co) {
+        withCache(cache -> cache.invalidateBranches(co));
     }
 
     /**
@@ -490,6 +487,7 @@ public class ProjectTree
                 break;
             case FAMILY_OR_CHILD_FAMILY:
                 checkouts = checkoutsInProjectFamilyOrChildProjectFamily(
+                        callingProjectsGroupId,
                         family);
                 break;
             case SAME_GROUP_ID:

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tim Boudreau
  */
-public class BuildLog
+public class BuildLog implements Consumer<String>
 {
 
     private static final ThreadLocal<BuildLog> LOG = new ThreadLocal<>();
@@ -58,6 +58,12 @@ public class BuildLog
         this(null, LoggerFactory.getLogger(context));
     }
 
+    @Override
+    public void accept(String t)
+    {
+        info(t);
+    }
+    
     public void ifDebug(Runnable run)
     {
         if (logger.isDebugEnabled())

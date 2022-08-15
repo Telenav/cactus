@@ -73,6 +73,7 @@ final class StringProcessResultConverterImpl implements
             });
             if (exitCodeTest.test(proc.exitValue()))
             {
+                stderr.done();
                 return stdout.done();
             }
             throw new ProcessFailedException(description, process, stdout.done(),

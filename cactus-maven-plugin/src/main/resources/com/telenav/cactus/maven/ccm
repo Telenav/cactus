@@ -2,6 +2,15 @@
 
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
+if [ -n "$1" ]; then
+    if [ '--push' = "$1" ] || [ '-p' = "$1" ]; then
+        export PUSH=true
+        shift
+    else
+        export PUSH=false
+    fi
+fi
+
 # TODO: Horrible but works to get the argument quote correctly:
 
 MSG=-Dcactus.commit-message=
@@ -9,7 +18,9 @@ MSG=$MSG"'"
 MSG=$MSG$@
 MSG=$MSG"'"
 
-echo "Commit: $MSG"
+# Note, we don't use the run-maven function for this, because
+# combining $@ into a single argument is not compatible with
+# running maven via `eval`.
 
 mvn \
     -Dcactus.scope=all \

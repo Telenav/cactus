@@ -92,6 +92,17 @@ public abstract class CliCommand<T> implements Supplier<String>
     {
         return toString();
     }
+    
+    /**
+     * The result converter to actually use when running the process - this
+     * can be overridden to return a wrapper that can, say, detect an authentication
+     * failure, authenticate and then retry, or similar.
+     * 
+     * @return A converter
+     */
+    protected ProcessResultConverter<T> resultConverter() {
+        return resultCreator;
+    }
 
     public AwaitableCompletionStage<T> run()
     {
@@ -103,7 +114,7 @@ public abstract class CliCommand<T> implements Supplier<String>
                 return CompletableFuture.failedStage(
                         new IOException("Could not find executable for " + this));
             }
-            return resultCreator.onProcessStarted(this, p.get());
+            return resultConverter().onProcessStarted(this, p.get());
         });
     }
 

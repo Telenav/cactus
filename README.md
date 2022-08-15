@@ -29,11 +29,23 @@ This repository contains the `cactus-maven-plugin` and related libraries, for bu
 maintaining and releasing trees of projects that are managed using Git submodules and built with Maven.
 
 <a name = "quick-start"></a>
-### Quick Start &nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
+## Quick Start &nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/rocket-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/rocket-32-2x.png 2x"/>
 
-[**Cactus Quick Start**](#quick-start)  
+[**Quick Start**](#quick-start)  
 [**Cactus Scripts**](#cactus-scripts)  
 [**Release Script for Telenav Open Source**](https://github.com/Telenav/telenav-build/blob/release/current/documentation/releasing.md)
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
+
+## Build Status <a name = "quick-start"></a>&nbsp; <img src="https://telenav.github.io/telenav-assets/images/icons/gears-32.png" srcset="https://telenav.github.io/telenav-assets/images/icons/gears-32-2x.png 2x"/>
+
+| Repository                                                                  | Develop                                                                                                  | Release                                                                                                  |
+|-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| [cactus](https://github.com/Telenav/cactus/actions)                         | <img src="https://github.com/Telenav/cactus/actions/workflows/build-develop.yml/badge.svg"/>             | <img src="https://github.com/Telenav/cactus/actions/workflows/build-release.yml/badge.svg"/>             |
+
+<br/>
+
+<img src="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128.png" srcset="https://telenav.github.io/telenav-assets/images/separators/horizontal-line-128-2x.png 2x"/>
 
 ### Background
  
@@ -580,7 +592,7 @@ is a fairly new project, and subject to change.
 <a name = "telenav-releases"></a>
 ### Telenav Open Source Releases
 
-The telenav-build workspace contains a turn-key script called `release.sh` which orchestrates the 
+The telenav-build workspace contains a turn-key script called `release` which orchestrates the 
 phases described here to make it easy to release the Telenav Open Source project families. The script:
 
  - Checks tool versions
@@ -594,7 +606,7 @@ phases described here to make it easy to release the Telenav Open Source project
 
 ```
 cd telenav-build
-./release.sh
+./release
 ```
 
 For full details on the release script, see [telenav-build/releasing](https://github.com/Telenav/telenav-build/blob/release/current/documentation/releasing.md)
@@ -707,7 +719,7 @@ tree it is run in, and
 
 The `print-message` mojo allows us to just attach a formatted message that will be printed
 to the console at the end of a Maven run, on success, on failure or always, which allows the
-operator to know what to do next (when using the `telenav-build/release.sh` script, this can be ignored):
+operator to know what to do next (when using the `telenav-build/release` script, this can be ignored):
 
 ```xml
         <execution>
@@ -1663,7 +1675,7 @@ are also machine- - not human - _written_.
 
 ## Building Cactus
 
-> [How to build this project](https://github.com/Telenav/telenav-build/blob/release/1.5.22/documentation/building.md) <!-- [cactus.replacement-branch-name] --> 
+> [How to build this project](https://github.com/Telenav/telenav-build/blob/release/1.5.24/documentation/building.md) <!-- [cactus.replacement-branch-name] --> 
 
 ## Source Code
 

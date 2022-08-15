@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.5.22</version>
+        <version>1.5.24</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -36,7 +36,7 @@
     </properties>
 
     <dependencies>
-
+        
         <!-- Cactus -->
 
         <dependency>
@@ -64,6 +64,10 @@
 
         <dependency>
             <groupId>com.mastfrog</groupId>
+            <artifactId>function</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
         </dependency>
 
@@ -84,6 +88,9 @@
             <artifactId>maven-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- Testing -->
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -104,24 +111,26 @@
     <build>
         <plugins>
 
-            <plugin>
+            <!-- Keeping these in case we re-modularize -->
+            
+<!--            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgs>
-                        <arg>--add-reads</arg>
+                        <arg>- -add-reads</arg>
                         <arg>cactus.maven.plugin=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
                 <version>${maven-compiler-plugin.version}</version>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <additionalOptions>--add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
+                    <additionalOptions>- -add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
             <plugin>
 
@@ -131,8 +140,8 @@
                     <goalPrefix>cactus</goalPrefix>
                 </configuration>
                 <executions>
-                    <!-- We need this for release, so that we can use compile, but 
-                         but not install, to pre-generate the plugin descriptor so that 
+                    <!-- We need this for release, so that we can use compile, but
+                         but not install, to pre-generate the plugin descriptor so that
                          the rest of the build, which will use this plugin from
                          target/classes, does not fail because there is no plugin.xml
                          in META-INF.  Harmless to do it earlier, since we're not using
@@ -145,7 +154,7 @@
                             <goal>descriptor</goal>
                         </goals>
                     </execution>
-                    
+
                     <execution>
                         <id>mojo-descriptor</id>
                         <phase>process-classes</phase>
