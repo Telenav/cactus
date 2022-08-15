@@ -1,0 +1,46 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+if [ -z "$1" ]; then
+   MSG=""
+else
+  # TODO: Horrible but works to get the argument quote correctly:
+  MSG=-Dcactus.title=
+  MSG=$MSG"'"
+  MSG=$MSG$@
+  MSG=$MSG"'"
+fi
+
+# Note, we don't use the run-maven function for this, because
+# combining $@ into a single argument is not compatible with
+# running maven via `eval`.
+
+CACTUS_LOG_LEVEL="${CACTUS_LOG_LEVEL:-info}"
+TEMP="${TMPDIR:-/tmp}"
+LOG_FILE=$TEMP/cactus-$(date '+%s')-$(basename $0).log
+
+mvn \
+    --batch-mode \
+    --no-transfer-progress \
+    -Dorg.slf4j.simpleLogger.logFile=${LOG_FILE} \
+    -Dorg.slf4j.simpleLogger.defaultLogLevel=${CACTUS_LOG_LEVEL} \
+    -Dorg.slf4j.simpleLogger.cacheOutputStream=false \
+    -Dcactus.scope=all \
+    "${MSG}" \
+    -Dcactus.include-root=true \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:git-pull-request
+
+EXIT_CODE=$?
+LAST_LOG_LINK=$TEMP/cactus-last.log
+
+rm -f $LAST_LOG_LINK
+ln -s $LOG_FILE $LAST_LOG_LINK
+
+if [ $EXIT_CODE -ne 0 ]; then
+  echo "Maven execution failed with exit code ${EXIT_CODE}" 1>&2
+  echo "A complete log file is in ${LOG_FILE}"  1>&2
+  echo "The last cactus log is always linked as cactus-last.log in the system temp folder $TEMP" 1>&2
+fi
+
+exit $EXIT_CODE

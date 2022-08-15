@@ -5,7 +5,7 @@
 MY_VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 LATEST_VERSION=`find ~/.m2/repository/com/telenav/cactus/cactus-maven-plugin -type d | grep '\d\.' | xargs -n 1 basename | sort -V | tail -n 1 | xargs echo -n`
 
-if [ $MY_VERSION == $LATEST_VERSION ]; then
+if [ "$MY_VERSION" = "$LATEST_VERSION" ]; then
     if [ $1 -ne '--force' ]; then
         echo "Already at $LATEST_VERSION. No newer version found under ~/.m2/repository/com/telenav/cactus."
         exit 0
@@ -14,4 +14,6 @@ fi
 
 echo "Updating cactus scripts from $MY_VERSION to cactus $LATEST_VERSION"
 
-mvn com.telenav.cactus:cactus-maven-plugin:$LATEST_VERSION:install-scripts
+MAVEN_ARGS="com.telenav.cactus:cactus-maven-plugin:$LATEST_VERSION:install-scripts"
+
+run_maven

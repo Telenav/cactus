@@ -103,8 +103,6 @@ public final class Timestamp implements BoundValue
 //
 //            System.out.println("tsnow " + ts.n());
 //
-            System.out.println("tsbits " + ts.bits());
-//
             System.out.println("val " + ts.value());
 
             sleep(2_000);

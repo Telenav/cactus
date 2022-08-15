@@ -49,11 +49,12 @@ else
     export BRANCH_NAME=$1
 fi
 
-mvn \
-    -Dcactus.scope=$SCOPE \
+MAVEN_ARGS="-Dcactus.scope=$SCOPE \
     -Dcactus.create-branches=$CREATE_BRANCHES \
     -Dcactus.create-local-branches=true \
     -Dcactus.target-branch=$BRANCH_NAME \
     -Dcactus.update-root=true \
     -Dcactus.include-root=true \
-    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout"
+
+run_maven

@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.commit.CommitMessage;
@@ -94,6 +95,7 @@ public class PushMojo extends ScopedCheckoutsMojo
             GitCheckout myCheckout,
             ProjectTree tree, List<GitCheckout> checkouts) throws Exception
     {
+        GitCheckout root = tree.root();
         if (isIncludeRoot() && !checkouts.contains(tree.root()))
         {
             checkouts.add(tree.root());
@@ -108,11 +110,11 @@ public class PushMojo extends ScopedCheckoutsMojo
         }
         else
         {
-            pullIfNeededAndPush(log, project, needingPush);
+            pullIfNeededAndPush(log, project, needingPush, root);
         }
-        if (isIncludeRoot() && (tree.root().hasUncommitedChanges() || tree.root().hasUntrackedFiles() || tree.root().needsPush().canBePushed()))
+        if (isIncludeRoot() && (root.hasUncommitedChanges() || root
+                .hasUntrackedFiles() || root.needsPush().canBePushed()))
         {
-            tree.root().addAll();
             CommitMessage msg = new CommitMessage(PushMojo.class,
                     "Updating heads for push of " + (checkouts.size() - 1)
                     + " checkouts");
@@ -125,8 +127,15 @@ public class PushMojo extends ScopedCheckoutsMojo
                             .head().substring(0, 7));
                 });
             });
-            tree.root().commit(msg.toString());
-            tree.root().push();
+
+            log.info("Create commit and push in root " + root.checkoutRoot()
+                    .getFileName());
+            ifNotPretending(() ->
+            {
+                root.addAll();
+                root.commit(msg.toString());
+                root.push();
+            });
         }
     }
 
@@ -158,7 +167,8 @@ public class PushMojo extends ScopedCheckoutsMojo
         return needingPull;
     }
 
-    private void pull(Set<GitCheckout> needingPull, BuildLog log)
+    private void pull(Set<GitCheckout> needingPull, BuildLog log,
+            GitCheckout submoduleRoot)
     {
         if (!needingPull.isEmpty())
         {
@@ -168,18 +178,27 @@ public class PushMojo extends ScopedCheckoutsMojo
                 log.info("Pull " + checkout);
                 if (!isPretend())
                 {
-                    checkout.pull();
+                    if (checkout.equals(submoduleRoot) && submoduleRoot
+                            .isSubmoduleRoot())
+                    {
+                        checkout.pullWithRebase();
+                    }
+                    else
+                    {
+                        checkout.pull();
+                    }
                 }
             }
         }
     }
 
     private void pullIfNeededAndPush(BuildLog log, MavenProject project,
-            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush)
+            List<Map.Entry<GitCheckout, NeedPushResult>> needingPush,
+            GitCheckout submoduleRoot)
     {
         Set<GitCheckout> needingPull = checkNeedPull(needingPush, log.child(
                 "checkNeedPull"));
-        pull(needingPull, log.child("pull"));
+        pull(needingPull, log.child("pull"), submoduleRoot);
         push(needingPush, log.child("push"));
     }
 
@@ -195,16 +214,20 @@ public class PushMojo extends ScopedCheckoutsMojo
                 log.info("Push creating branch: " + checkout);
                 if (!isPretend())
                 {
-                    checkout.pushCreatingBranch();
                     if (pushAll)
                     {
                         checkout.pushAll();
+                    }
+                    else
+                    {
+                        checkout.pushCreatingBranch();
                     }
                 }
             }
             else
             {
                 log.info("Push: " + checkout);
+                System.out.println(checkout);
                 if (!isPretend())
                 {
                     if (pushAll)
