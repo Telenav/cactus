@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.mastfrog.util.streams.Streams;
 import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
@@ -45,6 +46,10 @@ import static java.nio.file.StandardOpenOption.WRITE;
 @BaseMojoGoal("install-scripts")
 public class InstallScriptsMojo extends BaseMojo
 {
+    private static final String FUNCTION_FRAGMENT_FILE_NAME
+            = "run-maven-function-fragment.txt";
+    private static String runMavenFunctionFragment;
+
     @Parameter(property = "cactus.script.destination")
     private String destination;
 
@@ -129,6 +134,19 @@ public class InstallScriptsMojo extends BaseMojo
                     + " (" + filename + ")";
         }
 
+        boolean usesLoggingWrapper()
+        {
+            switch (this)
+            {
+                case COMMIT_ALL_SUBMODULES:
+                case RELEASE_ONE_PROJECT:
+                case FAMILY_VERSIONS:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
         private String description()
         {
             switch (this)
@@ -137,7 +155,9 @@ public class InstallScriptsMojo extends BaseMojo
                 // in a pom file, where that's what it will see.
                 case COMMIT_ALL_SUBMODULES:
                     return "\\tCommit all changes in all git submodules in one\n"
-                            + "\\tshot, with one commit message.";
+                            + "\\tshot, with one commit message.\n\n\\tIf `-p` or `--push` is "
+                            + "the first argument, also push any committed checkouts\n"
+                            + "\\t(creating a new remote branch if there is no corresponding one).";
 
                 case PUSH_ALL_SUBMODULES:
                     return "\\tPush all changes in all submodules in one shot, after\n"
@@ -185,7 +205,7 @@ public class InstallScriptsMojo extends BaseMojo
                             + "\n\\tsource file in a project, or with --all, the entire tree.";
 
                 case FAMILY_VERSIONS:
-                    return "\\Prints the inferred version of each project family in the current\n\\t"
+                    return "\\tPrints the inferred version of each project family in the current\n\\t"
                             + "project tree.  These versions are what will be the basis used by \n\\t"
                             + "BumpVersionMojo when computing a new revision.";
                 default:
@@ -235,6 +255,7 @@ public class InstallScriptsMojo extends BaseMojo
         }
 
         private String insertHelpStanza(String script, String pluginVersion)
+                throws IOException
         {
             String desc = description();
             if (desc != null && !desc.isEmpty())
@@ -259,9 +280,17 @@ public class InstallScriptsMojo extends BaseMojo
                 sb.append("\nfi\n");
                 StringBuilder txt = new StringBuilder(script);
                 int ix = script.indexOf('\n');
+                sb.append(runMavenFunctionFragment());
                 txt.insert(ix + 1, sb);
                 return txt.toString();
             }
+            else
+                if (usesLoggingWrapper())
+                {
+                    StringBuilder sb = new StringBuilder(script);
+                    int ix = script.indexOf('\n');
+                    sb.insert(ix + 1, runMavenFunctionFragment());
+                }
             return script;
         }
 
@@ -304,5 +333,22 @@ public class InstallScriptsMojo extends BaseMojo
                 return script;
             }
         }
+    }
+
+    static String runMavenFunctionFragment() throws IOException
+    {
+        if (runMavenFunctionFragment != null)
+        {
+            return runMavenFunctionFragment;
+        }
+        String result = runMavenFunctionFragment = Streams.readResourceAsUTF8(
+                InstallScriptsMojo.class,
+                FUNCTION_FRAGMENT_FILE_NAME);
+        if (result == null)
+        {
+            throw new Error(FUNCTION_FRAGMENT_FILE_NAME + " is not adjacent to "
+                    + InstallScriptsMojo.class);
+        }
+        return result;
     }
 }
