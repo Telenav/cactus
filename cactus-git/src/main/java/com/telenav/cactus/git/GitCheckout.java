@@ -966,9 +966,9 @@ public final class GitCheckout implements Comparable<GitCheckout>
         if (title != null)
         {
             arguments.add("--title");
-            arguments.add(title);
+            arguments.add("\"" + title + "\"");
             arguments.add("--body");
-            arguments.add(body);
+            arguments.add("\"" + body + "\"");
         }
         else
         {
