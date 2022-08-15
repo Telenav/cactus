@@ -18,8 +18,6 @@ MSG=$MSG"'"
 MSG=$MSG$@
 MSG=$MSG"'"
 
-echo "Commit: $MSG"
-
 # Note, we don't use the run-maven function for this, because
 # combining $@ into a single argument is not compatible with
 # running maven via `eval`.

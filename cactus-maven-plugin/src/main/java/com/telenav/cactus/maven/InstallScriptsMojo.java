@@ -119,6 +119,7 @@ public class InstallScriptsMojo extends BaseMojo
         LAST_CHANGE_BY_PROJECT("cch"),
         FAMILY_VERSIONS("cver"),
         RELEASE_ONE_PROJECT("crel"),
+        CREATE_PULL_REQUEST("cpr"),
         UPDATE_SCRIPTS("cactus-script-update");
         private final String filename;
 
@@ -138,7 +139,15 @@ public class InstallScriptsMojo extends BaseMojo
         {
             switch (this)
             {
+                // A few scripts munge $@ into a single argument, and
+                // the logging function, using eval, would de-quote and split
+                // the message back into a list of arguments, causing failure
+                // since the second word of, say, a commit-message would be
+                // passed as its own argument to Maven
                 case COMMIT_ALL_SUBMODULES:
+                case CREATE_PULL_REQUEST:
+                // And a few where either we want immediate full logging, or
+                // it is irrelevant
                 case RELEASE_ONE_PROJECT:
                 case FAMILY_VERSIONS:
                     return false;
@@ -208,6 +217,13 @@ public class InstallScriptsMojo extends BaseMojo
                     return "\\tPrints the inferred version of each project family in the current\n\\t"
                             + "project tree.  These versions are what will be the basis used by \n\\t"
                             + "BumpVersionMojo when computing a new revision.";
+
+                case CREATE_PULL_REQUEST:
+                    return "\\tCreate a pull request.  Any arguments that are passed will be combined\n\\t"
+                            + "to create the title for the pull request.\\n\\n\\t"
+                            + "Typically this is run against a project which is on a feature branch; the\n\\t"
+                            + "tool will scan for other git submodules on a same-named branch, committing or pushing\n\\t"
+                            + "as needed, and create pull requests for each if none already exists.";
                 default:
                     throw new AssertionError(this);
             }
@@ -280,7 +296,9 @@ public class InstallScriptsMojo extends BaseMojo
                 sb.append("\nfi\n");
                 StringBuilder txt = new StringBuilder(script);
                 int ix = script.indexOf('\n');
-                sb.append(runMavenFunctionFragment());
+                if (usesLoggingWrapper()) {
+                    sb.append(runMavenFunctionFragment());
+                }
                 txt.insert(ix + 1, sb);
                 return txt.toString();
             }
@@ -290,6 +308,7 @@ public class InstallScriptsMojo extends BaseMojo
                     StringBuilder sb = new StringBuilder(script);
                     int ix = script.indexOf('\n');
                     sb.insert(ix + 1, runMavenFunctionFragment());
+                    return sb.toString();
                 }
             return script;
         }
