@@ -1,23 +1,46 @@
-package com.telenav.cactus.maven;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.test.project.generator;
 
 import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
 import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.maven.model.MavenVersioned;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.write;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.Arrays.fill;
+
 /**
+ * Generates usable pom files.
  *
- * @author timb
+ * @author Tim Boudreau
  */
 class PomGenerator
 {
@@ -35,7 +58,7 @@ class PomGenerator
     final Set<MavenArtifactCoordinates> imports = new HashSet<>();
     Path parentRelativePath;
 
-    public PomGenerator(String groupId, String artifactId, String packaging,
+    PomGenerator(String groupId, String artifactId, String packaging,
             String version)
     {
         this.groupId = groupId;
@@ -44,7 +67,7 @@ class PomGenerator
         this.version = version;
     }
 
-    public PomGenerator(ProjectsGenerator.FakeProject fp)
+    PomGenerator(ProjectsGenerator.FakeProject fp)
     {
         this.groupId = fp.info.groupId();
         this.artifactId = fp.info.artifactId();
@@ -69,7 +92,7 @@ class PomGenerator
         }
     }
 
-    public PomGenerator(ProjectsGenerator.Superpom fp)
+    PomGenerator(ProjectsGenerator.Superpom fp)
     {
         this.groupId = fp.info.groupId();
         this.artifactId = fp.info.artifactId();
@@ -127,13 +150,11 @@ class PomGenerator
 
     Path generate(Path into) throws IOException
     {
-        if (!Files.exists(into.getParent()))
+        if (!exists(into.getParent()))
         {
-            Files.createDirectories(into.getParent());
+            createDirectories(into.getParent());
         }
-        Files.write(into, toString().getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.CREATE);
+        write(into, toString().getBytes(UTF_8), WRITE, TRUNCATE_EXISTING, CREATE);
         return into;
     }
 
@@ -206,30 +227,29 @@ class PomGenerator
             inTag(1, "dependencies", sb,
                     () ->
             {
-                for (MavenIdentified d : dependencies)
-                {
+                dependencies.forEach(d -> {
                     inTag(2, "dependency", sb,
                             () ->
-                    {
-                        if (d.groupId().is(groupId))
-                        {
-                            tag(3, "groupId", sb, "${project.groupId}");
-                        }
-                        else
-                        {
-                            tag(3, "groupId", sb, d.groupId());
-                        }
-                        tag(3, "artifactId", sb, d.artifactId());
-                        if (d instanceof MavenVersioned)
-                        {
-                            if (!d.groupId().is(groupId))
                             {
-                                tag(3, "version", sb,
-                                        ((MavenVersioned) d).version());
-                            }
-                        }
-                    });
-                }
+                                if (d.groupId().is(groupId))
+                                {
+                                    tag(3, "groupId", sb, "${project.groupId}");
+                                }
+                                else
+                                {
+                                    tag(3, "groupId", sb, d.groupId());
+                                }
+                                tag(3, "artifactId", sb, d.artifactId());
+                                if (d instanceof MavenVersioned)
+                                {
+                                    if (!d.groupId().is(groupId))
+                                    {
+                                        tag(3, "version", sb,
+                                                ((MavenVersioned) d).version());
+                                    }
+                                }
+                            });
+                });
             });
         }
         if (!modules.isEmpty())
@@ -251,42 +271,40 @@ class PomGenerator
                     inTag(2, "dependencies", sb,
                             () ->
                     {
-                        for (MavenArtifactCoordinates d : dependencyMgmt)
-                        {
+                        dependencyMgmt.forEach(d -> {
                             inTag(3, "dependency", sb,
                                     () ->
-                            {
-                                if (d.groupId().is(groupId))
-                                {
-                                    tag(4, "groupId", sb, "${project.groupId}");
-                                }
-                                else
-                                {
-                                    tag(4, "groupId", sb, d.groupId());
-                                }
-                                tag(4, "artifactId", sb, d.artifactId());
-                                tag(4, "version", sb, d.version());
-                            });
-                        }
-                        for (MavenArtifactCoordinates d : imports)
-                        {
+                                    {
+                                        if (d.groupId().is(groupId))
+                                        {
+                                            tag(4, "groupId", sb, "${project.groupId}");
+                                        }
+                                        else
+                                        {
+                                            tag(4, "groupId", sb, d.groupId());
+                                        }
+                                        tag(4, "artifactId", sb, d.artifactId());
+                                        tag(4, "version", sb, d.version());
+                                    });
+                        });
+                        imports.forEach(d -> {
                             inTag(3, "dependency", sb,
                                     () ->
-                            {
-                                if (d.groupId().is(groupId))
-                                {
-                                    tag(4, "groupId", sb, "${project.groupId}");
-                                }
-                                else
-                                {
-                                    tag(4, "groupId", sb, d.groupId());
-                                }
-                                tag(4, "artifactId", sb, d.artifactId());
-                                tag(4, "version", sb, d.version());
-                                tag(4, "type", sb, "pom");
-                                tag(4, "scope", sb, "import");
-                            });
-                        }
+                                    {
+                                        if (d.groupId().is(groupId))
+                                        {
+                                            tag(4, "groupId", sb, "${project.groupId}");
+                                        }
+                                        else
+                                        {
+                                            tag(4, "groupId", sb, d.groupId());
+                                        }
+                                        tag(4, "artifactId", sb, d.artifactId());
+                                        tag(4, "version", sb, d.version());
+                                        tag(4, "type", sb, "pom");
+                                        tag(4, "scope", sb, "import");
+                                    });
+                        });
                     });
                 });
             }
@@ -298,7 +316,7 @@ class PomGenerator
             Object content)
     {
         char[] ind = new char[1 + (depth * 4)];
-        Arrays.fill(ind, ' ');
+        fill(ind, ' ');
         ind[0] = '\n';
         into.append(ind);
         into.append("<");
@@ -313,7 +331,7 @@ class PomGenerator
     private static void tag(int depth, String tag, StringBuilder into)
     {
         char[] ind = new char[1 + (depth * 4)];
-        Arrays.fill(ind, ' ');
+        fill(ind, ' ');
         ind[0] = '\n';
         into.append(ind);
         into.append("<");
@@ -325,7 +343,7 @@ class PomGenerator
             Runnable r)
     {
         char[] ind = new char[1 + (depth * 4)];
-        Arrays.fill(ind, ' ');
+        fill(ind, ' ');
         ind[0] = '\n';
         into.append(ind);
         into.append("<");

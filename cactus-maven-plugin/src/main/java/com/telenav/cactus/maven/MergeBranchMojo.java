@@ -20,6 +20,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -70,7 +71,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
     /**
      * If true, push on success.
      */
-    @Parameter(property = "cactus.push", defaultValue = "false")
+    @Parameter(property = PUSH, defaultValue = "false")
     boolean push;
 
     @Override

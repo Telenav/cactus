@@ -50,6 +50,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
@@ -366,10 +367,11 @@ public abstract class BaseMojo extends AbstractMojo
      * point of any method that returns something
      * @throws MojoExecutionException always, using the passed message
      */
-    public <T> T fail(String message)
+    public <T> T fail(Object message)
     {
-        return Exceptions.chuck(new MojoExecutionException(this, message,
-                message));
+        String s = Objects.toString(message);
+        return Exceptions.chuck(new MojoExecutionException(this, s,
+                s));
     }
 
     protected Runnable failingWith(String msg)
