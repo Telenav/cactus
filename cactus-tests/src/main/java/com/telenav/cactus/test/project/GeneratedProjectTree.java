@@ -208,6 +208,11 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
     @Override
     public final boolean runMaven(String... args)
     {
+        if (this.projects == null) {
+            throw new Error("The final projects field, which was checked for "
+                    + "null on instantiation, has somehow become null. "
+                    + "Something is very wrong.");
+        }
         MavenCommand cmd = new MavenCommand(projects.cloneRoot(), args);
         return cmd.run().awaitQuietly(TIMEOUT);
     }
