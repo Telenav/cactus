@@ -316,6 +316,11 @@ public final class StarWars extends GeneratedProjectTree<StarWars>
         });
 
         GeneratedProjects x = fake.build();
+        if (x == null) {
+            // Debugging continuous build failure
+            throw new IllegalStateException("Generated projects is null from " 
+                    + fake);
+        }
         // We need a clone here, or we will be writing into the workspace
         // we want to push into
         StarWars result = new StarWars(x, groupId, uid);

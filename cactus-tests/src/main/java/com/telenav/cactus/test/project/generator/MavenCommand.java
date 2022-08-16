@@ -34,6 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
@@ -58,7 +59,7 @@ public final class MavenCommand extends CliCommand<Boolean>
     {
         super(mvn(), converter(BuildLog.get().child(findLogName(args))));
         log = BuildLog.get().child(findLogName(args));
-        this.dir = dir;
+        this.dir = notNull("dir", dir);
         this.args = args;
     }
 

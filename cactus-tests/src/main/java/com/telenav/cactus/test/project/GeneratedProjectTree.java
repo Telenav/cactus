@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
+
 /**
  * A tree of generated projects organized in families of projects within
  * multiple git submodules. A GeneratedProjectTree is a specific checked out
@@ -52,9 +54,9 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
     public GeneratedProjectTree(GeneratedProjects projects, String groupIdBase,
             String uid)
     {
-        this.projects = projects;
-        this.groupIdBase = groupIdBase;
-        this.uid = uid;
+        this.projects = notNull("projects", projects);
+        this.groupIdBase = notNull("groupIdBase", groupIdBase);
+        this.uid = notNull("uid", uid);
     }
 
     @SuppressWarnings("unchecked")
