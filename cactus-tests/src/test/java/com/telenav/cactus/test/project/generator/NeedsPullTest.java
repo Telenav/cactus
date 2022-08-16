@@ -172,6 +172,7 @@ public class NeedsPullTest
     }
     
     static void sync() throws InterruptedException {
+        Thread.sleep(200);
         // diagnosing some github actions issues
         CliCommand.fixed("/bin/sync", Paths.get(".")).run().await();
     }
