@@ -63,11 +63,13 @@ public class NeedsPullTest
     {
         assertTrue(clone1.remoteHead().isPresent(),
                 "Clone 1 has no remote head");
+
         assertTrue(clone2.remoteHead().isPresent(),
                 "Clone 2 has no remote head");
 
         assertEquals(clone1.head(), clone1.remoteHead().get(),
                 "Initial state of clone is inconsistent");
+
         assertEquals(clone2.head(), clone2.remoteHead().get(),
                 "Initial state of clone is inconsistent");
 
@@ -78,6 +80,7 @@ public class NeedsPullTest
                 "Initial state of repo should not show untracked files");
 
         writeFile("stuff.txt", "This is some stuff.\nIt has lots of stuff.\n");
+        sync();
         assertTrue(clone1.hasUntrackedFiles(),
                 "After creating a file, it should be detected as untracked");
 
@@ -165,7 +168,11 @@ public class NeedsPullTest
 
         clone1 = checkout(root.resolve("clone-1")).get();
         clone2 = checkout(root.resolve("clone-2")).get();
-
+        sync();
+    }
+    
+    static void sync() throws InterruptedException {
+        // diagnosing some github actions issues
         CliCommand.fixed("/bin/sync", Paths.get(".")).run().await();
     }
 
