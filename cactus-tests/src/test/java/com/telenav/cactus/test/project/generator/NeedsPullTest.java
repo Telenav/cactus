@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,8 @@ import static com.telenav.cactus.git.NeedPushResult.YES;
 import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.initOriginRepo;
 import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.System.currentTimeMillis;
+import static java.lang.System.setProperty;
+import static java.lang.Thread.sleep;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.write;
@@ -169,10 +172,26 @@ public class NeedsPullTest
         clone1 = checkout(root.resolve("clone-1")).get();
         clone2 = checkout(root.resolve("clone-2")).get();
         sync();
+        for (int i = 0; i < 500; i++)
+        {
+            boolean head1 = clone1.remoteHead().isPresent();
+            boolean head2 = clone2.remoteHead().isPresent();
+            if (head1 && head2)
+            {
+                break;
+            }
+            else
+            {
+                System.out.println(
+                        "clone 1 has head? " + head1 + " Clone 2 has head? " + head2);
+            }
+            sleep(10);
+        }
     }
-    
-    static void sync() throws InterruptedException {
-        Thread.sleep(200);
+
+    static void sync() throws InterruptedException
+    {
+        sleep(200);
         // diagnosing some github actions issues
         CliCommand.fixed("/bin/sync", Paths.get(".")).run().await();
     }
@@ -184,5 +203,11 @@ public class NeedsPullTest
         {
             deltree(root);
         }
+    }
+
+    @BeforeAll
+    public static void configureLogging()
+    {
+        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "trace");
     }
 }
