@@ -35,8 +35,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.git.NeedPushResult.NO;
@@ -553,7 +551,7 @@ public class ProjectsGeneratorTest
         );
     }
 
-    private void _testBranchesArePickedUp() throws IOException
+    private void _testBranchesArePickedUp() throws Exception
     {
         StarWars clone = anotherClone();
         ProjectWrapper fur = starwars.fur();
@@ -597,14 +595,15 @@ public class ProjectsGeneratorTest
         String drinkHead = drink.getCheckout().head();
 
         fur.runCactusTarget("checkout", args(SCOPE, FAMILY_OR_CHILD_FAMILY,
-                CREATE_BRANCHES, false,
-                CREATE_LOCAL_BRANCHES, false,
+                CREATE_BRANCHES, true,
+                CREATE_LOCAL_BRANCHES, true,
                 BASE_BRANCH, "develop",
                 TARGET_BRANCH, "develop",
                 INCLUDE_ROOT, false,
                 "cactus.update-root", false,
                 PUSH, false
         ));
+        Thread.sleep(200);
         assertEquals("develop", fur.currentBranch());
         assertEquals("develop", drink.currentBranch());
 
