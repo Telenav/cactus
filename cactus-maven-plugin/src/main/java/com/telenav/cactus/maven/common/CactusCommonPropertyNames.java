@@ -13,6 +13,9 @@ public final class CactusCommonPropertyNames
     public static final String PLUGIN_NAME = PLUGIN_FAMILY_NAME + "-maven-plugin";
 
     private static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
+
+    public static final String DEFAULT_DEVELOPMENT_BRANCH = "develop";
+
     /**
      * Property for verbose mode, consumed by BaseMojo.
      */
@@ -59,6 +62,18 @@ public final class CactusCommonPropertyNames
      * Commit message for mojos that generate a new commit.
      */
     public static final String COMMIT_MESSAGE = PREFIX + "commit-message";
+
+    public static final String CREATE_BRANCHES = PREFIX + "create-branches";
+
+    public static final String CREATE_LOCAL_BRANCHES = PREFIX + "create-local-branches";
+
+    public static final String BASE_BRANCH = PREFIX + "base-branch";
+
+    public static final String TARGET_BRANCH = PREFIX + "target-branch";
+
+    public static final String PERMIT_LOCAL_CHANGES = PREFIX + "permit-local-changes";
+    
+    public static final String SKIP_CONFLICTS = PREFIX + "skip-conflicts";
 
     private CactusCommonPropertyNames()
     {

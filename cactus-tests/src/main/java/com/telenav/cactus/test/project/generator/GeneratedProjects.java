@@ -1,10 +1,28 @@
-package com.telenav.cactus.maven;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.test.project.generator;
 
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.model.ArtifactIdentifiers;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,12 +34,12 @@ import java.util.Set;
  */
 public class GeneratedProjects
 {
-    final RepositoriesGenerator.CloneSet clones;
+    public final RepositoriesGenerator.CloneSet clones;
     private final Set<ProjectsGenerator.Superpom> superpoms;
     private final Set<ProjectsGenerator.FakeProject> projects;
     private final Poms poms;
 
-    public GeneratedProjects(RepositoriesGenerator.CloneSet clones,
+    GeneratedProjects(RepositoriesGenerator.CloneSet clones,
             Set<ProjectsGenerator.Superpom> superpoms,
             Set<ProjectsGenerator.FakeProject> projects) throws IOException
     {
@@ -111,6 +129,7 @@ public class GeneratedProjects
     {
         for (ProjectsGenerator.FakeProject p : projects)
         {
+//            System.out.println("TEST '" + p.artifactId() + "' and " + aid + " " + p.artifactId().is(aid));
             if (p.artifactId().is(aid))
             {
                 return ThrowingOptional.of(p);
@@ -131,6 +150,21 @@ public class GeneratedProjects
             }
         }
         return ThrowingOptional.empty();
+    }
+
+    public ThrowingOptional<Boolean> runMavenCommand(String aid, String... args)
+    {
+        return pathOf(aid).map(path ->
+        {
+            return new MavenCommand(path, args).run().awaitQuietly(
+                    Duration.ofMinutes(2));
+        });
+    }
+
+    public ThrowingOptional<Path> pathOf(String aid)
+    {
+        return findProject(aid).map(project -> clones.workspaceClone.resolve(
+                project.relativePathInRoot()));
     }
 
 }

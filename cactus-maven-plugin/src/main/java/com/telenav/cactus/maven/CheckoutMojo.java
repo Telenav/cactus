@@ -42,7 +42,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.telenav.cactus.git.GitCheckout.isGitCommitId;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
@@ -509,7 +509,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     /**
      * If true, create branches if they do not exist.
      */
-    @Parameter(property = "cactus.create-branches",
+    @Parameter(property = CREATE_BRANCHES,
             defaultValue = "false")
     boolean createBranchesIfNeeded;
 
@@ -520,7 +520,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * there may be no tracking branch locally on a new clone, for the fallback
      * branch. Has no effect if createBranchesIfNeeded is true.
      */
-    @Parameter(property = "cactus.create-local-branches",
+    @Parameter(property = CREATE_LOCAL_BRANCHES,
             defaultValue = "false")
     boolean createLocalBranchesIfNeeded;
 
@@ -538,7 +538,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * <p>
      * If unset, the base branch is used as the target to get checkouts onto.
      */
-    @Parameter(property = "cactus.target-branch")
+    @Parameter(property = TARGET_BRANCH)
     String targetBranch;
 
     /**
@@ -546,9 +546,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * which, if createBranchesIfNeeded is false, should be used as the fallback
      * branch to put checkouts on if the target branch does not exist.
      */
-    @Parameter(property = "cactus.base-branch", defaultValue = "develop",
+    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH,
             required = true)
-    String baseBranch = "develop";
+    String baseBranch = DEFAULT_DEVELOPMENT_BRANCH;
 
     /**
      * For building a PR in a continuous build, there will be one git submodule
@@ -582,7 +582,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * if there are local changes <i>and</i> the branch exists remotely but not
      * locally.
      */
-    @Parameter(property = "cactus.permit-local-changes",
+    @Parameter(property = PERMIT_LOCAL_CHANGES,
             defaultValue = "false")
     boolean permitLocalChanges = false;
 

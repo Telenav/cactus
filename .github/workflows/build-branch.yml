@@ -58,7 +58,7 @@ jobs:
           maven-version: 3.8.6
 
       - name: Configure Git
-        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody"
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0
 
       - name: Set Up Target Branch
         run: echo 'TARGET_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_HEAD_REF" || echo "$GITHUB_REF_NAME") >> $GITHUB_ENV

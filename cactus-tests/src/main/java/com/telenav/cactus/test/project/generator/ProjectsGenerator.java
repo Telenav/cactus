@@ -1,9 +1,23 @@
-package com.telenav.cactus.maven;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.test.project.generator;
 
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.mastfrog.function.state.Obj;
-import com.telenav.cactus.maven.RepositoriesGenerator.CloneSet;
-import com.telenav.cactus.maven.RepositoriesGenerator.ProjectInfo;
 import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.ArtifactIdentifiers;
 import com.telenav.cactus.maven.model.GroupId;
@@ -12,6 +26,8 @@ import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.scope.ProjectFamily;
+import com.telenav.cactus.test.project.generator.RepositoriesGenerator.CloneSet;
+import com.telenav.cactus.test.project.generator.RepositoriesGenerator.ProjectInfo;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +39,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
-import static com.telenav.cactus.maven.RepositoriesGenerator.ProjectInfoKind.INTERMEDIATE;
-import static com.telenav.cactus.maven.RepositoriesGenerator.ProjectInfoKind.SUPERPOM;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
+import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.ProjectInfoKind.INTERMEDIATE;
+import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.ProjectInfoKind.SUPERPOM;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -36,25 +52,25 @@ import static java.nio.file.StandardOpenOption.WRITE;
  *
  * @author Tim Boudreau
  */
-public class ProjectsGenerator
+public final class ProjectsGenerator
 {
 
     private RepositoriesGenerator repos;
     private final Set<FakeProject> projects = new HashSet<>();
     private final Set<Superpom> superpoms = new HashSet<>();
 
-    ProjectsGenerator(String rootGroupId)
+    public ProjectsGenerator(String rootGroupId)
     {
         repos = new RepositoriesGenerator(rootGroupId);
     }
 
-    FakeProject addProject(FakeProject prj)
+    public FakeProject addProject(FakeProject prj)
     {
         projects.add(prj);
         return prj;
     }
 
-    Superpom addSuperpom(Superpom prj)
+    public Superpom addSuperpom(Superpom prj)
     {
         superpoms.add(prj);
         return prj;
@@ -235,13 +251,13 @@ public class ProjectsGenerator
             }
         }
 
-        Superpom forceGroupId(String gid)
+        public Superpom forceGroupId(String gid)
         {
             info.forceGroupId(repos.groupId() + "." + gid);
             return this;
         }
 
-        Superpom setAsIntermediatePomParent()
+        public Superpom setAsIntermediatePomParent()
         {
             intermediateParent = this;
             return this;
@@ -279,7 +295,7 @@ public class ProjectsGenerator
         }
     }
 
-    FakeProject projectFor(ProjectInfo info)
+    public FakeProject projectFor(ProjectInfo info)
     {
         for (FakeProject p : this.projects)
         {
@@ -291,7 +307,7 @@ public class ProjectsGenerator
         return null;
     }
 
-    Superpom superpomFor(ProjectInfo info)
+    public Superpom superpomFor(ProjectInfo info)
     {
         for (Superpom s : this.superpoms)
         {
@@ -327,8 +343,8 @@ public class ProjectsGenerator
             {
                 if (info.kind == INTERMEDIATE)
                 {
-                    System.out.println("INTER: " + info + " ikids " + info
-                            .moduleNames());
+//                    System.out.println("INTER: " + info + " ikids " + info
+//                            .moduleNames());
                     PomGenerator gen = new PomGenerator(info.groupId(), info
                             .artifactId(), "pom", "1.0.0");
                     if (intermediateParent != null && !info.isRoot())
@@ -351,197 +367,15 @@ public class ProjectsGenerator
                     {
                         gen.modules.add(i);
                     }
-                    System.out.println("GEN INTER " + projectDir.resolve(
-                            "pom.xml"));
+//                    System.out.println("GEN INTER " + projectDir.resolve(
+//                            "pom.xml"));
                     gen.generate(projectDir.resolve("pom.xml"));
                 }
             }
         });
 
-        System.out.println("GEN IN " + result.toString());
+//        System.out.println("GEN IN " + result.toString());
         return new GeneratedProjects(result, superpoms, projects);
-    }
-
-
-    public static void main(String[] args) throws IOException
-    {
-        ProjectsGenerator fake = new ProjectsGenerator("com.starwars");
-
-        fake.superpom("1.0.0", iparentBuilder ->
-        {
-            iparentBuilder.addProperty("stuff", "stuff");
-            iparentBuilder.withPackaging("pom");
-            iparentBuilder.withArtifactId("intermediate-boms")
-                    .setAsIntermediatePomParent();
-        });
-
-        fake.superpom("1.0.0", baseBuilder ->
-        {
-            baseBuilder.addProperty("maven.compiler.source", "11");
-            baseBuilder.addProperty("maven.compiler.target", "11");
-            baseBuilder.addProperty("maven.compiler.release", "11");
-            baseBuilder.addProperty("guice.version", "4.2.2");
-            baseBuilder.addDependencyManagement("com.google.inject", "guice",
-                    "${guice.version}");
-
-            Superpom base = baseBuilder.withArtifactId("root");
-
-            fake.superpom("2.0.0", supBuilder ->
-            {
-                supBuilder.setParent(base);
-                supBuilder.withPackaging("pom");
-                supBuilder.addProperty("wookies.prev.version", "1.5.0");
-                supBuilder.addProperty("wookies.version", "1.5.1");
-                Superpom sup = supBuilder.withArtifactId("wookies-superpom")
-                        .forceGroupId("wookies");
-                Obj<FakeProject> wookiesPrj = Obj.create();
-                fake.family("wookies", "1.5.1", fam ->
-                {
-                    fam.subfamily("sustenance", sub ->
-                    {
-                        sub.project(prj ->
-                        {
-                            prj.setParent(sup);
-                            prj.addProperty("skiddoo", "22");
-
-                            FakeProject farm = prj.withArtifactId("slug-farm");
-                            supBuilder.addDependencyManagement(farm);
-
-                            fam.subfamily("feeding", feeding ->
-                            {
-                                feeding.project(
-                                        (FamilyBuilder.SubfamilyBuilder.ProjectBuilder feed) ->
-                                {
-                                    feed.setParent(sup);
-                                    feed.addDependency("com.google.inject",
-                                            "guice");
-                                    feed.addDependency(farm);
-                                    FakeProject feedPrj = feed.withArtifactId(
-                                            "feeding-machine");
-                                    supBuilder.addDependencyManagement(feedPrj);
-                                });
-
-                                feeding.project(
-                                        (FamilyBuilder.SubfamilyBuilder.ProjectBuilder drink) ->
-                                {
-                                    drink.setParent(sup);
-                                    drink.addDependency("com.google.inject",
-                                            "guice");
-                                    FakeProject drinkPrj = drink.withArtifactId(
-                                            "drink-machine");
-                                    supBuilder.addDependencyManagement(drinkPrj);
-                                });
-                                fam.subfamily("", wookies ->
-                                {
-                                    wookies.project(furBuilder ->
-                                    {
-                                        furBuilder
-                                                .addProperty("furLengthInches",
-                                                        "1");
-                                        furBuilder.withSubpath(
-                                                "anatomy/external");
-                                        furBuilder.setParent(sup);
-                                        FakeProject fur = furBuilder
-                                                .withArtifactId("fur");
-                                        supBuilder.addDependencyManagement(fur);
-
-                                        wookies.project(limbsBuilder ->
-                                        {
-                                            limbsBuilder.setParent(sup);
-                                            limbsBuilder.withSubpath(
-                                                    "anatomy/external");
-                                            FakeProject limbs = limbsBuilder
-                                                    .withArtifactId("limbs");
-                                            supBuilder
-                                                    .addDependencyManagement(
-                                                            limbs);
-
-                                            wookies.project(wookieBuilder ->
-                                            {
-                                                wookieBuilder.addDependency(fur);
-                                                wookieBuilder.addDependency(
-                                                        limbs);
-                                                wookieBuilder.setParent(sup);
-                                                FakeProject wookieProject = wookieBuilder
-                                                        .withArtifactId(
-                                                                "wookie");
-
-                                                wookiesPrj.set(wookieProject);
-                                                supBuilder
-                                                        .addDependencyManagement(
-                                                                wookieProject);
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-                fake.superpom("3.1.5", spSup ->
-                {
-                    spSup.importing(sup);
-                    spSup.setParent(base);
-                    spSup.addProperty("spaceships.version", "3.1.5");
-                    Superpom spSuperpom = spSup.withArtifactId(
-                            "spaceships-superpom").forceGroupId("spaceships");
-                    fake.family("spaceship", "3.1.5", fam ->
-                    {
-                        fam.subfamily("", sub ->
-                        {
-                            sub.project(compBuilder ->
-                            {
-                                compBuilder.addProperty("exhaustPorts", "2");
-                                compBuilder.withSubpath("components");
-                                compBuilder.setParent(spSuperpom);
-                                FakeProject exhaustPortPrj = compBuilder
-                                        .withArtifactId("exhaust-port");
-                                spSup.addDependencyManagement(exhaustPortPrj);
-
-                                sub.project(thr ->
-                                {
-                                    thr.setParent(spSuperpom);
-                                    thr.withSubpath("components");
-                                    FakeProject thrustersProject = thr
-                                            .withArtifactId(
-                                                    "thrusters");
-                                    spSup.addDependencyManagement(
-                                            thrustersProject);
-
-                                    sub.project(prj ->
-                                    {
-                                        prj.setParent(spSuperpom);
-                                        prj.addDependency(wookiesPrj.get()
-                                                .toArtifactIdentifiers());
-                                        prj.addDependency(thrustersProject);
-                                        FakeProject mfProject = prj
-                                                .withArtifactId(
-                                                        "milleniumfalcon");
-                                        spSup.addDependencyManagement(mfProject);
-                                    });
-                                    sub.project(prj ->
-                                    {
-                                        prj.setParent(spSuperpom);
-                                        prj.addDependency(exhaustPortPrj
-                                                .toArtifactIdentifiers());
-                                        FakeProject deathStar = prj
-                                                .withArtifactId(
-                                                        "deathstar");
-                                        spSup.addDependencyManagement(deathStar);
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-
-        GeneratedProjects x = fake.build();
-        System.out.println("IN " + x.clones.workspaceClone);
-        
-        GeneratedProjects n = x.newClone();
-        System.out.println("NI " + n.cloneRoot());
     }
 
     public ProjectsGenerator family(String name, String version,
@@ -592,7 +426,7 @@ public class ProjectsGenerator
                 return this;
             }
 
-            class ProjectBuilder extends AbstractProjectBuilder<ProjectBuilder>
+            public class ProjectBuilder extends AbstractProjectBuilder<ProjectBuilder>
             {
                 String subpath;
 
@@ -603,12 +437,12 @@ public class ProjectsGenerator
                 }
 
                 @Override
-                String version()
+                public String version()
                 {
                     return version;
                 }
 
-                FakeProject withArtifactId(String aid)
+                public FakeProject withArtifactId(String aid)
                 {
                     Path relPath;
                     if (subpath != null)
@@ -632,16 +466,16 @@ public class ProjectsGenerator
         }
     }
 
-    class FakeProject implements MavenArtifactCoordinates
+    public class FakeProject implements MavenArtifactCoordinates
     {
-        final Map<String, String> properties;
-        final MavenArtifactCoordinates parent;
-        final Set<MavenIdentified> dependencies;
-        final Set<MavenArtifactCoordinates> dependencyMgmt;
-        final Set<String> modules;
-        final String packaging;
-        final ProjectInfo info;
-        final String version;
+        public final Map<String, String> properties;
+        public final MavenArtifactCoordinates parent;
+        public final Set<MavenIdentified> dependencies;
+        public final Set<MavenArtifactCoordinates> dependencyMgmt;
+        public final Set<String> modules;
+        public final String packaging;
+        public final ProjectInfo info;
+        public final String version;
 
         public FakeProject(
                 Map<String, String> properties,
@@ -661,6 +495,10 @@ public class ProjectsGenerator
             this.packaging = packaging;
             this.info = info;
             this.version = version;
+        }
+        
+        public Path relativePathInRoot() {
+            return info.relativePathInRoot();
         }
 
         FakeProject generate(Path subfamilyRoot) throws IOException

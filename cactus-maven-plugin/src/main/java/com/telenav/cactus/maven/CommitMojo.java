@@ -17,13 +17,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.git.Branches;
+import com.telenav.cactus.git.Conflicts;
+import com.telenav.cactus.git.Conflicts.Conflict;
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -31,11 +37,14 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_MESSAGE;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
 
 /**
  * Performs a git commit, with the passed <code>commit-message</code> which
@@ -82,8 +91,12 @@ public class CommitMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = PUSH, defaultValue = "false")
     private boolean push;
-    
-    public CommitMojo() {
+
+    @Parameter(property = SKIP_CONFLICTS, defaultValue = "false")
+    private boolean skipConflicts;
+
+    public CommitMojo()
+    {
         super(RunPolicies.INITIAL);
     }
 
@@ -113,25 +126,22 @@ public class CommitMojo extends ScopedCheckoutsMojo
             {
                 fail("Checkout is in detached-head state but has local changes. "
                         + "Switch to a branch before committing or you risk losing "
-                        + "track of them.");
+                        + "track of your commits.");
             }
         }
+        boolean rootIsReallySubmoduleRoot = root.isSubmoduleRoot();
+
+        Set<GitCheckout> needingPull = new HashSet<>();
+        examineCheckoutsForConflicts(checkouts, log, needingPull, true,
+                rootIsReallySubmoduleRoot
+                ? root
+                : null);
+
+        performPulls(needingPull, log);
 
         CommitMessage msg = new CommitMessage(CommitMojo.class, commitMessage);
         Set<GitCheckout> toCommit = new LinkedHashSet<>();
-        StringBuilder nameList = new StringBuilder();
-        for (GitCheckout co : checkouts)
-        {
-            if (co.hasUncommitedChanges())
-            {
-                toCommit.add(co);
-            }
-            if (nameList.length() > 0)
-            {
-                nameList.append(", ");
-            }
-            nameList.append(co.loggingName());
-        }
+        CharSequence nameList = nameList(checkouts, toCommit);
         if (toCommit.isEmpty())
         {
             log.warn("Nothing to commit among " + nameList);
@@ -153,21 +163,199 @@ public class CommitMojo extends ScopedCheckoutsMojo
                     at.addAll();
                 }
                 at.commit(msg.toString());
+                System.out.println("Committed " + at.loggingName());
             }
         }
         if (push)
         {
+            // We need to do this again now that we have added a commit
+            examineCheckoutsForConflicts(toCommit, log, needingPull, false,
+                    rootIsReallySubmoduleRoot
+                    ? root
+                    : null);
+            performPulls(needingPull, log);
+
             for (GitCheckout co : toCommit)
             {
+                NeedPushResult np = co.needsPush();
                 switch (co.needsPush())
                 {
                     case YES:
-                        co.push();
+                        log.info("Push: " + co.loggingName());
+                        ifNotPretending(co::push);
+                        System.out.println("Pushed " + co.loggingName());
                         break;
                     case REMOTE_BRANCH_DOES_NOT_EXIST:
-                        co.pushCreatingBranch();
+                        log.info("Push creating branch: " + co.loggingName());
+                        ifNotPretending(co::pushCreatingBranch);
+                        System.out.println(
+                                "Pushed " + co.loggingName() + " creating remote branch "
+                                + co.branch().get());
+                        break;
+                    default:
                         break;
                 }
+            }
+        }
+    }
+
+    private StringBuilder nameList(List<GitCheckout> checkouts)
+    {
+        StringBuilder nameList = new StringBuilder();
+        for (GitCheckout co : checkouts)
+        {
+            if (nameList.length() > 0)
+            {
+                nameList.append(", ");
+            }
+            nameList.append(co.loggingName());
+        }
+        return nameList;
+    }
+
+    private StringBuilder nameList(List<GitCheckout> checkouts,
+            Set<GitCheckout> toCommit)
+    {
+        StringBuilder nameList = new StringBuilder();
+        for (GitCheckout co : checkouts)
+        {
+            if (co.hasUncommitedChanges())
+            {
+                toCommit.add(co);
+            }
+            if (nameList.length() > 0)
+            {
+                nameList.append(", ");
+            }
+            nameList.append(co.loggingName());
+        }
+        return nameList;
+    }
+
+    public void performPulls(Set<GitCheckout> needingPull, BuildLog log1)
+    {
+        for (GitCheckout co : needingPull)
+        {
+            if (safeToPullWithRebase(co))
+            {
+                System.out.println("PULL WITH REBASE " + co.loggingName());
+                log1.info("Pull with rebase: " + co.loggingName());
+                ifNotPretending(co::pullWithRebase);
+            }
+            else
+            {
+                System.out.println("PULL NO REBASE " + co.loggingName());
+                log1.info("Pull " + co.loggingName());
+                ifNotPretending(co::pull);
+            }
+        }
+        needingPull.clear();
+    }
+
+    private boolean safeToPullWithRebase(GitCheckout co)
+    {
+        String head = co.head();
+        Branches containingCommit = co.branchesContainingCommit(head);
+        // If no remote branch contains this commit, then it exists only locally,
+        // so rebasing it (which will alter history and change its hash) is fine.
+        //
+        // If it *does* exist remotely, then pull --rebase *could* result in a
+        // new history that would have to be force-pushed and then would break the
+        // checkout of everyone else.
+        return containingCommit.remoteBranches().isEmpty();
+    }
+
+    private Map<GitCheckout, Conflicts> checkForConflicts(
+            Collection<? extends GitCheckout> checkouts, boolean useWorkingTree)
+    {
+        Map<GitCheckout, Conflicts> result = new TreeMap<>();
+        for (GitCheckout co : checkouts)
+        {
+            Conflicts cf = useWorkingTree
+                           ? co.canMergeWorkingTree()
+                           : co.checkForConflicts();
+            if (!cf.isEmpty())
+            {
+                System.out.println(
+                        "Have conflicts for " + co.loggingName() + " wt " + useWorkingTree);
+                System.out.println(cf);
+            }
+            result.put(co, cf);
+        }
+        return result;
+    }
+
+    public void examineCheckoutsForConflicts(
+            Collection<GitCheckout> checkouts,
+            BuildLog log1, Set<GitCheckout> needingPull,
+            boolean useWorkingTree, GitCheckout rootCheckoutOrNull)
+    {
+        Map<GitCheckout, Conflicts> conflicts = new TreeMap<>();
+        if (push)
+        {
+            Set<GitCheckout> notUpToDate = new LinkedHashSet<>();
+            for (GitCheckout checkout : checkouts)
+            {
+                log1.info("Fetch all in " + checkout);
+                ifNotPretending(checkout::fetchAll);
+                if (checkout.needsPull())
+                {
+                    log1.info(
+                            "Needs pull - will check for conflicts: "
+                            + checkout.loggingName());
+                    if (!checkout.equals(rootCheckoutOrNull))
+                    {
+                        notUpToDate.add(checkout);
+                    }
+                }
+            }
+            Map<GitCheckout, Conflicts> cfs = checkForConflicts(notUpToDate,
+                    useWorkingTree);
+            cfs.forEach((checkout, cflict) ->
+            {
+                System.out.println(cflict);
+                if (cflict.hasHardConflicts())
+                {
+                    conflicts.put(checkout, cflict.filterHard());
+                }
+                else
+                {
+                    needingPull.add(checkout);
+                    for (Conflict flict : cflict)
+                    {
+                        log1.info(
+                                "Will need to pull remote changes for "
+                                + checkout.loggingName()
+                                + " to resolve\n" + flict);
+                    }
+                }
+            });
+        }
+        if (!conflicts.isEmpty())
+        {
+            StringBuilder sb = new StringBuilder();
+            conflicts.forEach((checkout, flicts) ->
+            {
+                sb.append('\n').append(checkout.loggingName()).append('\n')
+                        .append(flicts);
+            });
+            if (skipConflicts)
+            {
+                sb.insert(0,
+                        "Skipping " + conflicts.size() + " checkouts due to remote conflicts.");
+                Set<GitCheckout> toRemove = conflicts.keySet();
+                checkouts.removeAll(toRemove);
+                needingPull.removeAll(toRemove);
+                PrintMessageMojo.publishMessage(sb, session(), false);
+            }
+            else
+            {
+                sb.insert(0,
+                        "Cannot proceed with push - remote has conflicting changes in " + conflicts
+                                .size() + " checkouts. \n"
+                        + "Re-run with -D.cactus.push=false (or unset) to generate a commit, and "
+                        + "then manually pull and resolve conflicts.");
+                fail(sb.toString());
             }
         }
     }
