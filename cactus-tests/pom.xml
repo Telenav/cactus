@@ -15,7 +15,7 @@
         <enforcer.skip>true</enforcer.skip>
 
         <!-- Temporary, while deciphering github actions problems: -->
-        <maven.test.skip.exec>true</maven.test.skip.exec>
+        <!--<maven.test.skip.exec>true</maven.test.skip.exec>-->
 
     </properties>
 

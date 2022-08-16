@@ -1,5 +1,6 @@
 package com.telenav.cactus.test.project;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.util.file.FileUtils;
 import com.mastfrog.util.strings.LevenshteinDistance;
@@ -26,6 +27,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static java.lang.System.currentTimeMillis;
 
 /**
  * A tree of generated projects organized in families of projects within
@@ -214,7 +216,19 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
                     + "Something is very wrong.");
         }
         MavenCommand cmd = new MavenCommand(projects.cloneRoot(), args);
-        return cmd.run().awaitQuietly(TIMEOUT);
+        AwaitableCompletionStage<Boolean> stage = cmd.run();
+        if (stage == null) {
+            // debug github actions:
+            throw new Error("Null returned by " + cmd);
+        }
+        long when = currentTimeMillis();
+        Boolean result = stage.awaitQuietly(TIMEOUT);
+        if (result == null) {
+            throw new IllegalStateException(stage + " for " + cmd
+                + " returned null - timeout? Elapsed " + (currentTimeMillis() - when)
+                + " for timeout of " + TIMEOUT.toMillis());
+        }
+        return result;
     }
 
     protected List<String> sortedMatches(String aid)

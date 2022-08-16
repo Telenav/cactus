@@ -24,6 +24,8 @@ import com.telenav.cactus.test.project.generator.GeneratedProjects;
 import com.telenav.cactus.test.project.generator.ProjectsGenerator;
 import java.io.IOException;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
+
 /**
  * Creates the StarWars project family tree used in a number of tests.
  *
@@ -136,9 +138,11 @@ public final class StarWars extends GeneratedProjectTree<StarWars>
         return starWars(uniquifier());
     }
 
+    @Override
     public StarWars newClone() throws IOException
     {
-        return new StarWars(projects.newClone(), groupIdBase, uid);
+        GeneratedProjects clone = notNull("clone", projects.newClone());
+        return new StarWars(clone, groupIdBase, uid);
     }
 
     public static StarWars starWars(String uid) throws IOException
