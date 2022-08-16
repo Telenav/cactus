@@ -13,10 +13,6 @@
     <properties>
         <do.not.publish>true</do.not.publish>
         <enforcer.skip>true</enforcer.skip>
-
-        <!-- Temporary, while deciphering github actions problems: -->
-        <!--<maven.test.skip.exec>true</maven.test.skip.exec>-->
-
     </properties>
 
     <dependencies>
@@ -64,11 +60,11 @@
                         <org.slf4j.simpleLogger.levelInBrackets>false</org.slf4j.simpleLogger.levelInBrackets>
                     </systemProperties>
                     
-<!--                    <parallel>all</parallel>
+                    <parallel>all</parallel>
                     <junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
                     <junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
                     <junit.jupiter.execution.parallel.mode.classes.default>concurrent</junit.jupiter.execution.parallel.mode.classes.default>
-                    <junit.jupiter.execution.parallel.config.strategy>dynamic</junit.jupiter.execution.parallel.config.strategy>-->
+                    <junit.jupiter.execution.parallel.config.strategy>dynamic</junit.jupiter.execution.parallel.config.strategy>
                     
                 </configuration>
             </plugin>

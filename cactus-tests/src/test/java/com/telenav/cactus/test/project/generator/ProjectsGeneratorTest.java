@@ -35,6 +35,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.git.NeedPushResult.NO;
@@ -57,7 +59,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Tim Boudreau
  */
-//@Execution(ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT)
 public class ProjectsGeneratorTest
 {
     private StarWars starwars;

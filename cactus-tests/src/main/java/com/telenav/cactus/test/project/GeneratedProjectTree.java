@@ -43,7 +43,7 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
         implements ProjectWrapper
 {
     static String cactusVersion;
-    public static final Duration TIMEOUT = Duration.ofMinutes(2);
+    public static final Duration TIMEOUT = Duration.ofMinutes(10);
     private final Map<ProjectsGenerator.FakeProject, WrappedProjectImpl> wrapperForProject = new HashMap<>();
     private final Map<Pom, WrappedPomProject> wrapperForPomProject = new HashMap<>();
     protected final GeneratedProjects projects;
