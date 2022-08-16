@@ -17,10 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.test.project.generator;
 
+import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.GitCommand;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,11 @@ public class NeedsPullTest
     @Test
     public void testIt() throws Exception
     {
+        assertTrue(clone1.remoteHead().isPresent(),
+                "Clone 1 has no remote head");
+        assertTrue(clone2.remoteHead().isPresent(),
+                "Clone 2 has no remote head");
+
         assertEquals(clone1.head(), clone1.remoteHead().get(),
                 "Initial state of clone is inconsistent");
         assertEquals(clone2.head(), clone2.remoteHead().get(),
@@ -142,7 +149,7 @@ public class NeedsPullTest
     }
 
     @BeforeEach
-    public void setupRepos() throws IOException
+    public void setupRepos() throws Exception
     {
         root = temp().resolve(getClass().getSimpleName() + "-"
                 + Long.toString(currentTimeMillis(), 36) + "-" + Integer
@@ -158,6 +165,8 @@ public class NeedsPullTest
 
         clone1 = checkout(root.resolve("clone-1")).get();
         clone2 = checkout(root.resolve("clone-2")).get();
+
+        CliCommand.fixed("/bin/sync", Paths.get(".")).run().await();
     }
 
     @AfterEach
