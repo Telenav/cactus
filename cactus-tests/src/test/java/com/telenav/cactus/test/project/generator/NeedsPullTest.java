@@ -178,6 +178,9 @@ public class NeedsPullTest
             boolean head2 = clone2.remoteHead().isPresent();
             if (head1 && head2)
             {
+                System.out.println(
+                        "clone 1 has head? " + head1 + " Clone 2 has head? " + head2);
+                System.out.println("Clones 1 and 2 have heads");
                 break;
             }
             else
