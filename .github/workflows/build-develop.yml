@@ -53,6 +53,9 @@ jobs:
         with:
           maven-version: 3.8.6
 
+      - name: Configure M2_HOME
+        run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
+
       - name: Configure Git
         run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0 && git config --global core.fsync all
 
