@@ -59,7 +59,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Tim Boudreau
  */
-//@Execution(ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.SAME_THREAD)
 public class ProjectsGeneratorTest
 {
     private StarWars starwars;
