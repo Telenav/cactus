@@ -50,6 +50,14 @@ public interface ProcessControl
         bldr.setProcessListener(result);
         return result;
     }
+    
+    default ProcessControl abortOnInput() {
+        return withStdinHandler(new AbortOnInputStdinHandler(), true);
+    }
+    
+    default ProcessControl abortOnInput(Runnable notificationCallback) {
+        return withStdinHandler(new AbortOnInputStdinHandler(notificationCallback), true);
+    }
 
     /**
      * Wait for process exit.

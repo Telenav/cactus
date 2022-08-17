@@ -43,7 +43,7 @@ public final class ProcessResult
 
     public boolean isSuccess()
     {
-        return state.isExited() && state.exitCode() == 0;
+        return !wasKilled() && state.isExited() && state.exitCode() == 0;
     }
 
     public boolean hasExited()

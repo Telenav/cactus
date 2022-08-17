@@ -1,5 +1,7 @@
 package com.telenav.cactus.cli;
 
+import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.telenav.cactus.cli.nuprocess.ProcessResult;
 import com.telenav.cactus.cli.nuprocess.ProcessState;
 import com.telenav.cactus.cli.nuprocess.internal.ProcessCallback;
 import com.zaxxer.nuprocess.NuProcess;
@@ -7,6 +9,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 import com.zaxxer.nuprocess.NuProcessHandler;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
@@ -39,6 +44,7 @@ public class CliCommandTest
 {
 
     private static Path file;
+    private static Path inputFile;
 
     @Test
     public void testNuprocessWorksAtAll() throws Exception
@@ -87,23 +93,71 @@ public class CliCommandTest
         {
             killState.set(st);
         });
-        
+
         assertTrue(cb.state().isRunning());
 
         boolean killed = cb.kill();
         assertTrue(killed, "Not killed: " + cb.state());
 
         cb.await(Duration.ofSeconds(15));
-        
+
         ProcessState finalState = cb.state();
         assertTrue(finalState.isExited());
         assertFalse(finalState.isRunning());
         assertNotEquals(0, finalState.exitCode());
-        
-        assertNotNull(killState.get(), "Listener not notified of exit.  State: " + cb.state());
-        
+
+        assertNotNull(killState.get(),
+                "Listener not notified of exit.  State: " + cb.state());
+
         assertEquals(finalState, killState.get());
-        
+    }
+
+    @Test
+    public void testInput() throws Exception
+    {
+        NuProcessBuilder bldr = new NuProcessBuilder(inputFile.toString());
+        ProcessControl cb = ProcessControl.create(bldr);
+        cb.withStdinHandler((proc, in) ->
+        {
+            if (in.remaining() == 0)
+            {
+                return true;
+            }
+            in.put("Well hello there.  This is some output.\n".getBytes(UTF_8));
+            in.flip();
+            return false;
+        }, true);
+        NuProcess proc = bldr.start();
+        assertNotNull(proc);
+        cb.await(Duration.ofMinutes(1));
+
+        ProcessResult res = cb.result();
+        assertTrue(res.hasExited());
+        assertFalse(res.wasKilled());
+        assertTrue(res.isSuccess());
+
+        assertTrue(res.stdout.contains("Your input was\n"
+                + "Well hello there. This is some output.\n"));
+    }
+
+    @Test
+    public void testInputAbort() throws Exception
+    {
+        AtomicBoolean aborted = new AtomicBoolean();
+        NuProcessBuilder bldr = new NuProcessBuilder(inputFile.toString());
+        ProcessControl cb = ProcessControl.create(bldr);
+        cb.abortOnInput(() ->
+        {
+            aborted.set(true);
+        });
+        NuProcess proc = bldr.start();
+        cb.await(Duration.ofMinutes(1));
+
+        proc.waitFor(1, TimeUnit.MINUTES);
+        ProcessResult res = cb.result();
+        assertTrue(aborted.get());
+        assertTrue(res.wasKilled(), "Process should have been killed");
+        assertFalse(res.isSuccess());
     }
 
     static class Cli<T> extends CliCommand<T>
@@ -198,6 +252,22 @@ public class CliCommandTest
                 PosixFilePermission.OWNER_EXECUTE
         );
         Files.setPosixFilePermissions(file, perms);
+
+        String inputScript = "#!/bin/sh\n"
+                + "\n"
+                + "echo Give me some input!\n"
+                + "read INPUT\n"
+                + "\n"
+                + "echo\n"
+                + "echo Your input was\n"
+                + "echo $INPUT";
+        rnd = Integer
+                .toString(abs(ThreadLocalRandom.current().nextInt()), 36)
+                + "-" + Long.toString(System.currentTimeMillis(), 36);
+        inputFile = tmp.resolve(rnd + ".sh");
+        Files.write(inputFile, inputScript.getBytes(UTF_8), CREATE, WRITE,
+                TRUNCATE_EXISTING);
+        Files.setPosixFilePermissions(inputFile, perms);
     }
 
     @AfterAll
