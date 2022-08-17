@@ -87,7 +87,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE/cactus && echo "Run $CHECKOUT_COMMAND" && eval $CHECKOUT_COMMAND
 
       - name: Configure Maven
-        run: echo "-XX:+UseG1GC -Xms2G -Dcactus.debug=true -XX:+UseStringDeduplication --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED" >> $GITHUB_WORKSPACE/cactus/.mvn/jvm.config
+        run: mkdir -p $GITHUB_WORKSPACE/cactus/.mvn && echo "-XX:+UseG1GC -Xms2G -Dcactus.debug=true -XX:+UseStringDeduplication --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED" >> $GITHUB_WORKSPACE/cactus/.mvn/jvm.config
 
       - name: Build Superpoms
         run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn --no-transfer-progress --batch-mode install
