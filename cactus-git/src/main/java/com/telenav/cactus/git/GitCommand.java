@@ -23,6 +23,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -71,6 +72,22 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
+    protected void configureProcessBulder(NuProcessBuilder bldr,
+            ProcessControl callback)
+    {
+        // As a sanity measure, if some command inadvertently tries
+        // to invoke an interactive pager, ensure it is something that
+        // exits immediately
+        bldr.environment().put("GIT_PAGER", "/bin/cat");
+        // Same reason - if something is going to pause asking for a password,
+        // ensure we simply abort immediately
+        bldr.environment().put("GIT_ASKPASS", "/usr/bin/false");
+        // We do not want /etc/gitconfig to alter the behavior of the
+        // plugin
+        bldr.environment().put("GIT_CONFIG_NOSYSTEM", "1");
+    }
+
+    @Override
     protected void validate()
     {
         if (workingDir == null)
@@ -84,6 +101,8 @@ public final class GitCommand<T> extends CliCommand<T>
     @Override
     protected void configureArguments(List<String> list)
     {
+        // Want this for everything
+        list.add("--no-pager");
         list.addAll(Arrays.asList(args));
     }
 

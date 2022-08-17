@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.telenav.cactus</groupId>
+        <artifactId>cactus</artifactId>
+        <version>1.5.24</version>
+    </parent>
+
+    <artifactId>cactus-tests</artifactId>
+    <name>cactus-tests</name>
+
+    <properties>
+        <do.not.publish>true</do.not.publish>
+        <enforcer.skip>true</enforcer.skip>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cactus-maven-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <unit.test>true</unit.test>
+                        <!-- to see all details of git output, swap commenting on the next two lines -->
+
+                        <org.slf4j.simpleLogger.defaultLogLevel>debug</org.slf4j.simpleLogger.defaultLogLevel>
+<!--                        <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel> -->
+                        <org.slf4j.simpleLogger.showDateTime>false</org.slf4j.simpleLogger.showDateTime>
+                        <org.slf4j.simpleLogger.showShortLogName>true</org.slf4j.simpleLogger.showShortLogName>
+                        <org.slf4j.simpleLogger.levelInBrackets>false</org.slf4j.simpleLogger.levelInBrackets>
+                    </systemProperties>
+                    
+                    <!-- Parallel tests seem to break badly on github actions -->
+                    <parallel>none</parallel>
+                    
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

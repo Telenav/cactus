@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
  *
  * @author Tim Boudreau
  */
-class DefaultStdinHandler implements StdinHandler
+final class DefaultStdinHandler implements StdinHandler
 {
     @Override
     public boolean onStdinReady(ProcessControl process, ByteBuffer bb)

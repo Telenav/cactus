@@ -18,17 +18,11 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import com.telenav.cactus.maven.log.BuildLog;
 
 import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
 

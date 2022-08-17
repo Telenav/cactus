@@ -1,0 +1,27 @@
+run_maven() {
+
+  CACTUS_LOG_LEVEL="${CACTUS_LOG_LEVEL:-info}"
+  TEMP="${TMPDIR:-/tmp}"
+  LOG_FILE=$TEMP/cactus-$(date '+%s')-$(basename $0).log
+
+  mvn \
+    --batch-mode \
+    --no-transfer-progress \
+    -Dorg.slf4j.simpleLogger.logFile=${LOG_FILE} \
+    -Dorg.slf4j.simpleLogger.defaultLogLevel=${CACTUS_LOG_LEVEL} \
+    -Dorg.slf4j.simpleLogger.cacheOutputStream=false ${MAVEN_ARGS}
+
+  EXIT_CODE=$?
+  LAST_LOG_LINK=$TEMP/cactus-last.log
+
+  rm -f $LAST_LOG_LINK
+  ln -s $LOG_FILE $LAST_LOG_LINK
+
+  if [ $EXIT_CODE -ne 0 ]; then
+    echo "Maven execution failed with exit code ${EXIT_CODE}" 1>&2
+    echo "A complete log file is in ${LOG_FILE}"  1>&2
+    echo "The last cactus log is always linked as cactus-last.log in the system temp folder $TEMP" 1>&2
+  fi
+
+  exit $EXIT_CODE
+}

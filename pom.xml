@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav</groupId>
         <artifactId>telenav-root-superpom</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <relativePath/>
     </parent>
 
@@ -63,6 +63,7 @@
         <module>cactus-maven-versioning</module>
         <module>cactus-codeflowers</module>
         <module>wordy</module>
+        <module>cactus-tests</module>
     </modules>
 
     <!-- Properties -->
@@ -98,7 +99,7 @@
         <maven.api.version>3.8.6</maven.api.version>
         <maven.javadoc.plugin.version>3.4.0</maven.javadoc.plugin.version>
 
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.0-alpha7</slf4j.version>
 
         <junit5.version>5.9.0</junit5.version>
 
@@ -271,6 +272,18 @@
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit5.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- SLF4J - used by maven, needed for some tests -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
 
         </dependencies>

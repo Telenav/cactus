@@ -23,7 +23,6 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 import static com.telenav.cactus.wordy.WordLists.*;
-import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.sort;
 
@@ -141,15 +140,6 @@ public final class Recipe implements Comparable<Recipe>
             sb.append(wl.word(rnd.nextInt(wl.size())));
         }
         return sb.toString();
-    }
-
-    public static void main(String[] args)
-    {
-        Random rnd = new Random(currentTimeMillis());
-        for (Recipe r : recipes())
-        {
-            System.out.println(r.randomPhrase(rnd));
-        }
     }
 
     public static Recipe recipe(WordList... items)

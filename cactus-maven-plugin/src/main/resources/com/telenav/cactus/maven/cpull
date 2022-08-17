@@ -2,8 +2,8 @@
 
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
-mvn \
-    --quiet \
-    -Dcactus.scope=ALL \
+MAVEN_ARGS="-Dcactus.scope=ALL \
     -Dcactus.include-root=false \
-    com.telenav.cactus:cactus-maven-plugin:${VERSION}:pull
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:pull"
+
+run_maven

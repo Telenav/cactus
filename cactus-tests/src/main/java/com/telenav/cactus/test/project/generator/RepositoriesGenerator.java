@@ -1,15 +1,28 @@
-package com.telenav.cactus.maven;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.test.project.generator;
 
 import com.mastfrog.function.throwing.io.IOBiConsumer;
 import com.mastfrog.function.throwing.io.IOConsumer;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.GitCommand;
-import com.telenav.cactus.scope.ProjectFamily;
-import com.telenav.cactus.util.PathUtils;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,19 +30,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
-import static com.telenav.cactus.maven.RepositoriesGenerator.ProjectInfoKind.INTERMEDIATE;
-import static com.telenav.cactus.maven.RepositoriesGenerator.ProjectInfoKind.REGULAR;
-import static com.telenav.cactus.maven.RepositoriesGenerator.ProjectInfoKind.SUPERPOM;
+import static com.telenav.cactus.git.GitCheckout.checkout;
+import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
+import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.ProjectInfoKind.INTERMEDIATE;
+import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.ProjectInfoKind.REGULAR;
+import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.ProjectInfoKind.SUPERPOM;
+import static com.telenav.cactus.util.PathUtils.deleteFolderTree;
+import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.Math.abs;
+import static java.lang.System.currentTimeMillis;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.write;
+import static java.nio.file.Paths.get;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static java.util.concurrent.ThreadLocalRandom.current;
 
 /**
  * Will generate a set of git repositories in as subdir of the system temp dir,
@@ -39,7 +61,7 @@ import static java.util.Collections.singleton;
  *
  * @author Tim Boudreau
  */
-public class RepositoriesGenerator
+public final class RepositoriesGenerator
 {
     private static final String DEFAULT_BRANCH = "develop";
     private final Path contentPath;
@@ -51,10 +73,9 @@ public class RepositoriesGenerator
     public RepositoriesGenerator(String rootGroupId)
     {
         this.rootGroupId = rootGroupId;
-        contentPath = PathUtils.temp().resolve(
-                getClass().getSimpleName() + "-"
-                + Long.toString(System.currentTimeMillis(), 36) + "-" + Integer
-                .toString(ThreadLocalRandom.current().nextInt(), 36));
+        contentPath = temp().resolve(getClass().getSimpleName() + "-"
+                + Long.toString(currentTimeMillis(), 36) + "-" + Integer
+                .toString(current().nextInt(), 36));
     }
 
     String groupId()
@@ -64,7 +85,7 @@ public class RepositoriesGenerator
 
     public void delete() throws IOException
     {
-        PathUtils.deleteFolderTree(contentPath);
+        deleteFolderTree(contentPath);
     }
 
     public RepositoriesGenerator addSubfamily(String family,
@@ -131,13 +152,13 @@ public class RepositoriesGenerator
                 repoDirs.put(info.familyCheckoutName(), dir);
 
                 ProjectInfo fam = new ProjectInfo(info.family, info.subfamily,
-                        Paths.get(info.family), "pom", INTERMEDIATE);
+                        get(info.family), "pom", INTERMEDIATE);
                 c.accept(dir, fam);
                 synthetic.add(fam);
             }
             Path projectDir = dir.resolve(info.relativePathInSubfamily());
-            Files.createDirectories(projectDir);
-            Files.write(projectDir.resolve("README.md"), info.toString()
+            createDirectories(projectDir);
+            write(projectDir.resolve("README.md"), info.toString()
                     .getBytes(UTF_8), CREATE, WRITE, TRUNCATE_EXISTING);
 
             c.accept(projectDir, info);
@@ -161,11 +182,10 @@ public class RepositoriesGenerator
         Path submodulesRepo = workspaceOrigin();
         initSubmodulesRepo(submodulesRepo, repoDirs.values());
 
-        ProjectInfo rootInfo = new ProjectInfo("", "", Paths.get(""), "pom",
-                ProjectInfoKind.INTERMEDIATE);
+        ProjectInfo rootInfo = new ProjectInfo("", "", get(""), "pom", INTERMEDIATE);
         synthetic.add(rootInfo);
         c.accept(submodulesRepo, rootInfo);
-        GitCheckout rootCheckout = GitCheckout.checkout(submodulesRepo).get();
+        GitCheckout rootCheckout = checkout(submodulesRepo).get();
         c.accept(submodulesRepo, rootInfo);
         rootCheckout.addAll();
         rootCheckout.commit("Initial content for root repo");
@@ -197,38 +217,16 @@ public class RepositoriesGenerator
         return result;
     }
 
-    public static void main(String[] args) throws IOException
-    {
-        RepositoriesGenerator repos = new RepositoriesGenerator(
-                "moc.vanelet.tikavik");
-//        FakeRepos repos2 = new FakeRepos("moc.vanelet.tikasem");
-//        FakeRepos repos3 = new FakeRepos("moc.vanelet.iakaxel");
-//        FakeRepos repos4 = new FakeRepos("moc.vanelet.sutcac");
-        repos.addProject("tikavik", "", Paths.get("tikavik-core"),
-                "jar");
-        repos.addProject("tikavik", "", Paths.get(
-                "tikavik-internal/tikavik-tests"),
-                "jar");
-
-        repos.addProject("tikavik", "ffuts", Paths.get("tikavik-foobers"),
-                "jar");
-        repos.addProject("tikavik", "ffuts", Paths.get(
-                "applications/tikavik-flumpf"),
-                "jar");
-
-        repos.build();
-    }
-
     private Path workspaceClonePath()
     {
         return contentPath.resolve("workspace-clone-" + ++this.workspaces);
     }
 
-    class CloneSet
+    public final class CloneSet
     {
 
-        final Path workspaceClone;
-        final Set<ProjectInfo> infos;
+        public final Path workspaceClone;
+        public final Set<ProjectInfo> infos;
         private final Path submodulesOriginRepo;
 
         public CloneSet(Path workspaceClone, Set<ProjectInfo> infos,
@@ -238,13 +236,17 @@ public class RepositoriesGenerator
             this.infos = infos;
             this.submodulesOriginRepo = submodulesOriginRepo;
         }
+        
+        public Path workspaceClone() {
+            return workspaceClone;
+        }
 
         @SuppressWarnings("empty-statement")
         public CloneSet newClone()
         {
             Path pdir = workspaceClone.getParent();
             Path target;
-            for (int sfx = 2; Files.exists(target = pdir.resolve(
+            for (int sfx = 2; exists(target = pdir.resolve(
                     "workspace-" + sfx)); sfx++);
             new GitCommand<>(strings(), pdir, "clone", submodulesOriginRepo
                     .getFileName().toString(),
@@ -277,18 +279,23 @@ public class RepositoriesGenerator
 
     }
 
-    private static Path initOriginRepo(String what, Path dir) throws IOException
+    public static Path initOriginRepo(String what, Path dir) throws IOException
     {
-        if (!Files.exists(dir))
+        if (!exists(dir))
         {
-            Files.createDirectories(dir);
+            createDirectories(dir);
         }
         new GitCommand<>(strings(), dir,
                 "init").run().awaitQuietly();
         new GitCommand<>(strings(), dir, "checkout", "-b", DEFAULT_BRANCH)
                 .run().awaitQuietly();
-        Files.write(dir.resolve("README.md"), what.getBytes(UTF_8), CREATE,
+        write(dir.resolve("README.md"), what.getBytes(UTF_8), CREATE,
                 TRUNCATE_EXISTING, WRITE);
+
+        write(dir.resolve(".gitignore"), "target/\n*.class\n*.orig\n"
+                .getBytes(UTF_8), CREATE,
+                TRUNCATE_EXISTING, WRITE);
+
         new GitCommand<>(strings(), dir, "add", "README.md")
                 .run().awaitQuietly();
         new GitCommand<>(strings(), dir, "commit", "-m", " Add README.\n")
@@ -300,24 +307,24 @@ public class RepositoriesGenerator
         return dir;
     }
 
-    private static Path initSubmodulesRepo(Path dir,
+    static Path initSubmodulesRepo(Path dir,
             Collection<? extends Path> submodules)
             throws IOException
     {
-        if (!Files.exists(dir))
+        if (!exists(dir))
         {
-            Files.createDirectories(dir);
+            createDirectories(dir);
         }
         new GitCommand<>(strings(), dir,
                 "init").run().awaitQuietly();
         new GitCommand<>(strings(), dir, "checkout", "-b", DEFAULT_BRANCH)
                 .run().awaitQuietly();
-        for (Path path : submodules)
+        submodules.forEach(path ->
         {
             new GitCommand<>(strings(), dir, "submodule", "add",
                     path.toString())
                     .run().awaitQuietly();
-        }
+        });
         new GitCommand<>(strings(), dir, "submodule", "init")
                 .run().awaitQuietly();
         new GitCommand<>(strings(), dir, "submodule", "update")
@@ -330,11 +337,11 @@ public class RepositoriesGenerator
         return dir;
     }
 
-    private static Path cloneSubmodulesRepo(Path origin, Path into) throws IOException
+    public static Path cloneSubmodulesRepo(Path origin, Path into) throws IOException
     {
-        if (!Files.exists(into.getParent()))
+        if (!exists(into.getParent()))
         {
-            Files.createDirectories(into.getParent());
+            createDirectories(into.getParent());
         }
         new GitCommand<>(strings(), into.getParent(), "clone", origin.toString(),
                 into.getFileName().toString())
@@ -348,19 +355,19 @@ public class RepositoriesGenerator
 
     String superpomsDirName()
     {
-        return ProjectFamily.fromGroupId(rootGroupId).name() + "-superpoms";
+        return fromGroupId(rootGroupId).name() + "-superpoms";
     }
 
     Path ensureDir(Path what) throws IOException
     {
-        if (!Files.exists(what))
+        if (!exists(what))
         {
-            Files.createDirectories(what);
+            createDirectories(what);
         }
         return what;
     }
 
-    enum ProjectInfoKind
+    public enum ProjectInfoKind
     {
         REGULAR,
         INTERMEDIATE,
@@ -486,10 +493,10 @@ public class RepositoriesGenerator
                 return emptySet();
             }
 
-            for (ProjectInfo pi : infos)
+            infos.forEach(pi ->
             {
                 result.add(pi.relativePath.getFileName().toString());
-            }
+            });
             if (isSubfamilyRoot())
             {
                 for (ProjectInfo pi : RepositoriesGenerator.this.infos)
@@ -534,7 +541,7 @@ public class RepositoriesGenerator
 
         boolean isIntermediate()
         {
-            return kind == ProjectInfoKind.INTERMEDIATE;
+            return kind == INTERMEDIATE;
         }
 
         String familyCheckoutName()
@@ -559,13 +566,13 @@ public class RepositoriesGenerator
         {
             if (isRoot())
             {
-                return Paths.get("");
+                return get("");
             }
             if (isSubfamilyRoot())
             {
-                return Paths.get(familyCheckoutName());
+                return get(familyCheckoutName());
             }
-            return Paths.get(familyCheckoutName()).resolve(
+            return get(familyCheckoutName()).resolve(
                     relativePathInSubfamily());
         }
 
@@ -573,7 +580,7 @@ public class RepositoriesGenerator
         {
             if (isRoot())
             {
-                return ProjectFamily.fromGroupId(rootGroupId).name() + "-bom";
+                return fromGroupId(rootGroupId).name() + "-bom";
             }
             if (isSubfamilyRoot())
             {
@@ -606,7 +613,7 @@ public class RepositoriesGenerator
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < s.length(); i++)
             {
-                int v = (int) s.charAt(i) - (int) '0';
+                int v = s.charAt(i) - (int) '0';
                 // Why 'd'? Because the results have a better chance of being amusing
                 sb.append((char) ('d' + v));
             }
@@ -637,19 +644,25 @@ public class RepositoriesGenerator
         @Override
         public boolean equals(Object obj)
         {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             final ProjectInfo other = (ProjectInfo) obj;
-            if (!Objects.equals(this.family, other.family))
+            if (!Objects.equals(this.family, other.family)) {
                 return false;
-            if (!Objects.equals(this.subfamily, other.subfamily))
+            }
+            if (!Objects.equals(this.subfamily, other.subfamily)) {
                 return false;
-            if (!Objects.equals(this.packaging, other.packaging))
+            }
+            if (!Objects.equals(this.packaging, other.packaging)) {
                 return false;
+            }
             return Objects.equals(this.relativePath, other.relativePath);
         }
 
