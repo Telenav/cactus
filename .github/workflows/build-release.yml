@@ -57,7 +57,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0 && git config --global core.fsync all
 
       - name: Configure Maven
-        run: cd $GITHUB_WORKSPACE && echo 'MAVEN_OPTS="-XX:+UseG1GC -Xms3G -Dcactus.debug=true"' >> $GITHUB_ENV
+        run: cd $GITHUB_WORKSPACE && echo 'MAVEN_OPTS=\"-XX:+UseG1GC -Xms3G -Dcactus.debug=true\"' >> $GITHUB_ENV
 
       - name: Configure Tmpdir
         run: cd $GITHUB_WORKSPACE && rm -Rf temp && mkdir temp && echo "TMPDIR=$GITHUB_WORKSPACE/temp" >> $GITHUB_ENV
