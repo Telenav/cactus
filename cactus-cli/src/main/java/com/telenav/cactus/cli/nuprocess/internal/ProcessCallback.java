@@ -39,12 +39,16 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.RUNNING;
 import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.STARTING;
 import static com.telenav.cactus.cli.nuprocess.ProcessState.processState;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * NuProcessHandler implementation which implements ProcessControl.
+ * NuProcessHandler implementation which implements ProcessControl; note that
+ * this package is hidden by module-info.java - it should not be directly
+ * touched by users of this library. Use ProcessControl.create() to create an
+ * initial ProcessCallback and then configure to taste.
  *
  * @author Tim Boudreau
+ * @param <O> The type standard output will be parsed to
+ * @param <E> The type standard error will be parsed to
  */
 public final class ProcessCallback<O, E> implements NuProcessHandler,
                                                     ProcessControl<O, E>
@@ -313,13 +317,13 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     @Override
     public void onStdout(ByteBuffer bb, boolean bln)
     {
-        stdout.onOutput(bb, bln);
+        stdout.onOutput(this, bb, bln);
     }
 
     @Override
     public void onStderr(ByteBuffer bb, boolean bln)
     {
-        stderr.onOutput(bb, bln);
+        stderr.onOutput(this, bb, bln);
     }
 
     @Override

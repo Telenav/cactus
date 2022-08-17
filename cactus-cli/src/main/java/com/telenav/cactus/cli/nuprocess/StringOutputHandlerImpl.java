@@ -19,47 +19,40 @@ package com.telenav.cactus.cli.nuprocess;
 
 import java.nio.ByteBuffer;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
- * In the case of running a cli application that <i>might</i> try to request
- * interactive input (effectively hanging the process) to kill the process
- * immediately, with an optional notification callback that will be run if that
- * happens.
+ * Default implementation of an output handler which concatenates a string.
  *
  * @author Tim Boudreau
  */
-final class AbortOnInputStdinHandler implements StdinHandler
+final class StringOutputHandlerImpl implements StringOutputHandler
 {
+    private final StringBuilder output = new StringBuilder();
 
-    private final Runnable callback;
-
-    AbortOnInputStdinHandler(Runnable callback)
+    @Override
+    public synchronized void onOutput(ProcessControl<?, ?> process,
+            ByteBuffer bb, boolean closed)
     {
-        this.callback = callback;
-    }
-
-    AbortOnInputStdinHandler()
-    {
-        this(() ->
+        int len = bb.remaining();
+        if (len > 0)
         {
-        });
+            byte[] bytes = new byte[len];
+            bb.get(bytes);
+            output.append(new String(bytes, UTF_8));
+        }
     }
 
     @Override
-    public boolean onStdinReady(ProcessControl process, ByteBuffer bb)
+    public synchronized String result()
     {
-        if (bb.remaining() == 0)
-        {
-            return true;
-        }
-        try
-        {
-            callback.run();
-        }
-        finally
-        {
-            process.kill();
-        }
-        return false;
+        return output.toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        return result();
     }
 
 }
