@@ -272,7 +272,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
     private final GitCommand<Optional<ZonedDateTime>> commitDate
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
                     .map(this::fromGitLogFormat),
-                    "--no-pager", "log", "-1", "--format=format:%cd",
+                     "log", "-1", "--format=format:%cd",
                     "--date=iso", "--no-color", "--encoding=utf8");
 
     private final GitCommand<List<SubmoduleStatus>> listSubmodules
@@ -627,7 +627,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         GitCommand<String> cmd = new GitCommand<>(strings().trimmed(),
                 checkoutRoot(),
-                "--no-pager",
                 "log",
                 "--no-color",
                 "-n", "1",
@@ -642,7 +641,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return new GitCommand<>(
                 strings().trimmed(),
                 checkoutRoot(),
-                "--no-pager",
                 "log",
                 "--no-color",
                 "-n", "1",
@@ -680,7 +678,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
          to ensure we don't collide with quotes or other more common sequences.
          */
         List<String> args = new ArrayList<>(Arrays.asList(
-                "--no-pager",
                 "log",
                 "--skip",
                 "0",
@@ -1311,8 +1308,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         Branches branches = branches();
         return branches.currentBranch().flatMap(branch
                 -> branches.find(branch.name(), false).map(remoteBranch
-                        -> new GitCommand<>(ProcessResultConverter.strings()
-                        .trimmed(),
+                        -> new GitCommand<>(strings().trimmed(),
                         root, "rev-parse", remoteBranch.trackingName())
                         .run().awaitQuietly()));
     }
