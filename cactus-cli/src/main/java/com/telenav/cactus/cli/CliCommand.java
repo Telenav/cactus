@@ -183,7 +183,7 @@ public abstract class CliCommand<T> implements Supplier<String>
      *
      * @param proc A process
      */
-    protected void onLaunch(ProcessControl proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
     }
 

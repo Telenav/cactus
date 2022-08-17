@@ -65,7 +65,7 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void onLaunch(ProcessControl proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);

@@ -1,5 +1,6 @@
 package com.telenav.cactus.cli;
 
+import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import com.telenav.cactus.cli.nuprocess.ProcessResult;
 import com.telenav.cactus.cli.nuprocess.ProcessState;
@@ -9,7 +10,6 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 import com.zaxxer.nuprocess.NuProcessHandler;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +28,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
+import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
+import static java.lang.System.currentTimeMillis;
+import static java.util.Optional.of;
 import static java.lang.Math.abs;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -47,13 +50,69 @@ public class CliCommandTest
     private static Path inputFile;
 
     @Test
+    public void testCliCommandsThatCannotBeLaunchedAreNotWaitedOnIndefinitely()
+            throws InterruptedException
+    {
+        Duration wait = Duration.ofMinutes(1);
+        CliCommand<String> cli = CliCommand.fixed("wugwugwugwugwug",
+                Paths.get("."), "hello");
+        AwaitableCompletionStage<String> stage = cli.run();
+        AtomicBoolean called = new AtomicBoolean();
+        AtomicReference<Throwable> thrownRef = new AtomicReference<>();
+        stage.whenComplete((str, thrown) ->
+        {
+            thrownRef.set(thrown);
+            called.set(true);
+        });
+        long then = currentTimeMillis();
+        String result = stage.await(wait);
+        long elapsed = currentTimeMillis() - then;
+
+        assertNull(result, "Result should be null");
+        assertTrue(elapsed < wait.toMillis(),
+                "Should not have waited to full timeout, but waited for "
+                + elapsed + "ms");
+        assertTrue(called.get(), "Callback was never invoked");
+        assertNotNull(thrownRef.get());
+        assertTrue(thrownRef.get() instanceof IOException);
+    }
+
+    @Test
+    public void testCliCommandsThatCannotBeLaunchedAreNotWaitedOnIndefinitelyWithBooleanResult()
+            throws InterruptedException
+    {
+        Duration wait = Duration.ofMinutes(1);
+        NonExistentBooleanCliCommand cli = new NonExistentBooleanCliCommand();
+        AwaitableCompletionStage<Boolean> stage = cli.run();
+        AtomicBoolean called = new AtomicBoolean();
+        AtomicReference<Throwable> thrownRef = new AtomicReference<>();
+        stage.whenComplete((str, thrown) ->
+        {
+            thrownRef.set(thrown);
+            called.set(true);
+        });
+        long then = currentTimeMillis();
+        Boolean result = stage.await(wait);
+        long elapsed = currentTimeMillis() - then;
+
+        assertNull(result, "Result should be null");
+        assertTrue(elapsed < wait.toMillis(),
+                "Should not have waited to full timeout, but waited for "
+                + elapsed + "ms");
+        assertTrue(called.get(), "Callback was never invoked");
+        assertTrue(cli.configureArgsCalled, "Arguments were never configured");
+        assertNotNull(thrownRef.get());
+        assertTrue(thrownRef.get() instanceof IOException);
+    }
+
+    @Test
     public void testNuprocessWorksAtAll() throws Exception
     {
         assertTrue(true);
         NuProcessBuilder bldr = new NuProcessBuilder(file.toString(),
                 "Test Exec");
-//        NuProcessBuilder bldr = new NuProcessBuilder("/bin/ls",
-//                "-la", ".");
+        //        NuProcessBuilder bldr = new NuProcessBuilder("/bin/ls",
+        //                "-la", ".");
         H h = new H();
         bldr.setProcessListener(h);
         bldr.start();
@@ -279,4 +338,26 @@ public class CliCommandTest
         }
     }
 
+    private static class NonExistentBooleanCliCommand extends CliCommand<Boolean>
+    {
+        volatile boolean configureArgsCalled;
+
+        NonExistentBooleanCliCommand()
+        {
+            super("glugwugwugwugwugwug", exitCodeIsZero());
+        }
+
+        @Override
+        protected void configureArguments(List<String> list)
+        {
+            configureArgsCalled = true;
+            list.add("Hello");
+        }
+
+        @Override
+        protected Optional<Path> workingDirectory()
+        {
+            return of(Paths.get("."));
+        }
+    }
 }

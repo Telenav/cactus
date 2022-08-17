@@ -96,7 +96,7 @@ public class GithubCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void onLaunch(ProcessControl proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);
@@ -335,7 +335,7 @@ public class GithubCommand<T> extends CliCommand<T>
         }
 
         @Override
-        protected void onLaunch(ProcessControl process)
+        protected void onLaunch(ProcessControl<String, String> process)
         {
             super.onLaunch(process);
             process.withStdinHandler((ctrl, buf) ->

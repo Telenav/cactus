@@ -822,7 +822,7 @@ public class ProjectsGeneratorTest
     {
         try
         {
-            if (debug)
+            if (true || debug)
             {
                 debug(run);
             }

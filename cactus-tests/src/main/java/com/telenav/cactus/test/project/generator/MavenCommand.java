@@ -23,6 +23,11 @@ import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.util.PathUtils;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -77,27 +82,40 @@ public final class MavenCommand extends CliCommand<Boolean>
     }
 
     @Override
-    protected void onLaunch(ProcessControl proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
         if (DEBUG.get())
         {
             System.out.println(this);
         }
+        log.debug(() -> "Run maven: " + this);
         super.onLaunch(proc);
     }
 
+    static String maven;
+
     private static String mvn()
     {
+        if (maven != null)
+        {
+            return maven;
+        }
         String pth = getenv("M2_HOME");
         if (pth != null)
         {
             Path bin = Paths.get(pth, "bin/mvn");
             if (exists(bin) && isExecutable(bin))
             {
-                return bin.toString();
+                maven = bin.toString();
             }
         }
-        return "mvn";
+        if (maven == null)
+        {
+            maven = PathUtils.findExecutable("mvn").map(mvn -> mvn.toString())
+                    .orElse("mvn");
+        }
+        System.out.println("Maven location is " + maven);
+        return maven;
     }
 
     @Override
