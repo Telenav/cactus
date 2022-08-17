@@ -36,7 +36,7 @@ public interface ProcessResultConverter<T>
 {
 
     AwaitableCompletionStage<T> onProcessStarted(Supplier<String> description,
-            ProcessControl process);
+            ProcessControl<String, String> process);
 
     public static StringProcessResultConverter strings()
     {

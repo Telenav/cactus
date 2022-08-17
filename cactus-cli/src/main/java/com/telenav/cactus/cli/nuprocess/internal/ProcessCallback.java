@@ -18,6 +18,7 @@
 package com.telenav.cactus.cli.nuprocess.internal;
 
 import com.mastfrog.concurrent.ConcurrentLinkedList;
+import com.telenav.cactus.cli.nuprocess.OutputHandler;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import com.telenav.cactus.cli.nuprocess.ProcessResult;
 import com.telenav.cactus.cli.nuprocess.ProcessState;
@@ -45,18 +46,86 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  *
  * @author Tim Boudreau
  */
-public final class ProcessCallback implements NuProcessHandler, ProcessControl
+public final class ProcessCallback<O, E> implements NuProcessHandler,
+                                                    ProcessControl<O, E>
 {
     // This AtomicInteger holds the running state, the exit code and
     // a few other state bits
-    private final AtomicInteger state = new AtomicInteger();
-    private final CountDownLatch latch = new CountDownLatch(1);
-    private final ConcurrentLinkedList<ProcessListener> listeners
-            = ConcurrentLinkedList.fifo();
-    private final StringBuilder stdout = new StringBuilder();
-    private final StringBuilder stderr = new StringBuilder();
+    private final AtomicInteger state;
+    private final CountDownLatch latch;
+    private final ConcurrentLinkedList<ProcessListener> listeners;
+    private final OutputHandler<O> stdout;
+    private final OutputHandler<E> stderr;
     private StdinHandler stdin = StdinHandler.DEFAULT;
     private NuProcess process;
+
+    ProcessCallback(OutputHandler<O> stdout, OutputHandler<E> stderr)
+    {
+        this.stdout = stdout;
+        this.stderr = stderr;
+        state = new AtomicInteger();
+        latch = new CountDownLatch(1);
+        listeners = ConcurrentLinkedList.fifo();
+    }
+
+    <OO, EE> ProcessCallback(ProcessCallback<OO, EE> orig,
+            OutputHandler<O> stdout, OutputHandler<E> stderr)
+    {
+        this.stdout = stdout;
+        this.stderr = stderr;
+        this.state = orig.state;
+        this.latch = orig.latch;
+        this.listeners = orig.listeners;
+        this.stdin = orig.stdin;
+        this.process = orig.process;
+    }
+
+    @Override
+    public <T> ProcessControl<O, T> withErrorHandler(OutputHandler<T> oe)
+    {
+        ProcessState.RunningStatus runState = state().state();
+        switch (runState)
+        {
+            case UNINITIALIZED:
+                break;
+            default:
+                throw new IllegalStateException(
+                        "Cannot replace error handler in state " + runState);
+        }
+        return new ProcessCallback<>(this, stdout, oe);
+    }
+
+    @Override
+    public <T> ProcessControl<T, E> withOutputHandler(OutputHandler<T> oh)
+    {
+        ProcessState.RunningStatus runState = state().state();
+        switch (runState)
+        {
+            case UNINITIALIZED:
+                break;
+            default:
+                throw new IllegalStateException(
+                        "Cannot replace error handler in state " + runState);
+        }
+        return new ProcessCallback<>(this, oh, stderr);
+    }
+
+    public static <O, E> ProcessCallback<O, E> create(OutputHandler<O> output,
+            OutputHandler<E> error)
+    {
+        return new ProcessCallback<>(output, error);
+    }
+
+    public static <O> ProcessCallback<O, Void> create(OutputHandler<O> output)
+    {
+        return new ProcessCallback<>(output, OutputHandler.NULL);
+    }
+
+    public static ProcessCallback<String, String> create()
+    {
+        return new ProcessCallback<>(OutputHandler.string(), OutputHandler
+                .string());
+    }
 
     private ProcessState updateAndGetState(
             UnaryOperator<ProcessState> transition)
@@ -84,12 +153,13 @@ public final class ProcessCallback implements NuProcessHandler, ProcessControl
     }
 
     @Override
-    public synchronized ProcessCallback withStdinHandler(StdinHandler handler,
+    public synchronized ProcessCallback<O, E> withStdinHandler(
+            StdinHandler handler,
             boolean wantIn)
     {
         if (isRunning())
         {
-            throw new IllegalStateException("Cannot set stdin handler"
+            throw new IllegalStateException("Cannot set stdin handler "
                     + "after process launch");
         }
         this.stdin = notNull("handler", handler);
@@ -145,11 +215,11 @@ public final class ProcessCallback implements NuProcessHandler, ProcessControl
         return stdin;
     }
 
-    public void onExit(CompletableFuture<ProcessResult> future)
+    public void onExit(CompletableFuture<ProcessResult<O, E>> future)
     {
-        listen((exitCode, stdin, stdout) ->
+        listen((exitCode) ->
         {
-            future.complete(new ProcessResult(state(), stdin, stdout));
+            future.complete(result());
         });
     }
 
@@ -190,7 +260,7 @@ public final class ProcessCallback implements NuProcessHandler, ProcessControl
             // twice
             listeners.drain(listener ->
             {
-                listener.processExited(state, stdout, stderr);
+                listener.processExited(state);
             });
         }
         finally
@@ -240,30 +310,16 @@ public final class ProcessCallback implements NuProcessHandler, ProcessControl
         }
     }
 
-    private String append(ByteBuffer bb, StringBuilder into)
-    {
-        byte[] bytes = new byte[bb.remaining()];
-        bb.get(bytes);
-        String s = new String(bytes, UTF_8);
-        synchronized (into)
-        {
-            // Paranoid, perhaps, but a read access from another thread
-            // can be a cache miss otherwise.
-            into.append(s);
-        }
-        return s;
-    }
-
     @Override
     public void onStdout(ByteBuffer bb, boolean bln)
     {
-        append(bb, stdout);
+        stdout.onOutput(bb, bln);
     }
 
     @Override
     public void onStderr(ByteBuffer bb, boolean bln)
     {
-        append(bb, stderr);
+        stderr.onOutput(bb, bln);
     }
 
     @Override
@@ -273,9 +329,9 @@ public final class ProcessCallback implements NuProcessHandler, ProcessControl
     }
 
     @Override
-    public ProcessResult result()
+    public ProcessResult<O, E> result()
     {
-        return new ProcessResult(state(), stdout, stderr);
+        return new ProcessResult<>(state(), stdout.result(), stderr.result());
     }
 
     @Override

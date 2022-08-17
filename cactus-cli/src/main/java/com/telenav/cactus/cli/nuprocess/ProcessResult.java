@@ -18,27 +18,24 @@
 package com.telenav.cactus.cli.nuprocess;
 
 /**
+ * Result of running a process; note results may be created while the process is
+ * still running - the ProcessState describes the state of the process at the
+ * time it was created.
  *
  * @author Tim Boudreau
  */
-public final class ProcessResult
+public final class ProcessResult<O, E>
 {
     public final ProcessState state;
-    public final String stdout;
-    public final String stderr;
+    public final O stdout;
+    public final E stderr;
 
-    public ProcessResult(ProcessState state, CharSequence stdout,
-            CharSequence stderr)
+    public ProcessResult(ProcessState state, O stdout,
+            E stderr)
     {
         this.state = state;
-        synchronized (stdout)
-        {
-            this.stdout = stdout.toString();
-        }
-        synchronized (stderr)
-        {
-            this.stderr = stderr.toString();
-        }
+        this.stdout = stdout;
+        this.stderr = stderr;
     }
 
     public boolean isSuccess()
@@ -63,14 +60,14 @@ public final class ProcessResult
     }
 
     /**
-     * Get a (modified) exit value.  Negative if still running,
-     * Integer.MAX_VALUE (above any possible 16 bit exit code) for killed,
-     * otherwise the actual exit code.
-     * 
+     * Get a (modified) exit value. Negative if still running, Integer.MAX_VALUE
+     * (above any possible 16 bit exit code) for killed, otherwise the actual
+     * exit code.
+     *
      * @return An exit code
      */
     public int exitValue()
-    { 
+    {
         return state.effectiveExitCode();
     }
 

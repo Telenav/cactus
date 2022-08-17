@@ -49,7 +49,7 @@ final class StringProcessResultConverterImpl implements
 
     @Override
     public AwaitableCompletionStage<String> onProcessStarted(
-            Supplier<String> description, ProcessControl process)
+            Supplier<String> description, ProcessControl<String, String> process)
     {
         // Note:  This really needs to be thenApplyAsync(), or you sometimes get
         // immediately called back before the process has *started*.

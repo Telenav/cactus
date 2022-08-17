@@ -20,14 +20,9 @@ package com.telenav.cactus.test.project.generator;
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.cli.CliCommand;
-import com.telenav.cactus.cli.ProcessFailedException;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import com.telenav.cactus.maven.log.BuildLog;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -37,12 +32,10 @@ import java.util.function.IntPredicate;
 import java.util.function.Supplier;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
-import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static java.lang.System.getenv;
 import static java.lang.ThreadLocal.withInitial;
-import static java.nio.charset.Charset.defaultCharset;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isExecutable;
 import static java.util.Arrays.asList;
@@ -196,7 +189,7 @@ public final class MavenCommand extends CliCommand<Boolean>
 
         @Override
         public AwaitableCompletionStage<Boolean> onProcessStarted(
-                Supplier<String> description, ProcessControl process)
+                Supplier<String> description, ProcessControl<String, String> process)
         {
             // Note:  This really needs to be thenApplyAsync(), or you sometimes get
             // immediately called back before the process has *started*.

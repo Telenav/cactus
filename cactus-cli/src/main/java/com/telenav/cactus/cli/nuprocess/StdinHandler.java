@@ -26,6 +26,9 @@ import java.nio.ByteBuffer;
  */
 public interface StdinHandler
 {
+    /**
+     * Returns a do-nothing StdinHandler.
+     */
     static final StdinHandler DEFAULT = new DefaultStdinHandler();
 
     /**
@@ -33,6 +36,9 @@ public interface StdinHandler
      * when the application requests input. Return true to notify the
      * application that there is more input if the buffer is not large enough to
      * accommodate all you want to write.
+     * <p>
+     * If the buffer is written to, it must be flipped before returning.
+     * </p>
      *
      * @param process A process
      * @param bb A byte buffer

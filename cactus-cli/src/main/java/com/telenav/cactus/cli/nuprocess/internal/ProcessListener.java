@@ -25,7 +25,6 @@ import com.telenav.cactus.cli.nuprocess.ProcessState;
  */
 public interface ProcessListener
 {
-    void processExited(ProcessState state, CharSequence stdout,
-            CharSequence stderr);
+    void processExited(ProcessState state);
 
 }

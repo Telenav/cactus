@@ -23,40 +23,103 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.cli.nuprocess.OutputHandler.NULL;
+
 /**
  * Control interface for interacting with a process.
  *
  * @author Tim Boudreau
  */
-public interface ProcessControl
+public interface ProcessControl<O, E>
 {
     /**
      * Complete the passed CompletableFuture on exit.
      *
      * @param future A future
      */
-    void onExit(CompletableFuture<ProcessResult> future);
+    void onExit(CompletableFuture<ProcessResult<O, E>> future);
 
-    default CompletionStage<ProcessResult> onExit()
+    default CompletionStage<ProcessResult<O, E>> onExit()
     {
-        CompletableFuture<ProcessResult> result = new CompletableFuture<>();
+        CompletableFuture<ProcessResult<O, E>> result = new CompletableFuture<>();
         onExit(result);
         return result;
     }
 
-    public static ProcessControl create(NuProcessBuilder bldr)
+    /**
+     * Create a new ProcessControl that uses strings for output, attaching it
+     * to the passed NuProcessBuilder.
+     * 
+     * @param bldr A builder
+     * @return A ProcessControl
+     */
+    public static ProcessControl<String, String> create(NuProcessBuilder bldr)
     {
-        ProcessCallback result = new ProcessCallback();
-        bldr.setProcessListener(result);
+        ProcessCallback<String, String> result = ProcessCallback.create();
+        notNull("bldr", bldr).setProcessListener(result);
         return result;
     }
-    
-    default ProcessControl abortOnInput() {
+
+    /**
+     * Replaces the StdinHandler with one which will kill the process if it
+     * requests input - this is useful which invoking command-line applications
+     * which could possibly attempt to request interactive input, when that is
+     * impossible.
+     *
+     * @return this
+     */
+    default ProcessControl<O, E> abortOnInput()
+    {
         return withStdinHandler(new AbortOnInputStdinHandler(), true);
     }
-    
-    default ProcessControl abortOnInput(Runnable notificationCallback) {
-        return withStdinHandler(new AbortOnInputStdinHandler(notificationCallback), true);
+
+    /**
+     * Replaces the StdinHandler with one which will notify the passed Runnable
+     * and kill the process if it requests input - this is useful which invoking
+     * command-line applications which could possibly attempt to request
+     * interactive input, when that is impossible.
+     *
+     * @param notificationCallback A callback
+     * @return this
+     */
+    default ProcessControl<O, E> abortOnInput(Runnable notificationCallback)
+    {
+        return withStdinHandler(new AbortOnInputStdinHandler(
+                notificationCallback), true);
+    }
+
+    /**
+     * Provide a different OutputHandler for standard output; this method must
+     * be called before this control has been attached to a process.
+     *
+     * @param <T> The new output result type
+     * @param oh A handler
+     * @return a new ProcessControl whose state is shared with this, which uses
+     * the new output handler
+     */
+    <T> ProcessControl<T, E> withOutputHandler(OutputHandler<T> oh);
+
+    /**
+     * Provide a different OutputHandler for standard error; this method must be
+     * called before this control has been attached to a process.
+     *
+     * @param <T> The new error result type
+     * @param oh A handler
+     * @return a new ProcessControl whose state is shared with this, which uses
+     * the new output handler
+     */
+    <T> ProcessControl<O, T> withErrorHandler(OutputHandler<T> oe);
+
+    /**
+     * Returns a new ProcessControl that replaces the error and output handlers
+     * with ones which ignore all output.
+     *
+     * @return A new ProcessControl
+     */
+    default ProcessControl<Void, Void> ignoringOutput()
+    {
+        return withOutputHandler(NULL).withErrorHandler(NULL);
     }
 
     /**
@@ -96,7 +159,7 @@ public interface ProcessControl
      *
      * @return A result
      */
-    ProcessResult result();
+    ProcessResult<O, E> result();
 
     /**
      * Set up a handler for requests from the process for input.
@@ -105,7 +168,13 @@ public interface ProcessControl
      * @param wantIn If true, notify the process
      * @return this
      */
-    ProcessControl withStdinHandler(StdinHandler handler, boolean wantIn);
+    ProcessControl<O, E> withStdinHandler(StdinHandler handler, boolean wantIn);
 
+    /**
+     * Get the exit value; follows the contract of
+     * {@link ProcessState#effectiveExitCode() }
+     *
+     * @return An integer value
+     */
     int exitValue();
 }

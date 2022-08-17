@@ -25,7 +25,6 @@ import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -167,7 +166,7 @@ public class GithubCommand<T> extends CliCommand<T>
 
         @Override
         public AwaitableCompletionStage<T> onProcessStarted(
-                Supplier<String> description, ProcessControl process)
+                Supplier<String> description, ProcessControl<String, String> process)
         {
             if (inRetry)
             {

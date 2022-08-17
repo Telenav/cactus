@@ -278,7 +278,9 @@ public final class ProcessState
     }
 
     /**
-     * A phase of a runnable process's lifecycle.
+     * A phase of a runnable process's lifecycle - note these are states a
+     * process <i>can be in</i> - whether or not the process was killed is not
+     * one of them, since it is a thing that results in a state of EXITED.
      */
     public enum RunningStatus
     {

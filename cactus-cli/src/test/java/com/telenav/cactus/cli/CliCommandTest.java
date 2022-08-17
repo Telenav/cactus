@@ -76,7 +76,7 @@ public class CliCommandTest
     {
         NuProcessBuilder npb = new NuProcessBuilder("/bin/sleep", "10");
 
-        ProcessCallback cb = new ProcessCallback();
+        ProcessCallback<String, String> cb = ProcessCallback.create();
         npb.setProcessListener(cb);
 
         for (int i = 0; i < 7 || !cb.state().isRunning(); i++)
@@ -89,7 +89,7 @@ public class CliCommandTest
         }
 
         AtomicReference<ProcessState> killState = new AtomicReference<>();
-        cb.listen((st, out, err) ->
+        cb.listen((st) ->
         {
             killState.set(st);
         });
@@ -116,7 +116,7 @@ public class CliCommandTest
     public void testInput() throws Exception
     {
         NuProcessBuilder bldr = new NuProcessBuilder(inputFile.toString());
-        ProcessControl cb = ProcessControl.create(bldr);
+        ProcessControl<String, String> cb = ProcessControl.create(bldr);
         cb.withStdinHandler((proc, in) ->
         {
             if (in.remaining() == 0)
@@ -131,7 +131,7 @@ public class CliCommandTest
         assertNotNull(proc);
         cb.await(Duration.ofMinutes(1));
 
-        ProcessResult res = cb.result();
+        ProcessResult<String, String> res = cb.result();
         assertTrue(res.hasExited());
         assertFalse(res.wasKilled());
         assertTrue(res.isSuccess());

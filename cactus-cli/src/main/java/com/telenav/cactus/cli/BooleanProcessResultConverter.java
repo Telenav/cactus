@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
@@ -50,7 +49,7 @@ final class BooleanProcessResultConverter implements
 
     @Override
     public AwaitableCompletionStage<Boolean> onProcessStarted(
-            Supplier<String> supp, ProcessControl process)
+            Supplier<String> supp, ProcessControl<String, String> process)
     {
         return completionStageForProcess(process).thenApply(proc ->
         {

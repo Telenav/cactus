@@ -44,8 +44,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public abstract class CliCommand<T> implements Supplier<String>
 {
-    public static AwaitableCompletionStage<ProcessResult> completionStageForProcess(
-            ProcessControl proc)
+    public static <O, E> AwaitableCompletionStage<ProcessResult<O, E>> completionStageForProcess(
+            ProcessControl<O, E> proc)
     {
         return AwaitableCompletionStage.of(proc.onExit());
     }
@@ -113,7 +113,7 @@ public abstract class CliCommand<T> implements Supplier<String>
     {
         return AwaitableCompletionStage.from(() ->
         {
-            ThrowingOptional<ProcessControl> p = launch();
+            ThrowingOptional<ProcessControl<String, String>> p = launch();
             if (!p.isPresent())
             {
                 return CompletableFuture.failedStage(
@@ -156,7 +156,7 @@ public abstract class CliCommand<T> implements Supplier<String>
         // for subclasses
     }
 
-    protected ThrowingOptional<ProcessControl> launch()
+    protected ThrowingOptional<ProcessControl<String, String>> launch()
     {
         validate();
         return ThrowingOptional.from(PathUtils.findExecutable(name)).map(path ->
@@ -165,16 +165,14 @@ public abstract class CliCommand<T> implements Supplier<String>
             commandLine.add(path.toString());
             configureArguments(commandLine);
 
-            
-
             NuProcessBuilder pb = new NuProcessBuilder(commandLine);
-            ProcessControl callback = ProcessControl.create(pb);
+            ProcessControl<String, String> callback = ProcessControl.create(pb);
             pb.environment().put("GIT_TERMINAL_PROMPT", "0");
 
             internalConfigureProcessBuilder(pb, callback);
             onLaunch(callback);
 
-            NuProcess proc = pb.start();
+            pb.start();
 
             return callback;
         });
