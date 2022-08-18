@@ -116,6 +116,21 @@ public final class MavenCommand extends CliCommand<Boolean>
             }
             monitoring.put(proc, cmd);
         }
+        
+        static String stackFrom(long pid) {
+            String javaHome = getenv("JAVA_HOME");
+            Optional<Path> opt;
+            if (javaHome != null) {
+                opt = PathUtils.findExecutable("jstack", Paths.get(javaHome));
+            } else {
+                opt = PathUtils.findExecutable("jstack");
+            }
+            if (!opt.isPresent()) {
+                return "-no-jstack-";
+            }
+            return CliCommand.fixed(opt.get().toString(), Paths.get("."), Long.toString(pid))
+                    .run().awaitQuietly();
+        }
 
         @Override
         public void run()
@@ -142,10 +157,15 @@ public final class MavenCommand extends CliCommand<Boolean>
                         {
                             sb.append('\n');
                         }
-                        System.out.println(
-                                ++ix + ". " + e.getKey() + " for " + Arrays
-                                .toString(e.getValue().args)
-                                + " in " + e.getValue().dir.getFileName());
+                        sb.append(++ix).append(". ").append(e.getKey())
+                                .append(" pid ").append(e.getKey().pid())
+                                .append(" for ")
+                                .append(Arrays
+                                        .toString(e.getValue().args))
+                                .append(" in ").append(e.getValue().dir.getFileName());
+                        if (loop % 10 == 0) {
+                            sb.append(stackFrom(e.getKey().pid()));
+                        }
                     }
                     sb.insert(0, "\nMaven Processes (loop " + loop + ")\n");
                     System.out.println(sb);
