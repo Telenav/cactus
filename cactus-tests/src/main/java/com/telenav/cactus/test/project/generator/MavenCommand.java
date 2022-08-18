@@ -29,12 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
@@ -56,6 +52,7 @@ import static java.util.Arrays.asList;
  */
 public final class MavenCommand extends CliCommand<Boolean>
 {
+    private static String maven;
     private final BuildLog log;
     private final String[] args;
     private final Path dir;
@@ -94,96 +91,7 @@ public final class MavenCommand extends CliCommand<Boolean>
             System.out.println(this);
         }
         log.debug(() -> "Run maven: " + this + " gets process " + proc);
-        super.onLaunch(proc);
-        MONITOR.watch(this, proc);
     }
-
-    private static final ProcessMonitor MONITOR = new ProcessMonitor();
-
-    static final class ProcessMonitor implements Runnable
-    {
-        // DeleteMe - figure out if maven processes are really still running
-        private final Thread t = new Thread(this, "maven-monitor");
-        private final Map<Process, MavenCommand> monitoring = new WeakHashMap<>();
-        private static final long INTERVAL = 15000L;
-
-        synchronized void watch(MavenCommand cmd, Process proc)
-        {
-            if (!t.isAlive())
-            {
-                t.setDaemon(true);
-                t.start();
-            }
-            monitoring.put(proc, cmd);
-        }
-        
-        static String stackFrom(long pid) {
-            String javaHome = getenv("JAVA_HOME");
-            Optional<Path> opt;
-            if (javaHome != null) {
-                opt = PathUtils.findExecutable("jstack", Paths.get(javaHome));
-            } else {
-                opt = PathUtils.findExecutable("jstack");
-            }
-            if (!opt.isPresent()) {
-                return "-no-jstack-";
-            }
-            String result = CliCommand.fixed(opt.get().toString(), Paths.get("."), Long.toString(pid))
-                    .run().awaitQuietly();
-            if (result != null && result.startsWith(pid + ": No such process")) {
-                return "-exited-";
-            }
-            return result;
-        }
-
-        @Override
-        public void run()
-        {
-            for (int loop = 0;; loop++)
-            {
-                try
-                {
-                    Thread.sleep(INTERVAL);
-                    Map<Process, MavenCommand> copy;
-                    synchronized (this)
-                    {
-                        copy = new HashMap<>(monitoring);
-                    }
-                    if (copy.isEmpty())
-                    {
-                        continue;
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    int ix = 0;
-                    for (Map.Entry<Process, MavenCommand> e : copy.entrySet())
-                    {
-                        if (sb.length() > 0)
-                        {
-                            sb.append('\n');
-                        }
-                        sb.append(++ix).append(". ").append(e.getKey())
-                                .append(" pid ").append(e.getKey().pid())
-                                .append(" for ")
-                                .append(Arrays
-                                        .toString(e.getValue().args))
-                                .append(" in ").append(e.getValue().dir.getFileName());
-                        if (loop % 10 == 0 && e.getKey().isAlive()) {
-                            sb.append(stackFrom(e.getKey().pid()));
-                        }
-                    }
-                    sb.insert(0, "\nMaven Processes (loop " + loop + ")\n");
-                    System.out.println(sb);
-                }
-                catch (Exception | Error ex)
-                {
-                    ex.printStackTrace(System.err);
-                }
-            }
-        }
-
-    }
-
-    static String maven;
 
     private static String mvn()
     {
@@ -306,8 +214,6 @@ public final class MavenCommand extends CliCommand<Boolean>
         {
             stderr = new OutputReader(process.getErrorStream()).start();
             stdout = new OutputReader(process.getInputStream()).start();
-            // Note:  This really needs to be thenApplyAsync(), or you sometimes get
-            // immediately called back before the process has *started*.
             return completionStageForProcess(process).thenApply(proc ->
             {
                 log.debug(() ->

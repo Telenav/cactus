@@ -50,7 +50,7 @@ jobs:
         run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
 
       - name: Configure Git
-        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0 && git config --global core.fsync all
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0
 
       - name: Configure Tmpdir
         run: cd $GITHUB_WORKSPACE && rm -Rf temp && mkdir temp && echo "TMPDIR=$GITHUB_WORKSPACE/temp" >> $GITHUB_ENV

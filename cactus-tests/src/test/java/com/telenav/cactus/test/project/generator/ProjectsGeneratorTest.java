@@ -822,7 +822,7 @@ public class ProjectsGeneratorTest
     {
         try
         {
-            if (true || debug)
+            if (debug)
             {
                 debug(run);
             }
@@ -881,7 +881,7 @@ public class ProjectsGeneratorTest
         // usually unwanted but handy for debugging
         if (SLF4J_DEBUG)
         {
-            setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+//            setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
         }
     }
 }
