@@ -17,12 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.test.project.generator;
 
-import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.GitCommand;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,8 +35,6 @@ import static com.telenav.cactus.git.NeedPushResult.YES;
 import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.initOriginRepo;
 import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.setProperty;
-import static java.lang.Thread.sleep;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.write;
