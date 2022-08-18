@@ -128,8 +128,12 @@ public final class MavenCommand extends CliCommand<Boolean>
             if (!opt.isPresent()) {
                 return "-no-jstack-";
             }
-            return CliCommand.fixed(opt.get().toString(), Paths.get("."), Long.toString(pid))
+            String result = CliCommand.fixed(opt.get().toString(), Paths.get("."), Long.toString(pid))
                     .run().awaitQuietly();
+            if (result != null && result.startsWith(pid + ": No such process")) {
+                return "-exited-";
+            }
+            return result;
         }
 
         @Override
@@ -163,7 +167,7 @@ public final class MavenCommand extends CliCommand<Boolean>
                                 .append(Arrays
                                         .toString(e.getValue().args))
                                 .append(" in ").append(e.getValue().dir.getFileName());
-                        if (loop % 10 == 0) {
+                        if (loop % 10 == 0 && e.getKey().isAlive()) {
                             sb.append(stackFrom(e.getKey().pid()));
                         }
                     }
@@ -212,6 +216,8 @@ public final class MavenCommand extends CliCommand<Boolean>
         {
             list.add("-Dorg.slf4j.simpleLogger.defaultLogLevel=debug");
         }
+        list.add("--no-transfer-progress");
+        list.add("--batch-mode");
         list.addAll(asList(args));
     }
 
