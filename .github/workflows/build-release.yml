@@ -35,6 +35,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Building
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
+
       - name: Set Up Java
         uses: actions/setup-java@v3
         with:
