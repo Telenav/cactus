@@ -136,18 +136,6 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         {
             fail("Base branch and target branch are the same: " + targetBranch);
         }
-        if (title != null && title.isBlank())
-        {
-            fail("title / cactus.title is empty");
-        }
-        if (body != null && body.isBlank())
-        {
-            fail("body / cactus.body is empty");
-        }
-        if ((title == null) != (body == null))
-        {
-            fail("Either title and body must both be set, or both unset.");
-        }
     }
 
     @Override

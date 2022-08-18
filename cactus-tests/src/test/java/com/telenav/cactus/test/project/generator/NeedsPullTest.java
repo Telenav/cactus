@@ -17,12 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.test.project.generator;
 
-import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.GitCommand;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,8 +35,6 @@ import static com.telenav.cactus.git.NeedPushResult.YES;
 import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.initOriginRepo;
 import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.setProperty;
-import static java.lang.Thread.sleep;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.write;
@@ -83,7 +79,7 @@ public class NeedsPullTest
                 "Initial state of repo should not show untracked files");
 
         writeFile("stuff.txt", "This is some stuff.\nIt has lots of stuff.\n");
-        sync();
+
         assertTrue(clone1.hasUntrackedFiles(),
                 "After creating a file, it should be detected as untracked");
 
@@ -171,32 +167,6 @@ public class NeedsPullTest
 
         clone1 = checkout(root.resolve("clone-1")).get();
         clone2 = checkout(root.resolve("clone-2")).get();
-        sync();
-        for (int i = 0; i < 500; i++)
-        {
-            boolean head1 = clone1.remoteHead().isPresent();
-            boolean head2 = clone2.remoteHead().isPresent();
-            if (head1 && head2)
-            {
-                System.out.println(
-                        "clone 1 has head? " + head1 + " Clone 2 has head? " + head2);
-                System.out.println("Clones 1 and 2 have heads");
-                break;
-            }
-            else
-            {
-                System.out.println(
-                        "clone 1 has head? " + head1 + " Clone 2 has head? " + head2);
-            }
-            sleep(10);
-        }
-    }
-
-    static void sync() throws InterruptedException
-    {
-        sleep(200);
-        // diagnosing some github actions issues
-        CliCommand.fixed("/bin/sync", Paths.get(".")).run().await();
     }
 
     @AfterEach
@@ -211,6 +181,6 @@ public class NeedsPullTest
     @BeforeAll
     public static void configureLogging()
     {
-        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "trace");
+//        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "trace");
     }
 }

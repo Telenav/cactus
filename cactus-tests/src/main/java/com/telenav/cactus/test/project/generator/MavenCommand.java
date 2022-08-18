@@ -51,6 +51,7 @@ import static java.util.Arrays.asList;
  */
 public final class MavenCommand extends CliCommand<Boolean>
 {
+    private static String maven;
     private final BuildLog log;
     private final String[] args;
     private final Path dir;
@@ -88,11 +89,8 @@ public final class MavenCommand extends CliCommand<Boolean>
         {
             System.out.println(this);
         }
-        log.debug(() -> "Run maven: " + this);
-        super.onLaunch(proc);
+        log.debug(() -> "Run maven: " + this + " gets process " + proc);
     }
-
-    static String maven;
 
     private static String mvn()
     {
@@ -125,6 +123,8 @@ public final class MavenCommand extends CliCommand<Boolean>
         {
             list.add("-Dorg.slf4j.simpleLogger.defaultLogLevel=debug");
         }
+        list.add("--no-transfer-progress");
+        list.add("--batch-mode");
         list.addAll(asList(args));
     }
 

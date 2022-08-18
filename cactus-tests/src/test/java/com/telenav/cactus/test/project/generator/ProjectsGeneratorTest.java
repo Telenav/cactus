@@ -48,7 +48,6 @@ import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
 import static com.telenav.cactus.scope.Scope.JUST_THIS;
 import static com.telenav.cactus.test.project.generator.MavenCommand.debug;
 import static com.telenav.cactus.test.project.starwars.StarWars.starWars;
-import static java.lang.System.setProperty;
 import static java.lang.ThreadLocal.withInitial;
 import static java.nio.file.Files.exists;
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Tim Boudreau
  */
-@Execution(ExecutionMode.SAME_THREAD)
+@Execution(ExecutionMode.CONCURRENT)
 public class ProjectsGeneratorTest
 {
     private StarWars starwars;
@@ -822,7 +821,7 @@ public class ProjectsGeneratorTest
     {
         try
         {
-            if (true || debug)
+            if (debug)
             {
                 debug(run);
             }
@@ -881,7 +880,7 @@ public class ProjectsGeneratorTest
         // usually unwanted but handy for debugging
         if (SLF4J_DEBUG)
         {
-            setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+//            setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
         }
     }
 }
