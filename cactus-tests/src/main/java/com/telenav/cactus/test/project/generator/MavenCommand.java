@@ -29,8 +29,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
@@ -89,8 +93,70 @@ public final class MavenCommand extends CliCommand<Boolean>
         {
             System.out.println(this);
         }
-        log.debug(() -> "Run maven: " + this);
+        log.debug(() -> "Run maven: " + this + " gets process " + proc);
         super.onLaunch(proc);
+        MONITOR.watch(this, proc);
+    }
+
+    private static final ProcessMonitor MONITOR = new ProcessMonitor();
+
+    static final class ProcessMonitor implements Runnable
+    {
+        // DeleteMe - figure out if maven processes are really still running
+        private final Thread t = new Thread(this, "maven-monitor");
+        private final Map<Process, MavenCommand> monitoring = new WeakHashMap<>();
+        private static final long INTERVAL = 15000L;
+
+        synchronized void watch(MavenCommand cmd, Process proc)
+        {
+            if (!t.isAlive())
+            {
+                t.setDaemon(true);
+                t.start();
+            }
+            monitoring.put(proc, cmd);
+        }
+
+        @Override
+        public void run()
+        {
+            for (int loop = 0;; loop++)
+            {
+                try
+                {
+                    Thread.sleep(INTERVAL);
+                    Map<Process, MavenCommand> copy;
+                    synchronized (this)
+                    {
+                        copy = new HashMap<>(monitoring);
+                    }
+                    if (copy.isEmpty())
+                    {
+                        continue;
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    int ix = 0;
+                    for (Map.Entry<Process, MavenCommand> e : copy.entrySet())
+                    {
+                        if (sb.length() > 0)
+                        {
+                            sb.append('\n');
+                        }
+                        System.out.println(
+                                ++ix + ". " + e.getKey() + " for " + Arrays
+                                .toString(e.getValue().args)
+                                + " in " + e.getValue().dir.getFileName());
+                    }
+                    sb.insert(0, "\nMaven Processes (loop " + loop + ")\n");
+                    System.out.println(sb);
+                }
+                catch (Exception | Error ex)
+                {
+                    ex.printStackTrace(System.err);
+                }
+            }
+        }
+
     }
 
     static String maven;
