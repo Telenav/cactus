@@ -68,7 +68,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git" -b $TARGET_BRANCH
 
       - name: Configure Auth
-        run: cd $GITHUB_WORKSPACE && git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        run: cd $GITHUB_WORKSPACE/cactus && git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
 
       - name: Fetch All
         run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
