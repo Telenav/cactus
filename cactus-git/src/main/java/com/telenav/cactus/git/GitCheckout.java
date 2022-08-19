@@ -57,10 +57,7 @@ import java.util.stream.Stream;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.mastfrog.util.preconditions.Exceptions.chuck;
-import static com.telenav.cactus.cli.ProcessResultConverter.exitCode;
-import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
-import static com.telenav.cactus.cli.ProcessResultConverter.strings;
-import static com.telenav.cactus.cli.ProcessResultConverter.trailingUriWithTrailingDigitAloneOnLine;
+import static com.telenav.cactus.cli.ProcessResultConverter.*;
 import static java.lang.Math.abs;
 import static java.util.Optional.empty;
 
@@ -272,7 +269,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
     private final GitCommand<Optional<ZonedDateTime>> commitDate
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
                     .map(this::fromGitLogFormat),
-                    "--no-pager", "log", "-1", "--format=format:%cd",
+                    "log", "-1", "--format=format:%cd",
                     "--date=iso", "--no-color", "--encoding=utf8");
 
     private final GitCommand<List<SubmoduleStatus>> listSubmodules
@@ -627,7 +624,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         GitCommand<String> cmd = new GitCommand<>(strings().trimmed(),
                 checkoutRoot(),
-                "--no-pager",
                 "log",
                 "--no-color",
                 "-n", "1",
@@ -642,7 +638,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return new GitCommand<>(
                 strings().trimmed(),
                 checkoutRoot(),
-                "--no-pager",
                 "log",
                 "--no-color",
                 "-n", "1",
@@ -680,7 +675,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
          to ensure we don't collide with quotes or other more common sequences.
          */
         List<String> args = new ArrayList<>(Arrays.asList(
-                "--no-pager",
                 "log",
                 "--skip",
                 "0",
@@ -1306,15 +1300,101 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 .awaitQuietly().get(name));
     }
 
+    public Optional<String> trackingBranch()
+    {
+        return branch().flatMap(this::trackingBranchOf);
+    }
+
+    public Optional<String> trackingBranchOf(String branch)
+    {
+        ProcessResultConverter<Optional<String>> cvt = strings().trimmed().map(
+                str ->
+        {
+            String[] parts = str.split("\\s");
+            if (parts.length != 2)
+            {
+                return Optional.empty();
+            }
+            String h = headOf(parts[1]);
+            return h == null || h.isBlank()
+                   ? empty()
+                   : Optional.of(h);
+        });
+        return new GitCommand<>(cvt, checkoutRoot(),
+                "branch", "--format", "%(refname:short) %(upstream:short)",
+                "--list", branch).run().awaitQuietly();
+    }
+
     public Optional<String> remoteHead()
     {
         Branches branches = branches();
+        log.debug(
+                () -> "RemoteHead of " + loggingName() + " - branches:\n" + branches);
+        return branches.currentBranch().flatMap(branch
+                ->
+        {
+            log.debug(() -> "  have branch " + branch);
+            Optional<Branch> remBranch = branches.find(branch.name(), false);
+            if (remBranch.isPresent())
+            {
+                log.debug(() -> "  have remote branch " + remBranch.get()
+                        + " with tracking name " + remBranch.get()
+                                .trackingName());
+
+                String result = new GitCommand<>(strings().trimmed(),
+                        root, "rev-parse", remBranch.get().trackingName())
+                        .run().awaitQuietly();
+                log.debug(() -> "  rev-parse result '" + result + "'");
+                return result == null || result.isBlank()
+                       ? Optional.empty()
+                       : Optional.of(result);
+            }
+            else
+            {
+                log.debug(() -> "  no remote branch for " + branch);
+                return empty();
+            }
+        });
+
+        /*
+        
+        
+        Optional<String> br = branch();
+        if (!br.isPresent())
+        {
+            return empty();
+        }
+        ProcessResultConverter<Optional<String>> cvt = strings().trimmed().map(
+                str ->
+        {
+            String[] parts = str.split("\\s");
+            if (parts.length != 2)
+            {
+                return Optional.empty();
+            }
+            String h = headOf(parts[1]);
+            return h == null || h.isBlank()
+                   ? empty()
+                   : Optional.of(h);
+        });
+        return new GitCommand<>(cvt, checkoutRoot(),
+                "branch", "--format", "%(refname:short) %(upstream:short)",
+                "--list", br.get()).run().awaitQuietly();
+         */
+ /*
+        Branches branches = branches();
         return branches.currentBranch().flatMap(branch
                 -> branches.find(branch.name(), false).map(remoteBranch
-                        -> new GitCommand<>(ProcessResultConverter.strings()
-                        .trimmed(),
+                        -> new GitCommand<>(strings().trimmed(),
                         root, "rev-parse", remoteBranch.trackingName())
                         .run().awaitQuietly()));
+         */
+    }
+
+    public Optional<String> fetchHead()
+    {
+        return new GitCommand<>(nonEmptyString(), checkoutRoot(),
+                "rev-parse", "FETCH_HEAD").run().awaitQuietly();
     }
 
     public Heads remoteHeads()

@@ -98,6 +98,8 @@ public final class GitCommand<T> extends CliCommand<T>
     @Override
     protected void configureArguments(List<String> list)
     {
+        // Want this for everything
+        list.add("--no-pager");
         list.addAll(Arrays.asList(args));
     }
 

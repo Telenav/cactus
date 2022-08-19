@@ -53,9 +53,15 @@ jobs:
         with:
           maven-version: 3.8.6
 
+      - name: Configure M2_HOME
+        run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
+
       - name: Configure Git
         run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0
 
+      - name: Configure Tmpdir
+        run: cd $GITHUB_WORKSPACE && rm -Rf temp && mkdir temp && echo "TMPDIR=$GITHUB_WORKSPACE/temp" >> $GITHUB_ENV
+        
       - name: Set Up Target Branch
         run: echo 'TARGET_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_HEAD_REF" || echo "$GITHUB_REF_NAME") >> $GITHUB_ENV
 
@@ -82,6 +88,9 @@ jobs:
 
       - name: Move Project to Target Ref
         run: cd $GITHUB_WORKSPACE/cactus && echo "Run $CHECKOUT_COMMAND" && eval $CHECKOUT_COMMAND
+
+      - name: Configure Maven
+        run: mkdir -p $GITHUB_WORKSPACE/cactus/.mvn && echo "-XX:+UseG1GC -Xms2G -Dcactus.debug=true -XX:+UseStringDeduplication --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED" >> $GITHUB_WORKSPACE/cactus/.mvn/jvm.config
 
       - name: Build Superpoms
         run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn --no-transfer-progress --batch-mode install
