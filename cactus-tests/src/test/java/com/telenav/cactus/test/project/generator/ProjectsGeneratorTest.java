@@ -28,6 +28,7 @@ import com.telenav.cactus.test.project.ProjectWrapper;
 import com.telenav.cactus.test.project.starwars.StarWars;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -42,12 +43,14 @@ import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.git.NeedPushResult.NO;
 import static com.telenav.cactus.git.NeedPushResult.YES;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
+import static com.telenav.cactus.maven.mojobase.AutomergeTag.AUTOMERGE_TAG_PREFIX;
 import static com.telenav.cactus.scope.Scope.ALL;
 import static com.telenav.cactus.scope.Scope.ALL_PROJECT_FAMILIES;
 import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
 import static com.telenav.cactus.scope.Scope.JUST_THIS;
 import static com.telenav.cactus.test.project.generator.MavenCommand.debug;
 import static com.telenav.cactus.test.project.starwars.StarWars.starWars;
+import static java.lang.System.setProperty;
 import static java.lang.ThreadLocal.withInitial;
 import static java.nio.file.Files.exists;
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,6 +123,29 @@ public class ProjectsGeneratorTest
     public void testSimpleBumpProjectVersion()
     {
         runTest(false, this::_testSimpleBumpProjectVersion);
+    }
+
+    @Test
+    public void testAutomergeTagsGeneratedByCommitMojo()
+    {
+        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+        runTest(false, this::_testAutomergeTagsGeneratedByCommitMojo);
+    }
+
+    @Test
+    public void testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush()
+    {
+        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+        runTest(false,
+                this::_testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush);
+    }
+
+    @Test
+    public void testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush()
+    {
+        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+        runTest(false,
+                this::_testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush);
     }
 
     private void _testPushAndPullWithSeparateCommitAndPushUsingCactusFamilyScope()
@@ -795,6 +821,338 @@ public class ProjectsGeneratorTest
         assertTrue(drinkMachine.parent().get().version().is("2.0.1"));
 
         assertEquals("fnord/1.5.2", starwars.getCheckout().branch().get());
+    }
+
+    private void _testAutomergeTagsGeneratedByCommitMojo() throws IOException
+    {
+        ProjectWrapper fur = starwars.fur();
+        ProjectWrapper drinkMachine = starwars.drinkMachine();
+        ProjectWrapper deathStar = starwars.deathstar();
+        ProjectWrapper superpoms = starwars.superpomsProject();
+
+        Map<ProjectWrapper, String> oldHeads = heads(starwars, fur,
+                drinkMachine, deathStar, superpoms);
+
+        createBranches("stable", fur, drinkMachine, deathStar,
+                superpoms, starwars);
+        createBranches("feature/thingamabob", fur, drinkMachine,
+                deathStar, superpoms, starwars);
+
+        modifySources(fur, drinkMachine, deathStar);
+
+        assertDirty(fur, drinkMachine, deathStar);
+
+        fur.runCactusTarget("commit", args(
+                SCOPE, ALL_PROJECT_FAMILIES,
+                CREATE_AUTOMERGE_TAG, true,
+                INCLUDE_ROOT, true,
+                COMMIT_MESSAGE, "Doing some stuff",
+                PUSH, true
+        ));
+
+        Map<ProjectWrapper, String> newHeads = heads(starwars, fur,
+                drinkMachine, deathStar, superpoms);
+        assertNotEquals(oldHeads.get(fur), newHeads.get(fur),
+                "Commit did not happen in " + fur);
+        assertNotEquals(oldHeads.get(drinkMachine), newHeads.get(drinkMachine),
+                "Commit did not happen in " + drinkMachine);
+        assertNotEquals(oldHeads.get(deathStar), newHeads.get(deathStar),
+                "Commit did not happen in " + deathStar);
+        assertNotEquals(oldHeads.get(starwars), newHeads.get(starwars),
+                "Commit did not happen in root checkout, but should have");
+
+        assertEquals(oldHeads.get(superpoms), newHeads.get(superpoms));
+
+        Map<ProjectWrapper, String> localTags = findAutomergeTags(
+                fur, drinkMachine, deathStar, superpoms, starwars);
+
+        System.out.println("HAVE LOCAL TAGS " + localTags);
+
+        assertFalse(localTags.isEmpty(),
+                "Did not find any automerge tags locally");
+        assertTrue(localTags.containsKey(fur));
+        assertTrue(localTags.containsKey(drinkMachine));
+        assertTrue(localTags.containsKey(deathStar));
+        assertTrue(localTags.containsKey(starwars));
+        assertFalse(localTags.containsKey(superpoms), "Superpoms project was "
+                + "up-to-date with stable branch - it should not have been tagged");
+
+        StarWars clone = anotherClone();
+        assertNotSame(starwars, clone);
+        ProjectWrapper rfur = clone.fur();
+        assertNotSame(rfur, fur);
+        ProjectWrapper rdrinkMachine = clone.drinkMachine();
+        assertNotSame(rdrinkMachine, drinkMachine);
+        ProjectWrapper rdeathStar = clone.deathstar();
+        assertNotSame(rdeathStar, deathStar);
+        ProjectWrapper rsuperpoms = clone.superpomsProject();
+        assertNotSame(rsuperpoms, superpoms);
+
+        Map<ProjectWrapper, String> remoteTags
+                = findAutomergeTags(
+                        rfur, rdrinkMachine, rdeathStar,
+                        rsuperpoms, clone);
+
+        System.out.println("HAVE REMOTE TAGS " + remoteTags);
+
+        assertEquals(localTags.get(fur),
+                remoteTags.get(rfur), "Wrong or missing tag for fur");
+        assertEquals(localTags.get(drinkMachine), remoteTags.get(rdrinkMachine),
+                "Wrong or missing tag for drink-machine");
+        assertEquals(localTags.get(deathStar),
+                remoteTags.get(rdeathStar),
+                "Wrong or missing tag for deathstar");
+        assertEquals(localTags.get(starwars), remoteTags.get(clone),
+                "Wrong or missing tag for root");
+    }
+
+    private void _testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush()
+            throws IOException
+    {
+        ProjectWrapper fur = starwars.fur();
+        ProjectWrapper drinkMachine = starwars.drinkMachine();
+        ProjectWrapper deathStar = starwars.deathstar();
+        ProjectWrapper superpoms = starwars.superpomsProject();
+
+        Map<ProjectWrapper, String> oldHeads = heads(starwars, fur,
+                drinkMachine, deathStar, superpoms);
+
+        createBranches("stable", fur, drinkMachine, deathStar,
+                superpoms, starwars);
+        createBranches("feature/thingamabob", fur, drinkMachine,
+                deathStar, superpoms, starwars);
+
+        modifySources(fur, drinkMachine, deathStar);
+
+        assertDirty(fur, drinkMachine, deathStar);
+
+        boolean committed = fur.runCactusTarget("commit", args(
+                SCOPE, ALL_PROJECT_FAMILIES,
+                CREATE_AUTOMERGE_TAG, true,
+                INCLUDE_ROOT, true,
+                COMMIT_MESSAGE, "Doing some more stuff",
+                PUSH, false
+        ));
+
+        assertTrue(committed, "Commit failed");
+
+        Map<ProjectWrapper, String> newHeads = heads(starwars, fur,
+                drinkMachine, deathStar, superpoms);
+        assertNotEquals(oldHeads.get(fur), newHeads.get(fur),
+                "Commit did not happen in " + fur);
+        assertNotEquals(oldHeads.get(drinkMachine), newHeads.get(drinkMachine),
+                "Commit did not happen in " + drinkMachine);
+        assertNotEquals(oldHeads.get(deathStar), newHeads.get(deathStar),
+                "Commit did not happen in " + deathStar);
+        assertNotEquals(oldHeads.get(starwars), newHeads.get(starwars),
+                "Commit did not happen in root checkout, but should have");
+
+        assertEquals(oldHeads.get(superpoms), newHeads.get(superpoms));
+
+        fur.runCactusTarget("automerge-tag", args(
+                SCOPE, ALL_PROJECT_FAMILIES,
+                PUSH, true
+        ));
+
+        Map<ProjectWrapper, String> localTags = findAutomergeTags(
+                fur, drinkMachine, deathStar, superpoms, starwars);
+
+        System.out.println("HAVE LOCAL TAGS " + localTags);
+
+        assertFalse(localTags.isEmpty(),
+                "Did not find any automerge tags locally");
+        assertTrue(localTags.containsKey(fur));
+        assertTrue(localTags.containsKey(drinkMachine));
+        assertTrue(localTags.containsKey(deathStar));
+        assertTrue(localTags.containsKey(starwars));
+        assertFalse(localTags.containsKey(superpoms), "Superpoms project was "
+                + "up-to-date with stable branch - it should not have been tagged");
+
+        StarWars clone = anotherClone();
+        assertNotSame(starwars, clone);
+        ProjectWrapper rfur = clone.fur();
+        assertNotSame(rfur, fur);
+        ProjectWrapper rdrinkMachine = clone.drinkMachine();
+        assertNotSame(rdrinkMachine, drinkMachine);
+        ProjectWrapper rdeathStar = clone.deathstar();
+        assertNotSame(rdeathStar, deathStar);
+        ProjectWrapper rsuperpoms = clone.superpomsProject();
+        assertNotSame(rsuperpoms, superpoms);
+
+        Map<ProjectWrapper, String> remoteTags
+                = findAutomergeTags(
+                        rfur, rdrinkMachine, rdeathStar,
+                        rsuperpoms, clone);
+
+        System.out.println("HAVE REMOTE TAGS " + remoteTags);
+
+        assertEquals(localTags.get(fur),
+                remoteTags.get(rfur), "Wrong or missing tag for fur");
+        assertEquals(localTags.get(drinkMachine), remoteTags.get(rdrinkMachine),
+                "Wrong or missing tag for drink-machine");
+        assertEquals(localTags.get(deathStar),
+                remoteTags.get(rdeathStar),
+                "Wrong or missing tag for deathstar");
+        assertEquals(localTags.get(starwars), remoteTags.get(clone),
+                "Wrong or missing tag for root");
+    }
+
+    private void _testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush()
+            throws IOException
+    {
+        ProjectWrapper fur = starwars.fur();
+        ProjectWrapper drinkMachine = starwars.drinkMachine();
+        ProjectWrapper deathStar = starwars.deathstar();
+        ProjectWrapper superpoms = starwars.superpomsProject();
+
+        Map<ProjectWrapper, String> oldHeads = heads(starwars, fur,
+                drinkMachine, deathStar, superpoms);
+
+        createBranches("stable", fur, drinkMachine, deathStar,
+                superpoms, starwars);
+        createBranches("feature/thingamabob", fur, drinkMachine,
+                deathStar, superpoms, starwars);
+
+        modifySources(fur, drinkMachine, deathStar);
+
+        assertDirty(fur, drinkMachine, deathStar);
+
+        boolean committed = fur.runCactusTarget("commit", args(
+                SCOPE, ALL_PROJECT_FAMILIES,
+                CREATE_AUTOMERGE_TAG, false,
+                INCLUDE_ROOT, true,
+                COMMIT_MESSAGE, "Doing some more stuff",
+                PUSH, false
+        ));
+
+        assertTrue(committed, "Commit failed");
+
+        Map<ProjectWrapper, String> newHeads = heads(starwars, fur,
+                drinkMachine, deathStar, superpoms);
+        assertNotEquals(oldHeads.get(fur), newHeads.get(fur),
+                "Commit did not happen in " + fur);
+        assertNotEquals(oldHeads.get(drinkMachine), newHeads.get(drinkMachine),
+                "Commit did not happen in " + drinkMachine);
+        assertNotEquals(oldHeads.get(deathStar), newHeads.get(deathStar),
+                "Commit did not happen in " + deathStar);
+        assertNotEquals(oldHeads.get(starwars), newHeads.get(starwars),
+                "Commit did not happen in root checkout, but should have");
+
+        assertEquals(oldHeads.get(superpoms), newHeads.get(superpoms));
+
+        fur.runCactusTarget("push", args(
+                SCOPE, ALL_PROJECT_FAMILIES,
+                CREATE_AUTOMERGE_TAG, true
+        ));
+
+        Map<ProjectWrapper, String> localTags = findAutomergeTags(
+                fur, drinkMachine, deathStar, superpoms, starwars);
+
+        System.out.println("HAVE LOCAL TAGS " + localTags);
+
+        assertFalse(localTags.isEmpty(),
+                "Did not find any automerge tags locally");
+        assertTrue(localTags.containsKey(fur));
+        assertTrue(localTags.containsKey(drinkMachine));
+        assertTrue(localTags.containsKey(deathStar));
+        assertFalse(localTags.containsKey(starwars),
+                "PushMojo does not update the root");
+        assertFalse(localTags.containsKey(superpoms), "Superpoms project was "
+                + "up-to-date with stable branch - it should not have been tagged");
+
+        StarWars clone = anotherClone();
+        assertNotSame(starwars, clone);
+        ProjectWrapper rfur = clone.fur();
+        assertNotSame(rfur, fur);
+        ProjectWrapper rdrinkMachine = clone.drinkMachine();
+        assertNotSame(rdrinkMachine, drinkMachine);
+        ProjectWrapper rdeathStar = clone.deathstar();
+        assertNotSame(rdeathStar, deathStar);
+        ProjectWrapper rsuperpoms = clone.superpomsProject();
+        assertNotSame(rsuperpoms, superpoms);
+
+        Map<ProjectWrapper, String> remoteTags
+                = findAutomergeTags(
+                        rfur, rdrinkMachine, rdeathStar,
+                        rsuperpoms, clone);
+
+        System.out.println("HAVE REMOTE TAGS " + remoteTags);
+
+        assertEquals(localTags.get(fur),
+                remoteTags.get(rfur), "Wrong or missing tag for fur");
+        assertEquals(localTags.get(drinkMachine), remoteTags.get(rdrinkMachine),
+                "Wrong or missing tag for drink-machine");
+        assertEquals(localTags.get(deathStar),
+                remoteTags.get(rdeathStar),
+                "Wrong or missing tag for deathstar");
+        assertFalse(remoteTags.containsKey(clone));
+    }
+
+    private static void assertDirty(ProjectWrapper... wrapper)
+    {
+        for (ProjectWrapper w : wrapper)
+        {
+            assertTrue(w.getCheckout().isDirty(), "Not dirty: " + w
+                    .getCheckout().loggingName());
+        }
+    }
+
+    private static void pushNewBranch(ProjectWrapper... wrappers)
+    {
+        for (ProjectWrapper w : wrappers)
+        {
+            assertTrue(w.pushCreatingBranch(), () -> w.getCheckout()
+                    .loggingName()
+                    + " pushing branch " + w.getCheckout().branch().get());
+        }
+    }
+
+    private static final Map<ProjectWrapper, String> findAutomergeTags(
+            ProjectWrapper... wrappers)
+    {
+        Map<ProjectWrapper, String> result = new HashMap<>();
+        for (ProjectWrapper w : wrappers)
+        {
+            for (String t : w.getCheckout().tags())
+            {
+                if (t.startsWith(AUTOMERGE_TAG_PREFIX))
+                {
+                    result.put(w, t);
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Map<ProjectWrapper, String> heads(ProjectWrapper... wrapper)
+    {
+        Map<ProjectWrapper, String> result = new HashMap<>();
+        for (ProjectWrapper w : wrapper)
+        {
+            String head = w.getCheckout().head();
+            System.out.println("HEAD OF " + w.getCheckout().loggingName()
+                    + " is " + head);
+            result.put(w, head);
+        }
+        return result;
+    }
+
+    private static void modifySources(ProjectWrapper... wrappers) throws IOException
+    {
+        for (ProjectWrapper w : wrappers)
+        {
+            w.modifyPomFile("Main");
+        }
+    }
+
+    private static void createBranches(String name, ProjectWrapper... wrappers)
+    {
+        for (ProjectWrapper w : wrappers)
+        {
+            assertTrue(w.newBranch(name),
+                    w.getCheckout().loggingName() + " " + name);
+        }
+        pushNewBranch(wrappers);
     }
 
     public static Map<String, Object> args(Object... parts)

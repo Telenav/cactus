@@ -24,6 +24,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.mojobase.AutomergeTag;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
@@ -41,10 +42,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
+import static java.util.Collections.emptySet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_MESSAGE;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
 
 /**
  * Performs a git commit, with the passed <code>commit-message</code> which
@@ -94,6 +94,12 @@ public class CommitMojo extends ScopedCheckoutsMojo
 
     @Parameter(property = SKIP_CONFLICTS, defaultValue = "false")
     private boolean skipConflicts;
+
+    @Parameter(property = STABLE_BRANCH, defaultValue = DEFAULT_STABLE_BRANCH)
+    private String stableBranch;
+
+    @Parameter(property = CREATE_AUTOMERGE_TAG, defaultValue = "false")
+    private boolean createAutomergeTag;
 
     public CommitMojo()
     {
@@ -166,6 +172,12 @@ public class CommitMojo extends ScopedCheckoutsMojo
                 System.out.println("Committed " + at.loggingName());
             }
         }
+        Set<GitCheckout> tagged = emptySet();
+        if (createAutomergeTag)
+        {
+            tagged = AutomergeTagMojo.automergeTag(null, stableBranch, tree,
+                    log, isPretend(), toCommit, false, this::automergeTag);
+        }
         if (push)
         {
             // We need to do this again now that we have added a commit
@@ -178,7 +190,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
             for (GitCheckout co : toCommit)
             {
                 NeedPushResult np = co.needsPush();
-                switch (co.needsPush())
+                switch (np)
                 {
                     case YES:
                         log.info("Push: " + co.loggingName());
@@ -196,21 +208,13 @@ public class CommitMojo extends ScopedCheckoutsMojo
                         break;
                 }
             }
-        }
-    }
-
-    private StringBuilder nameList(List<GitCheckout> checkouts)
-    {
-        StringBuilder nameList = new StringBuilder();
-        for (GitCheckout co : checkouts)
-        {
-            if (nameList.length() > 0)
+            AutomergeTag tag = automergeTag();
+            for (GitCheckout co : tagged)
             {
-                nameList.append(", ");
+                log.info("Push tag " + tag);
+                ifNotPretending(() -> co.pushTag(tag.toString()));
             }
-            nameList.append(co.loggingName());
         }
-        return nameList;
     }
 
     private StringBuilder nameList(List<GitCheckout> checkouts,

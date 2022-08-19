@@ -72,8 +72,14 @@ public final class CactusCommonPropertyNames
     public static final String TARGET_BRANCH = PREFIX + "target-branch";
 
     public static final String PERMIT_LOCAL_CHANGES = PREFIX + "permit-local-changes";
-    
+
     public static final String SKIP_CONFLICTS = PREFIX + "skip-conflicts";
+
+    public static final String STABLE_BRANCH = PREFIX + "stable-branch";
+    
+    public static final String DEFAULT_STABLE_BRANCH = "stable";
+    
+    public static final String CREATE_AUTOMERGE_TAG = PREFIX + "create-automerge-tag";
 
     private CactusCommonPropertyNames()
     {

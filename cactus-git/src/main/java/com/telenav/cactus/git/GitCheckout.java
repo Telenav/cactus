@@ -164,6 +164,10 @@ public final class GitCheckout implements Comparable<GitCheckout>
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "gc", "--aggressive");
 
+    public static final GitCommand<List<String>> TAGS
+            = new GitCommand<>(ProcessResultConverter.strings().lines(),
+                    "tag", "-l");
+
     public static final GitCommand<Boolean> HAS_UNKNOWN_FILES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
                     str -> str.length() > 0),
@@ -357,12 +361,29 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return ALL_BRANCHES.withWorkingDir(root).run().awaitQuietly();
     }
 
+    public List<String> tags()
+    {
+        return TAGS.withWorkingDir(root).run().awaitQuietly();
+    }
+
     public Branches branchesContainingCommit(String commitHash)
     {
         GitCommand<Branches> targets = new GitCommand<>(strings().trimmed().map(
                 Branches::from), checkoutRoot(),
                 "branch", "--no-color", "--all", "--contains=" + commitHash);
         return targets.run().awaitQuietly();
+    }
+
+    public boolean pushTag(String tag)
+    {
+        Optional<GitRemotes> remote = defaultRemote();
+        if (!remote.isPresent())
+        {
+            return false;
+        }
+        GitCommand<Boolean> cmd = new GitCommand<>(exitCodeIsZero(),
+                checkoutRoot(), "push", remote.get().name(), tag);
+        return cmd.run().awaitQuietly();
     }
 
     /**
