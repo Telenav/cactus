@@ -68,7 +68,6 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 @BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends AbstractGithubMojo
 {
-
     /**
      * The pull request title.
      */

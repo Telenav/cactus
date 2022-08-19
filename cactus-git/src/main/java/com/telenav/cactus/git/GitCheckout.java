@@ -1272,11 +1272,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
             arguments.add("--base");
             arguments.add(destBranchFilter);
         }
-        if (prBranchFilter != null && !prBranchFilter.isBlank())
-        {
-            arguments.add("--head");
-            arguments.add(prBranchFilter);
-        }
         if (searchFilter != null && !searchFilter.isBlank())
         {
             arguments.add("--search");
