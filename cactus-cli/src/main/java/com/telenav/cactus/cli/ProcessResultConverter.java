@@ -19,6 +19,7 @@ package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import java.net.URI;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
@@ -45,6 +46,12 @@ public interface ProcessResultConverter<T>
             IntPredicate exitCodeTester)
     {
         return new StringProcessResultConverterImpl(exitCodeTester);
+    }
+    
+    public static ProcessResultConverter<Optional<String>> nonEmptyString() {
+        return strings().map(str -> {
+            return str == null || str.isBlank() ? Optional.empty() : Optional.of(str.trim());
+        });
     }
 
     public static ProcessResultConverter<Boolean> exitCodeIsZero()

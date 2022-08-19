@@ -115,6 +115,15 @@ final class StringProcessResultConverterImpl implements
                 // unlikely but cover all the bases
                 return Exceptions.chuck(t);
             }
+            try
+            {
+                thread.join();
+            }
+            catch (InterruptedException ex)
+            {
+                ex.printStackTrace();
+            }
+            run();
             return toString();
         }
 
