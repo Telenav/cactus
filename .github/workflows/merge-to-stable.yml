@@ -77,7 +77,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE/cactus && git fetch origin $GITHUB_REF
 
       - name: Move Project to Target Ref
-        run: cd $GITHUB_WORKSPACE/cactus && git merge --ff-only --no-edit --no-progress $GITHUB_SHA || git merge --no-ff -s resolve -s recursive -X ignore-all-space -X diff-algorithm=histogram -s subtree --no-edit --no-progress -m "Automated merge of $GITHUB_REF_NAME to $TARGET_BRANCH" $GITHUB_SHA || git cherry-pick $GITHUB_SHA
+        run: cd $GITHUB_WORKSPACE/cactus && git merge --ff-only --no-edit --no-progress $GITHUB_SHA || git merge --no-ff -s resolve -s recursive --no-edit --no-progress -m "Automated merge of $GITHUB_REF_NAME to $TARGET_BRANCH" $GITHUB_SHA ||  git merge --no-ff -s resolve -s recursive -X ignore-all-space -X diff-algorithm=histogram -s subtree --no-edit --no-progress -m "Automated merge of $GITHUB_REF_NAME to $TARGET_BRANCH" $GITHUB_SHA || git cherry-pick $GITHUB_SHA
 
       - name: Configure Maven
         run: mkdir -p $GITHUB_WORKSPACE/cactus/.mvn && echo "-XX:+UseG1GC -Xms2G -Dcactus.debug=true -XX:+UseStringDeduplication --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED" >> $GITHUB_WORKSPACE/cactus/.mvn/jvm.config
