@@ -32,7 +32,7 @@ on:
         - 'documentation/**'
         - '**/*.md'
         - '.github/**'
-    branches-ignore: stable
+    branches-ignore: '**'
     tags:
         - 'automerge-**'
 
