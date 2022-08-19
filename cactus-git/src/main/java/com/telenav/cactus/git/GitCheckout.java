@@ -1231,6 +1231,34 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
         return true;
     }
+    /**
+     * Merges pull request on Github using the given authentication token
+     *
+     * @param personalAcccessTokenSupplier Can supply
+     * @param branchName The name of the branch to merge
+     * @param body Any text to describe the approval
+     * @return True if the pull request was merged
+     */
+    public boolean approvePullRequest(
+            IOSupplier<String> personalAcccessTokenSupplier,
+            String branchName,
+            Optional<String> body
+    )
+    {
+        // Sign into Github (gh auth login --hostname github.com --with-token < ~/token.txt)
+        var arguments = new ArrayList<String>();
+        arguments.add("pr");
+        arguments.add("review");
+        arguments.add("--approve");
+        arguments.add("--body");
+        arguments.add(body.orElse("Approved " + branchName));
+
+        // Create pull request (gh pr review --approve --body "Approved feature/reverse-string")
+        new GithubCommand<>(personalAcccessTokenSupplier, strings(), root,
+                arguments.toArray(String[]::new)).run().awaitQuietly();
+
+        return true;
+    }
 
     public List<MinimalPRItem> listPullRequests(
             IOSupplier<String> personalAcccessTokenSupplier,
