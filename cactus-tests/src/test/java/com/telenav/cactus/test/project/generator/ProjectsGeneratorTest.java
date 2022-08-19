@@ -128,14 +128,12 @@ public class ProjectsGeneratorTest
     @Test
     public void testAutomergeTagsGeneratedByCommitMojo()
     {
-        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
         runTest(false, this::_testAutomergeTagsGeneratedByCommitMojo);
     }
 
     @Test
     public void testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush()
     {
-        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
         runTest(false,
                 this::_testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush);
     }
@@ -143,7 +141,6 @@ public class ProjectsGeneratorTest
     @Test
     public void testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush()
     {
-        setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
         runTest(false,
                 this::_testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush);
     }
