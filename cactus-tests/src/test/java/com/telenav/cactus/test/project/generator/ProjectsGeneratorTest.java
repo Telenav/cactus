@@ -863,8 +863,6 @@ public class ProjectsGeneratorTest
         Map<ProjectWrapper, String> localTags = findAutomergeTags(
                 fur, drinkMachine, deathStar, superpoms, starwars);
 
-        System.out.println("HAVE LOCAL TAGS " + localTags);
-
         assertFalse(localTags.isEmpty(),
                 "Did not find any automerge tags locally");
         assertTrue(localTags.containsKey(fur));
@@ -889,8 +887,6 @@ public class ProjectsGeneratorTest
                 = findAutomergeTags(
                         rfur, rdrinkMachine, rdeathStar,
                         rsuperpoms, clone);
-
-        System.out.println("HAVE REMOTE TAGS " + remoteTags);
 
         assertEquals(localTags.get(fur),
                 remoteTags.get(rfur), "Wrong or missing tag for fur");
@@ -954,8 +950,6 @@ public class ProjectsGeneratorTest
         Map<ProjectWrapper, String> localTags = findAutomergeTags(
                 fur, drinkMachine, deathStar, superpoms, starwars);
 
-        System.out.println("HAVE LOCAL TAGS " + localTags);
-
         assertFalse(localTags.isEmpty(),
                 "Did not find any automerge tags locally");
         assertTrue(localTags.containsKey(fur));
@@ -980,8 +974,6 @@ public class ProjectsGeneratorTest
                 = findAutomergeTags(
                         rfur, rdrinkMachine, rdeathStar,
                         rsuperpoms, clone);
-
-        System.out.println("HAVE REMOTE TAGS " + remoteTags);
 
         assertEquals(localTags.get(fur),
                 remoteTags.get(rfur), "Wrong or missing tag for fur");
@@ -1045,8 +1037,6 @@ public class ProjectsGeneratorTest
         Map<ProjectWrapper, String> localTags = findAutomergeTags(
                 fur, drinkMachine, deathStar, superpoms, starwars);
 
-        System.out.println("HAVE LOCAL TAGS " + localTags);
-
         assertFalse(localTags.isEmpty(),
                 "Did not find any automerge tags locally");
         assertTrue(localTags.containsKey(fur));
@@ -1072,8 +1062,6 @@ public class ProjectsGeneratorTest
                 = findAutomergeTags(
                         rfur, rdrinkMachine, rdeathStar,
                         rsuperpoms, clone);
-
-        System.out.println("HAVE REMOTE TAGS " + remoteTags);
 
         assertEquals(localTags.get(fur),
                 remoteTags.get(rfur), "Wrong or missing tag for fur");
@@ -1127,8 +1115,6 @@ public class ProjectsGeneratorTest
         for (ProjectWrapper w : wrapper)
         {
             String head = w.getCheckout().head();
-            System.out.println("HEAD OF " + w.getCheckout().loggingName()
-                    + " is " + head);
             result.put(w, head);
         }
         return result;
