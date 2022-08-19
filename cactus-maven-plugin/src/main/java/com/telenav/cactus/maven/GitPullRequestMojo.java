@@ -48,7 +48,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
+
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
 
 /**
  * Starts and finishes branches according to git flow branching conventions.
@@ -99,14 +101,14 @@ public class GitPullRequestMojo extends AbstractGithubMojo
      * which, if createBranchesIfNeeded is false, should be used as the fallback
      * branch to put checkouts on if the target branch does not exist.
      */
-    @Parameter(property = "cactus.base-branch", defaultValue = "develop")
+    @Parameter(property = BASE_BRANCH, defaultValue = "develop")
     String baseBranch = "develop";
 
     /**
      * The branch from which the pull request should be created; if unset, the
      * current branch in the checkout is used.
      */
-    @Parameter(property = "cactus.target-branch")
+    @Parameter(property = TARGET_BRANCH)
     String targetBranch;
 
     /**
