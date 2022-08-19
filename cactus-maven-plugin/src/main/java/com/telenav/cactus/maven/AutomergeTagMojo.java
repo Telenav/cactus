@@ -3,8 +3,6 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
-import com.telenav.cactus.git.GitCommand;
-import com.telenav.cactus.git.GitRemotes;
 import com.telenav.cactus.maven.common.CactusCommonPropertyNames;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.AutomergeTag;
@@ -22,7 +20,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import static com.telenav.cactus.cli.ProcessResultConverter.exitCodeIsZero;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_STABLE_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.STABLE_BRANCH;

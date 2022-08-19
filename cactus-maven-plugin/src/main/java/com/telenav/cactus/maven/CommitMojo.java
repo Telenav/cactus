@@ -208,11 +208,14 @@ public class CommitMojo extends ScopedCheckoutsMojo
                         break;
                 }
             }
-            AutomergeTag tag = automergeTag();
+            String tag = automergeTag().toString();
             for (GitCheckout co : tagged)
             {
+                if (root.equals(co) && !isIncludeRoot()) {
+                    continue;
+                }
                 log.info("Push tag " + tag);
-                ifNotPretending(() -> co.pushTag(tag.toString()));
+                ifNotPretending(() -> co.pushTag(tag));
             }
         }
     }
@@ -242,13 +245,11 @@ public class CommitMojo extends ScopedCheckoutsMojo
         {
             if (safeToPullWithRebase(co))
             {
-                System.out.println("PULL WITH REBASE " + co.loggingName());
                 log1.info("Pull with rebase: " + co.loggingName());
                 ifNotPretending(co::pullWithRebase);
             }
             else
             {
-                System.out.println("PULL NO REBASE " + co.loggingName());
                 log1.info("Pull " + co.loggingName());
                 ifNotPretending(co::pull);
             }
