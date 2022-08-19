@@ -15,14 +15,21 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-open module cactus.cli
-{
-    requires com.mastfrog.concurrent;
-    requires com.mastfrog.function;
-    requires com.mastfrog.preconditions;
-    requires cactus.process;
+module cactus.test {
+    requires cactus.maven.plugin;
+    requires cactus.cli;
+    requires cactus.git;
     requires cactus.maven.log;
+    requires cactus.maven.model;
+    requires cactus.maven.scope;
+    requires cactus.maven.versioning;
+    requires cactus.maven.xml;
+    requires cactus.metadata;
+    requires cactus.process;
     requires cactus.util;
-    exports com.telenav.cactus.cli;
+    requires com.mastfrog.strings;
+    requires com.mastfrog.streams;
+    requires com.mastfrog.preconditions;
+    requires com.mastfrog.function;
+    requires com.zaxxer.nuprocess;
 }

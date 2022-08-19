@@ -21,7 +21,7 @@ import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.telenav.cactus.process.ProcessControl;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.util.PathUtils;
 import java.io.BufferedReader;
@@ -207,26 +207,26 @@ public final class MavenCommand extends CliCommand<Boolean>
 
         @Override
         public AwaitableCompletionStage<Boolean> onProcessStarted(
-                Supplier<String> description, ProcessControl<String, String> process)
+                Supplier<String> description,
+                ProcessControl<String, String> process)
         {
             // Note:  This really needs to be thenApplyAsync(), or you sometimes get
             // immediately called back before the process has *started*.
             return completionStageForProcess(process).thenApply(result ->
             {
-                log.debug(() ->
-                {
-                    return "exit " + result.exitValue() + ":\n" + result.stdout + "\n"
-                            + (result.exitValue() != 0
-                               ? result.stderr
-                               : "");
-                });
-                String out = result.stdout;
+                log.debug(()
+                        -> "exit " + result.exitValue() + ":\n" + result
+                        .standardOutput() + "\n"
+                        + (result.exitValue() != 0
+                           ? result.standardError()
+                           : "")
+                );
+                String out = result.standardOutput();
                 log.debug(() -> out);
                 appendOutputTo.add(0, out);
-                String err = result.stderr;
-                log.debug(() -> err);
+                log.debug(() -> result.standardError());
                 System.out.println("OUTPUT:\n" + out);
-                System.out.println("ERR:\n" + err);
+                System.out.println("ERR:\n" + result.standardError());
                 System.out.println("EXIT " + result.exitValue());
 
                 return exitCodeTest.test(result.exitValue());

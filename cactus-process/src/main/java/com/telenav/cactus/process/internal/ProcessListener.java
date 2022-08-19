@@ -15,35 +15,24 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
+package com.telenav.cactus.process.internal;
 
-import java.nio.ByteBuffer;
+import com.telenav.cactus.process.ProcessState;
 
 /**
- * Callback interface for handling stdin when the process requests it.
+ * Internal interface for getting notified on process exit. Note: This package
+ * is not published to the world at large via the module system, and subject to
+ * change.
  *
  * @author Tim Boudreau
  */
-public interface StdinHandler
+public interface ProcessListener
 {
     /**
-     * Returns a do-nothing StdinHandler.
-     */
-    static final StdinHandler DEFAULT = new DefaultStdinHandler();
-
-    /**
-     * Called with a byte buffer that can be written into (up to its remainder)
-     * when the application requests input. Return true to notify the
-     * application that there is more input if the buffer is not large enough to
-     * accommodate all you want to write.
-     * <p>
-     * If the buffer is written to, it must be flipped before returning.
-     * </p>
+     * Called when the process exits.
      *
-     * @param process A process
-     * @param bb A byte buffer
-     * @return true if there is more data to write
+     * @param state The exit state of the process
      */
-    boolean onStdinReady(ProcessControl process, ByteBuffer bb);
+    void processExited(ProcessState state);
 
 }

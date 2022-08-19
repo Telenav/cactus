@@ -18,7 +18,7 @@
 
 package com.telenav.cactus.cli;
 
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.telenav.cactus.process.ProcessControl;
 import java.util.function.Supplier;
 
 /**

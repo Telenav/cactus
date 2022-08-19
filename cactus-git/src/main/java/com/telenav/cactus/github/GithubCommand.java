@@ -23,7 +23,7 @@ import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.telenav.cactus.process.ProcessControl;
 import java.io.IOException;
 
 import java.nio.file.Path;
@@ -166,7 +166,8 @@ public class GithubCommand<T> extends CliCommand<T>
 
         @Override
         public AwaitableCompletionStage<T> onProcessStarted(
-                Supplier<String> description, ProcessControl<String, String> process)
+                Supplier<String> description,
+                ProcessControl<String, String> process)
         {
             if (inRetry)
             {
@@ -210,7 +211,7 @@ public class GithubCommand<T> extends CliCommand<T>
         }
 
         private void forwardToOriginalConverter(Supplier<String> description,
-                ProcessControl process,
+                ProcessControl<String, String> process,
                 CompletableFuture<T> futureReturnedToCaller)
         {
             childLog.debug(
@@ -338,7 +339,7 @@ public class GithubCommand<T> extends CliCommand<T>
         protected void onLaunch(ProcessControl<String, String> process)
         {
             super.onLaunch(process);
-            process.withStdinHandler((ctrl, buf) ->
+            process.withStandardInputHandler((ctrl, buf) ->
             {
                 buf.put(accessToken.getBytes(UTF_8));
                 return false;

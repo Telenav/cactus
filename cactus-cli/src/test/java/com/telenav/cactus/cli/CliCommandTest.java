@@ -1,10 +1,10 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
-import com.telenav.cactus.cli.nuprocess.ProcessResult;
-import com.telenav.cactus.cli.nuprocess.ProcessState;
-import com.telenav.cactus.cli.nuprocess.internal.ProcessCallback;
+import com.telenav.cactus.process.ProcessControl;
+import com.telenav.cactus.process.ProcessResult;
+import com.telenav.cactus.process.ProcessState;
+import com.telenav.cactus.process.internal.ProcessCallback;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 import com.zaxxer.nuprocess.NuProcessHandler;
@@ -138,7 +138,7 @@ public class CliCommandTest
         ProcessCallback<String, String> cb = ProcessCallback.create();
         npb.setProcessListener(cb);
 
-        for (int i = 0; i < 7 || !cb.state().isRunning(); i++)
+        for (int i = 0; i < 7 || !cb.result().state().isRunning(); i++)
         {
             Thread.sleep(200);
             if (i == 1)
@@ -176,7 +176,7 @@ public class CliCommandTest
     {
         NuProcessBuilder bldr = new NuProcessBuilder(inputFile.toString());
         ProcessControl<String, String> cb = ProcessControl.create(bldr);
-        cb.withStdinHandler((proc, in) ->
+        cb.withStandardInputHandler((proc, in) ->
         {
             if (in.remaining() == 0)
             {
@@ -195,7 +195,7 @@ public class CliCommandTest
         assertFalse(res.wasKilled());
         assertTrue(res.isSuccess());
 
-        assertTrue(res.stdout.contains("Your input was\n"
+        assertTrue(res.standardOutput().contains("Your input was\n"
                 + "Well hello there. This is some output.\n"));
     }
 

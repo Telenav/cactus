@@ -15,21 +15,23 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
+package com.telenav.cactus.process;
 
-import com.telenav.cactus.cli.nuprocess.internal.ProcessCallback;
+import com.telenav.cactus.process.internal.ProcessCallback;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
-import static com.telenav.cactus.cli.nuprocess.OutputHandler.NULL;
+import static com.telenav.cactus.process.OutputHandler.NULL;
 
 /**
  * Control interface for interacting with a process.
  *
  * @author Tim Boudreau
+ * @param <O> The standard output type
+ * @param <E> The standard error type
  */
 public interface ProcessControl<O, E>
 {
@@ -40,6 +42,8 @@ public interface ProcessControl<O, E>
      */
     void onExit(CompletableFuture<ProcessResult<O, E>> future);
 
+    ProcessState state();
+
     default CompletionStage<ProcessResult<O, E>> onExit()
     {
         CompletableFuture<ProcessResult<O, E>> result = new CompletableFuture<>();
@@ -48,9 +52,9 @@ public interface ProcessControl<O, E>
     }
 
     /**
-     * Create a new ProcessControl that uses strings for output, attaching it
-     * to the passed NuProcessBuilder.
-     * 
+     * Create a new ProcessControl that uses strings for output, attaching it to
+     * the passed NuProcessBuilder.
+     *
      * @param bldr A builder
      * @return A ProcessControl
      */
@@ -62,16 +66,16 @@ public interface ProcessControl<O, E>
     }
 
     /**
-     * Replaces the StdinHandler with one which will kill the process if it
-     * requests input - this is useful which invoking command-line applications
-     * which could possibly attempt to request interactive input, when that is
-     * impossible.
+     * Replaces the StandardInputHandler with one which will kill the process if
+     * it requests input - this is useful which invoking command-line
+     * applications which could possibly attempt to request interactive input,
+     * when that is impossible.
      *
      * @return this
      */
     default ProcessControl<O, E> abortOnInput()
     {
-        return withStdinHandler(new AbortOnInputStdinHandler(), true);
+        return withStandardInputHandler(new AbortOnInputStdinHandler(), true);
     }
 
     /**
@@ -85,7 +89,7 @@ public interface ProcessControl<O, E>
      */
     default ProcessControl<O, E> abortOnInput(Runnable notificationCallback)
     {
-        return withStdinHandler(new AbortOnInputStdinHandler(
+        return withStandardInputHandler(new AbortOnInputStdinHandler(
                 notificationCallback), true);
     }
 
@@ -105,7 +109,7 @@ public interface ProcessControl<O, E>
      * called before this control has been attached to a process.
      *
      * @param <T> The new error result type
-     * @param oh A handler
+     * @param oe A handler
      * @return a new ProcessControl whose state is shared with this, which uses
      * the new output handler
      */
@@ -155,7 +159,11 @@ public interface ProcessControl<O, E>
     /**
      * Get the current exit code (will be -1 if still running, Integer.MAX_VALUE
      * if killed) and stdin / stdoout of the process. This method may be called
-     * at any time, but may not return a useful result until process exit.
+     * at any time, but may not return a useful result until process exit. The
+     * output objects in the result of a still-running process may be null - the
+     * behavior is a contract between the {@link OutputHandler} used and the
+     * caller. The default String-based implementation will return partial
+     * output if there is any, and the empty string otherwise.
      *
      * @return A result
      */
@@ -168,7 +176,8 @@ public interface ProcessControl<O, E>
      * @param wantIn If true, notify the process
      * @return this
      */
-    ProcessControl<O, E> withStdinHandler(StdinHandler handler, boolean wantIn);
+    ProcessControl<O, E> withStandardInputHandler(StandardInputHandler handler,
+            boolean wantIn);
 
     /**
      * Get the exit value; follows the contract of

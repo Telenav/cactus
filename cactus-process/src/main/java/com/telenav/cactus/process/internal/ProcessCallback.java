@@ -15,20 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess.internal;
+package com.telenav.cactus.process.internal;
 
 import com.mastfrog.concurrent.ConcurrentLinkedList;
-import com.telenav.cactus.cli.nuprocess.OutputHandler;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
-import com.telenav.cactus.cli.nuprocess.ProcessResult;
-import com.telenav.cactus.cli.nuprocess.ProcessState;
-import com.telenav.cactus.cli.nuprocess.StdinHandler;
+import com.telenav.cactus.process.OutputHandler;
+import com.telenav.cactus.process.ProcessControl;
+import com.telenav.cactus.process.ProcessResult;
+import com.telenav.cactus.process.ProcessState;
+import com.telenav.cactus.process.StandardInputHandler;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessHandler;
 import java.nio.ByteBuffer;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,9 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.UnaryOperator;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
-import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.RUNNING;
-import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.STARTING;
-import static com.telenav.cactus.cli.nuprocess.ProcessState.processState;
+import static com.telenav.cactus.process.ProcessState.RunningStatus.RUNNING;
+import static com.telenav.cactus.process.ProcessState.RunningStatus.STARTING;
+import static com.telenav.cactus.process.ProcessState.processState;
 
 /**
  * NuProcessHandler implementation which implements ProcessControl; note that
@@ -60,7 +58,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     private final ConcurrentLinkedList<ProcessListener> listeners;
     private final OutputHandler<O> stdout;
     private final OutputHandler<E> stderr;
-    private StdinHandler stdin = StdinHandler.DEFAULT;
+    private StandardInputHandler stdin = StandardInputHandler.DEFAULT;
     private NuProcess process;
 
     ProcessCallback(OutputHandler<O> stdout, OutputHandler<E> stderr)
@@ -151,19 +149,20 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         return processState(result);
     }
 
+    @Override
     public ProcessState state()
     {
         return processState(state.get());
     }
 
     @Override
-    public synchronized ProcessCallback<O, E> withStdinHandler(
-            StdinHandler handler,
+    public synchronized ProcessCallback<O, E> withStandardInputHandler(
+            StandardInputHandler handler,
             boolean wantIn)
     {
         if (isRunning())
         {
-            throw new IllegalStateException("Cannot set stdin handler "
+            throw new IllegalStateException("Cannot set StandardInputHandler "
                     + "after process launch");
         }
         this.stdin = notNull("handler", handler);
@@ -214,7 +213,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         return state().isRunning();
     }
 
-    public synchronized StdinHandler stdin()
+    public synchronized StandardInputHandler stdin()
     {
         return stdin;
     }
@@ -257,7 +256,6 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     private void notifyListeners(int exitCode)
     {
         ProcessState state = state().withExitCode(exitCode);
-        List<ProcessListener> all = new ArrayList<>();
         try
         {
             // This is atomic and ensures we cannot invoke a listener
@@ -335,7 +333,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     @Override
     public ProcessResult<O, E> result()
     {
-        return new ProcessResult<>(state(), stdout.result(), stderr.result());
+        return ProcessResult.create(state(), stdout.result(), stderr.result());
     }
 
     @Override

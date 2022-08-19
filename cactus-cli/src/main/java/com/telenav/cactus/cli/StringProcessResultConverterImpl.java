@@ -18,13 +18,12 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
 import com.telenav.cactus.maven.log.BuildLog;
-
-import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
-
+import com.telenav.cactus.process.ProcessControl;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+
+import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 
 /**
  *
@@ -57,17 +56,17 @@ final class StringProcessResultConverterImpl implements
         {
             log.debug(() ->
             {
-                return "exit " + result.exitValue() + ":\n" + result.stdout + "\n"
+                return "exit " + result.exitValue() + ":\n" + result.standardOutput()+ "\n"
                         + (result.exitValue() != 0
-                           ? result.stderr
+                           ? result.standardError()
                            : "");
             });
             if (exitCodeTest.test(result.exitValue()))
             {
-                return result.stdout;
+                return result.standardOutput();
             }
-            throw new ProcessFailedException(description, process, result.stdout,
-                    result.stderr);
+            throw new ProcessFailedException(description, process, result.standardOutput(),
+                    result.standardError());
         });
     }
 

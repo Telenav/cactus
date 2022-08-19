@@ -1,12 +1,13 @@
 package com.telenav.cactus.cli.nuprocess;
 
+import com.telenav.cactus.process.ProcessState;
 import org.junit.jupiter.api.Test;
 
-import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.EXITED;
-import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.RUNNING;
-import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.UNINITIALIZED;
+import static com.telenav.cactus.process.ProcessState.RunningStatus.EXITED;
+import static com.telenav.cactus.process.ProcessState.RunningStatus.RUNNING;
+import static com.telenav.cactus.process.ProcessState.RunningStatus.UNINITIALIZED;
 import static org.junit.jupiter.api.Assertions.*;
-import static com.telenav.cactus.cli.nuprocess.ProcessState.RunningStatus.STARTING;
+import static com.telenav.cactus.process.ProcessState.RunningStatus.STARTING;
 
 /**
  *

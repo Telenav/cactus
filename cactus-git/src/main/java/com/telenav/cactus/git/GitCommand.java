@@ -22,7 +22,7 @@ import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.telenav.cactus.process.ProcessControl;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.nio.file.Path;
 import java.util.Arrays;

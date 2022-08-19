@@ -15,10 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
+package com.telenav.cactus.process;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 /**
  * Specialization of OutputHandler for Strings which can perform some common
@@ -29,6 +33,13 @@ import java.util.Optional;
 public interface StringOutputHandler extends OutputHandler<String>
 {
 
+    /**
+     * Converts this into an OutputHandler which returns
+     * <code>Optional.empty()</code> if the output is empty, all whitespace or
+     * null.
+     *
+     * @return An output handler
+     */
     default OutputHandler<Optional<String>> ifNonEmpty()
     {
         return new OutputHandler<>()
@@ -46,12 +57,18 @@ public interface StringOutputHandler extends OutputHandler<String>
             {
                 String res = StringOutputHandler.this.result();
                 return res == null || res.isBlank()
-                       ? Optional.empty()
-                       : Optional.of(res.trim());
+                       ? empty()
+                       : of(res.trim());
             }
         };
     }
 
+    /**
+     * Converts to an output handler that handles nulls (which you can get if
+     * the process times out or is killed).
+     *
+     * @return An output handler
+     */
     default OutputHandler<Optional<String>> optional()
     {
         return new OutputHandler<>()
@@ -67,11 +84,18 @@ public interface StringOutputHandler extends OutputHandler<String>
             @Override
             public Optional<String> result()
             {
-                return Optional.ofNullable(StringOutputHandler.this.result());
+                return ofNullable(StringOutputHandler.this.result());
             }
         };
     }
 
+    /**
+     * Returns a StringOutputHandler that trims whitespace from output before
+     * returning it; many if not most cli tools emit a trailing newline.
+     *
+     * @return A string output handler that transforms output to its trimmed
+     * form
+     */
     default StringOutputHandler trimmed()
     {
         return new StringOutputHandler()

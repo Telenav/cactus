@@ -18,7 +18,7 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
+import com.telenav.cactus.process.ProcessControl;
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.Function;

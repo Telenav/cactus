@@ -15,16 +15,27 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess.internal;
-
-import com.telenav.cactus.cli.nuprocess.ProcessState;
-
-/**
- *
- * @author Tim Boudreau
- */
-public interface ProcessListener
-{
-    void processExited(ProcessState state);
-
+module cactus.test {
+    requires cactus.maven.plugin;
+    requires cactus.cli;
+    requires cactus.git;
+    requires cactus.maven.log;
+    requires cactus.maven.model;
+    requires cactus.maven.scope;
+    requires cactus.maven.versioning;
+    requires cactus.maven.xml;
+    requires cactus.metadata;
+    requires cactus.process;
+    requires cactus.util;
+    requires com.mastfrog.strings;
+    requires com.mastfrog.streams;
+    requires com.mastfrog.preconditions;
+    requires com.mastfrog.function;
+    requires com.zaxxer.nuprocess;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.engine;
+    requires org.junit.jupiter.params;
+    
+    exports com.telenav.cactus.test.project.generator
+            to org.junit.platform.commons;
 }

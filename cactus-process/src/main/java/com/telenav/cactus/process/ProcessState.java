@@ -15,7 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
+package com.telenav.cactus.process;
+
+import static com.telenav.cactus.process.ProcessState.RunningStatus.EXITED;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.toHexString;
 
 /**
  * Encapsulates the state of a process in a single 32 bit int that can be used
@@ -88,7 +92,7 @@ public final class ProcessState
     {
         if (wasKilled())
         {
-            return Integer.MAX_VALUE;
+            return MAX_VALUE;
         }
         else
             if (isBeforeStart() || isRunning())
@@ -107,13 +111,13 @@ public final class ProcessState
      */
     public ProcessState withExitCode(int code)
     {
-        if (code < 0 || code > 32768)
+        if (code < 0 || code > 32_768)
         {
             throw new IllegalArgumentException("Exit code out of range: " + code);
         }
         int masked = value & 0x00FF;
         int newValue = masked
-                | RunningStatus.EXITED.ordinal()
+                | EXITED.ordinal()
                 | code << 16;
         return new ProcessState(newValue);
     }
@@ -251,7 +255,7 @@ public final class ProcessState
                    ? " killed"
                    : "")
                 + " " + code
-                + " (" + Integer.toHexString(value) + ")";
+                + " (" + toHexString(value) + ")";
     }
 
     /**

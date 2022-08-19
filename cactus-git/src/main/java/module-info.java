@@ -18,6 +18,7 @@
 open module cactus.git {
 
     requires cactus.cli;
+    requires cactus.process;
     requires cactus.maven.log;
     requires cactus.util;
     requires com.mastfrog.function;

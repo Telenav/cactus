@@ -17,15 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.cli;
 
-import com.telenav.cactus.cli.nuprocess.internal.ProcessCallback;
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
-import com.telenav.cactus.cli.nuprocess.ProcessResult;
+import com.telenav.cactus.process.ProcessControl;
+import com.telenav.cactus.process.ProcessResult;
 import com.telenav.cactus.util.PathUtils;
-import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;

@@ -64,6 +64,7 @@
         <module>cactus-codeflowers</module>
         <module>wordy</module>
         <module>cactus-tests</module>
+        <module>cactus-process</module>
     </modules>
 
     <!-- Properties -->
@@ -138,6 +139,11 @@
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
                 <artifactId>cactus-graph</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-process</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>

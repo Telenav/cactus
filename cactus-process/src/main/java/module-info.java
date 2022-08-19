@@ -15,14 +15,12 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-open module cactus.cli
-{
+module cactus.process {
+    requires com.zaxxer.nuprocess;
     requires com.mastfrog.concurrent;
-    requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
-    requires cactus.process;
-    requires cactus.maven.log;
-    requires cactus.util;
-    exports com.telenav.cactus.cli;
+    exports com.telenav.cactus.process;
+    // For some unit tests from when this code was originally there - this
+    // package should not be published to the world.
+    exports com.telenav.cactus.process.internal to cactus.cli;
 }

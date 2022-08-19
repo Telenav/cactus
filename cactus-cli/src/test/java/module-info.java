@@ -15,23 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
 
-import java.nio.ByteBuffer;
-
-/**
- * Default no-op stding handler.
- *
- * @author Tim Boudreau
- */
-final class DefaultStdinHandler implements StdinHandler
+open module cactus.cli
 {
-    @Override
-    public boolean onStdinReady(ProcessControl process, ByteBuffer bb)
-    {
-        System.err.println(
-                "Stdin request from " + process + " but no handler was set up");
-        return false;
-    }
-
+    requires com.mastfrog.concurrent;
+    requires com.mastfrog.function;
+    requires com.mastfrog.preconditions;
+    requires com.zaxxer.nuprocess;
+    requires cactus.process;
+    requires cactus.maven.log;
+    requires cactus.util;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.engine;
+    requires org.junit.jupiter.params;
+    exports com.telenav.cactus.cli;
 }

@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
+package com.telenav.cactus.process;
 
 import java.nio.ByteBuffer;
 import java.util.function.Function;
@@ -32,6 +32,7 @@ import java.util.function.Function;
  * </p>
  *
  * @author Tim Boudreau
+ * @param <T> The type output is concatenated, parsed or aggregated into
  */
 public interface OutputHandler<T>
 {
@@ -74,7 +75,8 @@ public interface OutputHandler<T>
     static final OutputHandler<Void> NULL = new OutputHandler<Void>()
     {
         @Override
-        public void onOutput(ProcessControl<?, ?> process, ByteBuffer bb, boolean bln)
+        public void onOutput(ProcessControl<?, ?> process, ByteBuffer bb,
+                boolean bln)
         {
             // do nothing
         }
@@ -92,7 +94,8 @@ public interface OutputHandler<T>
         return new OutputHandler<>()
         {
             @Override
-            public void onOutput(ProcessControl<?, ?> process, ByteBuffer output, boolean closed)
+            public void onOutput(ProcessControl<?, ?> process, ByteBuffer output,
+                    boolean closed)
             {
                 OutputHandler.this.onOutput(process, output, closed);
             }

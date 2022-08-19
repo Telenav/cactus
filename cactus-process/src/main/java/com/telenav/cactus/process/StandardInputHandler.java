@@ -15,51 +15,35 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.cli.nuprocess;
+package com.telenav.cactus.process;
 
 import java.nio.ByteBuffer;
 
 /**
- * In the case of running a cli application that <i>might</i> try to request
- * interactive input (effectively hanging the process) to kill the process
- * immediately, with an optional notification callback that will be run if that
- * happens.
+ * Callback interface for handling stdin when the process requests it.
  *
  * @author Tim Boudreau
  */
-final class AbortOnInputStdinHandler implements StdinHandler
+public interface StandardInputHandler
 {
+    /**
+     * Returns a do-nothing StdinHandler.
+     */
+    static final StandardInputHandler DEFAULT = new DefaultStdinHandler();
 
-    private final Runnable callback;
-
-    AbortOnInputStdinHandler(Runnable callback)
-    {
-        this.callback = callback;
-    }
-
-    AbortOnInputStdinHandler()
-    {
-        this(() ->
-        {
-        });
-    }
-
-    @Override
-    public boolean onStdinReady(ProcessControl process, ByteBuffer bb)
-    {
-        if (bb.remaining() == 0)
-        {
-            return true;
-        }
-        try
-        {
-            callback.run();
-        }
-        finally
-        {
-            process.kill();
-        }
-        return false;
-    }
+    /**
+     * Called with a byte buffer that can be written into (up to its remainder)
+     * when the application requests input. Return true to notify the
+     * application that there is more input if the buffer is not large enough to
+     * accommodate all you want to write.
+     * <p>
+     * If the buffer is written to, it must be flipped before returning.
+     * </p>
+     *
+     * @param process A process
+     * @param bb A byte buffer
+     * @return true if there is more data to write
+     */
+    boolean onStdinReady(ProcessControl process, ByteBuffer bb);
 
 }

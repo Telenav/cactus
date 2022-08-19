@@ -18,12 +18,11 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-import com.telenav.cactus.cli.nuprocess.ProcessControl;
-
-import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
-
+import com.telenav.cactus.process.ProcessControl;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+
+import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 
 /**
  * Simple process result conversion when the only thing you care about is the
