@@ -15,13 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
 import com.mastfrog.function.optional.ThrowingOptional;
+import com.telenav.cactus.process.ProcessControl;
+import com.telenav.cactus.process.ProcessResult;
 import com.telenav.cactus.util.PathUtils;
-
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,8 +41,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public abstract class CliCommand<T> implements Supplier<String>
 {
-    public static AwaitableCompletionStage<Process> completionStageForProcess(
-            Process proc)
+    public static <O, E> AwaitableCompletionStage<ProcessResult<O, E>> completionStageForProcess(
+            ProcessControl<O, E> proc)
     {
         return AwaitableCompletionStage.of(proc.onExit());
     }
@@ -92,15 +93,16 @@ public abstract class CliCommand<T> implements Supplier<String>
     {
         return toString();
     }
-    
+
     /**
-     * The result converter to actually use when running the process - this
-     * can be overridden to return a wrapper that can, say, detect an authentication
+     * The result converter to actually use when running the process - this can
+     * be overridden to return a wrapper that can, say, detect an authentication
      * failure, authenticate and then retry, or similar.
-     * 
+     *
      * @return A converter
      */
-    protected ProcessResultConverter<T> resultConverter() {
+    protected ProcessResultConverter<T> resultConverter()
+    {
         return resultCreator;
     }
 
@@ -108,7 +110,7 @@ public abstract class CliCommand<T> implements Supplier<String>
     {
         return AwaitableCompletionStage.from(() ->
         {
-            ThrowingOptional<Process> p = launch();
+            ThrowingOptional<ProcessControl<String, String>> p = launch();
             if (!p.isPresent())
             {
                 return CompletableFuture.failedStage(
@@ -145,12 +147,13 @@ public abstract class CliCommand<T> implements Supplier<String>
      *
      * @param bldr A process builder
      */
-    protected void configureProcessBulder(ProcessBuilder bldr)
+    protected void configureProcessBulder(NuProcessBuilder bldr,
+            ProcessControl callback)
     {
         // for subclasses
     }
 
-    protected ThrowingOptional<Process> launch()
+    protected ThrowingOptional<ProcessControl<String, String>> launch()
     {
         validate();
         return ThrowingOptional.from(PathUtils.findExecutable(name)).map(path ->
@@ -158,12 +161,17 @@ public abstract class CliCommand<T> implements Supplier<String>
             List<String> commandLine = new ArrayList<>();
             commandLine.add(path.toString());
             configureArguments(commandLine);
-            ProcessBuilder pb = new ProcessBuilder(commandLine);
+
+            NuProcessBuilder pb = new NuProcessBuilder(commandLine);
+            ProcessControl<String, String> callback = ProcessControl.create(pb);
             pb.environment().put("GIT_TERMINAL_PROMPT", "0");
-            internalConfigureProcessBuilder(pb);
-            Process proc = pb.start();
-            onLaunch(proc);
-            return proc;
+
+            internalConfigureProcessBuilder(pb, callback);
+            onLaunch(callback);
+
+            pb.start();
+
+            return callback;
         });
     }
 
@@ -172,7 +180,7 @@ public abstract class CliCommand<T> implements Supplier<String>
      *
      * @param proc A process
      */
-    protected void onLaunch(Process proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
     }
 
@@ -189,12 +197,13 @@ public abstract class CliCommand<T> implements Supplier<String>
         return Optional.empty();
     }
 
-    private void internalConfigureProcessBuilder(ProcessBuilder bldr)
+    private void internalConfigureProcessBuilder(NuProcessBuilder bldr,
+            ProcessControl callback)
     {
         workingDirectory().ifPresent(dir ->
         {
-            bldr.directory(dir.toFile());
+            bldr.setCwd(dir);
         });
-        configureProcessBulder(bldr);
+        configureProcessBulder(bldr, callback);
     }
 }

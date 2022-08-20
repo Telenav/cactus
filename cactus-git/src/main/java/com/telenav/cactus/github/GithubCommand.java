@@ -23,8 +23,8 @@ import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
+import com.telenav.cactus.process.ProcessControl;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @author Tim Boudreau
@@ -94,7 +96,7 @@ public class GithubCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void onLaunch(Process proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);
@@ -164,7 +166,8 @@ public class GithubCommand<T> extends CliCommand<T>
 
         @Override
         public AwaitableCompletionStage<T> onProcessStarted(
-                Supplier<String> description, Process process)
+                Supplier<String> description,
+                ProcessControl<String, String> process)
         {
             if (inRetry)
             {
@@ -208,7 +211,8 @@ public class GithubCommand<T> extends CliCommand<T>
         }
 
         private void forwardToOriginalConverter(Supplier<String> description,
-                Process process, CompletableFuture<T> futureReturnedToCaller)
+                ProcessControl<String, String> process,
+                CompletableFuture<T> futureReturnedToCaller)
         {
             childLog.debug(
                     () -> "Forward to original");
@@ -332,13 +336,14 @@ public class GithubCommand<T> extends CliCommand<T>
         }
 
         @Override
-        protected void onLaunch(Process process)
+        protected void onLaunch(ProcessControl<String, String> process)
         {
             super.onLaunch(process);
-            try ( var out = new PrintWriter(process.getOutputStream()))
+            process.withStandardInputHandler((ctrl, buf) ->
             {
-                out.println(accessToken);
-            }
+                buf.put(accessToken.getBytes(UTF_8));
+                return false;
+            }, true);
         }
     }
 }

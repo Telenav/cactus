@@ -21,8 +21,12 @@ open module cactus.cli
     requires com.mastfrog.concurrent;
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
+    requires com.zaxxer.nuprocess;
     requires cactus.process;
     requires cactus.maven.log;
     requires cactus.util;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.engine;
+    requires org.junit.jupiter.params;
     exports com.telenav.cactus.cli;
 }

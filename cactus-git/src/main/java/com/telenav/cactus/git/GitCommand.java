@@ -22,6 +22,8 @@ import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
+import com.telenav.cactus.process.ProcessControl;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -63,14 +65,15 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void onLaunch(Process proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);
     }
 
     @Override
-    protected void configureProcessBulder(ProcessBuilder bldr)
+    protected void configureProcessBulder(NuProcessBuilder bldr,
+            ProcessControl callback)
     {
         // As a sanity measure, if some command inadvertently tries
         // to invoke an interactive pager, ensure it is something that
