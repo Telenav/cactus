@@ -5,7 +5,6 @@ import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.graph.IntGraph;
 import com.mastfrog.graph.IntGraphBuilder;
 import com.mastfrog.graph.ObjectGraph;
-import com.mastfrog.graph.algorithm.Score;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.Dependency;
 import com.telenav.cactus.maven.model.dependencies.DependencyScope;
@@ -14,7 +13,6 @@ import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.PomResolver;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +37,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Tim Boudreau
  */
-final class DependencyGraphs implements Iterable<Pom>
+public final class DependencyGraphs implements Iterable<Pom>
 {
 
     private final Poms poms;
