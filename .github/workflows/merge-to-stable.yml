@@ -26,13 +26,15 @@ permissions:
 env:
   TARGET_BRANCH: stable
 
+## Pending - this is getting invoked on every branch push too.
+
 on:
   push:
     paths-ignore:
         - 'documentation/**'
         - '**/*.md'
         - '.github/**'
-    branches-ignore: '**'
+    branches-ignore: 'release/**'
     tags:
         - 'automerge-**'
 
@@ -53,6 +55,9 @@ jobs:
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: 3.8.6
+
+      - name: Log Environment
+        run: set
 
       - name: Configure M2_HOME
         run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
