@@ -69,6 +69,10 @@ public class Topologizer
         poms = Poms.in(someCheckout.checkoutRoot());
         this.log = log.child("topology");
     }
+    
+    public Poms poms() {
+        return poms;
+    }
 
     public static void main(String[] args) throws IOException
     {
@@ -84,7 +88,7 @@ public class Topologizer
                 System.out.println("\n-------\nSORTED MODULES OF " + p.toArtifactIdentifiers());
                 for (String s : sorted)
                 {
-                    System.out.println("  * " + s);
+                    System.out.println("    <module>" + s + "</module>");
                 }
             }
         }

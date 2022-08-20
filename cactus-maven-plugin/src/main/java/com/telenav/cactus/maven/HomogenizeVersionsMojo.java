@@ -1,5 +1,6 @@
 package com.telenav.cactus.maven;
 
+import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.ArtifactIdentifiers;
 import com.telenav.cactus.maven.model.ParentMavenCoordinates;
@@ -10,20 +11,25 @@ import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.refactoring.PropertyHomogenizer;
-import com.telenav.cactus.maven.task.TaskSet;
+import com.telenav.cactus.maven.topologize.Topologizer;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
-import com.telenav.cactus.maven.xml.XMLReplacer;
+import com.telenav.cactus.maven.xml.XMLFile;
 import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
@@ -43,6 +49,10 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 @BaseMojoGoal("homogenize-versions")
 public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
 {
+    @Parameter(property = "cactus.topologically-sort-modules",
+            defaultValue = "true")
+    private boolean topoSortModules;
+
     public HomogenizeVersionsMojo()
     {
         super(RunPolicies.FIRST);
@@ -89,7 +99,7 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
         });
 
         Map<Pom, PomVersion> newVersionForPom = new HashMap<>();
-        Set<XMLTextContentReplacement> replacers = new LinkedHashSet<>();
+        Set<AbstractXMLUpdater> replacers = new LinkedHashSet<>();
         parentForPom.forEach((pom, parentId) ->
         {
             Pom parentPom = pomForIds.get(parentId);
@@ -111,10 +121,59 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
         {
             log.info("No parent version updates needed.");
         }
-        else
+
+        if (topoSortModules)
         {
-            AbstractXMLUpdater.applyAll(replacers, isPretend(),
-                    System.out::println);
+            Topologizer topo = new Topologizer(tree.root(), log);
+            for (Pom pom : topo.poms())
+            {
+                if (pom.isAggregator())
+                {
+                    List<String> sortedModuleNames = topo
+                            .topologicallySortedModules(pom);
+                    log.info("Will replace module list in " + pom.artifactId());
+                    replacers.add(new ModuleListReplacer(PomFile.of(pom),
+                            sortedModuleNames));
+                }
+            }
         }
+
+        AbstractXMLUpdater.applyAll(replacers, isPretend(),
+                System.out::println);
+    }
+
+    private static final class ModuleListReplacer extends AbstractXMLUpdater
+    {
+        private final List<String> newModuleList;
+
+        ModuleListReplacer(XMLFile in, List<String> newModuleList)
+        {
+            super(in);
+            this.newModuleList = newModuleList;
+        }
+
+        @Override
+        public Document replace() throws Exception
+        {
+            return in.inContext(doc ->
+            {
+                ThrowingOptional<NodeList> list = in.nodesQuery(
+                        "/project/modules/module");
+                if (!list.isPresent())
+                {
+                    System.err.println("No module list for " + this);
+                    return null;
+                }
+                NodeList nl = list.get();
+                for (int i = 0; i < nl.getLength(); i++)
+                {
+                    String newText = newModuleList.get(i);
+                    Node n = nl.item(i);
+                    n.setTextContent(newText);
+                }
+                return doc;
+            });
+        }
+
     }
 }
