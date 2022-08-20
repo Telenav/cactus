@@ -50,7 +50,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
 {
     @Parameter(property = "cactus.topologically-sort-modules",
-            defaultValue = "true")
+            defaultValue = "false")
     private boolean topoSortModules;
 
     public HomogenizeVersionsMojo()

@@ -113,7 +113,7 @@ public class BuildLog implements Consumer<String>
 
     public <T> T benchmark(String task, ThrowingSupplier<T> run)
     {
-        info("Begin " + task);
+        debug("Begin " + task);
         long then = System.currentTimeMillis();
         try
         {
@@ -121,7 +121,7 @@ public class BuildLog implements Consumer<String>
         }
         finally
         {
-            info(task + " took " + (System.currentTimeMillis() - then) + " milliseconds");
+            debug(task + " took " + (System.currentTimeMillis() - then) + " milliseconds");
         }
     }
 
