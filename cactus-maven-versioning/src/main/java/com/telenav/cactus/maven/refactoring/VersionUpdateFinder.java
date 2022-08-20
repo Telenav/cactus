@@ -27,7 +27,6 @@ import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.published.PublishChecker;
-import com.telenav.cactus.maven.model.published.PublishedState;
 import com.telenav.cactus.scope.ProjectFamily;
 import java.io.IOException;
 import java.net.URISyntaxException;

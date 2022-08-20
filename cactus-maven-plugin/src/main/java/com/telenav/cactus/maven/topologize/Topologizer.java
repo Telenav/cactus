@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.topologize;
 
+import com.mastfrog.function.TriConsumer;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.graph.IntGraph;
 import com.mastfrog.graph.IntGraphBuilder;
@@ -37,9 +38,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
 import static java.util.Collections.emptyList;
 
@@ -73,10 +78,10 @@ public class Topologizer
         Topologizer topo = new Topologizer(checkout, bl);
         for (Pom p : topo.poms)
         {
-            if (p.isPomProject() && !p.modules().isEmpty())
+            if (p.isAggregator())
             {
                 List<String> sorted = topo.topologicallySortedModules(p);
-                System.out.println("\n-------\nSORTED MODULES OF " + p);
+                System.out.println("\n-------\nSORTED MODULES OF " + p.toArtifactIdentifiers());
                 for (String s : sorted)
                 {
                     System.out.println("  * " + s);
@@ -125,10 +130,6 @@ public class Topologizer
         List<MavenCoordinates> before = new ArrayList<>(modules);
         List<MavenCoordinates> sorted = cg.topologicalSort(modules);
 //        List<MavenCoordinates> sorted = topoSort(modules, cg);
-        if (before.equals(sorted))
-        {
-            System.out.println("TOP SORT DID NOTHING: " + before);
-        }
         List<String> result = new ArrayList<>();
         for (MavenCoordinates mc : sorted)
         {
@@ -150,6 +151,7 @@ public class Topologizer
     static final class TopoComparator<T> implements Comparator<T>
     {
         private final ObjectGraph<T> gr;
+        private final Map<T, Set<T>> closures = new HashMap<>();
 
         public TopoComparator(ObjectGraph<T> gr)
         {
@@ -159,8 +161,10 @@ public class Topologizer
         @Override
         public int compare(T a, T b)
         {
-            Set<T> aClosure = gr.closureOf(a);
-            Set<T> bClosure = gr.closureOf(b);
+            Set<T> aClosure = closures
+                    .computeIfAbsent(a, aa -> gr.closureOf(aa));
+            Set<T> bClosure = closures
+                    .computeIfAbsent(b, bb -> gr.closureOf(bb));
             boolean bInA = aClosure.contains(b);
             boolean aInB = bClosure.contains(a);
             if (bInA == aInB)
@@ -170,11 +174,11 @@ public class Topologizer
             else
                 if (bInA)
                 {
-                    return 1;
+                    return -1;
                 }
                 else
                 {
-                    return -1;
+                    return 1;
                 }
         }
 
@@ -228,10 +232,108 @@ public class Topologizer
 
         IntGraphBuilder igb = IntGraph.builder(coords.size());
 
+        LinkedList<Integer> scanning = new LinkedList<>();
+        TriConsumer<Integer, MavenCoordinates, IntConsumer> tc
+                = new TriConsumer<Integer, MavenCoordinates, IntConsumer>()
+        {
+            @Override
+            public void accept(Integer index, MavenCoordinates cds,
+                    IntConsumer visitor)
+            {
+                if (scanning.contains(index))
+                {
+                    return;
+                }
+                scanning.push(index);
+                try
+                {
+                    poms.get(cds).ifPresent(pom ->
+                    {
+                        pom.modules().forEach(module ->
+                        {
+                            module.toPom().ifPresent(modulePom ->
+                            {
+                                MavenCoordinates moduleCoordinates = modulePom
+                                        .coordinates();
+                                int ix = coords.indexOf(modulePom.coordinates());
+                                if (scanning.contains(ix))
+                                {
+                                    return;
+                                }
+                                igb.addEdge(ix, index);
+                                if (graphNodes.contains(moduleCoordinates))
+                                {
+                                    graph.closureOf(moduleCoordinates).forEach(
+                                            dep ->
+                                    {
+                                        int dix = coords.indexOf(dep);
+                                        visitor.accept(dix);
+                                        igb.addEdge(dix, index);
+                                    });
+                                }
+                                else
+                                    if (modulePom.isAggregator())
+                                    {
+                                        accept(ix, moduleCoordinates, ch ->
+                                        {
+                                            visitor.accept(ch);
+                                        });
+                                    }
+                            });
+                        });
+                    });
+                }
+                finally
+                {
+                    scanning.pop();
+                }
+            }
+        };
+
         for (int i = 0; i < coords.size(); i++)
         {
             int index = i;
             MavenCoordinates c = coords.get(i);
+            ThrowingOptional<Pom> po = poms.get(c);
+            if (!po.isPresent())
+            {
+                continue;
+            }
+            Pom p = po.get();
+            boolean isPom = p.isPomProject();
+            boolean isModules = isPom
+                                ? !p.modules().isEmpty()
+                                : false;
+
+            p.parent().ifPresent(par ->
+            {
+                poms.get(par).ifPresent(pp ->
+                {
+                    int pix = coords.indexOf(pp.coordinates());
+                    igb.addEdge(index, pix);
+                });
+            });
+
+            p.modules().forEach(module ->
+            {
+                module.toPom().ifPresent(modulePom ->
+                {
+                    int moduleIx = coords.indexOf(modulePom.coordinates());
+//                    igb.addEdge(moduleIx, index);
+                    igb.addEdge(index, moduleIx);
+                });
+            });
+
+            /*
+            ownershipGraph.parents(p.coordinates()).forEach(ch ->
+            {
+                poms.get(ch).ifPresent(ancestorPom ->
+                {
+                    int ancestorIx = coords.indexOf(ancestorPom.coordinates());
+                    igb.addEdge(index, ancestorIx);
+                });
+            });
+            */
 
             if (graphNodes.contains(c))
             {
@@ -239,22 +341,65 @@ public class Topologizer
                 {
                     int cix = coords.indexOf(child);
                     igb.addEdge(i, cix);
+
+                    ownershipGraph.parents(child).forEach(parent ->
+                    {
+                        if (ownershipGraph.topLevelOrOrphanNodes().contains(parent)) {
+                            return;
+                        }
+                        poms.get(parent).ifPresent(ancestorPom ->
+                        {
+                            int ancestorIx = coords.indexOf(ancestorPom
+                                    .coordinates());
+                            
+                            System.out.println("SYNTH DEP " + p.artifactId() + " on " + parent.artifactId());
+                            
+                            igb.addEdge(index, ancestorIx);
+                        });
+                    });
+
+                    /*
+                    poms.get(child).ifPresent(pom ->
+                    {
+                        pom.parent().ifPresent(par ->
+                        {
+                            poms.get(par).ifPresent(pp ->
+                            {
+                                int pix = coords.indexOf(pp.coordinates());
+                                igb.addEdge(index, pix);
+                            });
+
+                        });
+                    });
+                     */
                 }
             }
+            /*
             if (childGraphNodes.contains(c))
             {
                 for (MavenCoordinates child : childGraph.children(c))
                 {
                     int cix = coords.indexOf(child);
-                    igb.addEdge(i, cix);
+//                    if (isPom)  {
+//                    igb.addEdge(i, cix);
+//                    igb.addEdge(cix, i);
+//                    }
                 }
             }
+             */
             if (ownerNodes.contains(c))
             {
                 for (MavenCoordinates child : ownershipGraph.children(c))
                 {
-                    int cix = coords.indexOf(child);
-                    igb.addEdge(i, cix);
+//                    int cix = coords.indexOf(child);
+//                    igb.addEdge(cix, i);
+                    /*
+                    tc.accept(cix, child, nix ->
+                    {
+                        igb.addEdge(nix, index);
+//                        igb.addEdge(nix, cix);
+                    });
+                     */
                 }
             }
         }
@@ -282,7 +427,7 @@ public class Topologizer
         return childGraph = log.benchmark(
                 "Project Module Graph Creation", () ->
         {
-            return graphs().parentage();
+            return parentage();
         });
     }
 
@@ -325,5 +470,32 @@ public class Topologizer
                     .scanningFolder(root.checkoutRoot())
                     .graphingAllJavaAndPomProjects().build();
         });
+    }
+
+    private final ObjectGraph<MavenCoordinates> parentage()
+    {
+        Set<MavenCoordinates> allCoords = new HashSet<>();
+        poms.forEach(pom ->
+        {
+            allCoords.add(pom.coordinates());
+        });
+        List<MavenCoordinates> all = new ArrayList<>(allCoords);
+        Collections.sort(all);
+        IntGraphBuilder igb = IntGraph.builder(allCoords.size());
+        poms.forEach(pom ->
+        {
+            MavenCoordinates c = pom.coordinates();
+            int cix = all.indexOf(c);
+            pom.parent().ifPresent(par ->
+            {
+                poms.get(par).ifPresent(parentPom ->
+                {
+                    MavenCoordinates parentCoords = parentPom.coordinates();
+                    int ix = all.indexOf(parentCoords);
+                    igb.addEdge(cix, ix);
+                });
+            });
+        });
+        return igb.build().toObjectGraph(all);
     }
 }
