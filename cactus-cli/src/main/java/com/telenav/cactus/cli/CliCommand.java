@@ -22,6 +22,7 @@ import com.mastfrog.function.optional.ThrowingOptional;
 import com.telenav.cactus.process.ProcessControl;
 import com.telenav.cactus.process.ProcessResult;
 import com.telenav.cactus.util.PathUtils;
+import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -41,6 +42,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public abstract class CliCommand<T> implements Supplier<String>
 {
+    private static final int MAX_LAUNCH_ATTEMPTS = 7;
+
     public static <O, E> AwaitableCompletionStage<ProcessResult<O, E>> completionStageForProcess(
             ProcessControl<O, E> proc)
     {
@@ -169,8 +172,36 @@ public abstract class CliCommand<T> implements Supplier<String>
             internalConfigureProcessBuilder(pb, callback);
             onLaunch(callback);
 
-            pb.start();
-
+            NuProcess proc = null;
+            for (int i = 0; proc == null && i < MAX_LAUNCH_ATTEMPTS; i++)
+            {
+                proc = pb.start();
+                if (proc == null)
+                {
+                    // If we are racing with the OS, buy a little time and
+                    // retry
+                    Thread.sleep(150);
+                }
+            }
+            if (proc == null)
+            {
+                // We once in a while see
+                // java.lang.NullPointerException
+                //	at com.zaxxer.nuprocess@2.0.4/com.zaxxer.nuprocess.internal.BasePosixProcess.callStart(BasePosixProcess.java:587)
+                //	at com.zaxxer.nuprocess@2.0.4/com.zaxxer.nuprocess.linux.LinuxProcess.start(LinuxProcess.java:80)
+                //	at com.zaxxer.nuprocess@2.0.4/com.zaxxer.nuprocess.linux.LinProcessFactory.createProcess(LinProcessFactory.java:40)
+                //	at com.zaxxer.nuprocess@2.0.4/com.zaxxer.nuprocess.NuProcessBuilder.start(NuProcessBuilder.java:259)
+                // occasionally on github's runners. 
+                // Likely we are hitting ulimit on the number of processes - an NPE is logged,
+                // but the return is simply null.
+                //
+                // In that case, return a ProcessControl that cannot fail to
+                // report the failure
+                return ProcessControl.failure(new ProcessFailedException(
+                        () -> "Failed to launch " + this + " after "
+                        + MAX_LAUNCH_ATTEMPTS + " attempts",
+                        callback, "", ""));
+            }
             return callback;
         });
     }

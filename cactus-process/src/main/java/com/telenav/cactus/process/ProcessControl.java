@@ -44,6 +44,11 @@ public interface ProcessControl<O, E>
 
     ProcessState state();
 
+    public static <O, E> ProcessControl<O, E> failure(Exception thrown)
+    {
+        return new FailedProcessControl<>(thrown);
+    }
+
     default CompletionStage<ProcessResult<O, E>> onExit()
     {
         CompletableFuture<ProcessResult<O, E>> result = new CompletableFuture<>();
