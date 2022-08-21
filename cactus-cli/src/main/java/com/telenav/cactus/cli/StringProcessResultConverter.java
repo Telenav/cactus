@@ -25,8 +25,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.Collections.emptyList;
-
 /**
  * Converter interface specific to strings with convenience wrappers for
  * trimming, pattern matching and simply testing for output or not.
