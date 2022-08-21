@@ -829,6 +829,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return Optional.of(remotes.iterator().next());
     }
 
+    public boolean deleteRemoteBranch(String remote, String branchToDelete)
+    {
+        GitCommand<String> del = new GitCommand<>(ProcessResultConverter
+                .strings(), checkoutRoot(),
+                "push", "--delete", notNull("remote", remote), notNull(
+                "branchToDelete", branchToDelete));
+        return del.run().awaitQuietly() != null;
+    }
+
     public boolean deleteBranch(String branchToDelete, String branchToMoveTo,
             boolean force)
     {
@@ -877,6 +886,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean fetch()
     {
         return FETCH.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    public boolean fetchPruningDefunctLocalRecordsOfRemoteBranches()
+    {
+        return new GitCommand<>(exitCodeIsZero(), checkoutRoot(),
+                "fetch", "--all", "--prune")
+                .run().awaitQuietly();
     }
 
     public void gc()
@@ -1252,6 +1268,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
         return true;
     }
+
     /**
      * Merges pull request on Github using the given authentication token
      *

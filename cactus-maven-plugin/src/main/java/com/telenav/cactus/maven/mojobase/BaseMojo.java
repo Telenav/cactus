@@ -494,7 +494,6 @@ public abstract class BaseMojo extends AbstractMojo
      * @throws MojoExecutionException if the branch is invalid by these criteria
      */
     protected void validateBranchName(String branchName, boolean nullOk)
-            throws MojoExecutionException
     {
         if (branchName == null)
         {

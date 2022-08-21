@@ -50,13 +50,15 @@ final class StringProcessResultConverterImpl implements
     public AwaitableCompletionStage<String> onProcessStarted(
             Supplier<String> description, ProcessControl<String, String> process)
     {
+        Exception launched = new Exception();
         // Note:  This really needs to be thenApplyAsync(), or you sometimes get
         // immediately called back before the process has *started*.
         return completionStageForProcess(process).thenApply(result ->
         {
             log.debug(() ->
             {
-                return "exit " + result.exitValue() + ":\n" + result.standardOutput()+ "\n"
+                return "exit " + result.exitValue() + ":\n" + result
+                        .standardOutput() + "\n"
                         + (result.exitValue() != 0
                            ? result.standardError()
                            : "");
@@ -65,8 +67,11 @@ final class StringProcessResultConverterImpl implements
             {
                 return result.standardOutput();
             }
-            throw new ProcessFailedException(description, process, result.standardOutput(),
+            ProcessFailedException ex = new ProcessFailedException(description,
+                    process, result.standardOutput(),
                     result.standardError());
+            ex.initCause(launched);
+            throw ex;
         });
     }
 
