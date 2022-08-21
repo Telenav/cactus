@@ -158,7 +158,7 @@ public class DependencySet implements Dependencies
         Set<Dependency> result = new LinkedHashSet<>();
         for (Dependency d : this.dependencies)
         {
-            if (!scope.contains(d.scope) || !includeOptional && d.isOptional())
+            if (!scope.contains(d.scope()) || !includeOptional && d.isOptional())
             {
                 continue;
             }
@@ -412,7 +412,7 @@ public class DependencySet implements Dependencies
             // If we are clobbering a direct dependency declared in a parent,
             // remove it from the set we're going to append to the end of
             // our local direct dependencies list.
-            Dependency existing = inheritedById.remove(dep.coords
+            Dependency existing = inheritedById.remove(dep.coordinates()
                     .toMavenId());
             // Update the dependency replacing any ${project.groupId},
             // ${project.version} or local properties
@@ -496,7 +496,7 @@ public class DependencySet implements Dependencies
                     DependencyScope.all());
             for (Dependency dep : direct)
             {
-                ArtifactIdentifiers id = dep.coords.toMavenId();
+                ArtifactIdentifiers id = dep.coordinates().toMavenId();
                 // A child can also be replacing the dependency.
                 if (!inheritedById.containsKey(id))
                 {
@@ -516,7 +516,7 @@ public class DependencySet implements Dependencies
         for (Dependency dep : rawDependencies)
         {
             Dependency raw = dep;
-            if (DependencyScope.Import == dep.scope)
+            if (DependencyScope.Import == dep.scope())
             {
                 if (!dep.isResolved())
                 {
@@ -581,7 +581,7 @@ public class DependencySet implements Dependencies
         if (!managementEntry.isPlaceholderVersion() && dep
                 .isPlaceholderVersion())
         {
-            dep = dep.withVersion(managementEntry.coords.version);
+            dep = dep.withVersion(managementEntry.coordinates().version);
         }
         // This is wrong, but it is what maven does - if a dependency
         // management entry specifies a type or scope, it is nearly
@@ -589,7 +589,7 @@ public class DependencySet implements Dependencies
         if (dep.isImplictScope() && !managementEntry
                 .isImplictScope())
         {
-            dep = dep.withScope(managementEntry.scope);
+            dep = dep.withScope(managementEntry.scope());
         }
         // Same for type - it's why a dependencyManagement entry with a scope
         // like test or provided will hijack all dependencies on that thing to
@@ -597,7 +597,7 @@ public class DependencySet implements Dependencies
         if (dep.isImplicitType() && !managementEntry
                 .isImplicitType())
         {
-            dep = dep.withType(managementEntry.type);
+            dep = dep.withType(managementEntry.type());
         }
         // Unclear if dependency management exclusions combine with or clobber
         // explicit ones.  Combine for now.
@@ -624,11 +624,11 @@ public class DependencySet implements Dependencies
         }
         if (!orig.isImplicitType())
         {
-            dep = dep.withType(orig.type);
+            dep = dep.withType(orig.type());
         }
         if (!orig.isImplictScope())
         {
-            dep = dep.withScope(orig.scope);
+            dep = dep.withScope(orig.scope());
         }
         return dep;
     }
@@ -788,7 +788,7 @@ public class DependencySet implements Dependencies
             {
                 // See if this is one we should skip
                 if ((dep.isOptional() && !includeOptional) || !scopes.contains(
-                        dep.scope))
+                        dep.scope()))
                 {
                     continue;
                 }

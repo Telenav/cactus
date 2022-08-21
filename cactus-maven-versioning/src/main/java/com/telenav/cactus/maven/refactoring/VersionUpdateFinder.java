@@ -18,6 +18,7 @@
 package com.telenav.cactus.maven.refactoring;
 
 import com.mastfrog.function.state.Bool;
+import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
@@ -25,7 +26,10 @@ import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
+import com.telenav.cactus.maven.model.published.PublishChecker;
 import com.telenav.cactus.scope.ProjectFamily;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,6 +62,7 @@ class VersionUpdateFinder
     private final Set<ProjectFamily> completedFamilies = new HashSet<>();
     private final SuperpomBumpPolicy superpomBumpPolicy;
     private final VersionMismatchPolicy versionMismatchPolicy;
+    private final PublishChecker publishChecker;
 
     VersionUpdateFinder(
             VersionChangeUpdatesCollector changes,
@@ -65,7 +70,8 @@ class VersionUpdateFinder
             VersionIndicatingProperties potentialPropertyChanges,
             Map<ProjectFamily, VersionChange> familyVersionChanges,
             SuperpomBumpPolicy superpomBumpPolicy,
-            VersionMismatchPolicy versionMismatchPolicy)
+            VersionMismatchPolicy versionMismatchPolicy,
+            PublishChecker publishChecker)
     {
         this.changes = changes;
         this.categories = categories;
@@ -73,6 +79,7 @@ class VersionUpdateFinder
         this.familyVersionChanges = familyVersionChanges;
         this.superpomBumpPolicy = superpomBumpPolicy;
         this.versionMismatchPolicy = versionMismatchPolicy;
+        this.publishChecker = publishChecker;
     }
 
     public void go()
@@ -104,6 +111,7 @@ class VersionUpdateFinder
         }
         while (changes.hasChanges());
         pruneDuplicateVersions();
+        findSuperpomsThatNeedBumping();
         // See if we need to abort and do so
         StringBuilder abortMessage = new StringBuilder();
         mismatchOutcomes.forEach((pom, outcome) ->
@@ -128,6 +136,92 @@ class VersionUpdateFinder
         {
             throw new IllegalStateException("Encountered version mismatches "
                     + "with outcome ABORT: " + abortMessage);
+        }
+    }
+
+    private void findSuperpomsThatNeedBumping()
+    {
+        // Bugfix:  With kivakit 1.6.2, we missed updating
+        // telenav-superpom-intermediate-bom and telenav-superpom
+        // because we were updating three families that did not include
+        // the superpom family "telenav" - we need to be sure that we
+        // capture cases where there is no choice but to publish a new
+        // superpom, because otherwise the release will fail (nastily - c.f.
+        // https://issues.sonatype.org/browse/OSSRH-82713
+        // )
+        if (publishChecker != null && superpomBumpPolicy.isBumpVersion())
+        {
+            Set<Pom> alsoBump = new HashSet<>();
+            categories.eachPomWithRoleIn(pom ->
+            {
+                // 1. First see if we are already updating it; skip if so
+                if (changes.hasVersionUpdateFor(pom))
+                {
+                    return;
+                }
+                Set<Pom> possibleUpdates = new HashSet<>();
+
+                categories.childrenOf(pom).forEach(child ->
+                {
+                    boolean alreadyChanging = changes.hasParentUpdateFor(
+                            child);
+                    if (!alreadyChanging)
+                    {
+                        possibleUpdates.add(child);
+                    }
+                });
+
+                // 2. Then see if we are updating any poms it is the ancestor of
+                // and they are in the target families we're working on
+                Set<Pom> allDescendants = new HashSet<>();
+                for (Pom child : possibleUpdates)
+                {
+                    allDescendants.addAll(categories.descendantsOf(child));
+                }
+                boolean hasDescendantInTargetFamilies = false;
+                for (Pom desc : allDescendants)
+                {
+                    if (familyVersionChanges.containsKey(familyOf(desc)))
+                    {
+                        hasDescendantInTargetFamilies = true;
+                        break;
+                    }
+                }
+                // 3. Then see if it is published and the published version differs
+                boolean needRepublish = false;
+                if (hasDescendantInTargetFamilies)
+                {
+                    try
+                    {
+                        needRepublish = publishChecker.check(pom).differs();
+                    }
+                    catch (IOException | InterruptedException
+                            | URISyntaxException ex)
+                    {
+                        Exceptions.chuck(ex);
+                    }
+                }
+                // 4. If so, add a bump for it and cascade
+                if (needRepublish)
+                {
+                    PomVersion oldVersion = pom.version();
+                    oldVersion.updatedWith(superpomBumpPolicy
+                            .minimalMagnitudeFor(
+                                    oldVersion), superpomBumpPolicy
+                                    .changeFor(oldVersion))
+                            .ifPresent(newVersion ->
+                            {
+                                VersionChange.versionChange(oldVersion,
+                                        newVersion).ifPresent(versionChange ->
+                                        {
+                                            changes.changeParentVersion(pom,
+                                                    pom,
+                                                    versionChange);
+                                            cascadeChange(pom, versionChange);
+                                        });
+                            });
+                }
+            }, PomRole.CONFIG, PomRole.CONFIG_ROOT);
         }
     }
 
@@ -524,14 +618,19 @@ class VersionUpdateFinder
                                 }
                                 else
                                 {
-                                    if (changes.changeParentVersion(par,
-                                            categories.parentOf(par).get(), vc)
-                                            .isFiltered())
+                                    Optional<Pom> parPar = categories.parentOf(
+                                            pom);
+                                    if (parPar.isPresent())
                                     {
-                                        // If the filter won't let us change the parent
-                                        // version, we need to insert a new version tag
-                                        // into the pom
-                                        changes.changePomVersion(pom, vc);
+                                        if (changes.changeParentVersion(par,
+                                                parPar.get(), vc)
+                                                .isFiltered())
+                                        {
+                                            // If the filter won't let us change the parent
+                                            // version, we need to insert a new version tag
+                                            // into the pom
+                                            changes.changePomVersion(pom, vc);
+                                        }
                                     }
                                 }
                                 return true;
@@ -705,7 +804,7 @@ class VersionUpdateFinder
                 seen.add(pom);
                 cascadeChange(pom, ver);
             });
-            
+
             ch.putAll(changes.pomVersionChanges());
             for (Pom p : seen)
             {

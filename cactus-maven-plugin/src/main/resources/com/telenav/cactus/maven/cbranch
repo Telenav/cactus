@@ -1,0 +1,60 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+# Unpretty, but does the job for two arguments that
+# could be in either order
+
+if [ -n "$1" ]; then
+    if [ '--new' = $1 ]; then
+        export CREATE_BRANCHES=true
+        shift
+    else
+        export CREATE_BRANCHES=false
+    fi
+fi
+
+if [ -n "$1" ]; then
+    if [ '--all' = $1 ]; then
+        export SCOPE=all-project-families
+        shift
+    else
+        export SCOPE=family-or-child-family
+    fi
+fi
+
+if [ -n "$1" ]; then
+    if [ '--new' = $1 ]; then
+        export CREATE_BRANCHES=true
+        shift
+    fi
+fi
+
+if [ -n "$1" ]; then
+    if [ '--all' = $1 ]; then
+        export SCOPE=all-project-families
+        shift
+    fi
+fi
+
+if [ -z "$1" ]; then
+    echo "No branch argument passed" 1>&2
+    echo "Usage:" 1>&2
+    echo "cbranch [--new] [--all] BRANCH" 1>&2
+    echo "  --new Create branches if they don't already exist" 1>&2
+    echo "  --all Apply to checkouts of all project families rather than just the" 1>&2
+    echo "        family of the project of the current folder and its children" 1>&2
+    exit 1
+else
+    export BRANCH_NAME=$1
+fi
+
+MAVEN_ARGS="-Dcactus.scope=$SCOPE \
+    -Dcactus.create-branches=$CREATE_BRANCHES \
+    -Dcactus.create-local-branches=true \
+    -Dcactus.target-branch=$BRANCH_NAME \
+    -Dcactus.update-root=true \
+    -Dcactus.include-root=true \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout"
+
+run_maven

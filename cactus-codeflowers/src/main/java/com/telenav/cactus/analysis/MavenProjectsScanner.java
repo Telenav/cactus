@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
@@ -42,53 +45,76 @@ public final class MavenProjectsScanner
     private final BuildLog log;
     private final SourcesScanner scanner;
     private Function<Path, Path> sourceDirFinder;
+    private boolean verbose;
 
     public MavenProjectsScanner(BuildLog log, SourceScorer scorer,
-            Collection<? extends Pom> poms)
+            Collection<? extends Pom> poms, boolean verbose)
     {
-        this(log, scorer, poms, MavenProjectsScanner::defaultSourceDir);
+        this(log, scorer, poms, MavenProjectsScanner::defaultSourceDir, verbose);
+        this.verbose = verbose;
     }
 
     public MavenProjectsScanner(BuildLog log, SourceScorer scorer,
-            Collection<? extends Pom> poms, Function<Path, Path> sourceDirFinder)
+            Collection<? extends Pom> poms, Function<Path, Path> sourceDirFinder,
+            boolean verbose)
     {
         this.poms = ConcurrentLinkedList.lifo();
         this.scanner = new SourcesScanner(notNull("scorer", scorer));
         this.sourceDirFinder = notNull("sourceDirFinder", sourceDirFinder);
+        this.verbose = verbose;
         // Use a biconsumer for manual testing without SLF4J on the classpath
-        this.log = log;
+        this.log = log.child(getClass().getSimpleName());
+        if (verbose)
+        {
+            this.log.info(
+                    "Was passed " + poms.size() + " projects to scan: " + poms);
+        }
         poms.stream()
-                .filter(pom -> (pom.isPomProject()))
-                .forEachOrdered(this.poms::push);
+                .filter(pom -> (!pom.isPomProject()))
+                .forEach(this.poms::push);
     }
 
     public void scan(ProjectScanConsumer c) throws InterruptedException, IOException
     {
+        if (verbose)
+        {
+            log.info("Scan " + poms.size() + " projects using " + c);
+        }
         int count = Runtime.getRuntime().availableProcessors();
         CountDownLatch latch = new CountDownLatch(count);
+        Set<Pom> scanned = ConcurrentHashMap.newKeySet();
         for (int i = 0; i < count - 1; i++)
         {
-            ForkJoinPool.commonPool().submit(() -> scanLoop(latch, c));
+            ForkJoinPool.commonPool().submit(() -> scanned.addAll(
+                    scanLoop(latch, c)));
         }
-        scanLoop(latch, c);
+        scanned.addAll(scanLoop(latch, c));
         latch.await();
         c.onDone();
+        if (verbose)
+        {
+            log.info("Scanned " + scanned.size() + " projects:");
+            scanned.forEach(pom -> log.info("  * " + pom.artifactId()));
+        }
     }
 
-    private void scanLoop(CountDownLatch latch, ProjectScanConsumer c)
+    private Set<Pom> scanLoop(CountDownLatch latch, ProjectScanConsumer c)
     {
+        Set<Pom> result = new HashSet<>();
         try
         {
             Pom pom;
             while ((pom = poms.pop()) != null)
             {
                 scanOne(pom, c);
+                result.add(pom);
             }
         }
         finally
         {
             latch.countDown();
         }
+        return result;
     }
 
     private void scanOne(Pom pom, ProjectScanConsumer c)

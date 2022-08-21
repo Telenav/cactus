@@ -28,6 +28,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.maven.model.Packaging.packaging;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
 
 /**
  * A single maven dependency.
@@ -37,13 +40,13 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
 public class Dependency implements MavenArtifactCoordinates
 {
 
-    public final MavenCoordinates coords;
-    public final String type;
-    public final DependencyScope scope;
-    public final boolean optional;
-    public final Set<ArtifactIdentifiers> exclusions;
-    public final boolean implicitScope;
-    public final boolean implicitType;
+    private final MavenCoordinates coords;
+    private final Packaging type;
+    private final DependencyScope scope;
+    private final boolean optional;
+    private final Set<ArtifactIdentifiers> exclusions;
+    private final boolean implicitScope;
+    private final boolean implicitType;
 
     public Dependency(MavenCoordinates coords, String type, String scope,
             boolean optional, Set<ArtifactIdentifiers> exclusions)
@@ -57,8 +60,8 @@ public class Dependency implements MavenArtifactCoordinates
     {
         this.coords = notNull("coords", coords);
         this.type = type == null
-                    ? "jar"
-                    : type;
+                    ? Packaging.JAR
+                    : packaging(type);
         this.scope = scope == null
                      ? DependencyScope.Compile
                      : scope;
@@ -71,9 +74,40 @@ public class Dependency implements MavenArtifactCoordinates
                         new HashSet<>(exclusions));
     }
 
+    private Dependency(MavenCoordinates coords, Packaging type,
+            boolean implicitType,
+            DependencyScope scope, boolean implicitScope,
+            Set<ArtifactIdentifiers> exclusions,
+            boolean optional
+    )
+    {
+        this.coords = notNull("coords", coords);
+        this.type = notNull("type", type);
+        this.scope = notNull("scope", scope);
+        this.exclusions = exclusions.isEmpty()
+                          ? exclusions
+                          : unmodifiableSet(exclusions);
+        this.implicitScope = implicitScope;
+        this.implicitType = implicitType;
+        this.optional = optional;
+    }
+
     public Set<ArtifactIdentifiers> exclusions()
     {
-        return Collections.unmodifiableSet(exclusions);
+        return exclusions;
+    }
+
+    public boolean excludes(MavenIdentified artifact)
+    {
+        notNull("artifact", artifact);
+        for (ArtifactIdentifiers ids : exclusions)
+        {
+            if (ids.is(artifact))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isImplictScope()
@@ -90,19 +124,20 @@ public class Dependency implements MavenArtifactCoordinates
     {
         return coords.version.isPlaceholder();
     }
-    
+
     public Dependency withVersion(PomVersion version)
     {
-        if (this.coords.version.equals(version))
+        if (this.coords.version.equals(notNull("version", version)))
         {
             return this;
         }
         MavenCoordinates newCoords = this.coords.withVersion(version);
         return new Dependency(newCoords, implicitType
                                          ? null
-                                         : type, implicitScope
-                                                 ? null
-                                                 : scope, optional, exclusions);
+                                         : type.toString(), implicitScope
+                                                            ? null
+                                                            : scope, optional,
+                exclusions);
     }
 
     public Dependency withVersion(String version)
@@ -112,16 +147,13 @@ public class Dependency implements MavenArtifactCoordinates
             return this;
         }
         MavenCoordinates newCoords = this.coords.withVersion(version);
-        return new Dependency(newCoords, implicitType
-                                         ? null
-                                         : type, implicitScope
-                                                 ? null
-                                                 : scope, optional, exclusions);
+        return new Dependency(newCoords, type, implicitType,
+                scope, implicitScope, exclusions, optional);
     }
 
     public Dependency withType(String type)
     {
-        if (this.type.equals(type))
+        if (this.type.is(type))
         {
             return this;
         }
@@ -131,46 +163,52 @@ public class Dependency implements MavenArtifactCoordinates
                       : scope, optional, exclusions);
     }
 
+    public Dependency withType(Packaging type)
+    {
+        if (this.type.equals(type))
+        {
+            return this;
+        }
+        return new Dependency(coords, type, false, scope, implicitScope,
+                exclusions, optional);
+    }
+
     public Dependency withScope(DependencyScope scope)
     {
         if (scope == this.scope)
         {
             return this;
         }
-        return new Dependency(coords, implicitType
-                                      ? null
-                                      : type, scope, optional, exclusions);
+        return new Dependency(coords, type, implicitType, scope,
+                implicitScope, exclusions, optional);
     }
 
-    public Dependency withExclusions(Collection<? extends ArtifactIdentifiers> excl)
+    public Dependency withExclusions(
+            Collection<? extends ArtifactIdentifiers> excl)
     {
         if (exclusions.equals(this.exclusions))
         {
             return this;
         }
-        return new Dependency(coords, implicitType
-                                      ? null
-                                      : type, implicitScope
-                                              ? null
-                                              : scope,
-                optional, new HashSet<>(exclusions));
+        return new Dependency(coords, type, implicitType, scope,
+                implicitScope, exclusions.isEmpty()
+                               ? emptySet()
+                               : new HashSet<>(exclusions), optional);
     }
 
     public Dependency withCombinedExclusions(
             Collection<? extends ArtifactIdentifiers> exclusions)
     {
-        if (exclusions == this.exclusions || exclusions.equals(this.exclusions))
+        if (exclusions == this.exclusions
+                || exclusions.equals(this.exclusions)
+                || exclusions.isEmpty())
         {
             return this;
         }
         Set<ArtifactIdentifiers> result = new HashSet<>(exclusions);
         result.addAll(this.exclusions);
-        return new Dependency(coords, implicitType
-                                      ? null
-                                      : type, implicitScope
-                                              ? null
-                                              : scope,
-                optional, result);
+        return new Dependency(coords, type, implicitType, scope, implicitScope,
+                result, optional);
     }
 
     public boolean isCompletionOf(Dependency other)
@@ -212,46 +250,76 @@ public class Dependency implements MavenArtifactCoordinates
     {
         return coords.version();
     }
-    
+
+    /**
+     * Get the version as a string, if and only if it is fully resolved (not a
+     * placeholder or a property reference).
+     *
+     * @return An optional
+     */
     @Override
     public ThrowingOptional<String> resolvedVersion()
     {
         return coords.resolvedVersion();
     }
 
+    /**
+     * Determine if this dependency is free of <code>${property}</code> values
+     * and/or placeholder markers.
+     *
+     * @return True if this pom is resolved
+     */
     @Override
     public boolean isResolved()
     {
         return coords.isResolved();
     }
 
+    /**
+     * Determine if this dependency was marked as optional in its originating
+     * pom.
+     *
+     * @return True if this dependency is optional
+     */
     public boolean isOptional()
     {
         return optional;
     }
 
+    /**
+     * Resolve any <code>${property}</code> elements in this dependency, using
+     * the passed property resolver.
+     *
+     * @param res A property resolver.
+     * @return A new dependency or this.
+     */
     public Dependency resolve(PropertyResolver res)
     {
-        Dependency result = this;
         MavenCoordinates cds = coords.resolve(res);
         if (cds != coords)
         {
-            result = new Dependency(cds, implicitType
-                                         ? null
-                                         : type,
-                    implicitScope
-                    ? null
-                    : scope, optional, exclusions);
+            return new Dependency(cds, type, implicitType,
+                    scope, implicitScope, exclusions, optional);
         }
-        return result;
+        return this;
     }
 
+    /**
+     * Return a dependency, resolving coordinates against the passed pom
+     * resolver and poms, and returning a new instance if anything has changed.
+     *
+     * @param res A property resolver
+     * @param poms A set of poms or other mechanism for resolving the dependency
+     * to a concrete version, group id, etc.
+     * @return A new dependency or this
+     */
     public Dependency resolve(PropertyResolver res, PomResolver poms)
     {
         MavenCoordinates result = coords.resolve(res, poms);
         if (result != coords)
         {
-            return new Dependency(result, type, scope, optional, exclusions);
+            return new Dependency(result, type, implicitType,
+                    scope, implicitScope, exclusions, optional);
         }
         return this;
     }
@@ -307,5 +375,37 @@ public class Dependency implements MavenArtifactCoordinates
                 + (optional
                    ? " optional"
                    : "")) + ")";
+    }
+
+    /**
+     * @return the coords
+     */
+    public MavenCoordinates coordinates()
+    {
+        return coords;
+    }
+
+    /**
+     * @return the type
+     */
+    public Packaging type()
+    {
+        return type;
+    }
+
+    /**
+     * @return the scope
+     */
+    public DependencyScope scope()
+    {
+        return scope;
+    }
+
+    /**
+     * @return the implicitScope
+     */
+    public boolean isImplicitScope()
+    {
+        return implicitScope;
     }
 }

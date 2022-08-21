@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.5.2</version>
+        <version>1.5.24</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -36,12 +36,16 @@
     </properties>
 
     <dependencies>
-
+        
         <!-- Cactus -->
 
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-git</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-graph</artifactId>
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
@@ -64,6 +68,10 @@
 
         <dependency>
             <groupId>com.mastfrog</groupId>
+            <artifactId>function</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
             <artifactId>util-streams</artifactId>
         </dependency>
 
@@ -84,6 +92,9 @@
             <artifactId>maven-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- Testing -->
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -104,11 +115,13 @@
     <build>
         <plugins>
 
-            <plugin>
+            <!-- Keeping these in case we re-modularize -->
+            
+<!--            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgs>
-                        <arg>--add-reads</arg>
+                        <arg>- -add-reads</arg>
                         <arg>cactus.maven.plugin=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
@@ -119,9 +132,9 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <additionalOptions>--add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
+                    <additionalOptions>- -add-reads cactus.maven.plugin=ALL-UNNAMED</additionalOptions>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>

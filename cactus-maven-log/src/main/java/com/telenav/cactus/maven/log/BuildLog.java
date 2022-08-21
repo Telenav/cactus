@@ -18,6 +18,7 @@
 package com.telenav.cactus.maven.log;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.strings.Strings;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tim Boudreau
  */
-public class BuildLog
+public class BuildLog implements Consumer<String>
 {
 
     private static final ThreadLocal<BuildLog> LOG = new ThreadLocal<>();
@@ -56,6 +57,12 @@ public class BuildLog
     public BuildLog(Class<?> context)
     {
         this(null, LoggerFactory.getLogger(context));
+    }
+
+    @Override
+    public void accept(String t)
+    {
+        info(t);
     }
 
     public void ifDebug(Runnable run)
@@ -88,6 +95,34 @@ public class BuildLog
             log = new BuildLog();
         }
         return log;
+    }
+
+    public void benchmark(String task, ThrowingRunnable run)
+    {
+        info("Begin " + task);
+        long then = System.currentTimeMillis();
+        try
+        {
+            run.toNonThrowing().run();
+        }
+        finally
+        {
+            info(task + " took " + (System.currentTimeMillis() - then) + " milliseconds");
+        }
+    }
+
+    public <T> T benchmark(String task, ThrowingSupplier<T> run)
+    {
+        debug("Begin " + task);
+        long then = System.currentTimeMillis();
+        try
+        {
+            return run.asSupplier().get();
+        }
+        finally
+        {
+            debug(task + " took " + (System.currentTimeMillis() - then) + " milliseconds");
+        }
     }
 
     public void run(ThrowingRunnable consumer) throws Exception

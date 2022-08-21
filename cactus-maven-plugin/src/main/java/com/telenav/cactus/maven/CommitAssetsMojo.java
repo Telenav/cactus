@@ -16,6 +16,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
 
 /**
@@ -39,7 +40,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
     /**
      * If true, also push those repositories that had commits generated.
      */
-    @Parameter(property = "cactus.push", defaultValue = "false")
+    @Parameter(property = PUSH, defaultValue = "false")
     boolean push;
 
     /**

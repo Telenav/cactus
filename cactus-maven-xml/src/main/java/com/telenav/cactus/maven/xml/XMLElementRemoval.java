@@ -33,7 +33,7 @@ public final class XMLElementRemoval extends AbstractXMLUpdater
                 {
                     Node sib = node.getNextSibling();
                     // If there is a subsequent whitespace node, remove it.
-                    if (sib instanceof Text && sib.getTextContent().isBlank())
+                    if (sib instanceof Text && sib.getTextContent().trim().isEmpty())
                     {
                         parent.removeChild(sib);
                     }

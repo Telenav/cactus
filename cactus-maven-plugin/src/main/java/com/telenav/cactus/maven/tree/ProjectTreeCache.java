@@ -41,11 +41,24 @@ final class ProjectTreeCache
     final Set<GitCheckout> nonMavenCheckouts = new HashSet<>();
     final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
     final Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
+    final Set<ProjectFamily> families = new HashSet<>();
     private final ProjectTree outer;
 
     ProjectTreeCache(final ProjectTree outer)
     {
         this.outer = outer;
+    }
+
+    public Set<ProjectFamily> allProjectFamilies()
+    {
+        if (families.isEmpty())
+        {
+            allPoms().forEach(pom ->
+            {
+                families.add(ProjectFamily.familyOf(pom));
+            });
+        }
+        return families;
     }
 
     public Heads remoteHeads(GitCheckout checkout)
@@ -126,15 +139,16 @@ final class ProjectTreeCache
     }
 
     public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            ProjectFamily family)
+            String groupId)
     {
+        ProjectFamily parent = ProjectFamily.fromGroupId(groupId);
         Set<GitCheckout> all = new HashSet<>();
         projectsByRepository.forEach((repo, projectSet) ->
         {
             for (Pom p : projectSet)
             {
-                if (familyOf(p).equals(family)
-                        || family.isParentFamilyOf(p.groupId()))
+                if (familyOf(p).equals(parent)
+                        || parent.isParentFamilyOf(p.groupId()))
                 {
                     all.add(repo);
                     break;
@@ -310,6 +324,7 @@ final class ProjectTreeCache
         detachedHeads.clear();
         checkoutsForProjectFamily.clear();
         remoteHeads.clear();
+        families.clear();
     }
 
     synchronized void populate()
@@ -322,7 +337,7 @@ final class ProjectTreeCache
                 for (SubmoduleStatus stat : statii)
                 {
                     stat.checkout()
-                            .filter(GitCheckout::hasPomInRoot)
+                            .filter(GitCheckout::noPomInRoot)
                             .ifPresent(nonMavenCheckouts::add);
                 }
             });
@@ -370,4 +385,9 @@ final class ProjectTreeCache
                 });
     }
 
+    Void invalidateBranches(GitCheckout co)
+    {
+        this.allBranches.remove(co);
+        return null;
+    }
 }

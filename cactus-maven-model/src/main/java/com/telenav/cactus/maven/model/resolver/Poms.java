@@ -22,7 +22,6 @@ import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.dependencies.Dependencies;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
-import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.property.CoordinatesPropertyResolver;
 import com.telenav.cactus.maven.model.property.PropertyResolver;
 import com.telenav.cactus.maven.model.resolver.versions.VersionMatchers;
@@ -34,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +50,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Tim Boudreau
  */
-public final class Poms implements PomResolver
+public final class Poms implements PomResolver, Iterable<Pom>
 {
     private final List<Pom> sorted;
     private final Map<String, Map<String, Pom>> poms = new HashMap<>();
@@ -61,6 +61,11 @@ public final class Poms implements PomResolver
         sorted = new ArrayList<>(all);
         Collections.sort(sorted);
         initLookup();
+    }
+    
+    @Override
+    public Iterator<Pom> iterator() {
+        return unmodifiableList(sorted).iterator();
     }
 
     private void initLookup()

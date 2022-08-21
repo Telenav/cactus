@@ -5,15 +5,11 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.trigger.RunPolicies;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -70,8 +66,24 @@ public class PrintMessageMojo extends BaseMojo
             addMessage(message);
         }
     }
+    
+    /**
+     * Allows other mojos to add meessages.
+     * 
+     * @param msg A message
+     * @param session The session
+     * @param onFailure Whether on success or failure.
+     */
+    static void publishMessage(CharSequence msg, MavenSession session, boolean onFailure) {
+        messages.push(new PrintableMessage(msg, session, onFailure));
+        if (HOOK_ADDED.compareAndSet(false, true))
+        {
+            Thread t = new Thread(() -> emitMessages(), "shutdown-messages");
+            Runtime.getRuntime().addShutdownHook(t);
+        }
+    }
 
-    private void addMessage(String msg)
+    void addMessage(CharSequence msg)
     {
         messages.push(new PrintableMessage(msg, session(), onFailure));
         if (HOOK_ADDED.compareAndSet(false, true))

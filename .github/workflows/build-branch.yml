@@ -1,22 +1,37 @@
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #
-#  © 2021 Telenav, Inc.
+#  © 2022 Telenav, Inc.
 #  Licensed under Apache License, Version 2.0
 #
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #
-# GitHub action that builds code that is pushed into a feature branch
+# GitHub action that builds code on push or pull request.
 #
+defaults:
+  run:
+    shell: bash
 
-name: "Build Branch"
+name: "Build Feature, Hotfix or Bugfix"
 
 on:
   workflow_dispatch:
   push:
-    branches: [ master, develop, release/**, feature/**, hotfix/** ]
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+    branches:
+      - 'feature/**'
+      - 'hotfix/**'
+      - 'bugfix/**'
   pull_request:
-    branches: [ master, develop, release/**, feature/**, hotfix/** ]
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+    branches:
+      - 'feature/**'
+      - 'hotfix/**'
+      - 'bugfix/**'
 
 jobs:
   build:
@@ -24,24 +39,68 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Building
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
 
-      - name: Checkout telenav-build
-        uses: actions/checkout@v3
-        with:
-          repository: Telenav/telenav-build
-          path: telenav-build
-          branch: $GITHUB_REF_NAME
-
-      - name: Set up Java
+      - name: Set Up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '11'
           distribution: 'temurin'
 
-      - name: Set up Maven
+      - name: Set Up Maven
         uses: stCarolas/setup-maven@v4.3
         with:
-          maven-version: 3.8.5
+          maven-version: 3.8.6
 
-      - name: Build
-        run: cd telenav-build && ./setup.sh $GITHUB_REF_NAME ci-build
+      - name: Configure M2_HOME
+        run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
+
+      - name: Configure Git
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0
+
+      - name: Configure Tmpdir
+        run: cd $GITHUB_WORKSPACE && rm -Rf temp && mkdir temp && echo "TMPDIR=$GITHUB_WORKSPACE/temp" >> $GITHUB_ENV
+        
+      - name: Set Up Target Branch
+        run: echo 'TARGET_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_HEAD_REF" || echo "$GITHUB_REF_NAME") >> $GITHUB_ENV
+
+      - name: Set Up Base Branch
+        run: echo 'BASE_BRANCH='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_BASE_REF" || echo "develop") >> $GITHUB_ENV
+
+      - name: Set Up Target Commit
+        run: echo 'TARGET_COMMIT='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "$GITHUB_REF" || echo "$GITHUB_SHA") >> $GITHUB_ENV
+        
+      - name: Set Up Checkout Command
+        run: echo 'CHECKOUT_COMMAND='$([ "$GITHUB_EVENT_NAME" = "pull_request" ] && echo "git pull --rebase origin $TARGET_COMMIT" || echo "git checkout $TARGET_COMMIT") >> $GITHUB_ENV
+
+      - name: Clone Telenav-Superpoms
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b $BASE_BRANCH
+
+      - name: Clone Cactus
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git" -b $BASE_BRANCH
+
+      - name: Fetch All
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
+
+      - name: Ensure Merge Commit Is Available Locally
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch origin $GITHUB_REF
+
+      - name: Move Project to Target Ref
+        run: cd $GITHUB_WORKSPACE/cactus && echo "Run $CHECKOUT_COMMAND" && eval $CHECKOUT_COMMAND
+
+      - name: Configure Maven
+        run: mkdir -p $GITHUB_WORKSPACE/cactus/.mvn && echo "-XX:+UseG1GC -Xms2G -Dcactus.debug=true -XX:+UseStringDeduplication --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED" >> $GITHUB_WORKSPACE/cactus/.mvn/jvm.config
+
+      - name: Build Superpoms
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn --no-transfer-progress --batch-mode install
+
+      - name: Build Cactus
+        run: cd $GITHUB_WORKSPACE/cactus && mvn --no-transfer-progress --batch-mode install
+
+      - name: Done Building
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Done building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
+
+      - name: Build Failed
+        if: failure()
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=build-failures --data-urlencode content="Build of $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME) failed"

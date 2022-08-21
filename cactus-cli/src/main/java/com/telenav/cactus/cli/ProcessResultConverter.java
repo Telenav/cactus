@@ -15,13 +15,17 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import com.telenav.cactus.process.ProcessControl;
+import java.net.URI;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+
+import static java.lang.Thread.currentThread;
 
 /**
  * Parses output and exit code from a command into a result object.
@@ -32,7 +36,7 @@ public interface ProcessResultConverter<T>
 {
 
     AwaitableCompletionStage<T> onProcessStarted(Supplier<String> description,
-            Process process);
+            ProcessControl<String, String> process);
 
     public static StringProcessResultConverter strings()
     {
@@ -43,6 +47,12 @@ public interface ProcessResultConverter<T>
             IntPredicate exitCodeTester)
     {
         return new StringProcessResultConverterImpl(exitCodeTester);
+    }
+    
+    public static ProcessResultConverter<Optional<String>> nonEmptyString() {
+        return strings().map(str -> {
+            return str == null || str.isBlank() ? Optional.empty() : Optional.of(str.trim());
+        });
     }
 
     public static ProcessResultConverter<Boolean> exitCodeIsZero()
@@ -55,13 +65,63 @@ public interface ProcessResultConverter<T>
         return new BooleanProcessResultConverter(pred);
     }
 
+    public static ProcessResultConverter<Integer> rawExitCode()
+    {
+        return (description, proc) ->
+        {
+            return AwaitableCompletionStage.of(proc.onExit().handle(
+                    (p, thrown) ->
+            {
+                return thrown != null
+                       ? -1
+                       : p.exitValue();
+            }));
+        };
+    }
+
+    public static ProcessResultConverter<URI> trailingUriWithTrailingDigitAloneOnLine()
+    {
+        return strings().map(processOutput ->
+        {
+            String[] lines = processOutput.split("\n");
+            for (int i = lines.length - 1; i >= 0; i--)
+            {
+                String ln = lines[i].trim();
+                // A github pull request url ends in at least one digit
+                if (ln.startsWith("https://") && Character.isDigit(ln.charAt(ln
+                        .length() - 1)))
+                {
+                    return URI.create(ln);
+                }
+            }
+            throw new IllegalArgumentException(
+                    "No URI found in process output \n'"
+                    + processOutput + "'");
+        });
+    }
+
     default <R> ProcessResultConverter<R> map(Function<T, R> converter)
     {
+        // Get the maven classloader and apply it on the background thread
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return (description, proc) ->
         {
             return AwaitableCompletionStage.of(
                     onProcessStarted(description, proc)
-                            .thenApply(converter));
+                            .thenApply(arg ->
+                            {
+                                Thread t = currentThread();
+                                ClassLoader old = t.getContextClassLoader();
+                                try
+                                {
+                                    t.setContextClassLoader(classLoader);
+                                    return converter.apply(arg);
+                                }
+                                finally
+                                {
+                                    t.setContextClassLoader(old);
+                                }
+                            }));
         };
     }
 }

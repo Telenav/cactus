@@ -68,7 +68,7 @@ import static java.util.Collections.emptySet;
  * <li>$FAMILY.previous.version</li>
  * <li>$ARTIFACT_ID.version</li>
  * <li>s/$ARTIFACT_ID/-/..version</li>
- * <li>$FAMILY.$ARTFACT_ID.version</li>
+ * <li>$FAMILY.$ARTIFACT_ID.version</li>
  * <li>$ARTIFACT_ID.prev.version</li>
  * <li>s/$ARTIFACT_ID/-/..prev.version</li>
  * </ul>
@@ -231,7 +231,10 @@ public class VersionReplacementFinder
         VersionUpdateFinder finder = new VersionUpdateFinder(changeCollector(),
                 categories,
                 potentialPropertyChanges,
-                familyVersionChanges, superpomBumpPolicy, versionMismatchPolicy);
+                familyVersionChanges, 
+                superpomBumpPolicy, 
+                versionMismatchPolicy,
+                publishChecker);
         finder.go();
         // We want to let it do any changes that are dictated by policy first,
         // and then if there are still conflicted poms that have not been

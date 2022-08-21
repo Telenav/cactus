@@ -22,8 +22,11 @@ import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
+import com.telenav.cactus.maven.model.Pom;
+import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicy;
 import com.telenav.cactus.scope.Scoped;
+import java.util.HashSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -33,6 +36,7 @@ import java.util.Set;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.INCLUDE_ROOT;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SCOPE;
+import static java.util.Collections.singleton;
 
 /**
  * Base class for once-per-session mojos which operate within a Scope -
@@ -190,8 +194,39 @@ public abstract class ScopeMojo extends FamilyAwareMojo implements Scoped
     public final Scope scope()
     {
         return scopeValue == null
-               ? Scope.find(scope)
+               ? scopeValue = Scope.find(scope)
                : scopeValue;
+    }
+
+    @Override
+    public Set<ProjectFamily> families()
+    {
+        switch (scope())
+        {
+            case ALL:
+            case ALL_PROJECT_FAMILIES:
+                return withProjectTree(false, ProjectTree::allProjectFamilies)
+                        .orElseGet(super::families);
+            case JUST_THIS:
+            case SAME_GROUP_ID:
+                return singleton(ProjectFamily.fromGroupId(project()
+                        .getGroupId()));
+            case FAMILY_OR_CHILD_FAMILY:
+                ProjectFamily mine = ProjectFamily.fromGroupId(project()
+                        .getGroupId());
+                Set<ProjectFamily> all = new HashSet<>();
+                withProjectTree(false, tree ->
+                {
+                    for (Pom pom : tree.allProjects())
+                    {
+                        mine.isParentFamilyOf(pom);
+                        all.add(ProjectFamily.familyOf(pom));
+                    }
+                });
+                return all;
+            default:
+                return super.families();
+        }
     }
 
     /**

@@ -25,8 +25,8 @@ import static java.nio.file.StandardOpenOption.WRITE;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
- * Lexakai demands some project properties files exist in
- * $FAMILY_ROOT/documentation/projects/lexakai. This will generate stub files
+ * Lexakai requires that some project properties files exist in
+ * $FAMILY_ROOT/documentation/lexakai/projects. This will generate stub files
  * based on information from the pom.xml file if they do not exist.
  *
  * @author Tim Boudreau

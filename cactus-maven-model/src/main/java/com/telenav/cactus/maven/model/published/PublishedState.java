@@ -19,10 +19,14 @@ public enum PublishedState
      * The artifact has not been published.
      */
     NOT_PUBLISHED;
+    
+    public boolean differs() {
+        return this == PUBLISHED_DIFFERENT;
+    }
 
     public String toString()
     {
-        return name().toLowerCase();
+        return name().toLowerCase().replace('_', '-');
     }
 
 }

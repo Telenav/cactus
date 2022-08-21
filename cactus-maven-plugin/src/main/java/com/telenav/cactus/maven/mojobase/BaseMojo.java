@@ -22,9 +22,11 @@ import com.mastfrog.function.throwing.ThrowingBiConsumer;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
+import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.MavenCoordinates;
+import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.ArtifactFinder;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
@@ -48,6 +50,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
@@ -71,6 +74,9 @@ public abstract class BaseMojo extends AbstractMojo
     protected static final String MAVEN_CENTRAL_REPO
             = "https://repo1.maven.org/maven2";
 
+    private static final SharedDataKey<AutomergeTag> AUTOMERGE_TAG_KEY
+            = SharedDataKey.of(AutomergeTag.class);
+
     private final ThreadLocal<Boolean> running = ThreadLocal.withInitial(
             () -> false);
     private final SharedDataKey<AtomicBoolean> thisMojoWasRunKey
@@ -91,6 +97,12 @@ public abstract class BaseMojo extends AbstractMojo
     boolean isRunning()
     {
         return running.get();
+    }
+
+    protected AutomergeTag automergeTag()
+    {
+        return sharedData().computeIfAbsent(AUTOMERGE_TAG_KEY,
+                () -> new AutomergeTag(session()));
     }
 
     public final boolean isFirstRunInThisSession()
@@ -120,9 +132,20 @@ public abstract class BaseMojo extends AbstractMojo
         code.toNonThrowing().run();
     }
 
+    /**
+     * Run some code which throws an exception in a context such as
+     * <code>Stream.forEach()</code> where you cannot throw checked exceptions.
+     *
+     * @param code Something to run
+     */
+    protected static <T> T quietly(ThrowingSupplier<T> code)
+    {
+        return code.asSupplier().get();
+    }
+
     protected static final class ArtifactFetcher
     {
-        private String type = "jar";
+        private String extension = "jar";
 
         private String repositoryUrl = MAVEN_CENTRAL_REPO;
 
@@ -131,6 +154,8 @@ public abstract class BaseMojo extends AbstractMojo
         private final String artifactId;
 
         private final String version;
+
+        private String classifier;
 
         private final BuildLog log;
 
@@ -158,7 +183,8 @@ public abstract class BaseMojo extends AbstractMojo
             Artifact artifact = new DefaultArtifact(
                     notNull("groupId", groupId),
                     notNull("artifactId", artifactId),
-                    notNull("type", type),
+                    classifier,
+                    notNull("type", extension),
                     notNull("version", version));
 
             LocalArtifactRequest request = new LocalArtifactRequest();
@@ -175,7 +201,7 @@ public abstract class BaseMojo extends AbstractMojo
             log.info("Download result for " + artifact + ": " + result);
             if (result != null && result.getFile() != null)
             {
-                log.info("Have local " + artifactId + " " + type + " "
+                log.info("Have local " + artifactId + " " + extension + " "
                         + result.getFile());
                 return result.getFile().toPath();
             }
@@ -211,14 +237,21 @@ public abstract class BaseMojo extends AbstractMojo
          * Set the artifact type, if you want something other than the default
          * of "jar".
          *
-         * @param type A type
+         * @param extension A type
          * @return this
          */
-        public ArtifactFetcher withType(String type)
+        public ArtifactFetcher withExtension(String extension)
         {
-            this.type = notNull("type", type);
+            this.extension = notNull("type", extension);
             return this;
         }
+
+        public ArtifactFetcher withClassifier(String classifier)
+        {
+            this.classifier = notNull("type", classifier);
+            return this;
+        }
+
     }
 
     // These are magically injected by Maven:
@@ -278,11 +311,11 @@ public abstract class BaseMojo extends AbstractMojo
      * @param code The code to run
      * @throws Exception if something goes wrong
      */
-    protected void ifNotPretending(ThrowingRunnable code) throws Exception
+    protected void ifNotPretending(ThrowingRunnable code)
     {
         if (!pretend)
         {
-            code.run();
+            code.toNonThrowing().run();
         }
     }
 
@@ -313,17 +346,16 @@ public abstract class BaseMojo extends AbstractMojo
         AtomicBoolean run = sharedData().computeIfAbsent(thisMojoWasRunKey,
                 AtomicBoolean::new);
         boolean old = running.get();
-        boolean skipped = false;
         try
         {
             running.set(true);
             if (policy.shouldRun(this, project))
             {
+                run.set(true);
                 run(this::performTasks);
             }
             else
             {
-                skipped = true;
                 new BuildLog(getClass()).info("Skipping " + getClass()
                         .getSimpleName() + " mojo per policy " + policy);
             }
@@ -332,10 +364,6 @@ public abstract class BaseMojo extends AbstractMojo
         {
             // Allow for reentrancy, just in case
             running.set(old);
-            if (!skipped)
-            {
-                run.set(true);
-            }
         }
     }
 
@@ -348,9 +376,16 @@ public abstract class BaseMojo extends AbstractMojo
      * point of any method that returns something
      * @throws MojoExecutionException always, using the passed message
      */
-    public <T> T fail(String message)
+    public <T> T fail(Object message)
     {
-        return Exceptions.chuck(new MojoExecutionException(this, message, message));
+        String s = Objects.toString(message);
+        return Exceptions.chuck(new MojoExecutionException(this, s,
+                s));
+    }
+
+    protected Runnable failingWith(String msg)
+    {
+        return () -> fail(msg);
     }
 
     /**
@@ -368,6 +403,14 @@ public abstract class BaseMojo extends AbstractMojo
             String version)
     {
         return new ArtifactFetcher(groupId, artifactId, version, mavenSession);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    protected ArtifactFetcher downloadArtifact(String groupId, String artifactId,
+            String version, String classifier)
+    {
+        return new ArtifactFetcher(groupId, artifactId, version, mavenSession)
+                .withClassifier(classifier);
     }
 
     /**
@@ -648,7 +691,7 @@ public abstract class BaseMojo extends AbstractMojo
                     version, mavenSession);
             if (type != null)
             {
-                fetcher.withType(type);
+                fetcher.withExtension(type);
             }
             try
             {
@@ -669,5 +712,10 @@ public abstract class BaseMojo extends AbstractMojo
     {
         return new MavenCoordinates(notNull("project", project).getGroupId(),
                 project.getArtifactId(), project.getVersion());
+    }
+
+    protected final Pom toPom(MavenProject project)
+    {
+        return Pom.from(project.getFile().toPath()).get();
     }
 }
