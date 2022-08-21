@@ -95,7 +95,7 @@ jobs:
 
       # Pending - what we need to do here really is detect this and force a re-run
       - name: Pull in case of commits while we were building
-        run: cd $GITHUB_WORKSPACE/cactus && git pull --rebase
+        run: cd $GITHUB_WORKSPACE/cactus && git pull || git pull --rebase
 
       - name: Push Merge Commit
         run: cd $GITHUB_WORKSPACE/cactus && git push
