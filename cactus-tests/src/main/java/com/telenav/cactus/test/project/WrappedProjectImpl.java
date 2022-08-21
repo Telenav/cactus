@@ -29,6 +29,8 @@ import com.telenav.cactus.test.project.generator.ProjectsGenerator;
 import com.telenav.cactus.test.project.starwars.StarWars;
 import java.nio.file.Path;
 
+import static java.lang.System.currentTimeMillis;
+
 /**
  * Wrapper for a non-pom, java source project.
  *
@@ -82,8 +84,16 @@ final class WrappedProjectImpl implements ProjectWrapper
     @Override
     public boolean runMaven(String... args)
     {
+        long then = currentTimeMillis();
         MavenCommand cmd = new MavenCommand(path(), args);
-        return cmd.run().awaitQuietly(StarWars.TIMEOUT);
+        Boolean result = cmd.run().awaitQuietly();
+        if (result == null)
+        {
+            throw new IllegalStateException(
+                    "Null result from " + cmd + " - probable timeout? "
+                    + (currentTimeMillis() - then) + " ms execution time.");
+        }
+        return result;
     }
 
     @Override
