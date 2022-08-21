@@ -174,11 +174,9 @@ public class Topologizer
 
         log.debug(() -> "\n\nOWNERSHIP GRAPH:\n" + modulesGraph);
 
-        Set<MavenCoordinates> ownerNodes = new HashSet<>();
         for (int i = 0; i < modulesGraph.size(); i++)
         {
             MavenCoordinates coords = modulesGraph.toNode(i);
-            ownerNodes.add(coords);
             allNodes.add(coords);
         }
 

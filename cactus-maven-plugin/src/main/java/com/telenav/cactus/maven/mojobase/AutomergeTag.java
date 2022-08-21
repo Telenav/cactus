@@ -95,10 +95,4 @@ public final class AutomergeTag
         }
         return result;
     }
-
-    public static void main(String[] args)
-    {
-        AutomergeTag at = new AutomergeTag();
-        System.out.println("TAG: " + at);
-    }
 }
