@@ -74,6 +74,9 @@ public abstract class BaseMojo extends AbstractMojo
     protected static final String MAVEN_CENTRAL_REPO
             = "https://repo1.maven.org/maven2";
 
+    private static final SharedDataKey<AutomergeTag> AUTOMERGE_TAG_KEY
+            = SharedDataKey.of(AutomergeTag.class);
+
     private final ThreadLocal<Boolean> running = ThreadLocal.withInitial(
             () -> false);
     private final SharedDataKey<AtomicBoolean> thisMojoWasRunKey
@@ -94,6 +97,12 @@ public abstract class BaseMojo extends AbstractMojo
     boolean isRunning()
     {
         return running.get();
+    }
+
+    protected AutomergeTag automergeTag()
+    {
+        return sharedData().computeIfAbsent(AUTOMERGE_TAG_KEY,
+                () -> new AutomergeTag(session()));
     }
 
     public final boolean isFirstRunInThisSession()

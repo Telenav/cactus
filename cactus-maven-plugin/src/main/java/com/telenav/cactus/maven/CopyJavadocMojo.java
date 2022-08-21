@@ -71,13 +71,6 @@ public class CopyJavadocMojo extends BaseMojo
     private boolean deleteExisting;
 
     /**
-     * If set, do not actually perform filesystem operations; just log what would be done.
-     */
-    @Parameter(property = "cactus.pretend",
-               defaultValue = "false")
-    private boolean pretend;
-
-    /**
      * The Javadoc skip property, so we can test if there will be no javadoc to copy. If set to true, the project will
      * be skipped.
      */
@@ -184,7 +177,7 @@ public class CopyJavadocMojo extends BaseMojo
                                 fail("Will not copy javadoc recursively into itself: "
                                         + javadocOrigin + " vs " + dest);
                             }
-                            if (deleteExisting && !pretend)
+                            if (deleteExisting && !isPretend())
                             {
                                 int deleted = PathUtils.deleteFolderTree(dest);
                                 if (deleted > 0)
@@ -195,7 +188,7 @@ public class CopyJavadocMojo extends BaseMojo
 
                             log.warn("Copying javadoc for " + project + " in family " + family
                                     + " into " + dest + " from " + javadocOrigin);
-                            if (!pretend)
+                            if (!isPretend())
                             {
                                 int[] filesAndDirs = copyFolderTree(log, javadocOrigin,
                                         dest);
