@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.cli.ProcessFailedException;
@@ -10,9 +27,7 @@ import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.task.TaskSet;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -26,14 +41,17 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.task.TaskSet.newTaskSet;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableSet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Cleans up remote branches which have been merged with one of a list of "safe"
@@ -67,15 +85,15 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "remote-branch-cleanup", threadSafe = true)
 @BaseMojoGoal("remote-branch-cleanup")
 public class BranchCleanupMojo extends ScopedCheckoutsMojo
 {
     private static final Set<String> ALWAYS_PROTECTED
-            = unmodifiableSet(new HashSet<>(Arrays.asList("master", "develop",
+            = unmodifiableSet(new HashSet<>(asList("master", "develop",
                     "stable", "release/current", "publish")));
 
     /**
@@ -163,7 +181,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                     + "pretend-mode. No branches will actually be deleted");
         }
 
-        TaskSet remoteTasks = TaskSet.newTaskSet(log);
+        TaskSet remoteTasks = newTaskSet(log);
         Predicate<String> protectedBranchFilter = protectedBranchFilter();
         Predicate<String> safeBranchFilter = safeBranchFilter();
 
@@ -194,7 +212,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
         // Deleting remote branches can obsolete some local branches that
         // were not obsolete before, so only collect local branches after
         // we have really deleted the remote branches that may correspond
-        TaskSet localTasks = TaskSet.newTaskSet(log);
+        TaskSet localTasks = newTaskSet(log);
         if (cleanupLocal)
         {
             collectLocalBranchesForCleanup(checkouts, protectedBranchFilter,
@@ -241,7 +259,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
             }
             // So we log and work in a repeatable way
             List<CheckoutAndHead> sorted = new ArrayList<>(operateOn);
-            Collections.sort(sorted);
+            sort(sorted);
             sorted.forEach(candidate ->
             {
                 tasks.add("Delete " + candidate, () ->
@@ -734,7 +752,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
         private final Collection<? extends String> exactMatches;
         private final Collection<? extends Pattern> patterns;
 
-        public ExactAndPatternPredicate(
+        ExactAndPatternPredicate(
                 String name,
                 Collection<? extends String> exactMatches,
                 Collection<? extends Pattern> patterns)

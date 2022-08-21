@@ -23,22 +23,21 @@ import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
-import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.inject.Inject;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.maven.ForkBuildMojo.BRANCHED_REPOS_KEY;
 import static com.telenav.cactus.maven.ForkBuildMojo.TARGET_BRANCH_KEY;
 import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
+import static java.util.Arrays.asList;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PREPARE_PACKAGE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * End-of-build correlate of ForkBuildMojo, which (since it only runs if the build succeeds) merges the forked, merged
@@ -52,9 +51,9 @@ import static com.telenav.cactus.maven.ForkBuildMojo.TEMP_BRANCH_KEY;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
+        defaultPhase = PREPARE_PACKAGE,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = KEEP_ALIVE,
         name = "finish-attempt-merge", threadSafe = true)
 @BaseMojoGoal("finish-attempt-merge")
 public class MergeForkBuildMojo extends ScopedCheckoutsMojo
@@ -106,7 +105,7 @@ public class MergeForkBuildMojo extends ScopedCheckoutsMojo
     private void performMerge(String tempBranch, GitCheckout[] checkouts,
                               String targetBranch, BuildLog log) throws MojoExecutionException
     {
-        Set<GitCheckout> toMerge = new LinkedHashSet<>(Arrays.asList(checkouts));
+        Set<GitCheckout> toMerge = new LinkedHashSet<>(asList(checkouts));
         for (GitCheckout co : checkouts)
         {
             Optional<String> currBranch = co.branch();

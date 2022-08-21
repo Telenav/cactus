@@ -1,9 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
-import com.telenav.cactus.maven.common.CactusCommonPropertyNames;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.AutomergeTag;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
@@ -15,16 +31,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_STABLE_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.STABLE_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Automatically generate a unique git tag for matched checkouts prefixed with
@@ -37,8 +50,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "automerge-tag", threadSafe = true)
 @BaseMojoGoal("automerge-tag")
@@ -111,7 +124,7 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
             return targetBranch;
         }
         String result = tree.branches(myCheckout).currentBranch().get().name();
-        if (CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH.equals(result)
+        if (DEFAULT_DEVELOPMENT_BRANCH.equals(result)
                 || stableBranch.equals(result))
         {
             fail("The target branch may not be the stable or develop branches");

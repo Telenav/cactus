@@ -17,24 +17,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
+import com.telenav.cactus.analysis.MavenProjectsScanner;
+import com.telenav.cactus.analysis.WordCount;
+import com.telenav.cactus.analysis.codeflowers.CodeflowersJsonGenerator;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.telenav.cactus.analysis.codeflowers.CodeflowersJsonGenerator;
-import com.telenav.cactus.analysis.MavenProjectsScanner;
-import com.telenav.cactus.analysis.WordCount;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.scope.ProjectFamily;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,8 +34,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.trigger.RunPolicies.FAMILY_ROOTS;
+import static com.telenav.cactus.scope.ProjectFamily.fromCommaDelimited;
+import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static java.util.Collections.emptySet;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PREPARE_PACKAGE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Generates CodeFlowers JSON and .wc files to the assets directory for each
@@ -53,8 +54,8 @@ import static java.util.Collections.emptySet;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = PREPARE_PACKAGE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = InstantiationStrategy.SINGLETON,
         name = "codeflowers", threadSafe = true)
 @BaseMojoGoal("codeflowers")
@@ -76,14 +77,14 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
 
     public CodeFlowersMojo()
     {
-        super(RunPolicies.FAMILY_ROOTS);
+        super(FAMILY_ROOTS);
     }
 
     private Set<ProjectFamily> tolerateVersionInconsistenciesIn()
     {
         return tolerateVersionInconsistenciesIn == null
                ? emptySet()
-               : ProjectFamily.fromCommaDelimited(
+               : fromCommaDelimited(
                         tolerateVersionInconsistenciesIn, () -> null);
     }
 
@@ -147,8 +148,7 @@ public class CodeFlowersMojo extends ScopedCheckoutsMojo
             {
                 if (!pom.isPomProject())
                 {
-                    Set<Pom> poms = result.computeIfAbsent(ProjectFamily
-                            .fromGroupId(pom.coordinates().groupId().text()),
+                    Set<Pom> poms = result.computeIfAbsent(fromGroupId(pom.coordinates().groupId().text()),
                             f -> new HashSet<>());
                     poms.add(pom);
                 }

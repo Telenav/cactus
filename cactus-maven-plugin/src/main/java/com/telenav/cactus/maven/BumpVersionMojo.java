@@ -17,8 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.task.Rollback;
-import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
@@ -29,7 +27,6 @@ import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
 import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
-import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
@@ -39,16 +36,10 @@ import com.telenav.cactus.maven.refactoring.VersionMismatchPolicyOutcome;
 import com.telenav.cactus.maven.refactoring.VersionReplacementFinder;
 import com.telenav.cactus.maven.refactoring.VersionUpdateFilter;
 import com.telenav.cactus.maven.shared.SharedDataKey;
+import com.telenav.cactus.maven.task.Rollback;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.util.EnumMatcher;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,19 +50,36 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.function.throwing.ThrowingRunnable.composable;
+import static com.telenav.cactus.git.GitCheckout.depthFirstSort;
+import static com.telenav.cactus.git.GitCheckout.ownersOf;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.DOT;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MAJOR;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.MINOR;
 import static com.telenav.cactus.maven.model.VersionChangeMagnitude.NONE;
+import static com.telenav.cactus.maven.model.VersionFlavor.RELEASE;
+import static com.telenav.cactus.maven.refactoring.VersionUpdateFilter.DEFAULT;
+import static com.telenav.cactus.maven.refactoring.VersionUpdateFilter.withinFamilyOrParentFamily;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_CONTAINING_GOAL;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
+import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static com.telenav.cactus.scope.Scope.FAMILY;
 import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
+import static com.telenav.cactus.util.EnumMatcher.enumMatcher;
+import static java.lang.Integer.compare;
+import static java.lang.System.getProperty;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.sort;
+import static java.util.Optional.empty;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
 
 /**
  * Computes the new version of projects in the requested scope and updates pom files and documentation files.
@@ -85,7 +93,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused") @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
+        defaultPhase = VALIDATE,
         requiresDependencyResolution = ResolutionScope.NONE,
         instantiationStrategy = SINGLETON,
         name = "bump-version", threadSafe = true)
@@ -94,16 +102,16 @@ public class BumpVersionMojo extends ReplaceMojo
 {
     // Some matchers to allow friendly string forms of enum constants
     private static final EnumMatcher<VersionChangeMagnitude> MAGNITUDE_MATCHER
-            = EnumMatcher.enumMatcher(VersionChangeMagnitude.class);
+            = enumMatcher(VersionChangeMagnitude.class);
 
     private static final EnumMatcher<VersionFlavorChange> FLAVOR_MATCHER
-            = EnumMatcher.enumMatcher(VersionFlavorChange.class);
+            = enumMatcher(VersionFlavorChange.class);
 
     private static final EnumMatcher<VersionMismatchPolicyOutcome> MISMATCH_MATCHER
-            = EnumMatcher.enumMatcher(VersionMismatchPolicyOutcome.class);
+            = enumMatcher(VersionMismatchPolicyOutcome.class);
 
     private static final EnumMatcher<SuperpomBumpPolicy> SUPERPOM_POLICY_MATCHER
-            = EnumMatcher.enumMatcher(SuperpomBumpPolicy.class);
+            = enumMatcher(SuperpomBumpPolicy.class);
 
     private static final SharedDataKey<Object> versionBumpKey
             = SharedDataKey.of("versionBump", Object.class);
@@ -304,7 +312,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(RunPolicies.LAST_CONTAINING_GOAL);
+        super(LAST_CONTAINING_GOAL);
     }
 
     @Override
@@ -456,7 +464,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
         Rollback rollback = new Rollback().addFileModifications(rewritten);
 
-        rollback.executeWithRollback(ThrowingRunnable.composable(false)
+        rollback.executeWithRollback(composable(false)
                 .andAlways(() ->
                 {
 
@@ -466,7 +474,7 @@ public class BumpVersionMojo extends ReplaceMojo
                     // Use the set of checkouts that contain files that were actually modified,
                     // so we don't generate substitution changes in checkouts we did not
                     // make changes in
-                    Set<GitCheckout> owners = GitCheckout.ownersOf(rewritten);
+                    Set<GitCheckout> owners = ownersOf(rewritten);
 
                     if (isVerbose())
                     {
@@ -588,14 +596,14 @@ public class BumpVersionMojo extends ReplaceMojo
         // Allow version changes to be logged by things that use them
         session().getAllProjects().forEach(prj ->
                 project.getProperties().put("cactus.version.change.description",
-                        ProjectFamily.fromGroupId(project.getGroupId()) + " " + vc));
+                        fromGroupId(project.getGroupId()) + " " + vc));
 
         log.info("Bump version of " + project.getGroupId() + ":" + project
                 .getArtifactId() + " from "
                 + oldVersion + " to " + updatedVersion);
 
         super.newVersion = updatedVersion.text();
-        if (super.newBranchName == null && updatedVersion.flavor() == VersionFlavor.RELEASE)
+        if (super.newBranchName == null && updatedVersion.flavor() == RELEASE)
         {
             super.newBranchName = releaseBranchPrefix() + updatedVersion;
         }
@@ -607,7 +615,7 @@ public class BumpVersionMojo extends ReplaceMojo
         assert !m.isEmpty();
         List<String> l = new ArrayList<>(m.values());
         // Assume the longest branch name is the aggregate one
-        l.sort((a, b) -> Integer.compare(b.length(), a.length()));
+        l.sort((a, b) -> compare(b.length(), a.length()));
         return l.get(0);
     }
 
@@ -731,8 +739,7 @@ public class BumpVersionMojo extends ReplaceMojo
     private Set<ProjectFamily> allFamilies(ProjectTree tree)
     {
         Set<ProjectFamily> allFamilies = new HashSet<>();
-        tree.allProjects().forEach(pom -> allFamilies.add(ProjectFamily
-                .familyOf(pom.groupId())));
+        tree.allProjects().forEach(pom -> allFamilies.add(familyOf(pom.groupId())));
         return allFamilies;
     }
 
@@ -854,8 +861,7 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             tree.allProjects().forEach(pom
                     -> fam.ifParentFamilyOf(pom.groupId(),
-                    () -> relatives.add(ProjectFamily
-                            .familyOf(pom.groupId())))
+                    () -> relatives.add(familyOf(pom.groupId())))
             );
             relatives.add(fam);
         }
@@ -869,15 +875,15 @@ public class BumpVersionMojo extends ReplaceMojo
             Set<ProjectFamily> all = families();
             if (all.isEmpty())
             {
-                all = singleton(ProjectFamily.familyOf(GroupId.of(project()
+                all = singleton(familyOf(GroupId.of(project()
                         .getGroupId())));
             }
-            return VersionUpdateFilter.withinFamilyOrParentFamily(
+            return withinFamilyOrParentFamily(
                     all.iterator().next());
         }
         else
         {
-            return VersionUpdateFilter.DEFAULT;
+            return DEFAULT;
         }
     }
 
@@ -896,7 +902,7 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             return;
         }
-        List<GitCheckout> owners = GitCheckout.depthFirstSort(ownerSet);
+        List<GitCheckout> owners = depthFirstSort(ownerSet);
         
         BuildLog lg = log().child("commit");
         lg.warn("Begin commit of " + owners.size() + " repositories");
@@ -960,7 +966,7 @@ public class BumpVersionMojo extends ReplaceMojo
         ifNotPretending(() ->
         {
             checkout.createAndSwitchToBranch(branchName,
-                    Optional.empty());
+                    empty());
             rollback.addRollbackTask(() ->
             {
                 log().info(
@@ -981,7 +987,7 @@ public class BumpVersionMojo extends ReplaceMojo
         if (!isPretend())
         {
             tree.root()
-                    .createAndSwitchToBranch(bestBranch, Optional.empty());
+                    .createAndSwitchToBranch(bestBranch, empty());
             tree.root().addAll();
             tree.root().commit(msg.toString());
             rollback.addRollbackTask(() ->
@@ -1055,7 +1061,7 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             return result;
         }
-        String prop = System.getProperty("releaseBranchPrefix");
+        String prop = getProperty("releaseBranchPrefix");
         if (prop != null && !prop.isBlank())
         {
             String result = prop.trim();

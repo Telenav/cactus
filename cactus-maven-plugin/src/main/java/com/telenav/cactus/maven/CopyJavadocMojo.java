@@ -22,22 +22,23 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.scope.ProjectFamily;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
-import com.telenav.cactus.util.PathUtils;
+import com.telenav.cactus.scope.ProjectFamily;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
-
+import static com.telenav.cactus.git.GitCheckout.checkout;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
+import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static com.telenav.cactus.util.PathUtils.copyFolderTree;
+import static com.telenav.cactus.util.PathUtils.deleteFolderTree;
 
 /**
  * @author Tim Boudreau
@@ -128,7 +129,7 @@ public class CopyJavadocMojo extends BaseMojo
         boolean javadocExists = Files.exists(javadocPath);
         if (isPom && !javadocExists)
         {
-            if (!RunPolicies.LAST.shouldRun(this, project))
+            if (!LAST.shouldRun(this, project))
             {
                 log.info(
                         "No javadoc, but " + project.getArtifactId()
@@ -161,7 +162,7 @@ public class CopyJavadocMojo extends BaseMojo
     private void copyJavadoc(Path javadocOrigin, MavenProject project,
                              BuildLog log)
     {
-        ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
+        ProjectFamily family = fromGroupId(project.getGroupId());
         ThrowingOptional.from(GitCheckout
                         .checkout(project.getBasedir()))
                 .flatMapThrowing(checkout
@@ -179,7 +180,7 @@ public class CopyJavadocMojo extends BaseMojo
                             }
                             if (deleteExisting && !isPretend())
                             {
-                                int deleted = PathUtils.deleteFolderTree(dest);
+                                int deleted = deleteFolderTree(dest);
                                 if (deleted > 0)
                                 {
                                     log.info("Deleted " + deleted + " files in " + dest);
@@ -241,7 +242,7 @@ public class CopyJavadocMojo extends BaseMojo
         {
             // Do not try to copy javadoc for the root project, only child
             // families
-            result = GitCheckout.checkout(project.getBasedir())
+            result = checkout(project.getBasedir())
                     .map(GitCheckout::isSubmoduleRoot).orElse(false);
         }
         return result;

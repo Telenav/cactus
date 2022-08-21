@@ -29,6 +29,12 @@ import java.util.concurrent.locks.LockSupport;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.concurrent.ConcurrentLinkedList.fifo;
+import static java.lang.Runtime.getRuntime;
+import static java.lang.Thread.NORM_PRIORITY;
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.interrupted;
+
 /**
  * General purpose diagnostic logging of information about the build and stack
  * traces from it, in order to track down multithreaded-build bugs; takes pains
@@ -49,8 +55,7 @@ final class ParallelismDiagnosticsLogger
     // printed all pending diagnostic records
     private final Thread shutdownThread = new Thread(this::onShutdown);
     // A lock-free atomic list we can push diagnostics into and pull them out of
-    private final ConcurrentLinkedList<Diagnostic> diagnostics = ConcurrentLinkedList
-            .fifo();
+    private final ConcurrentLinkedList<Diagnostic> diagnostics = fifo();
     // Don't start the logging thread unless we are used
     private final AtomicBoolean started = new AtomicBoolean();
     // Prefix each logged line with an index to make differentiation
@@ -65,7 +70,7 @@ final class ParallelismDiagnosticsLogger
         // Use a lower thread priority to help avoid interfering with the
         // parallelism of the work we're trying to diagnose - there's nothing
         // like a heisenbug that disappears when you add logging to diagnose it.
-        thread.setPriority(Thread.NORM_PRIORITY - 1);
+        thread.setPriority(NORM_PRIORITY - 1);
     }
 
     public static void logDiagnostic(BaseMojo mojo, boolean captureStackTrace)
@@ -80,7 +85,7 @@ final class ParallelismDiagnosticsLogger
             thread.start();
             // Ensure we CANNOT exit without printing any pending
             // diagnostics
-            Runtime.getRuntime().addShutdownHook(shutdownThread);
+            getRuntime().addShutdownHook(shutdownThread);
         }
         diagnostics.push(diag);
         LockSupport.unpark(thread);
@@ -90,7 +95,7 @@ final class ParallelismDiagnosticsLogger
     {
         try
         {
-            while (!Thread.interrupted() && !shuttingDown)
+            while (!interrupted() && !shuttingDown)
             {
                 printDiagnostics();
                 LockSupport.park(this);
@@ -169,7 +174,7 @@ final class ParallelismDiagnosticsLogger
         Diagnostic(BaseMojo mojo, boolean stack)
         {
             mojoClass = mojo.getClass().getSimpleName();
-            threadId = Thread.currentThread().getId();
+            threadId = currentThread().getId();
             MavenSession sess = mojo.session();
             parallel = sess.isParallel();
             invokedAgainstProject = sess.getTopLevelProject().getArtifactId();

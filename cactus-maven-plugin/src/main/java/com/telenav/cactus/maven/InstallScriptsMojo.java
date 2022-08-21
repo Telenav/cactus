@@ -1,11 +1,26 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.mastfrog.util.streams.Streams;
 import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.metadata.BuildMetadata;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,18 +33,24 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.Set;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.util.streams.Streams.readResourceAsUTF8;
+import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
+import static com.telenav.cactus.metadata.BuildMetadata.of;
 import static com.telenav.cactus.util.PathUtils.home;
 import static com.telenav.cactus.util.PathUtils.ifExists;
 import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.INITIALIZE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Install scripts for performing simple tasks into ~/bin or ~/.local/bin or
@@ -39,9 +60,9 @@ import static java.nio.file.StandardOpenOption.WRITE;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.INITIALIZE,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.SINGLETON,
+        defaultPhase = INITIALIZE,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = SINGLETON,
         name = "install-scripts", threadSafe = true)
 @BaseMojoGoal("install-scripts")
 public class InstallScriptsMojo extends BaseMojo
@@ -59,7 +80,7 @@ public class InstallScriptsMojo extends BaseMojo
 
     InstallScriptsMojo()
     {
-        super(RunPolicies.LAST);
+        super(LAST);
     }
 
     private Path destination() throws MojoExecutionException
@@ -86,18 +107,18 @@ public class InstallScriptsMojo extends BaseMojo
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         Path dest = destination();
-        if (!Files.exists(dest))
+        if (!exists(dest))
         {
-            Files.createDirectories(dest);
+            createDirectories(dest);
         }
-        BuildMetadata meta = BuildMetadata.of(InstallScriptsMojo.class);
+        BuildMetadata meta = of(InstallScriptsMojo.class);
         String ver = meta.projectProperties().get("project-version");
         if (ver == null)
         {
             fail("No version found in " + meta.projectProperties());
         }
         StringBuilder msg = new StringBuilder();
-        PrintMessageMojo.publishMessage(msg, session(), false);
+        publishMessage(msg, session(), false);
         for (Scripts script : Scripts.values())
         {
             Path scriptFile = script.install(dest, createAliases, ver, log,
@@ -360,7 +381,7 @@ public class InstallScriptsMojo extends BaseMojo
         {
             return runMavenFunctionFragment;
         }
-        String result = runMavenFunctionFragment = Streams.readResourceAsUTF8(
+        String result = runMavenFunctionFragment = readResourceAsUTF8(
                 InstallScriptsMojo.class,
                 FUNCTION_FRAGMENT_FILE_NAME);
         if (result == null)

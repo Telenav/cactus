@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// © 2022 Telenav, Inc.
+// © 2011-2022 Telenav, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,21 +21,22 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.scope.ProjectFamily;
-import com.telenav.cactus.scope.Scope;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
+import com.telenav.cactus.scope.ProjectFamily;
+import com.telenav.cactus.scope.Scope;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.git.GitCheckout.checkout;
+import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static java.util.Collections.singleton;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.COMPILE;
 
 /**
  * For debugging - prints all members of each family for each possible scope; if
@@ -47,7 +48,7 @@ import static java.util.Collections.singleton;
  * @author Tim Boudreau
  */
 @SuppressWarnings("unused")
-@org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.COMPILE,
+@org.apache.maven.plugins.annotations.Mojo(defaultPhase = COMPILE,
         requiresDependencyResolution = ResolutionScope.COMPILE,
         name = "print-scopes", threadSafe = true)
 @BaseMojoGoal("print-scopes")
@@ -68,7 +69,7 @@ public class PrintScopesMojo extends BaseMojo
 
         private final GitCheckout checkout;
 
-        public FamilyAndScope(Scope scope, ProjectFamily family,
+        FamilyAndScope(Scope scope, ProjectFamily family,
                 GitCheckout checkout)
         {
             this.scope = scope;
@@ -126,8 +127,8 @@ public class PrintScopesMojo extends BaseMojo
     public void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         ProjectTree tree = tree(project);
-        GitCheckout co = GitCheckout.checkout(project.getBasedir()).get();
-        ProjectFamily family = ProjectFamily.fromGroupId(project.getGroupId());
+        GitCheckout co = checkout(project.getBasedir()).get();
+        ProjectFamily family = fromGroupId(project.getGroupId());
         for (Scope scope : Scope.values())
         {
             if (seen(family, scope, co))
@@ -151,8 +152,7 @@ public class PrintScopesMojo extends BaseMojo
                 {
                     tree.projectsWithin(gc).forEach(prj ->
                     {
-                        if (ProjectFamily
-                                .fromGroupId(prj.groupId().text())
+                        if (fromGroupId(prj.groupId().text())
                                 .equals(family))
                         {
                             emitMessage("    * " + prj.coordinates());

@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
@@ -24,25 +23,26 @@ import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
+import static java.nio.file.Files.readString;
+import static java.nio.file.Files.walk;
+import static java.nio.file.Files.writeString;
+import static java.nio.file.Paths.get;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Collections.emptyMap;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Replaces things.
@@ -54,8 +54,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
                 "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "replace", threadSafe = true)
 @BaseMojoGoal("replace")
@@ -146,12 +146,12 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
 
             if (!isPretend())
             {
-                try (var walk = Files.walk(checkout.checkoutRoot()))
+                try (var walk = walk(checkout.checkoutRoot()))
                 {
                     walk.filter(path -> path.toFile().isFile()).forEach(file ->
                     {
                         var filename = file.getFileName().toString();
-                        if (filename.endsWith(".md") || file.getFileName().equals(Paths.get("pom.xml")))
+                        if (filename.endsWith(".md") || file.getFileName().equals(get("pom.xml")))
                         {
                             replaceIn(file);
                             changed.accept(file);
@@ -195,13 +195,13 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
     {
         try
         {
-            var originalContents = Files.readString(file);
+            var originalContents = readString(file);
             var replaced = replace(originalContents);
             if (!originalContents.equals(replaced.replaced))
             {
                 if (!isPretend())
                 {
-                    Files.writeString(file, replaced.replaced, WRITE, TRUNCATE_EXISTING);
+                    writeString(file, replaced.replaced, WRITE, TRUNCATE_EXISTING);
                 }
                 log().info("Replaced " + replaced.count + " in " + file);
             }

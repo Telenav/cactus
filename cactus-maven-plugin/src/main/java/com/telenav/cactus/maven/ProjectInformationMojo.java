@@ -17,28 +17,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.mastfrog.concurrent.ConcurrentLinkedList;
-import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.ParallelismDiagnosticsLogger.logDiagnostic;
+import static java.lang.System.getProperty;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static java.util.concurrent.locks.LockSupport.unpark;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VERIFY;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * A mojo that simply pretty-prints what a build is going to build.
@@ -47,8 +39,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author jonathanl (shibo)
  */
 @SuppressWarnings("unused")
-@org.apache.maven.plugins.annotations.Mojo(defaultPhase = LifecyclePhase.VERIFY,
-        requiresDependencyResolution = ResolutionScope.NONE,
+@org.apache.maven.plugins.annotations.Mojo(defaultPhase = VERIFY,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "project-information", threadSafe = true)
 @BaseMojoGoal("project-information")
@@ -60,12 +52,11 @@ public class ProjectInformationMojo extends BaseMojo
     private static final String SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS_STACKS = "cactus.diag-stacks-for-artifact-id";
 
     // Parse the system properties or use defaults
-    private static final Set<String> LOG_DIAGNOSTICS_FOR = artifactIdSetFrom(
-            System.getProperty(SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS));
+    private static final Set<String> LOG_DIAGNOSTICS_FOR = artifactIdSetFrom(getProperty(SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS));
 
     private static final Set<String> PRINT_STACKS_FOR
             = combine(LOG_DIAGNOSTICS_FOR,
-                    artifactIdSetFrom(System.getProperty(
+                    artifactIdSetFrom(getProperty(
                             SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS_STACKS)));
 
     @Override
@@ -93,7 +84,7 @@ public class ProjectInformationMojo extends BaseMojo
             // the diagnostics off onto a background thread without using any kind
             // of queue that takes a lock in its add method, so we interfere as
             // little as possible with the original code flow
-            ParallelismDiagnosticsLogger.logDiagnostic(this, stack);
+            logDiagnostic(this, stack);
         }
     }
 
@@ -115,7 +106,7 @@ public class ProjectInformationMojo extends BaseMojo
     {
         if (systemPropertyOrNull == null)
         {
-            return new HashSet<>(Arrays.asList(
+            return new HashSet<>(asList(
                     "kivakit-serialization-properties",
                     "kivakit-testing"));
         }
@@ -127,7 +118,7 @@ public class ProjectInformationMojo extends BaseMojo
             }
             else
             {
-                return new HashSet<>(Arrays.asList(systemPropertyOrNull.split(
+                return new HashSet<>(asList(systemPropertyOrNull.split(
                         "[, ]+")));
             }
     }

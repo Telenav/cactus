@@ -24,26 +24,25 @@ import com.telenav.cactus.github.MinimalPRItem;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.github.MergePullRequestOptions.MERGE;
 import static com.telenav.cactus.github.MergePullRequestOptions.REBASE;
 import static com.telenav.cactus.github.MergePullRequestOptions.SQUASH;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
 import static java.util.Collections.emptyMap;
 import static java.util.EnumSet.noneOf;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Merges pull requests in all matching submodules, where the pull request's
@@ -58,8 +57,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
             "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "git-merge-pull-request", threadSafe = true)
 @BaseMojoGoal("git-merge-pull-request")
@@ -123,7 +122,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
 
     public GitMergePullRequestMojo()
     {
-        super(RunPolicies.LAST);
+        super(LAST);
     }
 
     @Override

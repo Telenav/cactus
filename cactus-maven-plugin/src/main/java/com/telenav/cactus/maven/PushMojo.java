@@ -26,11 +26,6 @@ import com.telenav.cactus.maven.mojobase.AutomergeTag;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.git.GitCheckout.depthFirstSort;
+import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.CREATE_AUTOMERGE_TAG;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_STABLE_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
@@ -48,6 +46,8 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.STABLE_B
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Perform a git push in any projects that need it, scoped by the
@@ -57,8 +57,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "push", threadSafe = true)
 @BaseMojoGoal("push")
@@ -239,7 +239,7 @@ public class PushMojo extends ScopedCheckoutsMojo
                 if (skipConflicts)
                 {
                     needingPull.removeAll(allConflicts.keySet());
-                    PrintMessageMojo.publishMessage(sb, session(), false);
+                    publishMessage(sb, session(), false);
                 }
                 else
                 {

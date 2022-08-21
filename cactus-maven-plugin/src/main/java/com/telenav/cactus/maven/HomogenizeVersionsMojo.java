@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -13,7 +30,6 @@ import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.refactoring.PropertyHomogenizer;
 import com.telenav.cactus.maven.topologize.Topologizer;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
 import com.telenav.cactus.maven.xml.XMLFile;
 import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
@@ -23,15 +39,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static com.telenav.cactus.maven.trigger.RunPolicies.FIRST;
+import static com.telenav.cactus.maven.xml.AbstractXMLUpdater.applyAll;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * A project tree with multiple families may develop a variety of divergent
@@ -42,8 +60,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "homogenize-versions", threadSafe = true)
 @BaseMojoGoal("homogenize-versions")
@@ -55,7 +73,7 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
 
     public HomogenizeVersionsMojo()
     {
-        super(RunPolicies.FIRST);
+        super(FIRST);
     }
 
     @Override
@@ -138,7 +156,7 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
             }
         }
 
-        AbstractXMLUpdater.applyAll(replacers, isPretend(),
+        applyAll(replacers, isPretend(),
                 this::emitMessage);
     }
 

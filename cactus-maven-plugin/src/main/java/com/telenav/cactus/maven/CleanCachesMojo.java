@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.maven.log.BuildLog;
@@ -23,20 +22,20 @@ import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.util.PathUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.CleanCachesMojo.CacheFindingStrategy.find;
+import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.CLEAN;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Cleans any cache dirs for the project or projects.
@@ -45,14 +44,14 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.CLEAN,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = CLEAN,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "clean-caches", threadSafe = true)
 @BaseMojoGoal("clean-caches")
 public class CleanCachesMojo extends BaseMojo
 {
-    private static final Set<Path> seen = ConcurrentHashMap.newKeySet();
+    private static final Set<Path> seen = newKeySet();
 
     public static enum CacheFindingStrategy
     {
@@ -134,7 +133,7 @@ public class CleanCachesMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        CacheFindingStrategy strategy = CacheFindingStrategy.find(
+        CacheFindingStrategy strategy = find(
                 cacheFindingStrategy);
         strategy.deleteCache(project, log, seen);
     }

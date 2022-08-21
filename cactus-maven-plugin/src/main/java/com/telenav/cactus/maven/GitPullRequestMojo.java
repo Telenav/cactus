@@ -29,15 +29,12 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.task.TaskSet;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.util.List;
@@ -45,12 +42,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
 
+import static com.telenav.cactus.maven.ClassloaderLog._log;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
+import static com.telenav.cactus.maven.task.TaskSet.newTaskSet;
+import static java.awt.Desktop.getDesktop;
+import static java.awt.Desktop.isDesktopSupported;
+import static java.lang.System.currentTimeMillis;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.concurrent.ConcurrentHashMap.newKeySet;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Starts and finishes branches according to git flow branching conventions.
@@ -62,10 +67,10 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_B
             "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
+        defaultPhase = VALIDATE,
         requiresOnline = true,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.SINGLETON,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = SINGLETON,
         name = "git-pull-request", threadSafe = true)
 @BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends AbstractGithubMojo
@@ -120,10 +125,10 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     private String searchNonce;
 
     // Ensures we don't run git fetch --all more than once per repo
-    private final Set<GitCheckout> fetched = ConcurrentHashMap.newKeySet();
+    private final Set<GitCheckout> fetched = newKeySet();
     // Retain URLs of generated PRs so a "related PRs" section in
     // subsequent ones' body can reference them
-    private final Set<String> uris = ConcurrentHashMap.newKeySet();
+    private final Set<String> uris = newKeySet();
     // In pretend-mode, we want to log the body and title we would use,
     // but not be irritating about it
     private volatile boolean titleLogged;
@@ -133,7 +138,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
             throws Exception
     {
-        ClassloaderLog._log(project, this);
+        _log(project, this);
         if (Objects.equals(baseBranch, targetBranch))
         {
             fail("Base branch and target branch are the same: " + targetBranch);
@@ -207,7 +212,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
             ProjectTree tree, Map<GitCheckout, Branch> sourceBranchForCheckout)
             throws Exception
     {
-        TaskSet tasks = TaskSet.newTaskSet(log);
+        TaskSet tasks = newTaskSet(log);
 
         Set<GitCheckout> alreadyHavePRs
                 = checkoutsWithExistingPrs(sourceBranchForCheckout, log);
@@ -467,12 +472,12 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     {
         // Get out of the way of the rest of maven
         // execution - initializing hunks of AWT is not free.
-        if (Desktop.isDesktopSupported())
+        if (isDesktopSupported())
         {
             log.info("Opening browser for " + uri);
             try
             {
-                Desktop.getDesktop().browse(uri);
+                getDesktop().browse(uri);
             }
             catch (IOException ex)
             {
@@ -544,9 +549,9 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                 // to include or not
                 if (targetBranch.equals(br.name()))
                 {
-                    return Optional.of(br);
+                    return of(br);
                 }
-                return Optional.empty();
+                return empty();
             });
         }
         else
@@ -592,7 +597,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                         + "request - because we are matching the branch "
                         + targetProjectsBranch.get().name()
                         + " but it is on the branch " + current.get().name());
-                return Optional.empty();
+                return empty();
             }
             else
             {
@@ -610,7 +615,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         // to include 
         return searchNonce == null
                ? searchNonce = new RandomStrings().randomChars(10) + "-"
-                + Long.toString(System.currentTimeMillis() / 1000, 36)
+                + Long.toString(currentTimeMillis() / 1_000, 36)
                : searchNonce;
     }
 

@@ -24,25 +24,24 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
-import com.telenav.cactus.maven.mojobase.AutomergeTag;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
+import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
+import static com.telenav.cactus.maven.trigger.RunPolicies.INITIAL;
 import static java.util.Collections.emptySet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
@@ -103,7 +102,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
 
     public CommitMojo()
     {
-        super(RunPolicies.INITIAL);
+        super(INITIAL);
     }
 
     @Override
@@ -344,7 +343,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
                 Set<GitCheckout> toRemove = conflicts.keySet();
                 checkouts.removeAll(toRemove);
                 needingPull.removeAll(toRemove);
-                PrintMessageMojo.publishMessage(sb, session(), false);
+                publishMessage(sb, session(), false);
             }
             else
             {
