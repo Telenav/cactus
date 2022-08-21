@@ -139,7 +139,7 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
         }
 
         AbstractXMLUpdater.applyAll(replacers, isPretend(),
-                System.out::println);
+                this::emitMessage);
     }
 
     private static final class ModuleListReplacer extends AbstractXMLUpdater
@@ -161,7 +161,6 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
                         "/project/modules/module");
                 if (!list.isPresent())
                 {
-                    System.err.println("No module list for " + this);
                     return null;
                 }
                 NodeList nl = list.get();

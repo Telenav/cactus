@@ -155,7 +155,7 @@ public class PullMojo extends ScopedCheckoutsMojo
             for (GitCheckout checkout : needingPull)
             {
                 log.info(pfx + "Pull " + checkout.loggingName());
-                System.out.println("Pull " + pfx + checkout.loggingName());
+                emitMessage("Pull " + pfx + checkout.loggingName());
                 if (!isPretend())
                 {
                     checkout.pull();

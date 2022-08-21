@@ -65,10 +65,10 @@ public class IsDirtyMojo extends ScopedCheckoutsMojo
             {
                 if (!dirty)
                 {
-                    System.out.println("Dirty projects:");
+                    emitMessage("Dirty projects:");
                 }
                 dirty = true;
-                System.out.println("* " + checkout);
+                emitMessage(" * " + checkout.loggingName());
             }
         }
         if (!dirty)

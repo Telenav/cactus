@@ -71,7 +71,7 @@ public class ProjectInformationMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project)
     {
-        System.out.println(generateInfo(project));
+        emitMessage(generateInfo(project));
         diagnostics(project);
     }
 

@@ -144,7 +144,7 @@ public class CloneMojo extends BaseMojo
                 PrintMessageMojo.publishMessage(
                         "Cloned " + remote.fetchUrl + " into\ncheckout-root: " + dest,
                         session(), false);
-                System.out.println(dest);
+                emitMessage(dest);
             });
         }, failingWith(
                 "No git repository, or missing remote for submodule root of "

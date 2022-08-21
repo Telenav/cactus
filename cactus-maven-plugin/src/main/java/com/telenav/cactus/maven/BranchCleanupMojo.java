@@ -499,7 +499,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
         }
     }
 
-    static class CheckoutAndHead implements Comparable<CheckoutAndHead>
+    class CheckoutAndHead implements Comparable<CheckoutAndHead>
     {
         private final GitCheckout checkout;
         private final String head;
@@ -540,7 +540,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
             if (deleted)
             {
                 log.info("Deleted " + this);
-                System.out.println("Deleted " + this);
+                emitMessage("Deleted " + this);
             }
             else
             {
@@ -550,7 +550,6 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                 }
                 return;
             }
-            System.out.println("Deleted " + this);
             Branches branches = tree.branches(checkout);
             branches.opposite(branch).ifPresent(localBranch ->
             {
@@ -572,7 +571,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                     if (deletedLocal)
                     {
                         log.info("Deleted local " + localBranch.name());
-                        System.out.println(
+                        emitMessage(
                                 "Deleted local " + localBranch.name());
                     }
                 }

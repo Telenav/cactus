@@ -394,7 +394,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                         uris.add(uri.toURL().toString());
                         log.info("Created " + uri);
                         // Ensure we print the output in quiet mode:
-                        System.out.println(uri);
+                        emitMessage(uri);
                         if (open)
                         {
                             open(uri, log);
@@ -467,26 +467,23 @@ public class GitPullRequestMojo extends AbstractGithubMojo
     {
         // Get out of the way of the rest of maven
         // execution - initializing hunks of AWT is not free.
-        ForkJoinPool.commonPool().submit(() ->
+        if (Desktop.isDesktopSupported())
         {
-            if (Desktop.isDesktopSupported())
+            log.info("Opening browser for " + uri);
+            try
             {
-                log.info("Opening browser for " + uri);
-                try
-                {
-                    Desktop.getDesktop().browse(uri);
-                }
-                catch (IOException ex)
-                {
-                    log.error("Exception thrown opening " + uri, ex);
-                }
+                Desktop.getDesktop().browse(uri);
             }
-            else
+            catch (IOException ex)
             {
-                log.error(
-                        "Desktop not supported in this JVM; cannot open " + uri);
+                log.error("Exception thrown opening " + uri, ex);
             }
-        });
+        }
+        else
+        {
+            log.error(
+                    "Desktop not supported in this JVM; cannot open " + uri);
+        }
     }
 
     private Map<GitCheckout, Branch> filterToCheckoutsOnTargetBranch(
@@ -673,7 +670,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         if (isPretend() && !titleLogged)
         {
             titleLogged = true;
-            System.out.println("TITLE: " + title);
+            emitMessage("TITLE: " + title);
         }
         return result;
     }
@@ -729,7 +726,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
         if (isPretend() && !bodyLogged)
         {
             bodyLogged = true;
-            System.out.println("BODY:\n" + msg);
+            emitMessage("BODY:\n" + msg);
         }
         return msg.toString();
     }

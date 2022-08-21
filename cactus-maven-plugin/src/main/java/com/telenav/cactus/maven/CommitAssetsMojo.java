@@ -73,7 +73,6 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
         {
             sharedData().put(DONE, true);
             Set<GitCheckout> assetsCheckouts = tree.nonMavenCheckouts();
-            System.out.println("HAVE " + assetsCheckouts.size() + " checkouts");
 
             CommitMessage msg = new CommitMessage(CommitAssetsMojo.class,
                     "Update assets");
@@ -84,7 +83,6 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                 for (GitCheckout co : assetsCheckouts)
                 {
                     boolean dirty = tree.isDirty(co) || co.hasUntrackedFiles();
-                    System.out.println("CHECK " + co + " dirty " + dirty);
                     if (dirty)
                     {
                         toReallyCommit.add(co);

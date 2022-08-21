@@ -717,4 +717,17 @@ public abstract class BaseMojo extends AbstractMojo
     {
         return Pom.from(project.getFile().toPath()).get();
     }
+
+    /**
+     * Used to print messages that 
+     * 
+     * @param message 
+     */
+    protected void emitMessage(Object message)
+    {
+        if (message != null)
+        {
+            System.out.println(message);
+        }
+    }
 }

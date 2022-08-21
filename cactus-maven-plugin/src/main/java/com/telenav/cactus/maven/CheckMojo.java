@@ -160,7 +160,6 @@ public class CheckMojo extends FamilyAwareMojo
         ConsistencyChecker2 c = new ConsistencyChecker2()
                 .activityLogger(log::info)
                 .withTargetBranch(expectedBranch);
-        System.out.println("Expected branch is " + expectedBranch);
         if (checkRelativePaths)
         {
             c.checkRelativePaths();

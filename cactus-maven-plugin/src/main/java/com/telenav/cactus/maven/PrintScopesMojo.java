@@ -134,7 +134,7 @@ public class PrintScopesMojo extends BaseMojo
             {
                 continue;
             }
-            System.out.println(
+            emitMessage(
                     "\n----- scope '" + scope + "' for family '" + family + "' in "
                     + co.loggingName() + " -----");
             List<GitCheckout> matched = tree.matchCheckouts(scope, co, true,
@@ -146,7 +146,7 @@ public class PrintScopesMojo extends BaseMojo
                 {
                     nm = "(root)";
                 }
-                System.out.println("  * " + nm);
+                emitMessage("  * " + nm);
                 if (printProjects)
                 {
                     tree.projectsWithin(gc).forEach(prj ->
@@ -155,7 +155,7 @@ public class PrintScopesMojo extends BaseMojo
                                 .fromGroupId(prj.groupId().text())
                                 .equals(family))
                         {
-                            System.out.println("    * " + prj.coordinates());
+                            emitMessage("    * " + prj.coordinates());
                         }
                     });
                 }

@@ -334,7 +334,7 @@ public class PushMojo extends ScopedCheckoutsMojo
             else
             {
                 log.info("Push: " + checkout);
-                System.out.println(checkout);
+                emitMessage(checkout);
                 if (!isPretend())
                 {
                     if (pushAll)

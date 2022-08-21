@@ -169,7 +169,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
                     at.addAll();
                 }
                 at.commit(msg.toString());
-                System.out.println("Committed " + at.loggingName());
+                emitMessage("Committed " + at.loggingName());
             }
         }
         Set<GitCheckout> tagged = emptySet();
@@ -195,12 +195,12 @@ public class CommitMojo extends ScopedCheckoutsMojo
                     case YES:
                         log.info("Push: " + co.loggingName());
                         ifNotPretending(co::push);
-                        System.out.println("Pushed " + co.loggingName());
+                        emitMessage("Pushed " + co.loggingName());
                         break;
                     case REMOTE_BRANCH_DOES_NOT_EXIST:
                         log.info("Push creating branch: " + co.loggingName());
                         ifNotPretending(co::pushCreatingBranch);
-                        System.out.println(
+                        emitMessage(
                                 "Pushed " + co.loggingName() + " creating remote branch "
                                 + co.branch().get());
                         break;
@@ -279,12 +279,6 @@ public class CommitMojo extends ScopedCheckoutsMojo
             Conflicts cf = useWorkingTree
                            ? co.canMergeWorkingTree()
                            : co.checkForConflicts();
-            if (!cf.isEmpty())
-            {
-                System.out.println(
-                        "Have conflicts for " + co.loggingName() + " wt " + useWorkingTree);
-                System.out.println(cf);
-            }
             result.put(co, cf);
         }
         return result;
@@ -318,7 +312,6 @@ public class CommitMojo extends ScopedCheckoutsMojo
                     useWorkingTree);
             cfs.forEach((checkout, cflict) ->
             {
-                System.out.println(cflict);
                 if (cflict.hasHardConflicts())
                 {
                     conflicts.put(checkout, cflict.filterHard());

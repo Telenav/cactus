@@ -39,7 +39,7 @@ public final class PrintFamilyVersionsMojo extends ScopedCheckoutsMojo
                 .allProjects()).ifPresent(ver -> versions.put(family, ver)));
 
         versions.forEach((family, currentVersion)
-                -> System.out.println(family + " " + currentVersion)
+                -> emitMessage(family + " " + currentVersion)
         );
     }
 }

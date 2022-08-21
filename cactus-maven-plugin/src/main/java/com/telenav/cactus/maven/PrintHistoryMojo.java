@@ -92,18 +92,18 @@ public class PrintHistoryMojo extends ScopedCheckoutsMojo
 
     private void emitCheckoutStart(GitCheckout checkout)
     {
-        System.out.println();
+        emitMessage("");
         String ln = checkout.loggingName();
-        System.out.println(ln);
+        emitMessage(ln);
         char[] c = new char[ln.length() + 1];
         Arrays.fill(c, '=');
         c[c.length - 1] = '\n';
-        System.out.println(new String(c));
+        emitMessage(new String(c));
     }
 
     private void emit(Pom pom, Path relPath, CommitInfo historyRecord)
     {
-        System.out.println(
+        emitMessage(
                 relPath + " " + pom.toArtifactIdentifiers() + "\n  " + historyRecord
                 .info());
     }
