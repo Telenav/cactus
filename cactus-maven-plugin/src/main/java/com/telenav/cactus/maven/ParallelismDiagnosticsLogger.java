@@ -73,9 +73,33 @@ final class ParallelismDiagnosticsLogger
         thread.setPriority(NORM_PRIORITY - 1);
     }
 
-    public static void logDiagnostic(BaseMojo mojo, boolean captureStackTrace)
+    public synchronized static void logDiagnostic(BaseMojo mojo,
+            boolean captureStackTrace)
     {
-        LOG.add(new Diagnostic(mojo, captureStackTrace));
+        MavenSession sess = mojo.session();
+        if (sess == null)
+        {
+            System.err.println("NULL SESSION IN " + mojo);
+            return;
+        }
+        // Well THIS is a race.
+        MavenProject runningProject = sess.getCurrentProject();
+        if (runningProject == null)
+        {
+            runningProject = mojo.project();
+            if (runningProject == null)
+            {
+                System.err.println(
+                        "SESSION AND MOJO HAVE NULL PROJECT: " + mojo + " sess " + sess);
+                return;
+            }
+            else
+            {
+                System.err.println(
+                        "SESSION SHOWS NULL CURRENT PROJECT BUT MOJO HAS " + runningProject);
+            }
+        }
+        LOG.add(new Diagnostic(mojo, sess, runningProject, captureStackTrace));
     }
 
     private void add(Diagnostic diag)
@@ -171,18 +195,18 @@ final class ParallelismDiagnosticsLogger
         private final boolean duplicateProjects;
         private final String mojoClass;
 
-        Diagnostic(BaseMojo mojo, boolean stack)
+        Diagnostic(BaseMojo mojo, MavenSession sess, MavenProject currentProject,
+                boolean stack)
         {
-            mojoClass = mojo.getClass().getSimpleName();
+            mojoClass = mojo.getClass().getSimpleName()
+                        + " @ " + System.identityHashCode(mojo);
             threadId = currentThread().getId();
-            MavenSession sess = mojo.session();
             parallel = sess.isParallel();
             invokedAgainstProject = sess.getTopLevelProject().getArtifactId();
             if (stack)
             {
-                stackTrace = '\n' + Strings.toString(new Exception(sess
-                        .getCurrentProject()
-                        .getArtifactId()));
+                stackTrace = '\n' + Strings.toString(new Exception(
+                        currentProject.getArtifactId() + " on " + mojoClass));
             }
             else
             {
@@ -190,7 +214,6 @@ final class ParallelismDiagnosticsLogger
             }
             // Create a string artifact-id list with >>> and <<< bracketing the currently
             // being built project and *** bracketing the top level project
-            MavenProject currentProject = sess.getCurrentProject();
             MavenProject top = sess.getTopLevelProject();
             List<MavenProject> all = sess.getAllProjects();
             Set<MavenProject> allMavenProjects = new HashSet<>();

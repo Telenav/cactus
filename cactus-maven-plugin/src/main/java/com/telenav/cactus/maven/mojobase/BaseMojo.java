@@ -259,7 +259,7 @@ public abstract class BaseMojo extends AbstractMojo
     private MavenProject project;
 
     @Parameter(defaultValue = "${session}", readonly = true)
-    private MavenSession mavenSession;
+    private volatile MavenSession mavenSession;
 
     @Parameter(property = VERBOSE, defaultValue = "false", alias = "verbose")
     private boolean verbose;
@@ -442,7 +442,7 @@ public abstract class BaseMojo extends AbstractMojo
      *
      * @return A project
      */
-    protected final MavenProject project()
+    public final MavenProject project()
     {
         return project;
     }
