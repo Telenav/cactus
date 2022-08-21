@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
@@ -76,7 +76,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 {
     private static final Set<String> ALWAYS_PROTECTED
             = unmodifiableSet(new HashSet<>(Arrays.asList("master", "develop",
-                    "stable", "release/current")));
+                    "stable", "release/current", "publish")));
 
     /**
      * Comma delimited list of branches which should not be deleted, no matter
@@ -97,8 +97,15 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
      * safe to delete it.
      */
     @Parameter(property = "cactus.safe-branches",
-            defaultValue = "develop,release/current")
-    String safeBranches;
+            defaultValue = "develop,release/current,publish")
+    private String safeBranches;
+
+    /**
+     * List of regular expressions.
+     */
+    @Parameter(property = "cactus.safe-branch-patterns",
+            defaultValue = "develop,release/current,publish")
+    private List<String> safePatterns;
 
     /**
      * Because this mojo could wreak quite a bit of havoc if used carelessly, a
@@ -140,6 +147,8 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
             log.warn("Both cactus.cleanup-remote and cactus.cleanup-local are "
                     + "false.  Nothing will be done.");
         }
+        protectedPatterns();
+        safePatterns();
     }
 
     @Override
@@ -156,14 +165,31 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
         TaskSet remoteTasks = TaskSet.newTaskSet(log);
         Predicate<String> protectedBranchFilter = protectedBranchFilter();
-        Set<String> safeBranchNames = safeBranches();
+        Predicate<String> safeBranchFilter = safeBranchFilter();
+
+        log.debug(protectedBranchFilter::toString);
+        log.debug(safeBranchFilter::toString);
 
         if (cleanupRemote)
         {
             collectRemoteBranchesForCleanup(checkouts, protectedBranchFilter,
-                    safeBranchNames, tree, log, remoteTasks);
+                    safeBranchFilter, tree, log, remoteTasks);
         }
+        boolean hadTasks = !remoteTasks.isEmpty();
         remoteTasks.execute();
+
+        if (hadTasks && acknowledged && !isPretend())
+        {
+            for (GitCheckout checkout : checkouts)
+            {
+                log.info(
+                        "Refresh remote branches after making changes for "
+                        + checkout.loggingName());
+                tree.invalidateBranches(checkout);
+                checkout.updateRemoteHeads();
+                checkout.fetchPruningDefunctLocalRecordsOfRemoteBranches();
+            }
+        }
 
         // Deleting remote branches can obsolete some local branches that
         // were not obsolete before, so only collect local branches after
@@ -172,13 +198,14 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
         if (cleanupLocal)
         {
             collectLocalBranchesForCleanup(checkouts, protectedBranchFilter,
-                    safeBranchNames, tree, log, localTasks);
+                    safeBranchFilter, tree, log, localTasks);
         }
+        hadTasks |= !localTasks.isEmpty();
         localTasks.execute();
 
-        if (localTasks.isEmpty() && remoteTasks.isEmpty())
+        if (!hadTasks)
         {
-            log.info("Nothing to do.");
+            log.info("Nothing to do");
         }
         else
         {
@@ -189,7 +216,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
     public void collectRemoteBranchesForCleanup(List<GitCheckout> checkouts,
             Predicate<String> protectedBranchFilter,
-            Set<String> safeBranchNames,
+            Predicate<String> safeBranchNames,
             ProjectTree tree,
             BuildLog log1, TaskSet tasks)
     {
@@ -204,6 +231,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
             }
             Set<CheckoutAndHead> operateOn = filterToBranchesAlreadyMergedToSafeBranches(
                     candidates,
+                    safeBranchNames,
                     tree, log1);
             if (operateOn.isEmpty())
             {
@@ -231,7 +259,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
     public void collectLocalBranchesForCleanup(List<GitCheckout> checkouts,
             Predicate<String> protectedBranchFilter,
-            Set<String> safeBranchNames,
+            Predicate<String> safeBranchNames,
             ProjectTree tree,
             BuildLog log, TaskSet tasks)
     {
@@ -275,7 +303,6 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                         {
                             try
                             {
-                                log.info("Deleting " + checkoutAndHead);
                                 ifNotPretending(() ->
                                 {
                                     checkoutAndHead.checkout.deleteBranch(
@@ -298,11 +325,11 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
     private Set<CheckoutAndHead> filterToBranchesAlreadyMergedToSafeBranches(
             Map<String, Set<CheckoutAndHead>> candidates,
+            Predicate<String> safeBranchNames,
             ProjectTree tree, BuildLog log)
     {
         Set<CheckoutAndHead> result = new HashSet<>();
         Set<String> unclean = new HashSet<>();
-        Set<String> safeBranchNames = safeBranches();
         candidates.forEach((branchName, targets) ->
         {
             if (!unclean.contains(branchName))
@@ -323,8 +350,11 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                         {
                             continue;
                         }
-                        if (safeBranchNames.contains(remoteBranch.name()))
+                        if (safeBranchNames.test(remoteBranch.name()))
                         {
+                            log.debug(
+                                    () -> "Head " + checkoutAndBranch.head + " of " + checkoutAndBranch
+                                    + " is included in the safe branch " + remoteBranch + " so it is safe to delete.");
                             result.add(checkoutAndBranch);
                             added = true;
                             break;
@@ -333,9 +363,11 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                     if (!added)
                     {
                         log.info(
-                                "Will not delete branch '" + checkoutAndBranch.branch
-                                        .trackingName()
-                                + "' because no safe branch contains its head commit.");
+                                "Will not delete branch '"
+                                + checkoutAndBranch.branch.trackingName()
+                                + "' in "
+                                + checkoutAndBranch.checkout.loggingName()
+                                + " because no safe branch contains its head commit.");
                         unclean.add(branchName);
                     }
                 });
@@ -353,6 +385,8 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
             CheckoutAndHead ch = it.next();
             if (unclean.contains(ch.branch.name()))
             {
+                log.debug(() -> "Prune " + ch 
+                        + " from deletions because some checkout has unmerged chanegs on it");
                 it.remove();
             }
             if (!ch.isFromDefaultRemote())
@@ -368,7 +402,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
     void collectRemoteBranches(
             Collection<? extends GitCheckout> checkouts,
             Predicate<String> protectedBranchFilter,
-            Set<String> safeBranchNames,
+            Predicate<String> safeBranchNames,
             ProjectTree tree,
             Consumer<Map<String, Set<CheckoutAndHead>>> c)
     {
@@ -380,7 +414,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
     void collectLocalBranches(Collection<? extends GitCheckout> checkouts,
             Predicate<String> protectedBranchFilter,
-            Set<String> safeBranchNames,
+            Predicate<String> safeBranchNames,
             ProjectTree tree,
             Consumer<Map<String, Set<CheckoutAndHead>>> c)
     {
@@ -392,14 +426,14 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
     private void scanForLocalBranches(GitCheckout checkout,
             Map<String, Set<CheckoutAndHead>> candidateBranches,
-            Set<String> safeBranches,
+            Predicate<String> safeBranches,
             ProjectTree tree,
             Predicate<String> protectedBranchFilter)
     {
         Branches branches = tree.branches(checkout);
         branches.localBranches().forEach(branch ->
         {
-            if (safeBranches.contains(branch.name()) || protectedBranchFilter
+            if (safeBranches.test(branch.name()) || protectedBranchFilter
                     .test(branch.name()))
             {
                 return;
@@ -413,7 +447,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                             head);
                     for (Branch remote : containing.remoteBranches())
                     {
-                        if (safeBranches.contains(remote.name()))
+                        if (safeBranches.test(remote.name()))
                         {
                             candidateBranches.computeIfAbsent(branch.name(),
                                     br -> new TreeSet<>())
@@ -429,7 +463,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
     private void scanForBranches(GitCheckout checkout,
             Map<String, Set<CheckoutAndHead>> candidateBranches,
-            Set<String> safeBranches,
+            Predicate<String> safeBranches,
             ProjectTree tree,
             Predicate<String> protectedBranchFilter)
     {
@@ -445,7 +479,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
 
         for (Branch branch : remotes)
         {
-            if (safeBranches.contains(branch.name()))
+            if (safeBranches.test(branch.name()))
             {
                 continue;
             }
@@ -463,38 +497,6 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                         .add(new CheckoutAndHead(checkout, head, branch));
             }
         }
-    }
-
-    private Set<String> safeBranches()
-    {
-        Set<String> all = new HashSet<>();
-        for (String s : safeBranches.split(","))
-        {
-            all.add(s.trim());
-        }
-        return all;
-    }
-
-    private Predicate<String> protectedBranchFilter()
-    {
-        Set<String> pb = protectedBranches();
-        Set<Pattern> patterns = protectedPatterns();
-        return branch ->
-        {
-            boolean result = branch.startsWith("release") || pb.contains(branch);
-            if (!result)
-            {
-                for (Pattern p : patterns)
-                {
-                    result = p.matcher(branch).find();
-                    if (result)
-                    {
-                        break;
-                    }
-                }
-            }
-            return result;
-        };
     }
 
     static class CheckoutAndHead implements Comparable<CheckoutAndHead>
@@ -661,26 +663,127 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
         return result;
     }
 
+    private Predicate<String> safeBranchFilter()
+    {
+        return predicate("safe", safeBranches(), safePatterns());
+    }
+
+    private Set<String> safeBranches()
+    {
+        Set<String> all = new HashSet<>();
+        for (String s : safeBranches.split(","))
+        {
+            all.add(s.trim());
+        }
+        return all;
+    }
+
+    private Predicate<String> protectedBranchFilter()
+    {
+        return predicate("protected", protectedBranches(), protectedPatterns());
+    }
+
     private Set<Pattern> protectedPatterns()
     {
-        Set<Pattern> result = new HashSet<>();
-        if (protectedPatterns != null && !protectedPatterns.isEmpty())
+        Set<Pattern> result = new HashSet<>(patterns(protectedPatterns));
+        result.add(Pattern.compile("^v?\\d+\\.\\d+\\[.$]?.*"));
+        result.add(Pattern.compile("^release/*"));
+        return result;
+    }
+
+    private Set<Pattern> safePatterns()
+    {
+        return patterns(safePatterns);
+    }
+
+    private Set<Pattern> patterns(Collection<? extends String> patterns)
+    {
+        if (patterns == null || patterns.isEmpty())
         {
-            for (String pat : protectedPatterns)
+            return emptySet();
+        }
+        Set<Pattern> result = new HashSet<>();
+        for (String pat : protectedPatterns)
+        {
+            if (!pat.isBlank())
             {
-                if (!pat.isBlank())
+                try
                 {
-                    try
-                    {
-                        result.add(Pattern.compile(pat));
-                    }
-                    catch (Exception ex)
-                    {
-                        fail("Invalid regular expression '" + pat + "'");
-                    }
+                    result.add(Pattern.compile(pat));
+                }
+                catch (Exception ex)
+                {
+                    fail("Invalid regular expression '" + pat + "'");
                 }
             }
         }
         return result;
+    }
+
+    static Predicate<String> predicate(String name,
+            Collection<? extends String> exactMatches,
+            Collection<? extends Pattern> patterns)
+    {
+        // This could be a lambda, but ... logging
+        return new ExactAndPatternPredicate(name, exactMatches, patterns);
+    }
+
+    private static final class ExactAndPatternPredicate implements
+            Predicate<String>
+    {
+        private final String name;
+        private final Collection<? extends String> exactMatches;
+        private final Collection<? extends Pattern> patterns;
+
+        public ExactAndPatternPredicate(
+                String name,
+                Collection<? extends String> exactMatches,
+                Collection<? extends Pattern> patterns)
+        {
+            this.name = name;
+            this.exactMatches = exactMatches;
+            this.patterns = patterns;
+        }
+
+        @Override
+        public boolean test(String branch)
+        {
+            if (exactMatches.contains(branch))
+            {
+                return true;
+            }
+            for (Pattern p : patterns)
+            {
+                if (p.matcher(branch).find())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public String toString()
+        {
+            StringBuilder sb = new StringBuilder(name).append('(');
+            int len = name.length() + 1;
+            for (String p : exactMatches)
+            {
+                if (sb.length() > len)
+                {
+                    sb.append(",");
+                }
+                sb.append(p);
+            }
+            for (Pattern p : patterns)
+            {
+                if (sb.length() > len)
+                {
+                    sb.append(",");
+                }
+                sb.append('/').append(p.pattern()).append('/');
+            }
+            return sb.append(')').toString();
+        }
     }
 }
