@@ -15,14 +15,24 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.process.internal;
 
-open module cactus.cli
+import com.telenav.cactus.process.ProcessState;
+
+/**
+ * Internal interface for getting notified on process exit. Note: This package
+ * is not published to the world at large via the module system, and subject to
+ * change.
+ *
+ * @author Tim Boudreau
+ */
+public interface ProcessListener
 {
-    requires com.mastfrog.concurrent;
-    requires com.mastfrog.function;
-    requires com.mastfrog.preconditions;
-    requires cactus.process;
-    requires cactus.maven.log;
-    requires cactus.util;
-    exports com.telenav.cactus.cli;
+    /**
+     * Called when the process exits.
+     *
+     * @param state The exit state of the process
+     */
+    void processExited(ProcessState state);
+
 }

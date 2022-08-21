@@ -15,14 +15,23 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.telenav.cactus.process;
 
-open module cactus.cli
+import java.nio.ByteBuffer;
+
+/**
+ * Default no-op stding handler.
+ *
+ * @author Tim Boudreau
+ */
+final class DefaultStdinHandler implements StandardInputHandler
 {
-    requires com.mastfrog.concurrent;
-    requires com.mastfrog.function;
-    requires com.mastfrog.preconditions;
-    requires cactus.process;
-    requires cactus.maven.log;
-    requires cactus.util;
-    exports com.telenav.cactus.cli;
+    @Override
+    public boolean onStdinReady(ProcessControl process, ByteBuffer bb)
+    {
+        System.err.println(
+                "Stdin request from " + process + " but no handler was set up");
+        return false;
+    }
+
 }

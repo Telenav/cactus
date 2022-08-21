@@ -18,6 +18,7 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import com.telenav.cactus.process.ProcessControl;
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.Function;
@@ -35,7 +36,7 @@ public interface ProcessResultConverter<T>
 {
 
     AwaitableCompletionStage<T> onProcessStarted(Supplier<String> description,
-            Process process);
+            ProcessControl<String, String> process);
 
     public static StringProcessResultConverter strings()
     {

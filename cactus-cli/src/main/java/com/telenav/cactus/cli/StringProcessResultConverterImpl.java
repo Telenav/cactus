@@ -18,18 +18,12 @@
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.log.BuildLog;
-
-import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import com.telenav.cactus.process.ProcessControl;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+
+import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 
 /**
  *
@@ -40,8 +34,6 @@ final class StringProcessResultConverterImpl implements
 {
 
     final IntPredicate exitCodeTest;
-    private volatile OutputReader stderr;
-    private volatile OutputReader stdout;
     private final BuildLog log = BuildLog.get();
 
     public StringProcessResultConverterImpl(IntPredicate exitCodeTest)
@@ -56,103 +48,26 @@ final class StringProcessResultConverterImpl implements
 
     @Override
     public AwaitableCompletionStage<String> onProcessStarted(
-            Supplier<String> description, Process process)
+            Supplier<String> description, ProcessControl<String, String> process)
     {
-        stderr = new OutputReader(process.getErrorStream()).start();
-        stdout = new OutputReader(process.getInputStream()).start();
         // Note:  This really needs to be thenApplyAsync(), or you sometimes get
         // immediately called back before the process has *started*.
-        return completionStageForProcess(process).thenApply(proc ->
+        return completionStageForProcess(process).thenApply(result ->
         {
             log.debug(() ->
             {
-                return "exit " + proc.exitValue() + ":\n" + stdout.toString() + "\n"
-                        + (proc.exitValue() != 0
-                           ? stderr.toString()
+                return "exit " + result.exitValue() + ":\n" + result.standardOutput()+ "\n"
+                        + (result.exitValue() != 0
+                           ? result.standardError()
                            : "");
             });
-            if (exitCodeTest.test(proc.exitValue()))
+            if (exitCodeTest.test(result.exitValue()))
             {
-                stderr.done();
-                return stdout.done();
+                return result.standardOutput();
             }
-            throw new ProcessFailedException(description, process, stdout.done(),
-                    stderr.done());
+            throw new ProcessFailedException(description, process, result.standardOutput(),
+                    result.standardError());
         });
     }
 
-    private static class OutputReader implements Runnable
-    {
-
-        private final BufferedReader in;
-        private final StringBuilder sb = new StringBuilder();
-        private final Thread thread = new Thread(this, "process-output-reader");
-        private volatile Throwable thrown;
-
-        // Sigh... 27 years of Java and the API for interacting with processes
-        // is still goshawful.
-        public OutputReader(InputStream in)
-        {
-            this.in = new BufferedReader(new InputStreamReader(in, Charset
-                    .defaultCharset()), 512);
-        }
-
-        @Override
-        public String toString()
-        {
-            synchronized (this)
-            {
-                return sb.toString();
-            }
-        }
-
-        public String done()
-        {
-            thread.interrupt();
-            Throwable t = thrown;
-            if (t != null)
-            {
-                // unlikely but cover all the bases
-                return Exceptions.chuck(t);
-            }
-            try
-            {
-                thread.join();
-            }
-            catch (InterruptedException ex)
-            {
-                ex.printStackTrace();
-            }
-            run();
-            return toString();
-        }
-
-        public OutputReader start()
-        {
-            thread.start();
-            return this;
-        }
-
-        @Override
-        public void run()
-        {
-            char[] buf = new char[1024];
-            int count;
-            try
-            {
-                while ((count = in.read(buf)) != -1)
-                {
-                    synchronized (this)
-                    {
-                        sb.append(buf, 0, count);
-                    }
-                }
-            }
-            catch (IOException ex)
-            {
-                ex.printStackTrace();
-                thrown = ex;
-            }
-        }
-    }
 }
