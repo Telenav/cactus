@@ -27,6 +27,12 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_B
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
 /**
+ * Automatically generate a unique git tag for matched checkouts prefixed with
+ * <code>automerge-</code> - for use with github actions or similar such as
+ * <a href="https://github.com/Telenav/cactus/blob/develop/.github/workflows/merge-to-stable.yml">this
+ * one</a>
+ * to allow developers to create a tag which triggers an automatic merge of
+ * their branch with a "stable" branch if the merge and a build of it succeed.
  *
  * @author Tim Boudreau
  */
@@ -39,12 +45,24 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 public class AutomergeTagMojo extends ScopedCheckoutsMojo
 {
 
+    /**
+     * The name of the stable branch that would be merged to, in order to weed
+     * out checkouts which are already on that branch.
+     */
     @Parameter(property = STABLE_BRANCH, defaultValue = DEFAULT_STABLE_BRANCH)
     private String stableBranch;
 
+    /**
+     * Optional target branch to scan for, in place of using the branch of the
+     * project the mojo was invoked against.
+     */
     @Parameter(property = TARGET_BRANCH, required = false)
     private String targetBranch;
 
+    /**
+     * If true, push any new commits not in the target branch before creating
+     * and pushing the tag to the remote.
+     */
     @Parameter(property = PUSH, defaultValue = "true", required = false)
     private boolean push;
 
@@ -118,10 +136,12 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
             for (GitCheckout checkout : checkouts)
             {
                 log.info("Push tag " + tag + " to " + checkout.loggingName());
-                if (!pretend) {
+                if (!pretend)
+                {
                     boolean result = checkout.pushTag(tag.toString());
-                    if (!result) {
-                        log.warn("Could not push tag " + tag + " to " 
+                    if (!result)
+                    {
+                        log.warn("Could not push tag " + tag + " to "
                                 + checkout.loggingName() + ".  Does it have a remote?");
                     }
                 }
