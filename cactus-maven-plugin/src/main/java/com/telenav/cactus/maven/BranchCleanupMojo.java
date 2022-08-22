@@ -403,7 +403,7 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
             CheckoutAndHead ch = it.next();
             if (unclean.contains(ch.branch.name()))
             {
-                log.debug(() -> "Prune " + ch 
+                log.debug(() -> "Prune " + ch
                         + " from deletions because some checkout has unmerged chanegs on it");
                 it.remove();
             }
@@ -588,9 +588,11 @@ public class BranchCleanupMojo extends ScopedCheckoutsMojo
                                     .get().name(), false);
                     if (deletedLocal)
                     {
-                        log.info("Deleted local " + localBranch.name());
+                        log.info("Deleted local " + localBranch.name()
+                                + " in " + checkout.loggingName());
                         emitMessage(
-                                "Deleted local " + localBranch.name());
+                                "Deleted local " + localBranch.name()
+                                + " in " + checkout.loggingName());
                     }
                 }
             });

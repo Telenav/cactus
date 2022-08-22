@@ -17,9 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.test.project.generator;
 
-import com.mastfrog.function.BooleanConsumer;
 import com.mastfrog.function.optional.ThrowingOptional;
-import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.telenav.cactus.git.NeedPushResult;
 import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.Pom;
@@ -28,30 +26,23 @@ import com.telenav.cactus.test.project.ProjectWrapper;
 import com.telenav.cactus.test.project.starwars.StarWars;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
-import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.git.NeedPushResult.NO;
 import static com.telenav.cactus.git.NeedPushResult.YES;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
-import static com.telenav.cactus.maven.mojobase.AutomergeTag.AUTOMERGE_TAG_PREFIX;
 import static com.telenav.cactus.scope.Scope.ALL;
 import static com.telenav.cactus.scope.Scope.ALL_PROJECT_FAMILIES;
 import static com.telenav.cactus.scope.Scope.FAMILY_OR_CHILD_FAMILY;
 import static com.telenav.cactus.scope.Scope.JUST_THIS;
-import static com.telenav.cactus.test.project.generator.MavenCommand.debug;
-import static com.telenav.cactus.test.project.starwars.StarWars.starWars;
-import static java.lang.System.setProperty;
-import static java.lang.ThreadLocal.withInitial;
+import static com.telenav.cactus.test.project.generator.Scenarios.MODIFY_POM_IN_DEATHSTAR;
+import static com.telenav.cactus.test.project.generator.StarWarsHarness.*;
 import static java.nio.file.Files.exists;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,9 +55,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Execution(ExecutionMode.CONCURRENT)
 public class ProjectsGeneratorTest
 {
+    private StarWarsHarness harness;
     private StarWars starwars;
-    private static final String WOOKIES_FAMILY = "wookies";
-    private static final boolean SLF4J_DEBUG = false;
 
     // Pass true as the first arg to runTest to log all maven output.
     //
@@ -74,102 +64,99 @@ public class ProjectsGeneratorTest
     // to decide whether to delete the generated repositories or leave them
     // for examination.
     @Test
-    public void testPushAndPullWithCactus() throws IOException
+    public void testPushAndPullWithCactus() throws Exception
     {
-        runTest(false, this::_testPushAndPullWithCactus);
+        harness.runTest(false, this::_testPushAndPullWithCactus);
     }
 
     @Test
     public void testPushAndPullWithSeparateCommitAndPushUsingCactusFamilyScope()
-            throws IOException
+            throws Exception
     {
-        runTest(false,
+        harness.runTest(false,
                 this::_testPushAndPullWithSeparateCommitAndPushUsingCactusFamilyScope);
     }
 
     @Test
-    public void testBasicPushAndPull() throws IOException
+    public void testBasicPushAndPull() throws Exception
     {
-        runTest(false, this::_testBasicPushAndPull);
+        harness.runTest(false, this::_testBasicPushAndPull);
     }
 
     @Test
-    public void testPushJustThisReallyPushesJustThis() throws IOException
+    public void testPushJustThisReallyPushesJustThis() throws Exception
     {
-        runTest(false, this::_testPushJustThisReallyPushesJustThis);
+        harness.runTest(false, this::_testPushJustThisReallyPushesJustThis);
     }
 
     @Test
-    public void testBranchesArePickedUp() throws IOException
+    public void testBranchesArePickedUp() throws Exception
     {
-        runTest(false, this::_testBranchesArePickedUp);
+        harness.runTest(false, this::_testBranchesArePickedUp);
     }
 
     @Test
-    public void testCommitMojoWillNotPushIfConflict() throws IOException
+    public void testCommitMojoWillNotPushIfConflict() throws Exception
     {
-        runTest(false, this::_testCommitMojoWillNotPushIfConflict);
+        harness.runTest(false, this::_testCommitMojoWillNotPushIfConflict);
     }
 
     @Test
     public void testPushAndPullWithSeparateCommitAndPushUsingCactusAllProjectFamiliesScope()
-            throws IOException
+            throws Exception
     {
-        runTest(false,
+        harness.runTest(false,
                 this::_testPushAndPullWithSeparateCommitAndPushUsingCactusAllProjectFamiliesScope);
     }
 
     @Test
-    public void testSimpleBumpProjectVersion()
+    public void testSimpleBumpProjectVersion() throws Exception
     {
-        runTest(false, this::_testSimpleBumpProjectVersion);
+        harness.runTest(false, this::_testSimpleBumpProjectVersion);
     }
 
     @Test
-    public void testAutomergeTagsGeneratedByCommitMojo()
+    public void testAutomergeTagsGeneratedByCommitMojo() throws Exception
     {
-        runTest(false, this::_testAutomergeTagsGeneratedByCommitMojo);
+        harness.runTest(false, this::_testAutomergeTagsGeneratedByCommitMojo);
     }
 
     @Test
     public void testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush()
+            throws Exception
     {
-        runTest(false,
+        harness.runTest(false,
                 this::_testAutomergeTagsGeneratedByAutoMergeTagMojoWithAutopush);
     }
 
     @Test
     public void testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush()
+            throws Exception
     {
-        runTest(false,
+        harness.runTest(false,
                 this::_testAutomergeTagsGeneratedByAutoMergeTagMojoWithExplictPush);
     }
 
     private void _testPushAndPullWithSeparateCommitAndPushUsingCactusFamilyScope()
-            throws IOException
+            throws Exception
     {
         StarWars clone = anotherClone();
+        Path barbules1 = harness.run(Scenarios.CREATE_NEW_SOURCE_IN_FUR);
+        Path sippyCup1 = harness.run(
+                Scenarios.CREATE_NEW_SOURCE_IN_DRINK_MACHINE);
         ProjectWrapper fur = starwars.fur();
-        String body = "package " + fur.javaPackage() + ";\npublic class Barbules {}\n";
-        Path barbules1 = fur.newJavaSource("Barbules", body);
-        assertTrue(exists(barbules1), "Was not created: " + barbules1);
-
         ProjectWrapper drink = starwars.drinkMachine();
-        body = "package " + drink.javaPackage() + ";\npublic class SippyCup {}\n";
-        Path sippyCup1 = drink.newJavaSource("SippyCup", body);
-        assertTrue(exists(sippyCup1), "Was not created: " + sippyCup1);
+        harness.run(MODIFY_POM_IN_DEATHSTAR);
 
         ProjectWrapper unrelatedProject = starwars.deathstar();
-        assertTrue(unrelatedProject.modifyPomFile());
-        assertTrue(unrelatedProject.getCheckout().isDirty(),
-                "Project should be dirty");
 
-        fur.runCactusTarget("commit", args(
+        boolean committed = fur.runCactusTarget("commit", args(
                 SCOPE, Scope.FAMILY,
                 PUSH, false,
                 INCLUDE_ROOT, true,
                 COMMIT_MESSAGE, "This is some stuff"
         ));
+        assertTrue(committed, "Commit failed");
 
         assertTrue(unrelatedProject.getCheckout().isDirty(),
                 "After commit of a different "
@@ -248,18 +235,15 @@ public class ProjectsGeneratorTest
                 + "project family, status of unrelated project checkout should still be dirty");
     }
 
-    private void _testPushAndPullWithCactus() throws IOException
+    private void _testPushAndPullWithCactus() throws Exception
     {
         StarWars clone = anotherClone();
-        ProjectWrapper fur = starwars.fur();
-        String body = "package " + fur.javaPackage() + ";\npublic class Barbules {}\n";
-        Path barbules1 = fur.newJavaSource("Barbules", body);
-        assertTrue(exists(barbules1), "Was not created: " + barbules1);
 
+        Path barbules1 = harness.run(Scenarios.CREATE_NEW_SOURCE_IN_FUR);
+        Path sippyCup1 = harness.run(
+                Scenarios.CREATE_NEW_SOURCE_IN_DRINK_MACHINE);
+        ProjectWrapper fur = starwars.fur();
         ProjectWrapper drink = starwars.drinkMachine();
-        body = "package " + drink.javaPackage() + ";\npublic class SippyCup {}\n";
-        Path sippyCup1 = drink.newJavaSource("SippyCup", body);
-        assertTrue(exists(sippyCup1), "Was not created: " + sippyCup1);
 
         boolean committed = fur.runCactusTarget("commit", args(
                 SCOPE, Scope.FAMILY,
@@ -309,13 +293,13 @@ public class ProjectsGeneratorTest
         );
     }
 
-    private void _testBasicPushAndPull() throws IOException
+    private void _testBasicPushAndPull() throws Exception
     {
         StarWars clone = anotherClone();
+
+        Path created = harness.run(Scenarios.CREATE_NEW_SOURCE_IN_FUR);
+
         ProjectWrapper fur = starwars.fur();
-        String body = "package " + fur.javaPackage() + ";\npublic class Barbules {}\n";
-        Path created = fur.newJavaSource("Barbules", body);
-        assertTrue(exists(created), "Was not created: " + created);
 
         fur.commit("Adding barbules.");
         fur.push();
@@ -335,18 +319,15 @@ public class ProjectsGeneratorTest
     }
 
     private void _testPushAndPullWithSeparateCommitAndPushUsingCactusAllProjectFamiliesScope()
-            throws IOException
+            throws Exception
     {
         StarWars clone = anotherClone();
-        ProjectWrapper fur = starwars.fur();
-        String body = "package " + fur.javaPackage() + ";\npublic class Barbules {}\n";
-        Path barbules1 = fur.newJavaSource("Barbules", body);
-        assertTrue(exists(barbules1), "Was not created: " + barbules1);
 
+        Path barbules1 = harness.run(Scenarios.CREATE_NEW_SOURCE_IN_FUR);
+        Path sippyCup1 = harness.run(
+                Scenarios.CREATE_NEW_SOURCE_IN_DRINK_MACHINE);
+        ProjectWrapper fur = starwars.fur();
         ProjectWrapper drink = starwars.drinkMachine();
-        body = "package " + drink.javaPackage() + ";\npublic class SippyCup {}\n";
-        Path sippyCup1 = drink.newJavaSource("SippyCup", body);
-        assertTrue(exists(sippyCup1), "Was not created: " + sippyCup1);
 
         fur.runCactusTarget("commit", args(SCOPE, ALL_PROJECT_FAMILIES,
                 PUSH, false,
@@ -422,20 +403,16 @@ public class ProjectsGeneratorTest
         );
     }
 
-    private void _testPushJustThisReallyPushesJustThis() throws IOException
+    private void _testPushJustThisReallyPushesJustThis() throws Exception
     {
         StarWars clone = anotherClone();
+
+        Path barbules1 = harness.run(Scenarios.CREATE_NEW_SOURCE_IN_FUR);
+        Path sippyCup1 = harness.run(
+                Scenarios.CREATE_NEW_SOURCE_IN_DRINK_MACHINE);
         ProjectWrapper fur = starwars.fur();
-        String body = "package " + fur.javaPackage() + ";\npublic class Barbules {}\n";
-        Path barbules1 = fur.newJavaSource("Barbules", body);
-        assertTrue(exists(barbules1), "Was not created: " + barbules1);
-
         fur.modifyPomFile();
-
         ProjectWrapper drink = starwars.drinkMachine();
-        body = "package " + drink.javaPackage() + ";\npublic class SippyCup {}\n";
-        Path sippyCup1 = drink.newJavaSource("SippyCup", body);
-        assertTrue(exists(sippyCup1), "Was not created: " + sippyCup1);
 
         assertTrue(fur.getCheckout().isDirty(),
                 "Repo status should be dirty");
@@ -1073,112 +1050,6 @@ public class ProjectsGeneratorTest
         assertFalse(remoteTags.containsKey(clone));
     }
 
-    private static void assertDirty(ProjectWrapper... wrapper)
-    {
-        for (ProjectWrapper w : wrapper)
-        {
-            assertTrue(w.getCheckout().isDirty(), "Not dirty: " + w
-                    .getCheckout().loggingName());
-        }
-    }
-
-    private static void pushNewBranch(ProjectWrapper... wrappers)
-    {
-        for (ProjectWrapper w : wrappers)
-        {
-            assertTrue(w.pushCreatingBranch(), () -> w.getCheckout()
-                    .loggingName()
-                    + " pushing branch " + w.getCheckout().branch().get());
-        }
-    }
-
-    private static final Map<ProjectWrapper, String> findAutomergeTags(
-            ProjectWrapper... wrappers)
-    {
-        Map<ProjectWrapper, String> result = new HashMap<>();
-        for (ProjectWrapper w : wrappers)
-        {
-            for (String t : w.getCheckout().tags())
-            {
-                if (t.startsWith(AUTOMERGE_TAG_PREFIX))
-                {
-                    result.put(w, t);
-                }
-            }
-        }
-        return result;
-    }
-
-    private static Map<ProjectWrapper, String> heads(ProjectWrapper... wrapper)
-    {
-        Map<ProjectWrapper, String> result = new HashMap<>();
-        for (ProjectWrapper w : wrapper)
-        {
-            String head = w.getCheckout().head();
-            result.put(w, head);
-        }
-        return result;
-    }
-
-    private static void modifySources(ProjectWrapper... wrappers) throws IOException
-    {
-        for (ProjectWrapper w : wrappers)
-        {
-            w.modifyPomFile("Main");
-        }
-    }
-
-    private static void createBranches(String name, ProjectWrapper... wrappers)
-    {
-        for (ProjectWrapper w : wrappers)
-        {
-            assertTrue(w.newBranch(name),
-                    w.getCheckout().loggingName() + " " + name);
-        }
-        pushNewBranch(wrappers);
-    }
-
-    public static Map<String, Object> args(Object... parts)
-    {
-        Map<String, Object> m = new LinkedHashMap<>();
-        assertTrue(parts.length % 2 == 0);
-        for (int i = 0; i < parts.length; i += 2)
-        {
-            m.put(parts[i].toString(), parts[i + 1]);
-        }
-        return m;
-    }
-
-    private final ThreadLocal<Boolean> failed = withInitial(
-            () -> false);
-
-    public void runTest(boolean debug, ThrowingRunnable run)
-    {
-        runTest(debug, run, failed::set);
-    }
-
-    public static void runTest(boolean debug, ThrowingRunnable run,
-            BooleanConsumer onFailure)
-    {
-        try
-        {
-            if (debug)
-            {
-                debug(run);
-            }
-            else
-            {
-                run.toNonThrowing().run();
-            }
-            onFailure.accept(false);
-        }
-        catch (Throwable thrown)
-        {
-            onFailure.accept(true);
-            chuck(thrown);
-        }
-    }
-
     private StarWars anotherClone() throws IOException
     {
         return starwars.newClone();
@@ -1187,41 +1058,16 @@ public class ProjectsGeneratorTest
     @BeforeEach
     public void setup(TestInfo info) throws IOException
     {
-        System.out.println("Running " + info.getDisplayName());
-        Thread.currentThread().setName(info.getDisplayName());
-        failed.set(false); // if the thread is reused
-        starwars = starWars();
-        starwars.superpomsProject().build();
-        starwars.build();
+        harness = new StarWarsHarness(info);
+        starwars = harness.starwars();
     }
 
     @AfterEach
     public void cleanup(TestInfo info) throws IOException
     {
-        if (starwars != null)
+        if (harness != null)
         {
-            if (failed.get())
-            {
-                System.out.println("Test " + info.getDisplayName() + " failed.");
-                System.out.println(
-                        "Generated repositories left behind in " + starwars
-                                .parentRoot());
-            }
-            else
-            {
-                starwars.cleanup();
-            }
-        }
-    }
-
-    @BeforeAll
-    public static void setupLogging()
-    {
-        // This will result in logging all git commands and their output - 
-        // usually unwanted but handy for debugging
-        if (SLF4J_DEBUG)
-        {
-//            setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+            harness.teardown();
         }
     }
 }

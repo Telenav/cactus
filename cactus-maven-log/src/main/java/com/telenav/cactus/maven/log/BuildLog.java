@@ -58,6 +58,12 @@ public class BuildLog implements Consumer<String>
     {
         this(null, LoggerFactory.getLogger(context));
     }
+    
+    public BuildLog(String pfx, String context)
+    {
+        this(pfx, LoggerFactory.getLogger(context));
+    }
+    
 
     @Override
     public void accept(String t)

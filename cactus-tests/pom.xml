@@ -49,6 +49,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <!-- Works for full test suite but not for test-single -->
+                    <useModulePath>false</useModulePath>
+                    
                     <systemProperties>
                         <unit.test>true</unit.test>
                         <!-- to see all details of git output, swap commenting on the next two lines -->
