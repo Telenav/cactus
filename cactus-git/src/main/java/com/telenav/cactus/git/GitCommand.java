@@ -103,6 +103,12 @@ public final class GitCommand<T> extends CliCommand<T>
     {
         // Want this for everything
         list.add("--no-pager");
+        // Pending - we should probably modify GitCheckout.push() and
+        // friends to either explicitly pass what they intend, or to
+        // use this there.  But for our purposes, we are assuming remote
+        // branches match local branches.
+        list.add("-c");
+        list.add("push.default=current");
         list.addAll(Arrays.asList(args));
     }
 
