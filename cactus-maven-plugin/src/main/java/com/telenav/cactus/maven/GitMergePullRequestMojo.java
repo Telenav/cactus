@@ -37,6 +37,7 @@ import org.apache.maven.project.MavenProject;
 import static com.telenav.cactus.github.MergePullRequestOptions.MERGE;
 import static com.telenav.cactus.github.MergePullRequestOptions.REBASE;
 import static com.telenav.cactus.github.MergePullRequestOptions.SQUASH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
 import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
 import static java.util.Collections.emptyMap;
 import static java.util.EnumSet.noneOf;
@@ -71,7 +72,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
      * be a exactly one pull request extant for that branch which is open and
      * mergable.
      */
-    @Parameter(property = "cactus.target-branch")
+    @Parameter(property = TARGET_BRANCH)
     private String targetBranch;
 
     /**

@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PROPERTIES;
 import static java.lang.String.join;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.INITIALIZE;
@@ -77,7 +78,7 @@ public class FilterDeployingAlreadyPublishedMojo extends BaseMojo
      * <li>skipNexusStagingDeployMojo</li>
      * </ul>
      */
-    @Parameter(property = "cactus.properties")
+    @Parameter(property = PROPERTIES)
     private String properties;
 
     /**

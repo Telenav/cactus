@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PERMIT_LOCAL_CHANGES;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
 import static java.util.stream.Collectors.toCollection;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -66,7 +67,7 @@ public class PullMojo extends ScopedCheckoutsMojo
     /**
      * If true, allow for local modifications to be present.
      */
-    @Parameter(property = "cactus.permit-local-modifications",
+    @Parameter(property = PERMIT_LOCAL_CHANGES,
             defaultValue = "true")
     private boolean permitLocalModifications;
 

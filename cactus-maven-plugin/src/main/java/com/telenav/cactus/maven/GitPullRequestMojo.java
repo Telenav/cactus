@@ -45,6 +45,8 @@ import java.util.Set;
 
 import static com.telenav.cactus.maven.ClassloaderLog._log;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
 import static com.telenav.cactus.maven.task.TaskSet.newTaskSet;
 import static java.awt.Desktop.getDesktop;
@@ -98,7 +100,7 @@ public class GitPullRequestMojo extends AbstractGithubMojo
      * If true (the default), generate commits in any repositories that are
      * matched and contain modifications or untracked, unignored files.
      */
-    @Parameter(property = "cactus.commit", defaultValue = "true")
+    @Parameter(property = COMMIT_CHANGES, defaultValue = "true")
     private boolean commit;
 
     /**
@@ -106,8 +108,8 @@ public class GitPullRequestMojo extends AbstractGithubMojo
      * which, if createBranchesIfNeeded is false, should be used as the fallback
      * branch to put checkouts on if the target branch does not exist.
      */
-    @Parameter(property = BASE_BRANCH, defaultValue = "develop")
-    String baseBranch = "develop";
+    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
+    String baseBranch;
 
     /**
      * The branch from which the pull request should be created; if unset, the

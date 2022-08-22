@@ -39,10 +39,7 @@ import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.git.GitCheckout.depthFirstSort;
 import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.CREATE_AUTOMERGE_TAG;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_STABLE_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.STABLE_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
@@ -92,7 +89,7 @@ public class PushMojo extends ScopedCheckoutsMojo
      * modifications - this is usually an indication that committing was
      * neglected, but there are occasions when it is desirable.
      */
-    @Parameter(property = "cactus.permit-local-modifications",
+    @Parameter(property = PERMIT_LOCAL_CHANGES,
             defaultValue = "true")
     private boolean permitLocalModifications;
 

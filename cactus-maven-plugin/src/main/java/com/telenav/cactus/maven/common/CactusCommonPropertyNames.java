@@ -98,6 +98,8 @@ public final class CactusCommonPropertyNames
     
     public static final String CREATE_AUTOMERGE_TAG = PREFIX + "create-automerge-tag";
 
+    public static final String PROPERTIES = PREFIX + "properties";
+
     private CactusCommonPropertyNames()
     {
         throw new AssertionError();

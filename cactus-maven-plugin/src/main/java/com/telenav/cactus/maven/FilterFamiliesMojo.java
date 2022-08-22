@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PROPERTIES;
 import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.stream.Collectors.toCollection;
@@ -58,7 +59,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 public class FilterFamiliesMojo extends FamilyAwareMojo
 {
 
-    @Parameter(property = "cactus.properties", required = true)
+    @Parameter(property = PROPERTIES, required = true)
     private String properties;
 
     @Parameter(property = "cactus.filter.skip.superpoms", defaultValue = "true")
