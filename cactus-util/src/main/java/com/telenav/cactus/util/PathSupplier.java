@@ -17,10 +17,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.util;
 
+import com.mastfrog.function.throwing.ThrowingFunction;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
@@ -38,6 +43,67 @@ import static java.util.Optional.ofNullable;
  */
 public interface PathSupplier extends Supplier<Optional<Path>>
 {
+
+    default <T> Supplier<Optional<T>> map(ThrowingFunction<Path, T> f)
+    {
+        return () ->
+        {
+            return get().map(f.toNonThrowing());
+        };
+    }
+
+    static <T> Supplier<T> mapMany(
+            Function<Collection<? extends Path>, T> converter,
+            PathSupplier... suppliers)
+    {
+        return () ->
+        {
+            List<Path> paths = new ArrayList<>(suppliers.length);
+            for (PathSupplier p : suppliers)
+            {
+                p.get().ifPresent(paths::add);
+            }
+            return converter.apply(paths);
+        };
+    }
+
+    static PathSupplier existingFileOrInParents(Path start, String path)
+    {
+        notNull("start", start);
+        notNull("path", path);
+        return () ->
+        {
+            Path dir = start;
+            while (dir != null)
+            {
+                Path res = dir.resolve(path);
+                if (Files.exists(res))
+                {
+                    return Optional.of(res);
+                }
+                dir = dir.getParent();
+            }
+            return empty();
+        };
+    }
+
+    static PathSupplier fromWorkingDirOrParents(String path)
+    {
+        return () ->
+        {
+            Path dir = Paths.get(".");
+            while (dir != null)
+            {
+                Path res = dir.resolve(path);
+                if (Files.exists(res))
+                {
+                    return Optional.of(res);
+                }
+                dir = dir.getParent();
+            }
+            return empty();
+        };
+    }
 
     static PathSupplier fromEnvironment(String envVar)
     {
@@ -159,6 +225,23 @@ public interface PathSupplier extends Supplier<Optional<Path>>
                 }
             }
             return result;
+        };
+    }
+
+    default PathSupplier memoizing()
+    {
+        return new PathSupplier()
+        {
+            Optional<Path> result;
+
+            @Override
+            public Optional<Path> get()
+            {
+                return result == null
+                       ? result = PathSupplier.this.get()
+                       : result;
+            }
+
         };
     }
 

@@ -67,6 +67,11 @@
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-codeflowers</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-preferences</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Mastfrog -->
 

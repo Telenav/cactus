@@ -24,7 +24,6 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.AutomergeTag;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,7 +58,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
         instantiationStrategy = SINGLETON,
         name = "push", threadSafe = true)
 @BaseMojoGoal("push")
-public class PushMojo extends ScopedCheckoutsMojo
+public class PushMojo extends AbstractStableBranchMojo
 {
     static Map<GitCheckout, NeedPushResult> collectPushKinds(
             Collection<? extends GitCheckout> checkouts)
@@ -107,12 +106,6 @@ public class PushMojo extends ScopedCheckoutsMojo
      */
     @Parameter(property = SKIP_CONFLICTS, defaultValue = "false")
     private boolean skipConflicts;
-
-    @Parameter(property = STABLE_BRANCH, defaultValue = DEFAULT_STABLE_BRANCH)
-    private String stableBranch;
-
-    @Parameter(property = CREATE_AUTOMERGE_TAG, defaultValue = "false")
-    private boolean createAutomergeTag;
 
     @Override
     protected void execute(BuildLog log, MavenProject project,
@@ -162,7 +155,7 @@ public class PushMojo extends ScopedCheckoutsMojo
             ifNotPretending(root::push);
             if (createAutomergeTag)
             {
-                AutomergeTagMojo.automergeTag(null, stableBranch, tree, log,
+                AutomergeTagMojo.automergeTag(null, this, tree, log,
                         isPretend(), singleton(root), true, this::automergeTag);
             }
         }
@@ -286,7 +279,7 @@ public class PushMojo extends ScopedCheckoutsMojo
                 }
             });
             tagged = AutomergeTagMojo.automergeTag(null,
-                    stableBranch,
+                    this,
                     tree,
                     log.child("automerge-tag"),
                     isPretend(),

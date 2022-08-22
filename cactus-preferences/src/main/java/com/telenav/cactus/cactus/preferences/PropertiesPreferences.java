@@ -48,6 +48,11 @@ final class PropertiesPreferences implements PreferencesFile
         }
     }
 
+    PropertiesPreferences(Properties props)
+    {
+        this.props.putAll(props);
+    }
+
     @Override
     public Optional<String> read(String key)
     {
