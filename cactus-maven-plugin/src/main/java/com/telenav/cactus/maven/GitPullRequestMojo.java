@@ -27,7 +27,7 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.task.TaskSet;
+import com.telenav.cactus.tasks.TaskSet;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.io.IOException;
 import java.net.URI;
@@ -48,7 +48,7 @@ import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRA
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
-import static com.telenav.cactus.maven.task.TaskSet.newTaskSet;
+import static com.telenav.cactus.tasks.TaskSet.newTaskSet;
 import static java.awt.Desktop.getDesktop;
 import static java.awt.Desktop.isDesktopSupported;
 import static java.lang.System.currentTimeMillis;

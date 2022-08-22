@@ -24,7 +24,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
-import com.telenav.cactus.maven.task.TaskSet;
+import com.telenav.cactus.tasks.TaskSet;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import static com.telenav.cactus.maven.task.TaskSet.newTaskSet;
+import static com.telenav.cactus.tasks.TaskSet.newTaskSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.sort;

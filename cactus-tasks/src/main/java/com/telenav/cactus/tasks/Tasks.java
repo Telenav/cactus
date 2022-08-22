@@ -15,12 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.task;
+package com.telenav.cactus.tasks;
 
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
-import com.telenav.cactus.maven.log.BuildLog;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -51,7 +50,7 @@ final class Tasks implements TaskSet
     Tasks(String name)
     {
         this.name = name;
-        log = BuildLog.get().child("tasks");
+        log = System.out::println;
     }
 
     Tasks(String name, Consumer<String> log)

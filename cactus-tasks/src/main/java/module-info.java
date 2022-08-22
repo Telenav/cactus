@@ -15,46 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.task;
-
-import com.mastfrog.function.throwing.ThrowingRunnable;
-import java.util.function.Consumer;
-
-import static com.mastfrog.util.preconditions.Checks.notNull;
-
-/**
- * Implementation of Task.
- *
- * @author Tim Boudreau
- */
-final class TaskImpl implements Task
-{
-    final String name;
-    final ThrowingRunnable run;
-
-    TaskImpl(String name, ThrowingRunnable run)
-    {
-        this.name = notNull("name", name);
-        this.run = notNull("run", run);
-    }
-
-    @Override
-    public void accept(Consumer<String> log, Rollback rb) throws Exception
-    {
-        log.accept(name);
-        run.run();
-    }
-
-    @Override
-    public String name()
-    {
-        return name;
-    }
-
-    @Override
-    public String toString()
-    {
-        return stringify();
-    }
-
+open module cactus.tasks {
+    requires com.mastfrog.function;
+    requires com.mastfrog.preconditions;
+    exports com.telenav.cactus.tasks;
 }
