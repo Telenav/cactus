@@ -171,7 +171,7 @@ public abstract class CliCommand<T> implements Supplier<String>
             internalConfigureProcessBuilder(pb, callback);
             onLaunch(callback);
 
-            NuProcess proc = null;
+            NuProcess proc = pb.start();
             for (int i = 0; proc == null && i < MAX_LAUNCH_ATTEMPTS; i++)
             {
                 System.out.println(
