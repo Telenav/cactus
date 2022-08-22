@@ -28,7 +28,7 @@ import static com.telenav.cactus.maven.ParallelismDiagnosticsLogger.logDiagnosti
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.PER_LOOKUP;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.VERIFY;
 import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
@@ -41,7 +41,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(defaultPhase = VERIFY,
         requiresDependencyResolution = NONE,
-        instantiationStrategy = SINGLETON,
+        instantiationStrategy = PER_LOOKUP,
         name = "project-information", threadSafe = true)
 @BaseMojoGoal("project-information")
 public class ProjectInformationMojo extends BaseMojo
