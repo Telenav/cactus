@@ -48,7 +48,9 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static java.lang.System.getenv;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.Optional.ofNullable;
 
 /**
  *
@@ -62,12 +64,20 @@ public class PathUtils
     public static Path home()
     {
         return fromSystemProperty("user.home", () -> fromSystemProperty(
-                "java.io.tmpdir", () -> Paths.get("/")));
+                "java.io.tmpdir", () -> Paths.get(".")));
     }
 
-    private static Path fromSystemProperty(String what, Supplier<Path> fallback)
+    public static Path fromSystemProperty(String what, Supplier<Path> fallback)
     {
         String prop = System.getProperty(what);
+        return prop == null
+               ? fallback.get()
+               : Paths.get(prop);
+    }
+
+    public static Path fromEnvironment(String what, Supplier<Path> fallback)
+    {
+        String prop = getenv(what);
         return prop == null
                ? fallback.get()
                : Paths.get(prop);
@@ -114,9 +124,9 @@ public class PathUtils
     }
 
     /**
-     * Find an executable on the default system path one of the passed set
-     * of paths.
-     * 
+     * Find an executable on the default system path one of the passed set of
+     * paths.
+     *
      * @param name The name of the executable
      * @param additionalSearchLocations More locations to search
      * @return A path if possible
@@ -195,8 +205,9 @@ public class PathUtils
 
     /**
      * Allows pattern based matching of parent folders which contain some file,
-     * such as seeking the .git directory in directories below a starting folder.
-     * 
+     * such as seeking the .git directory in directories below a starting
+     * folder.
+     *
      * @param of A starting folder
      * @param dirOrFile Whether the file looked for is a directory or a file or
      * can be either
@@ -246,11 +257,10 @@ public class PathUtils
     }
 
     /**
-     * Find an ancestor folder of the passed folder which matches the
-     * passed predicate.
-     * 
-     * @param of A folder which, along with its parent folders, should be
-     * tested
+     * Find an ancestor folder of the passed folder which matches the passed
+     * predicate.
+     *
+     * @param of A folder which, along with its parent folders, should be tested
      * @param test The test to apply
      * @return The passed folder or its first ancestor that passes the test
      */
@@ -274,13 +284,12 @@ public class PathUtils
     /**
      * Get the cache directory in the user's home directory - on linux,
      * ~/.cache, on Mac OS X ~/Library/Caches
-     * 
+     *
      * @return A Path
      */
     public static Path userCacheRoot()
     {
-        Path home = Paths.get(System.getProperty("user.home", System.getenv(
-                "HOME")));
+        Path home = home();
         String os = System.getProperty("os.name");
         if ("Mac OS X".equals(os))
         {
@@ -293,9 +302,24 @@ public class PathUtils
         }
     }
 
+    public static Path userSettingsRoot()
+    {
+        Path home = home();
+        String os = System.getProperty("os.name");
+        if ("Mac OS X".equals(os))
+        {
+            return home.resolve("Library").resolve("Application Support");
+        }
+        else
+        {
+            // Linux default; Windows would be ? Do we care?
+            return home.resolve(".config");
+        }
+    }
+
     /**
      * Get the system temporary directory.
-     * 
+     *
      * @return A path
      */
     public static Path temp()
@@ -386,12 +410,12 @@ public class PathUtils
 
     /**
      * Copy an entire folder tree.
-     * 
+     *
      * @param log A log
      * @param from The source folder
      * @param to The target folder
-     * @return a 2-element array with the number of files copied and the
-     * number of folders created
+     * @return a 2-element array with the number of files copied and the number
+     * of folders created
      * @throws IOException if something goes wrong
      */
     public static int[] copyFolderTree(BuildLog log, Path from, Path to) throws IOException
@@ -435,7 +459,7 @@ public class PathUtils
             files.getAsInt(), dirs.getAsInt()
         };
     }
-    
+
     /**
      * Unzip the passed input stream into the passed directory.
      *
@@ -443,19 +467,27 @@ public class PathUtils
      * @param dir A folder
      * @throws IOException if something goes wrong
      */
-    public static void unzip(InputStream in, Path dir) throws IOException {
+    public static void unzip(InputStream in, Path dir) throws IOException
+    {
         notNull("dir", dir);
-        try ( ZipInputStream zip = new ZipInputStream(notNull("in", in))) {
+        try ( ZipInputStream zip = new ZipInputStream(notNull("in", in)))
+        {
             ZipEntry en;
-            while ((en = zip.getNextEntry()) != null) {
-                if (en.isDirectory()) {
+            while ((en = zip.getNextEntry()) != null)
+            {
+                if (en.isDirectory())
+                {
                     Path dest = dir.resolve(en.getName());
-                    if (!Files.exists(dest)) {
+                    if (!Files.exists(dest))
+                    {
                         Files.createDirectories(dest);
                     }
-                } else {
+                }
+                else
+                {
                     Path dest = dir.resolve(en.getName());
-                    if (!Files.exists(dest.getParent())) {
+                    if (!Files.exists(dest.getParent()))
+                    {
                         Files.createDirectories(dest.getParent());
                     }
                     Files.copy(zip, dest,

@@ -66,6 +66,7 @@
         <module>cactus-tests</module>
         <module>cactus-process</module>
         <module>cactus-tasks</module>
+        <module>cactus-preferences</module>
     </modules>
 
     <!-- Properties -->
