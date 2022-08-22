@@ -24,6 +24,8 @@ import com.mastfrog.function.throwing.ThrowingFunction;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.cactus.preferences.CactusPreferences;
+import com.telenav.cactus.cactus.preferences.Preference.StringPreference;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.MavenCoordinates;
 import com.telenav.cactus.maven.model.Pom;
@@ -61,6 +63,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.cactus.preferences.CactusPreferences.cactusPreferences;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PRETEND;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.VERBOSE;
 import static java.awt.Desktop.getDesktop;
@@ -789,5 +792,25 @@ public abstract class BaseMojo extends AbstractMojo
         {
             System.out.println(message);
         }
+    }
+
+    protected final CactusPreferences preferences()
+    {
+        MavenProject prj = project();
+        Path dir = prj.getBasedir().toPath();
+        return cactusPreferences(dir, prj::getProperties);
+    }
+
+    protected final CactusPreferences preferences(Path dir)
+    {
+        return cactusPreferences(dir);
+    }
+
+    protected final String property(Path in, String fieldValue,
+            StringPreference pref)
+    {
+        return fieldValue == null
+               ? preferences(in).get(pref)
+               : fieldValue;
     }
 }

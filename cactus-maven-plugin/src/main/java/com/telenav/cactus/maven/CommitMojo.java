@@ -69,7 +69,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         instantiationStrategy = SINGLETON,
         name = "commit", threadSafe = true)
 @BaseMojoGoal("commit")
-public class CommitMojo extends ScopedCheckoutsMojo
+public class CommitMojo extends AbstractStableBranchMojo
 {
     /**
      * The commit message.
@@ -93,12 +93,6 @@ public class CommitMojo extends ScopedCheckoutsMojo
 
     @Parameter(property = SKIP_CONFLICTS, defaultValue = "false")
     private boolean skipConflicts;
-
-    @Parameter(property = STABLE_BRANCH, defaultValue = DEFAULT_STABLE_BRANCH)
-    private String stableBranch;
-
-    @Parameter(property = CREATE_AUTOMERGE_TAG, defaultValue = "false")
-    private boolean createAutomergeTag;
 
     public CommitMojo()
     {
@@ -174,7 +168,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
         Set<GitCheckout> tagged = emptySet();
         if (createAutomergeTag)
         {
-            tagged = AutomergeTagMojo.automergeTag(null, stableBranch, tree,
+            tagged = AutomergeTagMojo.automergeTag(null, this, tree,
                     log, isPretend(), toCommit, false, this::automergeTag);
         }
         if (push)
@@ -210,7 +204,8 @@ public class CommitMojo extends ScopedCheckoutsMojo
             String tag = automergeTag().toString();
             for (GitCheckout co : tagged)
             {
-                if (root.equals(co) && !isIncludeRoot()) {
+                if (root.equals(co) && !isIncludeRoot())
+                {
                     continue;
                 }
                 log.info("Push tag " + tag);

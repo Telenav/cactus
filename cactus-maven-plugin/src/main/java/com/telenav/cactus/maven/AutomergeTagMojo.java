@@ -23,7 +23,6 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.AutomergeTag;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -55,16 +54,8 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
         instantiationStrategy = SINGLETON,
         name = "automerge-tag", threadSafe = true)
 @BaseMojoGoal("automerge-tag")
-public class AutomergeTagMojo extends ScopedCheckoutsMojo
+public class AutomergeTagMojo extends AbstractStableBranchMojo
 {
-
-    /**
-     * The name of the stable branch that would be merged to, in order to weed
-     * out checkouts which are already on that branch.
-     */
-    @Parameter(property = STABLE_BRANCH, defaultValue = DEFAULT_STABLE_BRANCH)
-    private String stableBranch;
-
     /**
      * Optional target branch to scan for, in place of using the branch of the
      * project the mojo was invoked against.
@@ -106,12 +97,12 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
         String targetBranch = targetBranch(myCheckout, tree);
 
         Set<GitCheckout> needingTag = filterCheckoutsWithCommitNotOnBranch(
-                targetBranch, stableBranch, tree, log, isPretend(), checkouts);
+                targetBranch, this, tree, log, isPretend(), checkouts);
         if (needingTag.isEmpty())
         {
             log.warn(
                     "No checkouts on the branch " + targetBranch + " have commits "
-                    + "not already in the remote of branch " + stableBranch);
+                    + "not already in the remote of the stable branch.");
             return;
         }
         applyAutomergeTag(automergeTag(), isPretend(), log, needingTag, push);
@@ -124,8 +115,9 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
             return targetBranch;
         }
         String result = tree.branches(myCheckout).currentBranch().get().name();
+        String stable = stableBranch(myCheckout);
         if (DEFAULT_DEVELOPMENT_BRANCH.equals(result)
-                || stableBranch.equals(result))
+                || stable.equals(result))
         {
             fail("The target branch may not be the stable or develop branches");
         }
@@ -163,7 +155,8 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
     }
 
     static Set<GitCheckout> automergeTag(String branchNameOrNull,
-            String stableBranch, ProjectTree tree, BuildLog log,
+            AbstractStableBranchMojo stableBranchSupplier, ProjectTree tree,
+            BuildLog log,
             boolean pretend,
             Collection<? extends GitCheckout> potentialCheckouts,
             boolean push,
@@ -171,7 +164,7 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
     {
         Set<GitCheckout> result = filterCheckoutsWithCommitNotOnBranch(
                 branchNameOrNull,
-                stableBranch, tree, log, pretend, potentialCheckouts);
+                stableBranchSupplier, tree, log, pretend, potentialCheckouts);
         if (!result.isEmpty())
         {
             AutomergeTag tag = tagSupplier.get();
@@ -182,7 +175,7 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
 
     static Set<GitCheckout> filterCheckoutsWithCommitNotOnBranch(
             String branchName,
-            String stableBranch,
+            AbstractStableBranchMojo stableBranchSupplier,
             ProjectTree tree,
             BuildLog log,
             boolean pretend,
@@ -202,9 +195,10 @@ public class AutomergeTagMojo extends ScopedCheckoutsMojo
 
         checkouts.forEach(checkout ->
         {
+            String stableBranch = stableBranchSupplier.stableBranch(checkout);
             Branches branches = tree.branches(checkout);
             Optional<Branch> remoteBranch = branches
-                    .find(stableBranch, false);
+                    .find(stableBranchSupplier.stableBranch(checkout), false);
             if (!remoteBranch.isPresent())
             {
                 log.info(

@@ -17,11 +17,23 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.cactus.preferences;
 
+import com.mastfrog.function.state.Obj;
 import com.telenav.cactus.util.PathSupplier;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static com.telenav.cactus.util.PathSupplier.existingFileOrInParents;
+import static com.telenav.cactus.util.PathSupplier.fromEnvironment;
+import static com.telenav.cactus.util.PathSupplier.fromSettingsDir;
+import static com.telenav.cactus.util.PathSupplier.fromSystemProperty;
+import static java.util.Collections.synchronizedMap;
 
 /**
  * A trivial interface for reading typed values from a key/value pair set of
@@ -32,6 +44,7 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  * of a passed preference, to facilitate using Enum types as Preference
  * implementations.
  * </p>
+ * Properties are resolved from a layered
  *
  * @author Tim Boudreau
  */
@@ -40,9 +53,11 @@ public final class CactusPreferences
     private static final String CACTUS_SETTINGS_SYSTEM_PROPERTY = "cactus.settings";
     private static final String CACTUS_SETTINGS_ENV_VAR = "CACTUS_SETTINGS";
     private static final String CACTUS_SETTINGS_RELATIVE_PATH = "cactus/cactus.properties";
+    private static final String LOCAL_PROPERTIES = ".cactus.properties";
     public static final String DEFAULT_VALUE_MARKER = "_";
 
-    private static CactusPreferences instance;
+    private static final Map<Path, Reference<CactusPreferences>> CACHE
+            = synchronizedMap(new HashMap<>());
     private final PreferencesFile file;
 
     private CactusPreferences(PreferencesFile file)
@@ -50,40 +65,81 @@ public final class CactusPreferences
         this.file = file;
     }
 
-    private static CactusPreferences cactusPreferences()
+    public static CactusPreferences cactusPreferences(Path dir)
     {
-        return instance == null
-               ? instance = load()
-               : instance;
+        return cactusPreferences(dir, () -> null);
     }
 
-    private static CactusPreferences load()
+    public static CactusPreferences cactusPreferences(Path dir,
+            Supplier<Properties> initial)
     {
-        Optional<Path> file = preferencesFile();
-        return new CactusPreferences(file.<PreferencesFile>map(
-                path -> new PropertiesPreferences(path)).orElse(
-                        PreferencesFile.NONE));
+        Obj<CactusPreferences> strongReference = Obj.create();
+        CACHE.compute(notNull("dir", dir), (d, ref) ->
+        {
+            CactusPreferences prefs;
+            if (ref == null)
+            {
+                prefs = _cactusPreferences(d, initial);
+                strongReference.set(prefs);
+                return new WeakReference<>(prefs);
+            }
+            else
+            {
+                prefs = ref.get();
+                if (prefs == null)
+                {
+                    prefs = _cactusPreferences(d, initial);
+                    strongReference.set(prefs);
+                    return new WeakReference<>(prefs);
+                }
+                return ref;
+            }
+        });
+        return strongReference.get();
     }
 
-    private static Optional<Path> preferencesFile()
+    private static CactusPreferences _cactusPreferences(Path dir,
+            Supplier<Properties> initial)
     {
-        return PathSupplier.fromEnvironment(CACTUS_SETTINGS_ENV_VAR)
-                .ifReadableFile()
-                .or(PathSupplier.fromSystemProperty(
-                        CACTUS_SETTINGS_SYSTEM_PROPERTY).ifReadableFile())
-                .or(PathSupplier.fromSettingsDir(CACTUS_SETTINGS_RELATIVE_PATH)
-                        .ifReadableFile())
+        Properties props = initial.get();
+        PreferencesFile first = props == null || props.isEmpty()
+                                ? PreferencesFile.NONE
+                                : new PropertiesPreferences(props);
+        return new CactusPreferences(first.or(findAll(dir)));
+    }
+
+    private static PreferencesFile findAll(Path startingDir)
+    {
+        return PreferencesFile.mapMany(
+                existingFileOrInParents(startingDir, LOCAL_PROPERTIES),
+                fromSystemProperty(CACTUS_SETTINGS_SYSTEM_PROPERTY)
+                        .ifReadableFile(),
+                fromEnvironment(CACTUS_SETTINGS_ENV_VAR).ifReadableFile(),
+                fromSettingsDir(
+                        CACTUS_SETTINGS_RELATIVE_PATH)
+                        .ifReadableFile()
+        );
+    }
+
+    private static Optional<Path> preferencesFile(Path p)
+    {
+        return PathSupplier
+                .existingFileOrInParents(p, LOCAL_PROPERTIES)
+                .or(PathSupplier
+                        .fromEnvironment(CACTUS_SETTINGS_ENV_VAR)
+                        .ifReadableFile()
+                        .or(PathSupplier.fromSystemProperty(
+                                CACTUS_SETTINGS_SYSTEM_PROPERTY)
+                                .ifReadableFile())
+                        .or(PathSupplier.fromSettingsDir(
+                                CACTUS_SETTINGS_RELATIVE_PATH)
+                                .ifReadableFile()))
                 .get();
     }
 
-    public static <T, E extends Enum<E> & Preference<T>> T get(E arg)
+    public <T, E extends Preference<T>> T get(E arg)
     {
-        return cactusPreferences().read(arg);
-    }
-
-    private <T, E extends Enum<E> & Preference<T>> T read(E arg)
-    {
-        String preferenceName = notNull("arg.toString()", notNull("arg", arg)
+        String preferenceName = notNull("arg.name()", notNull("arg", arg)
                 .name()).toLowerCase().replace('_', '-');
         Optional<String> fileValue = file.read(preferenceName);
         if (fileValue.isPresent())
@@ -107,5 +163,4 @@ public final class CactusPreferences
             return arg.defaultValue();
         }
     }
-
 }
