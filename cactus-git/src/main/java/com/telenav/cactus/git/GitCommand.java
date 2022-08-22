@@ -86,6 +86,9 @@ public final class GitCommand<T> extends CliCommand<T>
         // We do not want /etc/gitconfig to alter the behavior of the
         // plugin
         bldr.environment().put("GIT_CONFIG_NOSYSTEM", "1");
+        // Make sure git does not think it can use the terminal (it shouldn't
+        // think so anyway, but this can't hurt).
+        bldr.environment().put("GIT_TERMINAL_PROMPT", "0");
     }
 
     @Override
