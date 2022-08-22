@@ -172,7 +172,7 @@ public abstract class CliCommand<T> implements Supplier<String>
             onLaunch(callback);
 
             NuProcess proc = null;
-            for (int i = 0; i < MAX_LAUNCH_ATTEMPTS; i++)
+            for (int i = 0; proc == null && i < MAX_LAUNCH_ATTEMPTS; i++)
             {
                 System.out.println(
                         "Process launch failed for " + this + ". Retry " + (i + 1));
