@@ -24,6 +24,7 @@ import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.process.ProcessControl;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +69,7 @@ public final class GitCommand<T> extends CliCommand<T>
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);
+        proc.killAfter(Duration.ofMinutes(10));
     }
 
     @Override
