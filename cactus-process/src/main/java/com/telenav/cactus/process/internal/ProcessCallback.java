@@ -58,6 +58,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     private final ConcurrentLinkedList<ProcessListener> listeners;
     private final OutputHandler<O> stdout;
     private final OutputHandler<E> stderr;
+    private volatile int pid = -1;
     private StandardInputHandler stdin = StandardInputHandler.DEFAULT;
     private NuProcess process;
 
@@ -153,6 +154,10 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     public ProcessState state()
     {
         return processState(state.get());
+    }
+    
+    public synchronized int processIdentifier() {
+        return pid;
     }
 
     @Override
@@ -299,6 +304,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         synchronized (this)
         {
             process = notNull("np", np);
+            pid = np.getPID();
         }
         if (state().wasKilled())
         {

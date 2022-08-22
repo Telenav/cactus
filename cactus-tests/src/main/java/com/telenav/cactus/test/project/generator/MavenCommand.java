@@ -26,6 +26,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.util.PathUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -47,6 +48,8 @@ import static java.util.Arrays.asList;
  */
 public final class MavenCommand extends CliCommand<Boolean>
 {
+    private static final Duration KILL_AFTER = Duration.ofMinutes(20);
+    private static final boolean THREAD_DUMPS = true;
     private static String maven;
     private final BuildLog log;
     private final String[] args;
@@ -86,6 +89,13 @@ public final class MavenCommand extends CliCommand<Boolean>
             System.out.println(this);
         }
         log.debug(() -> "Run maven: " + this + " gets process " + proc);
+        if (THREAD_DUMPS)
+        {
+            // For debugging hung github actions, print periodic thread dumps
+            ThreadDumper.watch(proc);
+        }
+        // Ensure a hung process will not run forever
+        proc.killAfter(KILL_AFTER);
     }
 
     private static String mvn()

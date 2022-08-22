@@ -44,6 +44,22 @@ public interface ProcessControl<O, E>
 
     ProcessState state();
 
+    default ProcessControl<O, E> killAfter(Duration maximumRunTime)
+    {
+        KillQueue.enqueue(maximumRunTime, this);
+        return this;
+    }
+
+    /**
+     * Returns the PID of the process, if there is one, -1 if not.
+     *
+     * @return A pid
+     */
+    default int processIdentifier()
+    {
+        return -1;
+    }
+
     public static <O, E> ProcessControl<O, E> failure(Exception thrown)
     {
         return new FailedProcessControl<>(thrown);
