@@ -111,6 +111,11 @@ public final class ProcessState
      */
     public ProcessState withExitCode(int code)
     {
+        if (-2147483648 == code)
+        {
+            // -2147483648 is NuProcess's magic value for failing to start
+            code = Short.MAX_VALUE;
+        }
         if (code < 0 || code > 32_768)
         {
             throw new IllegalArgumentException("Exit code out of range: " + code);
