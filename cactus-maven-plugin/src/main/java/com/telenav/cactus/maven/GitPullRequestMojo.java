@@ -77,7 +77,6 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 @BaseMojoGoal("git-pull-request")
 public class GitPullRequestMojo extends AbstractGithubMojo
 {
-
     /**
      * The pull request title.
      */

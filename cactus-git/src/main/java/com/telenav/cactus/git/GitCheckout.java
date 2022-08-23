@@ -1310,11 +1310,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
             arguments.add("--base");
             arguments.add(destBranchFilter);
         }
-        if (prBranchFilter != null && !prBranchFilter.isBlank())
-        {
-            arguments.add("--head");
-            arguments.add(prBranchFilter);
-        }
         if (searchFilter != null && !searchFilter.isBlank())
         {
             arguments.add("--search");
@@ -1354,7 +1349,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
             return false;
         }
         String output = new GitCommand<>(ProcessResultConverter.strings(), root,
-                "push", "-u", remote.get().name, branch.get()).run()
+                "push", "--set-upstream", remote.get().name, branch.get()).run()
                 .awaitQuietly();
         log.info(output);
         return true;
