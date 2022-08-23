@@ -121,7 +121,7 @@
 
             <!-- Keeping these in case we re-modularize -->
             
-<!--            <plugin>
+            <!--            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgs>
@@ -179,6 +179,27 @@
                 </executions>
 
             </plugin>
+            <plugin>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check-published</goal>
+                        </goals>
+                        <configuration>
+                            <!-- in other words, fail, don't warn -->
+                            <warnOnAlreadyPublished>false</warnOnAlreadyPublished>
+                            <!-- by default, we consider an identical published pom fine,
+                                 but in this case, we are trying to prevent either a
+                                 release but failure to bump the version after, or
+                                 someone accidentally changing the version *downward* -->
+                            <identicalOk>false</identicalOk>
+                        </configuration>
+                    </execution>
+                </executions>
+                
+            </plugin>
 
         </plugins>
 
@@ -188,6 +209,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven.plugin.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.telenav.cactus</groupId>
+                    <artifactId>cactus-maven-plugin</artifactId>
+                    <version>${cactus.previous.version}</version>
                 </plugin>
             </plugins>
 
