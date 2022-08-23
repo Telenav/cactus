@@ -23,7 +23,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +35,7 @@ import static java.nio.file.Files.write;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.Collections.sort;
 
 /**
  * Some code that's useful in debugging classloading problems - off by default,
@@ -79,7 +79,7 @@ final class ClassloaderLog
     {
         List<String> pkgs = new ArrayList<>();
         collectPackages(0, classRealm, prj, pkgs, new HashSet<>());
-        Collections.sort(pkgs);
+        sort(pkgs);
         StringBuilder sb = new StringBuilder();
         for (String s : pkgs)
         {
@@ -132,7 +132,7 @@ final class ClassloaderLog
         Path dest = Paths.get("/tmp").resolve(prj.getArtifactId() + "-urls.txt");
         write(dest, sb.toString().getBytes(UTF_8),WRITE, TRUNCATE_EXISTING, CREATE);
 
-        Collections.sort(urls);
+        sort(urls);
         sb.setLength(0);
         for (String u : urls)
         {
@@ -148,5 +148,9 @@ final class ClassloaderLog
                 prj.getArtifactId() + "-urls-sorted.txt");
         write(dest, sb.toString().getBytes(UTF_8), WRITE,
                 TRUNCATE_EXISTING, CREATE);
+    }
+
+    private ClassloaderLog()
+    {
     }
 }

@@ -93,84 +93,88 @@ public final class GitCheckout implements Comparable<GitCheckout>
             .appendInstant()
             .toFormatter(Locale.US);
 
-    public static final GitCommand<String> GET_BRANCH
+    private static final GitCommand<String> GET_BRANCH
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
                     "rev-parse", "--abbrev-ref", "HEAD");
 
-    public static final GitCommand<String> GET_HEAD
+    private static final GitCommand<String> GET_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().trimmed(),
                     "rev-parse", "HEAD");
 
-    public static final GitCommand<Boolean> UPDATE_REMOTE_HEADS
+    private static final GitCommand<Boolean> UPDATE_REMOTE_HEADS
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
                     "remote", "update");
 
-    public static final GitCommand<Boolean> FETCH_ALL
+    private static final GitCommand<Boolean> FETCH_ALL
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
                     "fetch", "--all");
 
-    public static final GitCommand<Boolean> FETCH
+    private static final GitCommand<Boolean> FETCH
             = new GitCommand<>(ProcessResultConverter.exitCodeIsZero(),
                     "fetch");
 
-    public static final GitCommand<Boolean> NO_MODIFICATIONS
+    private static final GitCommand<Boolean> NO_MODIFICATIONS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed()
                     .trueIfEmpty(),
                     "status", "--porcelain");
 
-    public static final GitCommand<Map<String, GitRemotes>> LIST_REMOTES
+    private static final GitCommand<Map<String, GitRemotes>> LIST_REMOTES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
                     GitRemotes::from),
                     "remote", "-v");
 
-    public static final GitCommand<Branches> ALL_BRANCHES
+    private static final GitCommand<Branches> ALL_BRANCHES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
                     Branches::from),
                     "branch", "--no-color", "-a");
 
-    public static final GitCommand<Heads> REMOTE_HEADS
+    private static final GitCommand<Heads> REMOTE_HEADS
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
                     Heads::from),
                     "ls-remote");
 
-    public static final GitCommand<Boolean> IS_DIRTY
+    private static final GitCommand<Boolean> IS_DIRTY
             = new GitCommand<>(ProcessResultConverter
                     .exitCode(code -> code != 0),
                     "diff", "--quiet");
 
-    public static final GitCommand<String> ADD_CHANGED
+    private static final GitCommand<String> ADD_CHANGED
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "add", "--all");
 
     // Explictly pass --no-rebase, so a user's ~/.gitconfig cannot
     // alter plugin behavior
-    public static final GitCommand<String> PULL
+    private static final GitCommand<String> PULL
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "pull", "--no-rebase");
 
-    public static final GitCommand<String> PULL_REBASE
+    private static final GitCommand<String> PULL_REBASE
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "pull", "--rebase");
 
-    public static final GitCommand<String> PUSH
+    private static final GitCommand<String> PUSH
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "push");
 
-    public static final GitCommand<String> PUSH_ALL
+    private static final GitCommand<String> PUSH_ALL
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "push", "--all");
 
-    public static final GitCommand<String> GC
+    private static final GitCommand<String> GC
             = new GitCommand<>(ProcessResultConverter.strings(),
                     "gc", "--aggressive");
 
-    public static final GitCommand<Boolean> HAS_UNKNOWN_FILES
+    private static final GitCommand<List<String>> TAGS
+            = new GitCommand<>(ProcessResultConverter.strings().lines(),
+                    "tag", "-l");
+
+    private static final GitCommand<Boolean> HAS_UNKNOWN_FILES
             = new GitCommand<>(ProcessResultConverter.strings().trimmed().map(
                     str -> str.length() > 0),
                     "ls-files", "--others", "--no-empty-directory",
                     "--exclude-standard");
 
-    public static final GitCommand<Boolean> IS_DETACHED_HEAD
+    private static final GitCommand<Boolean> IS_DETACHED_HEAD
             = new GitCommand<>(ProcessResultConverter.strings().testedWith(
                     text -> text.contains("(detached)")),
                     "status", "--porcelain=2", "--branch");
@@ -357,12 +361,29 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return ALL_BRANCHES.withWorkingDir(root).run().awaitQuietly();
     }
 
+    public List<String> tags()
+    {
+        return TAGS.withWorkingDir(root).run().awaitQuietly();
+    }
+
     public Branches branchesContainingCommit(String commitHash)
     {
         GitCommand<Branches> targets = new GitCommand<>(strings().trimmed().map(
                 Branches::from), checkoutRoot(),
                 "branch", "--no-color", "--all", "--contains=" + commitHash);
         return targets.run().awaitQuietly();
+    }
+
+    public boolean pushTag(String tag)
+    {
+        Optional<GitRemotes> remote = defaultRemote();
+        if (!remote.isPresent())
+        {
+            return false;
+        }
+        GitCommand<Boolean> cmd = new GitCommand<>(exitCodeIsZero(),
+                checkoutRoot(), "push", remote.get().name(), tag);
+        return cmd.run().awaitQuietly();
     }
 
     /**
@@ -808,6 +829,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
         return Optional.of(remotes.iterator().next());
     }
 
+    public boolean deleteRemoteBranch(String remote, String branchToDelete)
+    {
+        GitCommand<String> del = new GitCommand<>(ProcessResultConverter
+                .strings(), checkoutRoot(),
+                "push", "--delete", notNull("remote", remote), notNull(
+                "branchToDelete", branchToDelete));
+        return del.run().awaitQuietly() != null;
+    }
+
     public boolean deleteBranch(String branchToDelete, String branchToMoveTo,
             boolean force)
     {
@@ -856,6 +886,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean fetch()
     {
         return FETCH.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    public boolean fetchPruningDefunctLocalRecordsOfRemoteBranches()
+    {
+        return new GitCommand<>(exitCodeIsZero(), checkoutRoot(),
+                "fetch", "--all", "--prune")
+                .run().awaitQuietly();
     }
 
     public void gc()
@@ -1231,6 +1268,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
         return true;
     }
+
     /**
      * Merges pull request on Github using the given authentication token
      *
@@ -1272,11 +1310,6 @@ public final class GitCheckout implements Comparable<GitCheckout>
             arguments.add("--base");
             arguments.add(destBranchFilter);
         }
-        if (prBranchFilter != null && !prBranchFilter.isBlank())
-        {
-            arguments.add("--head");
-            arguments.add(prBranchFilter);
-        }
         if (searchFilter != null && !searchFilter.isBlank())
         {
             arguments.add("--search");
@@ -1316,7 +1349,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
             return false;
         }
         String output = new GitCommand<>(ProcessResultConverter.strings(), root,
-                "push", "-u", remote.get().name, branch.get()).run()
+                "push", "--set-upstream", remote.get().name, branch.get()).run()
                 .awaitQuietly();
         log.info(output);
         return true;

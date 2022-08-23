@@ -15,20 +15,19 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.maven;
 
-import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.List;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Tests if any git checkouts within the specified scope are dirty (have local
@@ -41,8 +40,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
             "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "is-dirty", threadSafe = true)
 @BaseMojoGoal("is-dirty")
@@ -65,10 +64,10 @@ public class IsDirtyMojo extends ScopedCheckoutsMojo
             {
                 if (!dirty)
                 {
-                    System.out.println("Dirty projects:");
+                    emitMessage("Dirty projects:");
                 }
                 dirty = true;
-                System.out.println("* " + checkout);
+                emitMessage(" * " + checkout.loggingName());
             }
         }
         if (!dirty)

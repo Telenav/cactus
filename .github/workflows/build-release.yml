@@ -41,7 +41,7 @@ jobs:
       - name: Set Up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Set Up Maven
@@ -53,7 +53,7 @@ jobs:
         run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
 
       - name: Configure Git
-        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "nobody@nowhere.com" && git config --global user.name "Nobody" && git config --global gc.auto 0 && git config --global advice.detachedHead 0
 
       - name: Configure Tmpdir
         run: cd $GITHUB_WORKSPACE && rm -Rf temp && mkdir temp && echo "TMPDIR=$GITHUB_WORKSPACE/temp" >> $GITHUB_ENV

@@ -24,20 +24,21 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PERMIT_LOCAL_CHANGES;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
+import static java.util.stream.Collectors.toCollection;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Performs a (careful) git pull on any checkouts in the tree that need it,
@@ -56,8 +57,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "pull", threadSafe = true)
 @BaseMojoGoal("pull")
@@ -66,7 +67,7 @@ public class PullMojo extends ScopedCheckoutsMojo
     /**
      * If true, allow for local modifications to be present.
      */
-    @Parameter(property = "cactus.permit-local-modifications",
+    @Parameter(property = PERMIT_LOCAL_CHANGES,
             defaultValue = "true")
     private boolean permitLocalModifications;
 
@@ -137,7 +138,7 @@ public class PullMojo extends ScopedCheckoutsMojo
                 });
                 if (skipConflicts)
                 {
-                    PrintMessageMojo.publishMessage(sb, session(), false);
+                    publishMessage(sb, session(), false);
                     needingPull.removeAll(allConflicts.keySet());
                     if (needingPull.isEmpty())
                     {
@@ -152,15 +153,22 @@ public class PullMojo extends ScopedCheckoutsMojo
                 }
             }
 
-            for (GitCheckout checkout : needingPull)
+            needingPull.stream()
+                    .map(checkout ->
             {
                 log.info(pfx + "Pull " + checkout.loggingName());
-                System.out.println("Pull " + pfx + checkout.loggingName());
-                if (!isPretend())
-                {
-                    checkout.pull();
-                }
-            }
+                return checkout;
+            })
+                    .map(checkout ->
+            {
+                emitMessage("Pull " + pfx + checkout.loggingName());
+                return checkout;
+            })
+                    .filter(checkout -> (!isPretend()))
+                    .forEachOrdered(checkout ->
+            {
+                checkout.pull();
+            });
         }
     }
 
@@ -178,7 +186,7 @@ public class PullMojo extends ScopedCheckoutsMojo
                               : co.updateRemoteHeads().needsPull()
                 || co.remoteHead().map(h -> !h.equals(co.head())).orElse(
                         false))
-                .collect(Collectors.toCollection(() -> new ArrayList<>(cos
+                .collect(toCollection(() -> new ArrayList<>(cos
                 .size())));
     }
 }

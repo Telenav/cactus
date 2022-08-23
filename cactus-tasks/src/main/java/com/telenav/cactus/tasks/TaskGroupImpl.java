@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.task;
+package com.telenav.cactus.tasks;
 
 import com.mastfrog.util.preconditions.Checks;
 import java.util.Collections;

@@ -18,7 +18,6 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.ThrowingRunnable;
-import com.mastfrog.util.streams.stdio.ThreadMappedStdIO;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.DiskResident;
@@ -26,25 +25,13 @@ import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
-import com.telenav.cactus.scope.ProjectFamily;
-import com.telenav.cactus.util.PathUtils;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -54,12 +41,34 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.util.streams.stdio.ThreadMappedStdIO.blackhole;
+import static com.telenav.cactus.git.GitCheckout.checkout;
+import static com.telenav.cactus.git.GitCheckout.depthFirstSort;
+import static com.telenav.cactus.maven.MavenArtifactCoordinatesWrapper.wrap;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
+import static com.telenav.cactus.maven.trigger.RunPolicies.FAMILY_ROOTS;
+import static com.telenav.cactus.scope.ProjectFamily.familyOf;
+import static com.telenav.cactus.util.PathUtils.home;
+import static java.lang.System.getProperty;
+import static java.lang.System.getenv;
+import static java.lang.System.setProperty;
+import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.*;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.time.Instant.now;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static java.util.Optional.empty;
+import static java.util.regex.Pattern.DOTALL;
+import static java.util.regex.Pattern.MULTILINE;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.SITE;
 
 /**
  * Runs lexakai to generate documentation and diagrams for a project into some folder. This mojo is intended to be used
@@ -100,7 +109,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.SITE,
+        defaultPhase = SITE,
         requiresDependencyResolution = ResolutionScope.COMPILE,
         instantiationStrategy = SINGLETON,
         name = "lexakai", threadSafe = true)
@@ -108,7 +117,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
 public class LexakaiMojo extends BaseMojo
 {
     private static final Pattern XML_COMMENT = Pattern.compile("<!--.*?-->",
-            Pattern.DOTALL | Pattern.MULTILINE);
+            DOTALL | MULTILINE);
 
     // Please LEAVE this as DOT skip, so we are consistent with maven.test.skip,
     // maven.javadoc.skip, etc.  It's what will be intuitive for maven users.
@@ -151,7 +160,7 @@ public class LexakaiMojo extends BaseMojo
         @Override
         public void run() throws Exception
         {
-            ClassLoader ldr = Thread.currentThread().getContextClassLoader();
+            ClassLoader ldr = currentThread().getContextClassLoader();
             try
             {
                 URL[] url = new URL[]
@@ -162,10 +171,10 @@ public class LexakaiMojo extends BaseMojo
                 try (URLClassLoader jarLoader = new URLClassLoader("lexakai",
                         url, ldr))
                 {
-                    Thread.currentThread().setContextClassLoader(jarLoader);
+                    currentThread().setContextClassLoader(jarLoader);
                     // Just in case:
-                    System.setProperty("KIVAKIT_LOG_SYNCHRONOUS", "true");
-                    System.setProperty("KIVAKIT_LOG", "Console formatter=unformatted");
+                    setProperty("KIVAKIT_LOG_SYNCHRONOUS", "true");
+                    setProperty("KIVAKIT_LOG", "Console formatter=unformatted");
                     Class<?> what = jarLoader.loadClass(
                             "com.telenav.lexakai.Lexakai");
                     Method mth = what.getMethod("embeddedMain", String[].class);
@@ -183,15 +192,14 @@ public class LexakaiMojo extends BaseMojo
             }
             finally
             {
-                Thread.currentThread().setContextClassLoader(ldr);
-                Path dir = output(MavenArtifactCoordinatesWrapper
-                        .wrap(project()));
+                currentThread().setContextClassLoader(ldr);
+                Path dir = output(wrap(project()));
                 // If we're on a project that generated nothing (some poms),
                 // don't leave behind an empty directory for it
                 //noinspection resource
-                if (Files.exists(dir) && Files.list(dir).findAny().isEmpty())
+                if (exists(dir) && list(dir).findAny().isEmpty())
                 {
-                    Files.delete(dir);
+                    delete(dir);
                 }
                 else
                 {
@@ -272,14 +280,14 @@ public class LexakaiMojo extends BaseMojo
 
     public LexakaiMojo()
     {
-        super(RunPolicies.FAMILY_ROOTS);
+        super(FAMILY_ROOTS);
     }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        Path outputDir = output(MavenArtifactCoordinatesWrapper.wrap(project));
-        List<String> args = new ArrayList<>(Arrays.asList(
+        Path outputDir = output(wrap(project));
+        List<String> args = new ArrayList<>(asList(
                 "-update-readme=" + updateReadme,
                 "-overwrite-resources=" + overwriteResources,
                 "-output-folder=" + outputDir
@@ -318,7 +326,7 @@ public class LexakaiMojo extends BaseMojo
 
     <A extends MavenArtifactCoordinates & DiskResident> Path output(A project)
     {
-        return GitCheckout.checkout(project.path())
+        return checkout(project.path())
                 .map(co -> outputFolder(project, co))
                 .orElseGet(
                         () -> project.path().resolve("target")
@@ -336,7 +344,7 @@ public class LexakaiMojo extends BaseMojo
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
-        return ProjectFamily.familyOf(project.groupId()).assetsPath(
+        return familyOf(project.groupId()).assetsPath(
                 checkout.submoduleRoot()
                         .map(GitCheckout::checkoutRoot)).map(assetsPath
                 -> appendProjectLexakaiDocPath(assetsPath, project, checkout)
@@ -443,7 +451,7 @@ public class LexakaiMojo extends BaseMojo
         }).orElseGet(() ->
         {
             toRun.run();
-            return Collections.emptySet();
+            return emptySet();
         });
     }
 
@@ -457,13 +465,13 @@ public class LexakaiMojo extends BaseMojo
                 .append(prj.getVersion())
                 .append("\n\n");
 
-        String user = System.getProperty("user.name");
-        Path home = PathUtils.home();
-        String host = System.getenv("HOST");
+        String user = getProperty("user.name");
+        Path home = home();
+        String host = getenv("HOST");
         sb.append("User:\t").append(user);
         sb.append("\nHome:\t").append(home);
         sb.append("\nHost:\t").append(host);
-        sb.append("\nWhen:\t").append(Instant.now());
+        sb.append("\nWhen:\t").append(now());
         sb.append("\n\n").append("Modified checkouts:\n");
         for (GitCheckout ch : checkouts)
         {
@@ -484,7 +492,7 @@ public class LexakaiMojo extends BaseMojo
         ThrowingRunnable result = new LexakaiRunner(lexakaiJar(), arguments);
         if (!showLexakaiOutput)
         {
-            return () -> ThreadMappedStdIO.blackhole(result);
+            return () -> blackhole(result);
         }
         return result;
     }
@@ -495,20 +503,19 @@ public class LexakaiMojo extends BaseMojo
         {
             return;
         }
-        if (Files.isDirectory(folderOrFile))
+        if (isDirectory(folderOrFile))
         {
-            try (Stream<Path> str = Files.walk(folderOrFile, 512).filter(
-                    pth -> !Files.isDirectory(pth) && pth.getFileName()
+            try (Stream<Path> str = walk(folderOrFile, 512).filter(pth -> !isDirectory(pth) && pth.getFileName()
                             .toString().endsWith(".svg")))
             {
                 str.forEach(path -> quietly(() -> minimizeSVG(path)));
             }
         }
-        else if (Files.exists(folderOrFile))
+        else if (exists(folderOrFile))
         {
-            String text = Files.readString(folderOrFile);
+            String text = readString(folderOrFile);
             String revised = XML_COMMENT.matcher(text).replaceAll("") + '\n';
-            Files.write(folderOrFile, revised.getBytes(UTF_8), WRITE,
+            write(folderOrFile, revised.getBytes(UTF_8), WRITE,
                     TRUNCATE_EXISTING);
         }
     }
@@ -527,7 +534,7 @@ public class LexakaiMojo extends BaseMojo
             {
                 // Commit each repo in deepest-child down order
                 String msg = commitMessage(project, modified);
-                for (GitCheckout ch : GitCheckout.depthFirstSort(modified))
+                for (GitCheckout ch : depthFirstSort(modified))
                 {
                     if (!ch.addAll())
                     {
@@ -542,7 +549,7 @@ public class LexakaiMojo extends BaseMojo
                 // Committing child repos may have generated changes in the
                 // set of commits the submodule root points to, so make sure
                 // we generate a final commit here so it points to our updates
-                GitCheckout.checkout(project.getBasedir())
+                checkout(project.getBasedir())
                         .flatMap(prjCheckout -> prjCheckout.submoduleRoot()
                                 .toOptional())
                         .ifPresent(root ->
@@ -580,7 +587,7 @@ public class LexakaiMojo extends BaseMojo
                     sb.append(prj.getGroupId()).append(":").append(prj.getArtifactId());
                 });
         return sb.length() == 0
-                ? Optional.empty()
+                ? empty()
                 : Optional.of(sb.toString());
     }
 }

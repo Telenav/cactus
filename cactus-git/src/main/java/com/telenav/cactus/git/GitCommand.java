@@ -15,14 +15,16 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.git;
 
 import com.mastfrog.util.preconditions.Checks;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
+import com.telenav.cactus.process.ProcessControl;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -63,14 +65,16 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void onLaunch(Process proc)
+    protected void onLaunch(ProcessControl<String, String> proc)
     {
         log.debug(() -> "started: " + this);
         super.onLaunch(proc);
+        proc.killAfter(Duration.ofMinutes(10));
     }
 
     @Override
-    protected void configureProcessBulder(ProcessBuilder bldr)
+    protected void configureProcessBulder(NuProcessBuilder bldr,
+            ProcessControl callback)
     {
         // As a sanity measure, if some command inadvertently tries
         // to invoke an interactive pager, ensure it is something that
@@ -82,6 +86,9 @@ public final class GitCommand<T> extends CliCommand<T>
         // We do not want /etc/gitconfig to alter the behavior of the
         // plugin
         bldr.environment().put("GIT_CONFIG_NOSYSTEM", "1");
+        // Make sure git does not think it can use the terminal (it shouldn't
+        // think so anyway, but this can't hurt).
+        bldr.environment().put("GIT_TERMINAL_PROMPT", "0");
     }
 
     @Override
@@ -98,8 +105,28 @@ public final class GitCommand<T> extends CliCommand<T>
     @Override
     protected void configureArguments(List<String> list)
     {
-        // Want this for everything
+        // Want this for everything - using a pager would hang the
+        // process waiting for input
         list.add("--no-pager");
+
+        // Pending - we should probably modify GitCheckout.push() and
+        // friends to either explicitly pass what they intend, or to
+        // use this there.  But for our purposes, we are assuming remote
+        // branches match local branches.
+        list.add("-c");
+        list.add("push.default=current");
+
+        // Also defeat any entry in .gitconfig that tells pull always to rebase
+        // since that would violate assumptions
+        list.add("-c");
+        list.add("pull.rebase=false");
+
+        // And use a consistent rename limit for merges. 0 is a proxy for
+        // "very large number".  C.f.
+        // https://github.com/git/git/commit/9dd29dbef01e39fe9df81ad9e5e193128d8c5ad5
+        list.add("-c");
+        list.add("diff.renamelimit=0");
+
         list.addAll(Arrays.asList(args));
     }
 

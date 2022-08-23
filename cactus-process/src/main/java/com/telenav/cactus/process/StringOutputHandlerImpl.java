@@ -15,52 +15,44 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.task;
+package com.telenav.cactus.process;
 
-import com.mastfrog.function.throwing.ThrowingRunnable;
-import com.mastfrog.function.throwing.ThrowingSupplier;
-import java.util.function.Consumer;
+import java.nio.ByteBuffer;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Implementation of Task which can produce a rollback runnable.
+ * Default implementation of an output handler which concatenates a string.
  *
  * @author Tim Boudreau
  */
-final class RollbackTaskImpl implements Task
+final class StringOutputHandlerImpl implements StringOutputHandler
 {
-    final String name;
-    final ThrowingSupplier<ThrowingRunnable> run;
+    private final StringBuilder output = new StringBuilder();
 
-    RollbackTaskImpl(String name, ThrowingSupplier<ThrowingRunnable> run)
+    @Override
+    public synchronized void onOutput(ProcessControl<?, ?> process,
+            ByteBuffer bb, boolean closed)
     {
-        this.name = name;
-        this.run = run;
+        int len = bb.remaining();
+        if (len > 0)
+        {
+            byte[] bytes = new byte[len];
+            bb.get(bytes);
+            output.append(new String(bytes, UTF_8));
+        }
     }
 
     @Override
-    public void accept(Consumer<String> log, Rollback rb) throws Exception
+    public synchronized String result()
     {
-        ThrowingRunnable rollbackWork = run.get();
-        if (rollbackWork != null)
-        {
-            rb.addRollbackTask(() ->
-            {
-                log.accept("Rollback " + name());
-                rollbackWork.run();
-            });
-        }
+        return output.toString();
     }
 
     @Override
     public String toString()
     {
-        return name();
-    }
-
-    @Override
-    public String name()
-    {
-        return name;
+        return result();
     }
 
 }

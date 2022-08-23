@@ -27,24 +27,23 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
+import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
+import static com.telenav.cactus.maven.trigger.RunPolicies.INITIAL;
+import static java.util.Collections.emptySet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_MESSAGE;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.SKIP_CONFLICTS;
 
 /**
  * Performs a git commit, with the passed <code>commit-message</code> which
@@ -95,9 +94,15 @@ public class CommitMojo extends ScopedCheckoutsMojo
     @Parameter(property = SKIP_CONFLICTS, defaultValue = "false")
     private boolean skipConflicts;
 
+    @Parameter(property = STABLE_BRANCH, defaultValue = DEFAULT_STABLE_BRANCH)
+    private String stableBranch;
+
+    @Parameter(property = CREATE_AUTOMERGE_TAG, defaultValue = "false")
+    private boolean createAutomergeTag;
+
     public CommitMojo()
     {
-        super(RunPolicies.INITIAL);
+        super(INITIAL);
     }
 
     @Override
@@ -163,8 +168,14 @@ public class CommitMojo extends ScopedCheckoutsMojo
                     at.addAll();
                 }
                 at.commit(msg.toString());
-                System.out.println("Committed " + at.loggingName());
+                emitMessage("Committed " + at.loggingName());
             }
+        }
+        Set<GitCheckout> tagged = emptySet();
+        if (createAutomergeTag)
+        {
+            tagged = AutomergeTagMojo.automergeTag(null, stableBranch, tree,
+                    log, isPretend(), toCommit, false, this::automergeTag);
         }
         if (push)
         {
@@ -178,17 +189,17 @@ public class CommitMojo extends ScopedCheckoutsMojo
             for (GitCheckout co : toCommit)
             {
                 NeedPushResult np = co.needsPush();
-                switch (co.needsPush())
+                switch (np)
                 {
                     case YES:
                         log.info("Push: " + co.loggingName());
                         ifNotPretending(co::push);
-                        System.out.println("Pushed " + co.loggingName());
+                        emitMessage("Pushed " + co.loggingName());
                         break;
                     case REMOTE_BRANCH_DOES_NOT_EXIST:
                         log.info("Push creating branch: " + co.loggingName());
                         ifNotPretending(co::pushCreatingBranch);
-                        System.out.println(
+                        emitMessage(
                                 "Pushed " + co.loggingName() + " creating remote branch "
                                 + co.branch().get());
                         break;
@@ -196,21 +207,16 @@ public class CommitMojo extends ScopedCheckoutsMojo
                         break;
                 }
             }
-        }
-    }
-
-    private StringBuilder nameList(List<GitCheckout> checkouts)
-    {
-        StringBuilder nameList = new StringBuilder();
-        for (GitCheckout co : checkouts)
-        {
-            if (nameList.length() > 0)
+            String tag = automergeTag().toString();
+            for (GitCheckout co : tagged)
             {
-                nameList.append(", ");
+                if (root.equals(co) && !isIncludeRoot()) {
+                    continue;
+                }
+                log.info("Push tag " + tag);
+                ifNotPretending(() -> co.pushTag(tag));
             }
-            nameList.append(co.loggingName());
         }
-        return nameList;
     }
 
     private StringBuilder nameList(List<GitCheckout> checkouts,
@@ -238,13 +244,11 @@ public class CommitMojo extends ScopedCheckoutsMojo
         {
             if (safeToPullWithRebase(co))
             {
-                System.out.println("PULL WITH REBASE " + co.loggingName());
                 log1.info("Pull with rebase: " + co.loggingName());
                 ifNotPretending(co::pullWithRebase);
             }
             else
             {
-                System.out.println("PULL NO REBASE " + co.loggingName());
                 log1.info("Pull " + co.loggingName());
                 ifNotPretending(co::pull);
             }
@@ -274,12 +278,6 @@ public class CommitMojo extends ScopedCheckoutsMojo
             Conflicts cf = useWorkingTree
                            ? co.canMergeWorkingTree()
                            : co.checkForConflicts();
-            if (!cf.isEmpty())
-            {
-                System.out.println(
-                        "Have conflicts for " + co.loggingName() + " wt " + useWorkingTree);
-                System.out.println(cf);
-            }
             result.put(co, cf);
         }
         return result;
@@ -313,7 +311,6 @@ public class CommitMojo extends ScopedCheckoutsMojo
                     useWorkingTree);
             cfs.forEach((checkout, cflict) ->
             {
-                System.out.println(cflict);
                 if (cflict.hasHardConflicts())
                 {
                     conflicts.put(checkout, cflict.filterHard());
@@ -346,7 +343,7 @@ public class CommitMojo extends ScopedCheckoutsMojo
                 Set<GitCheckout> toRemove = conflicts.keySet();
                 checkouts.removeAll(toRemove);
                 needingPull.removeAll(toRemove);
-                PrintMessageMojo.publishMessage(sb, session(), false);
+                publishMessage(sb, session(), false);
             }
             else
             {

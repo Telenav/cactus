@@ -30,13 +30,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PROPERTIES;
 import static java.lang.String.join;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.INITIALIZE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Avoids attempting to re-publish projects which have already been published,
@@ -54,9 +55,9 @@ import static java.lang.String.join;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.INITIALIZE,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
+        defaultPhase = INITIALIZE,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = KEEP_ALIVE,
         name = "filter-published", threadSafe = true)
 @BaseMojoGoal("filter-published")
 public class FilterDeployingAlreadyPublishedMojo extends BaseMojo
@@ -77,7 +78,7 @@ public class FilterDeployingAlreadyPublishedMojo extends BaseMojo
      * <li>skipNexusStagingDeployMojo</li>
      * </ul>
      */
-    @Parameter(property = "cactus.properties")
+    @Parameter(property = PROPERTIES)
     private String properties;
 
     /**

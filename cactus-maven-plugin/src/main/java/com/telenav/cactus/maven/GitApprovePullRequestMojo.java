@@ -22,17 +22,16 @@ import com.telenav.cactus.github.MinimalPRItem;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import com.telenav.cactus.maven.trigger.RunPolicies;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
 import static java.util.Collections.emptyMap;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 
@@ -67,7 +66,7 @@ public class GitApprovePullRequestMojo extends AbstractGithubMojo
 
     public GitApprovePullRequestMojo()
     {
-        super(RunPolicies.LAST);
+        super(LAST);
     }
 
     @Override

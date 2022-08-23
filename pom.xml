@@ -64,6 +64,8 @@
         <module>cactus-codeflowers</module>
         <module>wordy</module>
         <module>cactus-tests</module>
+        <module>cactus-process</module>
+        <module>cactus-tasks</module>
     </modules>
 
     <!-- Properties -->
@@ -142,6 +144,11 @@
             </dependency>
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-process</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
                 <artifactId>cactus-scope</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
@@ -158,6 +165,11 @@
             <dependency>
                 <groupId>com.telenav.cactus</groupId>
                 <artifactId>cactus-maven-xml</artifactId>
+                <version>${cactus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.telenav.cactus</groupId>
+                <artifactId>cactus-tasks</artifactId>
                 <version>${cactus.version}</version>
             </dependency>
             <dependency>
@@ -284,6 +296,13 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jdk14</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+
+            <!-- Process running -->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>nuprocess</artifactId>
+                <version>2.0.4</version>
             </dependency>
 
         </dependencies>

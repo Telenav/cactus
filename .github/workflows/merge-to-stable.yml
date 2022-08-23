@@ -1,0 +1,104 @@
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#
+#  © 2022 Telenav, Inc.
+#  Licensed under Apache License, Version 2.0
+#
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#
+# GitHub action that merges commits tagged automerge-* and merges them
+# to a branch named "stable"
+#
+defaults:
+  run:
+    shell: bash
+
+# Build commits tagged automerge-* and if they succeed, push them to the stable branch
+name: Automerge-Tagged
+
+# Use a concurrency group to ensure we don't have parallel conflicting runs
+concurrency: merge-to-stable
+
+permissions:
+    repository-projects: write
+    contents: write
+
+env:
+  TARGET_BRANCH: stable
+
+## Pending - this is getting invoked on every branch push too.
+
+on:
+  push:
+    paths-ignore:
+        - 'documentation/**'
+        - '**/*.md'
+        - '.github/**'
+    branches-ignore: 'release/**'
+    tags:
+        - 'automerge-**'
+
+jobs:
+  build:
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Set Up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set Up Maven
+        uses: stCarolas/setup-maven@v4.3
+        with:
+          maven-version: 3.8.6
+
+      - name: Log Environment
+        run: set
+
+      - name: Configure M2_HOME
+        run: echo M2_HOME=$(dirname $(which mvn)) >> $GITHUB_ENV
+
+      - name: Configure Git
+        run: cd $GITHUB_WORKSPACE && git config --global user.email "$GITHUB_ACTOR-bot@telenav.com" && git config --global user.name "$GITHUB_ACTOR Telebot" && git config --global gc.auto 0
+
+      # Pending: When/if there is a "stable" branch of telenav-superpoms
+      - name: Clone Telenav-Superpoms
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/telenav-superpom.git" -b develop
+
+      - name: Clone Cactus
+        run: cd $GITHUB_WORKSPACE && git clone "https://github.com/Telenav/cactus.git" -b $TARGET_BRANCH
+
+      - name: Configure Auth
+        run: cd $GITHUB_WORKSPACE/cactus && git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+
+      - name: Fetch All
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch --all
+
+      - name: Ensure Merge Commit Is Available Locally
+        run: cd $GITHUB_WORKSPACE/cactus && git fetch origin $GITHUB_REF
+
+      - name: Move Project to Target Ref
+        run: cd $GITHUB_WORKSPACE/cactus && git merge --ff-only --no-edit --no-progress $GITHUB_SHA || git merge --no-ff -s resolve -s recursive --no-edit --no-progress -m "Automated merge of $GITHUB_REF_NAME to $TARGET_BRANCH" $GITHUB_SHA ||  git merge --no-ff -s resolve -s recursive -X ignore-all-space -X diff-algorithm=histogram -s subtree --no-edit --no-progress -m "Automated merge of $GITHUB_REF_NAME to $TARGET_BRANCH" $GITHUB_SHA || git cherry-pick $GITHUB_SHA
+
+      - name: Configure Maven
+        run: mkdir -p $GITHUB_WORKSPACE/cactus/.mvn && echo "-XX:+UseG1GC -Xms2G -Dcactus.debug=true -XX:+UseStringDeduplication --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED" >> $GITHUB_WORKSPACE/cactus/.mvn/jvm.config
+
+      - name: Build Superpoms
+        run: cd $GITHUB_WORKSPACE/telenav-superpom && mvn --no-transfer-progress --batch-mode install
+
+      - name: Build Cactus
+        run: cd $GITHUB_WORKSPACE/cactus && mvn --no-transfer-progress --batch-mode install
+
+      # Pending - what we need to do here really is detect this and force a re-run
+      - name: Pull in case of commits while we were building
+        run: cd $GITHUB_WORKSPACE/cactus && git pull || git pull --rebase
+
+      - name: Push Merge Commit
+        run: cd $GITHUB_WORKSPACE/cactus && git push
+
+      - name: Delete Tag
+        run: cd $GITHUB_WORKSPACE/cactus && git push --delete origin $GITHUB_REF_NAME || echo "Could not delete $GITHUB_REF_NAME"

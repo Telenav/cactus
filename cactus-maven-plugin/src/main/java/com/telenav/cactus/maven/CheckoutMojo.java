@@ -18,7 +18,6 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.ThrowingConsumer;
-import com.mastfrog.util.strings.Strings;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
@@ -27,23 +26,26 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.util.strings.Strings.camelCaseToDelimited;
+import static com.mastfrog.util.strings.Strings.join;
+import static com.telenav.cactus.git.GitCheckout.depthFirstCompare;
 import static com.telenav.cactus.git.GitCheckout.isGitCommitId;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
+import static java.util.Collections.reverse;
+import static java.util.Collections.sort;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Multi-repo git branching swiss-army-knife. Uses:
@@ -112,8 +114,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "checkout", threadSafe = true)
 @BaseMojoGoal("checkout")
@@ -171,7 +173,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                     return 1;
                 }
             }
-            return -GitCheckout.depthFirstCompare(checkout, o.checkout());
+            return -depthFirstCompare(checkout, o.checkout());
         }
 
         public boolean isNoOp()
@@ -274,7 +276,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         final void run() throws Exception
         {
-            log.info(Strings.camelCaseToDelimited(getClass().getSimpleName(),
+            log.info(camelCaseToDelimited(getClass().getSimpleName(),
                     ' ') + " " + checkout.name() + " -> " + targetBranch);
             if (!pretend)
             {
@@ -314,7 +316,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         private final boolean push;
 
-        public CreateAndSwitchToBranch(ProjectTree tree,
+        CreateAndSwitchToBranch(ProjectTree tree,
                 GitCheckout checkout, BuildLog log, String targetBranch,
                 boolean pretend, String baseBranch,
                 boolean allowLocalChangesIfPossible, boolean updateRoot,
@@ -351,7 +353,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
     private static final class DoNothing extends BranchingBehavior
     {
-        public DoNothing(ProjectTree tree, GitCheckout checkout,
+        DoNothing(ProjectTree tree, GitCheckout checkout,
                 BuildLog log, String targetBranch)
         {
             super(tree, checkout, log, targetBranch, true, false, false);
@@ -383,7 +385,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
     {
         private final String failure;
 
-        public FailureBranching(ProjectTree tree, GitCheckout checkout,
+        FailureBranching(ProjectTree tree, GitCheckout checkout,
                 BuildLog log, String targetBranch, boolean pretend,
                 String failure)
         {
@@ -413,7 +415,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
     private static final class PullOnly extends BranchingBehavior
     {
-        public PullOnly(ProjectTree tree, GitCheckout checkout,
+        PullOnly(ProjectTree tree, GitCheckout checkout,
                 BuildLog log, String targetBranch)
         {
             super(tree, checkout, log, targetBranch, true, false, false);
@@ -460,7 +462,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
     private static final class SwitchToExistingLocalBranch extends BranchingBehavior
     {
-        public SwitchToExistingLocalBranch(ProjectTree tree,
+        SwitchToExistingLocalBranch(ProjectTree tree,
                 GitCheckout checkout, BuildLog log, String targetBranch,
                 boolean pretend, boolean allowLocalChangesIfPossible,
                 boolean updateRoot)
@@ -635,7 +637,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
         // Make sure we apply our changes in deepest-first order, root checkout
         // first
-        Collections.sort(changers);
+        sort(changers);
         // Fail fast before we make any changes here.
         validateBehaviorsCanRun(changers);
         // Do the thing.
@@ -648,7 +650,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         // Post work happens in the opposite order, root-last (so we commit
         // changes to the refs pointed to by the submodule parent only after
         // we have fully updated .gitmodules)
-        Collections.reverse(changers);
+        reverse(changers);
         // This will update the submodule root, and set .gitmodules to point to
         // the right place if we're updating the root.
         for (BranchingBehavior beh : changers)
@@ -1056,7 +1058,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             fail("Cannot change all branches to '" + (targetBranch == null
                                                       ? baseBranch
                                                       : targetBranch) + ":\n"
-                    + Strings.join("\n", problems));
+                    + join("\n", problems));
         }
     }
 }

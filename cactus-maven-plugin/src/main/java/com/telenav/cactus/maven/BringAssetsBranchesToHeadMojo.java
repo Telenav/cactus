@@ -23,18 +23,17 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Change the branch of all non-maven git submodules.
@@ -43,8 +42,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "update-assets-checkouts", threadSafe = true)
 @BaseMojoGoal("update-assets-checkouts")
@@ -120,10 +119,9 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
             }
             if (pull)
             {
-                for (GitCheckout checkout : toUse)
-                {
+                toUse.forEach(checkout -> {
                     checkout.pull();
-                }
+                });
             }
             tree.invalidateCache();
             if (!relativePaths.isEmpty() && commit && tree.root()

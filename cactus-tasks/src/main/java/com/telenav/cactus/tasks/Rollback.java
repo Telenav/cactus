@@ -15,16 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.task;
+package com.telenav.cactus.tasks;
 
-import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
-import com.telenav.cactus.git.GitCheckout;
-import com.telenav.cactus.maven.log.BuildLog;
-import java.nio.file.Path;
-import java.util.Collection;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 
@@ -35,7 +30,6 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  */
 public final class Rollback
 {
-    private final BuildLog log = BuildLog.get().child("rollback");
     private final ThrowingRunnable rollback = ThrowingRunnable.oneShot(true);
 
     /**
@@ -120,45 +114,4 @@ public final class Rollback
         return this;
     }
 
-    /**
-     * Add some files which should be checked out from the index in the event of
-     * failure.
-     *
-     * @param paths A collection of paths
-     * @return this
-     */
-    public Rollback addFileModifications(
-            Collection<? extends Path> paths)
-    {
-        notNull("paths", paths).forEach(this::addFileModification);
-        return this;
-    }
-
-    /**
-     * Add a modified file which should be checked out from the index in the
-     * event of failure.
-     *
-     * @param path A path
-     * @return this
-     */
-    public Rollback addFileModification(Path path)
-    {
-        notNull("path", path);
-        // ThrowingRunnable.oneShot() and friends *guarantee* that
-        // each runnable added runs, even if the previous one throws.
-        // (and throws an aggegated exception at the end if something did).
-        // It's basically an arbitrarily deep set of try/finally blocks,
-        // if you have things that rollback tasks that MUST be done.
-        // Uses a trieber stack internally so one can be shared across threads.
-        addRollbackTask(() ->
-        {
-            ThrowingOptional.from(GitCheckout.checkout(path))
-                    .ifPresent(repo ->
-                    {
-                        log.error("Roll back changes in " + path);
-                        repo.checkoutOneFile(path);
-                    });
-        });
-        return this;
-    }
 }

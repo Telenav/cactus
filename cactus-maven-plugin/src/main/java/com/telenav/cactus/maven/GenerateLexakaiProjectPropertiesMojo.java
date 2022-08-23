@@ -1,28 +1,49 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
-import com.mastfrog.util.strings.AlignedText;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.trigger.RunPolicies;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.util.strings.AlignedText.formatTabbed;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.delete;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.list;
+import static java.nio.file.Files.write;
+import static java.nio.file.Files.isDirectory;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.stream.Collectors.toCollection;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PRE_SITE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Lexakai requires that some project properties files exist in
@@ -32,8 +53,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  * @author Tim Boudreau
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.PRE_SITE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = PRE_SITE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "lexakai-generate", threadSafe = true)
 @BaseMojoGoal("lexakai-generate")
@@ -60,7 +81,7 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
     
     public GenerateLexakaiProjectPropertiesMojo()
     {
-        super(RunPolicies.LAST);
+        super(LAST);
     }
 
     @Override
@@ -79,14 +100,14 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
         Path dir = project.getBasedir().toPath();
         Path docsDir = dir.resolve("documentation").resolve("lexakai")
                 .resolve("projects");
-        if (!Files.exists(docsDir))
+        if (!exists(docsDir))
         {
             fail("No lexakai config dir at " + docsDir);
         }
         Map<Pom, Path> maybeGenerate = findDocsFilesForModules(project, docsDir);
         for (Map.Entry<Pom, Path> e : maybeGenerate.entrySet())
         {
-            if (overwrite || !Files.exists(e.getValue()))
+            if (overwrite || !exists(e.getValue()))
             {
                 String text = generateLexakaiInfoStub(e.getKey());
                 log.info("Write " + e.getValue());
@@ -96,25 +117,24 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
                 }
                 if (!isPretend())
                 {
-                    Files.write(e.getValue(), text.getBytes(UTF_8),
+                    write(e.getValue(), text.getBytes(UTF_8),
                             WRITE, TRUNCATE_EXISTING, CREATE);
                 }
             }
         }
         if (cleanup)
         {
-            Set<Path> toDelete = Files.list(docsDir).filter(
-                    file -> !Files.isDirectory(file) && file.getFileName()
+            Set<Path> toDelete = list(docsDir).filter(file -> !isDirectory(file) && file.getFileName()
                     .toString()
                     .endsWith(".properties"))
-                    .collect(Collectors.toCollection(HashSet::new));
+                    .collect(toCollection(HashSet::new));
             toDelete.removeAll(maybeGenerate.values());
             for (Path del : toDelete)
             {
                 log.info("Delete obsolete " + del);
                 if (!isPretend())
                 {
-                    Files.delete(del);
+                    delete(del);
                 }
             }
         }
@@ -128,7 +148,7 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
         sb.append("project-description").append("\t=\t").append(
                 formatDescription(pom.description())).append("\n");
         sb.append("project-icon\t=\ticons/diagram-32\n");
-        return AlignedText.formatTabbed(sb.toString());
+        return formatTabbed(sb.toString());
     }
 
     private static String formatDescription(String desc)
@@ -168,7 +188,7 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
         {
             Path pomFile = prj.getBasedir().toPath().resolve(m).resolve(
                     "pom.xml");
-            if (Files.exists(pomFile))
+            if (exists(pomFile))
             {
                 Pom.from(pomFile).ifPresent(pom ->
                 {

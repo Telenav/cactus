@@ -45,6 +45,10 @@
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-graph</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
         <dependency>
@@ -54,6 +58,10 @@
         <dependency>
             <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-maven-versioning</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.cactus</groupId>
+            <artifactId>cactus-tasks</artifactId>
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>

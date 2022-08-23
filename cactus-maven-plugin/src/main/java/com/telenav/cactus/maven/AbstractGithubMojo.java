@@ -24,7 +24,6 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.trigger.RunPolicy;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,6 +39,8 @@ import org.apache.maven.project.MavenProject;
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static java.lang.System.getenv;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.readString;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -139,9 +140,9 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
             if (filePath != null)
             {
                 Path file = Paths.get(filePath.trim());
-                if (Files.exists(file))
+                if (exists(file))
                 {
-                    return Files.readString(file, UTF_8).trim();
+                    return readString(file, UTF_8).trim();
                 }
                 else
                 {

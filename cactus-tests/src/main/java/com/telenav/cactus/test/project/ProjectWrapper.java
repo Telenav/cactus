@@ -258,6 +258,35 @@ public interface ProjectWrapper extends MavenArtifactCoordinates
         return runMaven(list.toArray(String[]::new));
     }
 
+    default void addDependency(String group, String artifact, String ver) throws IOException
+    {
+        String text
+                = "\n        <dependency>"
+                + "\n            <groupId>" + group + "</groupId>"
+                + "\n            <artifactId>" + artifact + "</artifactId>"
+                + "\n            <version>" + ver + "</version>"
+                + "\n         </dependency>\n";
+        modifyPomFile(oldText ->
+        {
+            int ix = oldText.indexOf("<dependencies>");
+            boolean needWrap = ix < 0;
+            String finalText;
+            if (needWrap)
+            {
+                ix = oldText.indexOf("</project>");
+                finalText = "\n<dependencies>" + text + "    </dependencies>\n";
+            }
+            else
+            {
+                ix = ix + "<dependencies>".length() + 1;
+                finalText = text;
+            }
+            StringBuilder sb = new StringBuilder(oldText);
+            sb.insert(ix, finalText);
+            return sb.toString();
+        });
+    }
+
     default boolean newBranch(String branchName)
     {
         return getCheckout().createAndSwitchToBranch(branchName,
@@ -281,6 +310,7 @@ public interface ProjectWrapper extends MavenArtifactCoordinates
 
     default boolean commit(String msg)
     {
+        getCheckout().addAll();
         return getCheckout().commit(msg);
     }
 

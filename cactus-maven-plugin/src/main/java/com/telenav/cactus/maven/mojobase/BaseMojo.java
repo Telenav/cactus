@@ -74,6 +74,9 @@ public abstract class BaseMojo extends AbstractMojo
     protected static final String MAVEN_CENTRAL_REPO
             = "https://repo1.maven.org/maven2";
 
+    private static final SharedDataKey<AutomergeTag> AUTOMERGE_TAG_KEY
+            = SharedDataKey.of(AutomergeTag.class);
+
     private final ThreadLocal<Boolean> running = ThreadLocal.withInitial(
             () -> false);
     private final SharedDataKey<AtomicBoolean> thisMojoWasRunKey
@@ -94,6 +97,12 @@ public abstract class BaseMojo extends AbstractMojo
     boolean isRunning()
     {
         return running.get();
+    }
+
+    protected AutomergeTag automergeTag()
+    {
+        return sharedData().computeIfAbsent(AUTOMERGE_TAG_KEY,
+                () -> new AutomergeTag(session()));
     }
 
     public final boolean isFirstRunInThisSession()
@@ -250,7 +259,7 @@ public abstract class BaseMojo extends AbstractMojo
     private MavenProject project;
 
     @Parameter(defaultValue = "${session}", readonly = true)
-    private MavenSession mavenSession;
+    private volatile MavenSession mavenSession;
 
     @Parameter(property = VERBOSE, defaultValue = "false", alias = "verbose")
     private boolean verbose;
@@ -433,7 +442,7 @@ public abstract class BaseMojo extends AbstractMojo
      *
      * @return A project
      */
-    protected final MavenProject project()
+    public final MavenProject project()
     {
         return project;
     }
@@ -485,7 +494,6 @@ public abstract class BaseMojo extends AbstractMojo
      * @throws MojoExecutionException if the branch is invalid by these criteria
      */
     protected void validateBranchName(String branchName, boolean nullOk)
-            throws MojoExecutionException
     {
         if (branchName == null)
         {
@@ -708,5 +716,18 @@ public abstract class BaseMojo extends AbstractMojo
     protected final Pom toPom(MavenProject project)
     {
         return Pom.from(project.getFile().toPath()).get();
+    }
+
+    /**
+     * Used to print messages that 
+     * 
+     * @param message 
+     */
+    protected void emitMessage(Object message)
+    {
+        if (message != null)
+        {
+            System.out.println(message);
+        }
     }
 }

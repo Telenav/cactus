@@ -15,46 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-package com.telenav.cactus.maven.task;
 
-import com.mastfrog.function.throwing.ThrowingRunnable;
-import java.util.function.Consumer;
-
-import static com.mastfrog.util.preconditions.Checks.notNull;
-
-/**
- * Implementation of Task.
- *
- * @author Tim Boudreau
- */
-final class TaskImpl implements Task
+open module cactus.cli
 {
-    final String name;
-    final ThrowingRunnable run;
-
-    TaskImpl(String name, ThrowingRunnable run)
-    {
-        this.name = notNull("name", name);
-        this.run = notNull("run", run);
-    }
-
-    @Override
-    public void accept(Consumer<String> log, Rollback rb) throws Exception
-    {
-        log.accept(name);
-        run.run();
-    }
-
-    @Override
-    public String name()
-    {
-        return name;
-    }
-
-    @Override
-    public String toString()
-    {
-        return stringify();
-    }
-
+    requires com.mastfrog.concurrent;
+    requires com.mastfrog.function;
+    requires com.mastfrog.preconditions;
+    requires com.zaxxer.nuprocess;
+    requires cactus.process;
+    requires cactus.maven.log;
+    requires cactus.util;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.engine;
+    requires org.junit.jupiter.params;
+    exports com.telenav.cactus.cli;
 }

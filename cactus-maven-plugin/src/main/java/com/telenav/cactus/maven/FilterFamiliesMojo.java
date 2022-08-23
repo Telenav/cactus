@@ -27,14 +27,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PROPERTIES;
 import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
+import static java.lang.Boolean.parseBoolean;
 import static java.util.stream.Collectors.toCollection;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.PER_LOOKUP;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.INITIALIZE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Certain targets, when run from a root pom, will result in building or
@@ -49,15 +51,15 @@ import static java.util.stream.Collectors.toCollection;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.INITIALIZE,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.PER_LOOKUP,
+        defaultPhase = INITIALIZE,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = PER_LOOKUP,
         name = "filter-families", threadSafe = true)
 @BaseMojoGoal("filter-families")
 public class FilterFamiliesMojo extends FamilyAwareMojo
 {
 
-    @Parameter(property = "cactus.properties", required = true)
+    @Parameter(property = PROPERTIES, required = true)
     private String properties;
 
     @Parameter(property = "cactus.filter.skip.superpoms", defaultValue = "true")
@@ -153,7 +155,7 @@ public class FilterFamiliesMojo extends FamilyAwareMojo
             props.put(prop, Boolean.toString(defaultValue));
             return true;
         }
-        boolean eval = Boolean.parseBoolean(val);
+        boolean eval = parseBoolean(val);
         boolean newValue = or
                            ? (eval || defaultValue)
                            : (eval && defaultValue);

@@ -21,26 +21,30 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.metadata.BuildMetadata;
-import com.telenav.cactus.metadata.BuildMetadataUpdater;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.git.GitCheckout.checkout;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_COMMIT_HASH;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP;
+import static com.telenav.cactus.metadata.BuildMetadata.KEY_GIT_REPO_CLEAN;
+import static com.telenav.cactus.metadata.BuildMetadataUpdater.main;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.readString;
+import static java.nio.file.Files.writeString;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_SOURCES;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Generates build.properties and project.properties files into
@@ -52,8 +56,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.PROCESS_SOURCES,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = PROCESS_SOURCES,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "build-metadata", threadSafe = true)
 @BaseMojoGoal("build-metadata")
@@ -84,12 +88,12 @@ public class BuildMetadataMojo extends BaseMojo
         }
         Path propsFile = project.getBasedir().toPath().resolve(
                 projectPropertiesDestination);
-        if (!Files.exists(propsFile.getParent()))
+        if (!exists(propsFile.getParent()))
         {
-            Files.createDirectories(propsFile.getParent());
+            createDirectories(propsFile.getParent());
         }
         String propertiesFileContent = projectProperties(project);
-        Files.writeString(propsFile, propertiesFileContent,
+        writeString(propsFile, propertiesFileContent,
                 UTF_8, WRITE, TRUNCATE_EXISTING, CREATE);
         List<String> args = new ArrayList<>(8);
         args.add(propsFile.getParent().toString());
@@ -100,19 +104,19 @@ public class BuildMetadataMojo extends BaseMojo
         }
         checkout.ifPresent(repo ->
         {
-            args.add(BuildMetadata.KEY_GIT_COMMIT_HASH);
+            args.add(KEY_GIT_COMMIT_HASH);
             args.add(repo.head());
 
-            args.add(BuildMetadata.KEY_GIT_REPO_CLEAN);
+            args.add(KEY_GIT_REPO_CLEAN);
             args.add(Boolean.toString(!repo.isDirty()));
 
             repo.commitDate().ifPresent(when ->
             {
-                args.add(BuildMetadata.KEY_GIT_COMMIT_TIMESTAMP);
-                args.add(when.format(DateTimeFormatter.ISO_DATE_TIME));
+                args.add(KEY_GIT_COMMIT_TIMESTAMP);
+                args.add(when.format(ISO_DATE_TIME));
             });
         });
-        BuildMetadataUpdater.main(args.toArray(String[]::new));
+        main(args.toArray(String[]::new));
         ifVerbose(() ->
         {
             log.info("Wrote project.properties");
@@ -121,12 +125,12 @@ public class BuildMetadataMojo extends BaseMojo
             log.info(propertiesFileContent + "\n");
             Path buildProps = propsFile.getParent().resolve(
                     "build.properties");
-            if (Files.exists(buildProps))
+            if (exists(buildProps))
             {
                 log.info("Wrote build.properties");
                 log.info("----------------------");
                 log.info("to " + buildProps + "\n");
-                log.info(Files.readString(buildProps));
+                log.info(readString(buildProps));
             }
             else
             {
