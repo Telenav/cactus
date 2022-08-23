@@ -50,7 +50,8 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 @BaseMojoGoal("check-published")
 public class CheckAlreadyPublishedMojo extends BaseMojo
 {
-    private static final SharedDataKey<HttpClient> HTTP_CLIENT_KEY = of(HttpClient.class);
+    private static final SharedDataKey<HttpClient> HTTP_CLIENT_KEY = of(
+            HttpClient.class);
 
     @Parameter(property = "cactus.url.base",
             defaultValue = "https://repo1.maven.org/maven2/")
@@ -61,6 +62,9 @@ public class CheckAlreadyPublishedMojo extends BaseMojo
 
     @Parameter(property = "cactus.publish.check.skip")
     private boolean skip;
+
+    @Parameter(property = "cactus.identical-ok", defaultValue="true")
+    private boolean identicalOk;
 
     @Inject
     private PublishChecker checker;
@@ -83,20 +87,29 @@ public class CheckAlreadyPublishedMojo extends BaseMojo
                 log.info("Not already published: " + project.getArtifactId());
                 break;
             case PUBLISHED_IDENTICAL:
+                if (!identicalOk)
+                {
+                    warnOrFail(log, project);
+                }
                 break;
             case PUBLISHED_DIFFERENT:
-                String msg = "POM for " + project.getGroupId() + ":" + project
-                        .getArtifactId() + ":" + project.getVersion()
-                        + " was already published, and the contents differs from the local copy.  "
-                        + "Its version needs to be bumped.";
-                if (warnOnAlreadyPublished)
-                {
-                    log.warn(msg);
-                }
-                else
-                {
-                    fail(msg);
-                }
+                warnOrFail(log, project);
+        }
+    }
+
+    private void warnOrFail(BuildLog log, MavenProject project)
+    {
+        String msg = "POM for " + project.getGroupId() + ":" + project
+                .getArtifactId() + ":" + project.getVersion()
+                + " was already published, and the contents differs from the local copy.  "
+                + "Its version needs to be bumped.";
+        if (warnOnAlreadyPublished)
+        {
+            log.warn(msg);
+        }
+        else
+        {
+            fail(msg);
         }
     }
 }
