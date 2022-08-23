@@ -172,23 +172,26 @@ public abstract class CliCommand<T> implements Supplier<String>
             onLaunch(callback);
 
             NuProcess proc = pb.start();
-            for (int i = 0; proc == null && i < MAX_LAUNCH_ATTEMPTS; i++)
+            if (proc == null)
             {
-                System.out.println(
-                        "Process launch failed for " + this + ". Retry " + (i + 1));
-                // If we are racing with the OS, buy a little time and
-                // retry
-                Thread.sleep(500);
-                pb = new NuProcessBuilder(commandLine);
-                callback = ProcessControl.create(pb);
-                pb.environment().put("GIT_TERMINAL_PROMPT", "0");
-                internalConfigureProcessBuilder(pb, callback);
-                onLaunch(callback);
-                proc = pb.start();
-                if (proc != null)
+                for (int i = 0; i < MAX_LAUNCH_ATTEMPTS; i++)
                 {
-                    System.out.println("RETRY " + i + " succeeded.");
-                    break;
+                    System.out.println(
+                            "Process launch failed for " + this + ". Retry " + (i + 1));
+                    // If we are racing with the OS, buy a little time and
+                    // retry
+                    Thread.sleep(500);
+                    pb = new NuProcessBuilder(commandLine);
+                    callback = ProcessControl.create(pb);
+                    pb.environment().put("GIT_TERMINAL_PROMPT", "0");
+                    internalConfigureProcessBuilder(pb, callback);
+                    onLaunch(callback);
+                    proc = pb.start();
+                    if (proc != null)
+                    {
+                        System.out.println("RETRY " + i + " succeeded.");
+                        break;
+                    }
                 }
             }
             if (proc == null)
