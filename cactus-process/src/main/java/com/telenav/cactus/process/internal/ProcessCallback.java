@@ -156,6 +156,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         return processState(state.get());
     }
     
+    @Override
     public synchronized int processIdentifier() {
         return pid;
     }
@@ -350,7 +351,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         {
             proc = process;
         }
-        return proc.toString() + " " + state();
+        return pid + " " + proc + " " + state();
     }
 
 }

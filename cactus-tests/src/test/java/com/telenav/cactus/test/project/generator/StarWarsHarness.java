@@ -34,12 +34,10 @@ import com.telenav.cactus.test.project.ProjectWrapper;
 import com.telenav.cactus.test.project.starwars.StarWars;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.TestInfo;
 
@@ -60,7 +58,8 @@ public final class StarWarsHarness
     public static final String WOOKIES_FAMILY = "wookies";
     private static final boolean DEFAULT_DEBUG = Boolean.getBoolean(
             "cactus.test.debug");
-    private static final boolean SLF4J_DEBUG = false;
+    private static final boolean SLF4J_DEBUG = Boolean.getBoolean(
+            "cactus.test.slf4j.debug");
     private final AtomicBoolean failed = new AtomicBoolean();
     private final TestInfo info;
     private final StarWars starwars;

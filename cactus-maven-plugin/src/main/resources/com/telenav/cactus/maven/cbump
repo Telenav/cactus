@@ -5,6 +5,7 @@ VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 MAVEN_ARGS="-Dcactus.commit-changes=true \
     -Dcactus.superpom.bump.policy=ignore \
     -Dcactus.commit-changes=true \
+    -Dcactus.bump.published=false \
     -Dcactus.include-root=true \
     -Dcactus.push=false \
     -Dcactus.scope=family \
