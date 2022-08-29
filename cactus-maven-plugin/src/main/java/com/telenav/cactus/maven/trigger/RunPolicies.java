@@ -134,8 +134,27 @@ public enum RunPolicies implements RunPolicy
     private static boolean isLastProjectInSession(MavenProject invokedOn,
             MavenSession session)
     {
-        return session.getExecutionRootDirectory().equalsIgnoreCase(invokedOn
-                .getBasedir().toString());
+        boolean result = session.getExecutionRootDirectory().equalsIgnoreCase(
+                invokedOn.getBasedir().toString());
+
+        System.out.println(
+                "\n\n ********* " + invokedOn.getArtifactId() + " *******");
+        System.out.println("IS LAST IN SESSION " + result + " for " + invokedOn
+                .getArtifactId());
+        System.out.println("POSITION IN LIST: " + session.getAllProjects()
+                .indexOf(invokedOn));
+        System.out.println("POSITION IN PROJECTS " + session.getProjects()
+                .indexOf(invokedOn));
+        System.out.println("TOP LEVEL PROJECT IS " + session
+                .getTopLevelProject().getArtifactId());
+        MavenProject prj
+                = session.getRequest().getProjectBuildingRequest().getProject();
+        if (prj != null) {
+            System.out.println("PRJB project " + prj.getArtifactId());
+        }
+        System.out.println("\n\n");
+
+        return result;
     }
 
     public static boolean isFamilyRoot(BaseMojo invokedBy,

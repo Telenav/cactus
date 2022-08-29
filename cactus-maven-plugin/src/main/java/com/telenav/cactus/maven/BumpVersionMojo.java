@@ -99,7 +99,7 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        requiresDependencyResolution = ResolutionScope.COMPILE,
         instantiationStrategy = SINGLETON,
         name = "bump-version", threadSafe = true)
 @BaseMojoGoal("bump-version")
