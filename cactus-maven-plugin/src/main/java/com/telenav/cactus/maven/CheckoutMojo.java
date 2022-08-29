@@ -218,15 +218,22 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                 });
             }
             else
-                if (isSubmoduleRoot() && checkout.isDirty())
+                if (isSubmoduleRoot() && checkout.isDirtyIgnoringModifiedSubmodules())
                 {
                     log.info(
                             "Generated local modifications in submodule root"
                             + " - creating a commit");
                     checkout.addAll();
+                    // If the checkout is still dirty, then we didn't actually
+                    // add anything.  That can happen if `git diff --quiet` exited
+                    // 1 for the previous dirty test because a child git module
+                    // shows the status "modified content".  In this state, dirty
+                    // shows modifications, but there *is* nothing to add or commit
+                    // yet, because 
                     checkout.commit(
-                            "cactus-maven: Create or move branch " + targetBranch
-                            + " to new heads");
+                        "cactus-maven: Create or move branch " + targetBranch
+                        + " to new heads in " + checkout.loggingName());
+                        
                 }
         }
 
@@ -254,10 +261,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             return isRoot;
         }
 
+        Boolean isSubroot;
         boolean isSubmoduleRoot()
         {
             // We may be in a singleton checkout where there *is* not submodule root
-            return isRoot && checkout.isSubmoduleRoot();
+            return isSubroot == null ? isSubroot = isRoot && checkout.isSubmoduleRoot()
+                   : isSubroot;
         }
 
         @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -489,7 +498,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         @Override
         protected boolean performBranchChange()
         {
-            checkout.switchToBranch(targetBranch);
+            boolean result = checkout.switchToBranch(targetBranch);
             return true;
         }
 
@@ -607,6 +616,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             // In case the tree was used before, dump any cached branch lists
             tree.invalidateCache();
         }
+        
+        GitCheckout root = tree.root();
+        if (checkouts.contains(root) && root.isSubmoduleRoot()) {
+            checkouts.remove(root);
+            checkouts.add(0, root);
+        }
 
         // Create a branch changer for each repo
         List<BranchingBehavior> changers = new ArrayList<>();
@@ -620,8 +635,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             BranchingBehavior behavior = branchChangerFor(tree, co,
                     log);
             changers.add(behavior);
-            // Ignore the submodule root - it will always want to do something
-            if (!behavior.isNoOp() && !behavior.isSubmoduleRoot())
+            if (!behavior.isNoOp())
             {
                 nonNoOpCount++;
             }
@@ -658,9 +672,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             beh.postRun();
         }
 
-        GitCheckout root = tree.root();
         if (this.createBranchesIfNeeded || this.createLocalBranchesIfNeeded && this
-                .isIncludeRoot() && root.isSubmoduleRoot() && root.isDirty())
+                .isIncludeRoot() && root.isSubmoduleRoot() && root.isDirtyIgnoringModifiedSubmodules())
         {
             
             // We may have dirtied the root again by updating .gitmodules - make sure that
@@ -676,10 +689,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             });
             if (!isPretend())
             {
-                if (root.isDirty()) {
                     root.addAll();
                     root.commit(msg.toString());
-                }
             }
         }
 

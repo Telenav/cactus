@@ -136,7 +136,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
     private static final GitCommand<Boolean> IS_DIRTY
             = new GitCommand<>(ProcessResultConverter
                     .exitCode(code -> code != 0),
-                    "diff", "--quiet");
+                    "diff", "--quiet", "--ignore-submodules=dirty");
+
+    private static final GitCommand<Boolean> IS_DIRTY_IGNORING_SUBMODULES
+            = new GitCommand<>(ProcessResultConverter
+                    .exitCode(code -> code != 0),
+                    "diff", "--quiet", "--ignore-submodules=dirty");
 
     private static final GitCommand<String> ADD_CHANGED
             = new GitCommand<>(ProcessResultConverter.strings(),
@@ -939,6 +944,12 @@ public final class GitCheckout implements Comparable<GitCheckout>
     public boolean isDirty()
     {
         return IS_DIRTY.withWorkingDir(root).run().awaitQuietly();
+    }
+
+    public boolean isDirtyIgnoringModifiedSubmodules()
+    {
+        return IS_DIRTY_IGNORING_SUBMODULES
+                .withWorkingDir(root).run().awaitQuietly();
     }
 
     public boolean isInSyncWithRemoteHead()

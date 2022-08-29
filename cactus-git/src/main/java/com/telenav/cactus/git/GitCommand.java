@@ -127,6 +127,12 @@ public final class GitCommand<T> extends CliCommand<T>
         list.add("-c");
         list.add("diff.renamelimit=0");
 
+        // And use a consistent rename limit for merges. 0 is a proxy for
+        // "very large number".  C.f.
+        // https://github.com/git/git/commit/9dd29dbef01e39fe9df81ad9e5e193128d8c5ad5
+        list.add("-c");
+        list.add("init.defaultBranch=main");
+
         list.addAll(Arrays.asList(args));
     }
 
