@@ -45,6 +45,19 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- Ensure we do not publish this, even with a deploy of sub-projects
+                    There is no API here, and no usable way to depend on this project,
+                    so no point in cluttering maven-central with it. -->
+                    <skipStaging>true</skipStaging>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
