@@ -68,7 +68,7 @@ import static com.telenav.cactus.maven.model.VersionChangeMagnitude.NONE;
 import static com.telenav.cactus.maven.model.VersionFlavor.RELEASE;
 import static com.telenav.cactus.maven.refactoring.VersionUpdateFilter.DEFAULT;
 import static com.telenav.cactus.maven.refactoring.VersionUpdateFilter.withinFamilyOrParentFamily;
-import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_IN_SESSION_PROJECTS;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static com.telenav.cactus.scope.Scope.FAMILY;
@@ -338,7 +338,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(LAST);
+        super(LAST_IN_SESSION_PROJECTS);
     }
 
     @Override

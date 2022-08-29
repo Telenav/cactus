@@ -86,7 +86,11 @@ public enum RunPolicies implements RunPolicy
      * to make builds quicker, but if you want a <i>guarantee</i>
      * that your mojo runs, this is not the policy for you.
      */
-    LAST;
+    LAST,
+
+    LAST_IN_ALL_PROJECTS,
+
+    LAST_IN_SESSION_PROJECTS,;
 
     @Override
     public String toString()
@@ -126,6 +130,12 @@ public enum RunPolicies implements RunPolicy
                                 invokedOn);
             case LAST:
                 return isLastProjectInSession(invokedOn, mojo.session());
+            case LAST_IN_ALL_PROJECTS:
+                List<MavenProject> all = mojo.session().getAllProjects();
+                return all.indexOf(invokedOn) == all.size() - 1;
+            case LAST_IN_SESSION_PROJECTS:
+                List<MavenProject> all2 = mojo.session().getProjects();
+                return all2.indexOf(invokedOn) == all2.size() - 1;
             default:
                 throw new AssertionError(this);
         }
@@ -136,24 +146,6 @@ public enum RunPolicies implements RunPolicy
     {
         boolean result = session.getExecutionRootDirectory().equalsIgnoreCase(
                 invokedOn.getBasedir().toString());
-
-        System.out.println(
-                "\n\n ********* " + invokedOn.getArtifactId() + " *******");
-        System.out.println("IS LAST IN SESSION " + result + " for " + invokedOn
-                .getArtifactId());
-        System.out.println("POSITION IN LIST: " + session.getAllProjects()
-                .indexOf(invokedOn));
-        System.out.println("POSITION IN PROJECTS " + session.getProjects()
-                .indexOf(invokedOn));
-        System.out.println("TOP LEVEL PROJECT IS " + session
-                .getTopLevelProject().getArtifactId());
-        MavenProject prj
-                = session.getRequest().getProjectBuildingRequest().getProject();
-        if (prj != null) {
-            System.out.println("PRJB project " + prj.getArtifactId());
-        }
-        System.out.println("\n\n");
-
         return result;
     }
 
