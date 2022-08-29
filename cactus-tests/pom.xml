@@ -53,6 +53,13 @@
                     <useModulePath>false</useModulePath>
                     
                     <systemProperties>
+                        
+                        <!-- Turn these on to put EVERYTHING in debug-logging mode -->
+                        <!--
+                        <cactus.test.debug>true</cactus.test.debug>
+                        <cactus.test.slf4j.debug>true</cactus.test.slf4j.debug>
+                        -->
+                        
                         <unit.test>true</unit.test>
                         <!-- to see all details of git output, swap commenting on the next two lines -->
 
