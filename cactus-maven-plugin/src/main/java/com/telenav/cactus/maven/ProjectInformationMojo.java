@@ -52,18 +52,25 @@ public class ProjectInformationMojo extends BaseMojo
     private static final String SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS_STACKS = "cactus.diag-stacks-for-artifact-id";
 
     // Parse the system properties or use defaults
-    private static final Set<String> LOG_DIAGNOSTICS_FOR = artifactIdSetFrom(getProperty(SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS));
+    private static final Set<String> LOG_DIAGNOSTICS_FOR = artifactIdSetFrom(
+            getProperty(SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS));
 
     private static final Set<String> PRINT_STACKS_FOR
             = combine(LOG_DIAGNOSTICS_FOR,
                     artifactIdSetFrom(getProperty(
                             SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS_STACKS)));
 
+    private static final boolean PRINT_DEBUG_STACKS
+            = Boolean.getBoolean("cactus.debug.stacks");
+
     @Override
     protected void performTasks(BuildLog log, MavenProject project)
     {
         emitMessage(generateInfo(project));
-        diagnostics(project);
+        if (PRINT_DEBUG_STACKS)
+        {
+            diagnostics(project);
+        }
     }
 
     private CharSequence generateInfo(MavenProject project)
