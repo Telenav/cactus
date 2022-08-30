@@ -86,7 +86,11 @@ public enum RunPolicies implements RunPolicy
      * to make builds quicker, but if you want a <i>guarantee</i>
      * that your mojo runs, this is not the policy for you.
      */
-    LAST;
+    LAST,
+
+    LAST_IN_ALL_PROJECTS,
+
+    LAST_IN_SESSION_PROJECTS,;
 
     @Override
     public String toString()
@@ -126,6 +130,12 @@ public enum RunPolicies implements RunPolicy
                                 invokedOn);
             case LAST:
                 return isLastProjectInSession(invokedOn, mojo.session());
+            case LAST_IN_ALL_PROJECTS:
+                List<MavenProject> all = mojo.session().getAllProjects();
+                return all.indexOf(invokedOn) == all.size() - 1;
+            case LAST_IN_SESSION_PROJECTS:
+                List<MavenProject> all2 = mojo.session().getProjects();
+                return all2.indexOf(invokedOn) == all2.size() - 1;
             default:
                 throw new AssertionError(this);
         }
@@ -134,8 +144,9 @@ public enum RunPolicies implements RunPolicy
     private static boolean isLastProjectInSession(MavenProject invokedOn,
             MavenSession session)
     {
-        return session.getExecutionRootDirectory().equalsIgnoreCase(invokedOn
-                .getBasedir().toString());
+        boolean result = session.getExecutionRootDirectory().equalsIgnoreCase(
+                invokedOn.getBasedir().toString());
+        return result;
     }
 
     public static boolean isFamilyRoot(BaseMojo invokedBy,

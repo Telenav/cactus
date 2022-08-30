@@ -68,7 +68,7 @@ import static com.telenav.cactus.maven.model.VersionChangeMagnitude.NONE;
 import static com.telenav.cactus.maven.model.VersionFlavor.RELEASE;
 import static com.telenav.cactus.maven.refactoring.VersionUpdateFilter.DEFAULT;
 import static com.telenav.cactus.maven.refactoring.VersionUpdateFilter.withinFamilyOrParentFamily;
-import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_CONTAINING_GOAL;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_IN_SESSION_PROJECTS;
 import static com.telenav.cactus.scope.ProjectFamily.familyOf;
 import static com.telenav.cactus.scope.ProjectFamily.fromGroupId;
 import static com.telenav.cactus.scope.Scope.FAMILY;
@@ -99,7 +99,7 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        requiresDependencyResolution = ResolutionScope.COMPILE,
         instantiationStrategy = SINGLETON,
         name = "bump-version", threadSafe = true)
 @BaseMojoGoal("bump-version")
@@ -338,7 +338,7 @@ public class BumpVersionMojo extends ReplaceMojo
 
     public BumpVersionMojo()
     {
-        super(LAST_CONTAINING_GOAL);
+        super(LAST_IN_SESSION_PROJECTS);
     }
 
     @Override
@@ -350,6 +350,10 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             log.info("Version bump was already run.");
         }
+        // We need to do this so Maven doesn't lazy load some pom files
+        // *after* we have modified them, some before, in which case
+        // they can't satisfy their dependencies
+        ensureAllProjectsPreloaded();
         log.info("Checking repositories' state");
         checkCheckoutStates("Some git checkouts are not in a usable "
                 + "state for generating version changes", tree, checkouts);
@@ -575,6 +579,19 @@ public class BumpVersionMojo extends ReplaceMojo
                         log.error("Roll back changes in " + path);
                         repo.checkoutOneFile(path);
                     });
+        });
+    }
+    
+    private void ensureAllProjectsPreloaded() {
+        // Maven can - sometimes - lazy-load POMs, which means that
+        // the cbump script can fail *after* bumping the versions of
+        // pos because some were loaded with the old version, some
+        // with the new.  So we need to force Maven to initialize its
+        // internal model of all POM files *before* we modify them,
+        // so it has a consistent view of all the projects while the
+        // mojo runs
+        session().getAllProjects().forEach(prj -> {
+            prj.getVersion();
         });
     }
 

@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.tasks;
 
+import com.mastfrog.function.state.Bool;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
 import java.util.ArrayList;
@@ -40,6 +41,81 @@ public class TasksTest
     private Tasks tasks;
     private Set<String> executed;
     private List<String> rolledBack;
+    private Set<String> logged;
+
+    @Test
+    public void testReentrantTasksAreRun() throws Exception
+    {
+        Tasks tasks = new Tasks("reentrant", this.executed::add);
+        Bool bRun = Bool.create();
+        Bool cRun = Bool.create();
+        Bool dRun = Bool.create();
+        Bool eRun = Bool.create();
+
+        tasks.add("a", () ->
+        {
+            tasks.add("b", (ThrowingRunnable) bRun::set);
+            tasks.add("c", () ->
+            {
+                cRun.set();
+                tasks.add("d", (ThrowingRunnable) dRun::set);
+                tasks.add("e", (ThrowingRunnable) eRun::set);
+            });
+        });
+        tasks.execute();
+        assertRan("a", "b", "c", "d", "e", "reentrant");
+
+        for (Bool be : new Bool[]
+        {
+            bRun, cRun, dRun, eRun
+        })
+        {
+            assertTrue(be.getAsBoolean());
+        }
+    }
+
+    @Test
+    public void testReentrancyInTaskGroups() throws Exception
+    {
+        Tasks tasks = new Tasks("reentrantGroup", this.executed::add);
+        Bool bRun = Bool.create();
+        Bool cRun = Bool.create();
+        Bool dRun = Bool.create();
+        Bool eRun = Bool.create();
+        Bool gRun = Bool.create();
+        Bool hRun = Bool.create();
+        Bool iRun = Bool.create();
+
+        TaskGroup grp = tasks.group("a");
+
+        grp.add("a", () ->
+        {
+            tasks.add("b", (ThrowingRunnable) bRun::set);
+            grp.add("c", () ->
+            {
+                cRun.set();
+                tasks.add("d", (ThrowingRunnable) dRun::set);
+                grp.add("e", (ThrowingRunnable) eRun::set);
+                TaskGroup sub = grp.group("f");
+                sub.add("g", (ThrowingRunnable) gRun::set);
+                sub.add("subSub", () ->
+                {
+                    hRun.set();
+                    tasks.add("i", (ThrowingRunnable) iRun::set);
+                });
+            });
+        });
+        tasks.execute();
+        assertRan("a", "reentrantGroup", "b", "c", "d", "e", "f", "g", "i",
+                "subSub");
+        for (Bool be : new Bool[]
+        {
+            bRun, cRun, dRun, eRun, gRun, hRun, iRun
+        })
+        {
+            assertTrue(be.getAsBoolean());
+        }
+    }
 
     @Test
     public void testEmptyGroupsIsEmptyTasks()
@@ -322,7 +398,8 @@ public class TasksTest
     @BeforeEach
     public void setUp()
     {
-        tasks = new Tasks();
+        logged = new HashSet<>();
+        tasks = new Tasks(logged::add);
         executed = new HashSet<>();
         rolledBack = new ArrayList<>();
     }

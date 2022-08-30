@@ -18,11 +18,16 @@
 package com.telenav.cactus.tasks;
 
 import com.mastfrog.util.preconditions.Checks;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+
+import static java.util.Collections.newSetFromMap;
 
 /**
  *
@@ -80,9 +85,23 @@ final class TaskGroupImpl implements TaskGroup
     public void accept(Consumer<String> log, Rollback rollbacks) throws Exception
     {
         log.accept(name());
-        for (Task child : children)
+        Set<Task> executed = newSetFromMap(new IdentityHashMap<>());
+        while (!children.isEmpty())
         {
-            child.accept(log, rollbacks);
+            try
+            {
+                List<Task> copy = new ArrayList<>(children);
+                for (Task child : copy)
+                {
+                    child.accept(log, rollbacks);
+                    executed.add(child);
+                }
+            }
+            finally
+            {
+                children.removeAll(executed);
+                executed.clear();
+            }
         }
     }
 

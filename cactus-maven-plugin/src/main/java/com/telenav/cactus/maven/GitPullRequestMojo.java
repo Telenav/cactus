@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mastfrog.util.strings.Strings.join;
 import static com.telenav.cactus.maven.ClassloaderLog._log;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
@@ -365,16 +366,70 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                     pushTasks.add("Push branch " + sourceBranchForCheckout.get(
                             checkout) + " of "
                             + checkout.loggingName(),
-                            () -> ifNotPretending(checkout::push));
+                            () -> ifNotPretending(() ->
+                            {
+                                checkout.push();
+                                tree.invalidateBranches(checkout);
+                            }));
                 }
             }
+        });
+
+        Set<GitCheckout> pruned = new HashSet<>();
+        tasks.group("Prune checkouts with no head difference", grp ->
+        {
+            sourceBranchForCheckout.forEach((checkout, sourceBranch) ->
+            {
+                grp.add("Check branch difference in " + checkout.loggingName(),
+                        () ->
+                {
+                    String head = checkout.headOf(sourceBranch.name());
+                    Branches branches = tree.branches(checkout);
+                    branches.find(baseBranch, false).ifPresent(branch ->
+                    {
+                        String remoteHead = checkout.headOf(branch
+                                .trackingName());
+                        if (remoteHead != null)
+                        {
+                            if (remoteHead.equals(head) || checkout.isAncestor(
+                                    head, remoteHead))
+                            {
+                                log.info(
+                                        "Will skip " + checkout.loggingName() + " - "
+                                        + " the local head " + head + " is or is an ancestor of "
+                                        + " the remote head " + remoteHead);
+                                pruned.add(checkout);
+                            }
+                        }
+                    });
+                });
+            });
         });
 
         // Now add the tasks for really creating the PR
         tasks.group("Create pull requests", prTasks ->
         {
+            prTasks.add("Check all pruned", () ->
+            {
+                if (pruned.equals(sourceBranchForCheckout.keySet()))
+                {
+                    String msg = "All checkouts were pruned because their heads match or "
+                            + " are ancestors of the remote head: "
+                            + join(',', pruned, GitCheckout::loggingName);
+                    System.out.println(
+                            "All checkouts were pruned because their heads");
+                    log.warn(msg);
+                }
+            });
             sourceBranchForCheckout.forEach((checkout, sourceBranch) ->
             {
+                if (pruned.contains(checkout))
+                {
+                    log.info("Not generating PR for " + checkout.loggingName()
+                            + " because it has no new commits.");
+                    return;
+                }
+
                 String logMsg = "Create pull request for "
                         + checkout.loggingName() + " from "
                         + sourceBranch.name() + " to " + baseBranch;

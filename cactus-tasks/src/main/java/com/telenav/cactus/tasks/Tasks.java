@@ -20,12 +20,16 @@ package com.telenav.cactus.tasks;
 import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.function.throwing.ThrowingRunnable;
 import com.mastfrog.function.throwing.ThrowingSupplier;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
+import static java.util.Collections.newSetFromMap;
 import static java.util.Collections.unmodifiableList;
 
 /**
@@ -104,21 +108,30 @@ final class Tasks implements TaskSet
     @Override
     public void execute() throws Exception
     {
-        try
+
+        Rollback rollback = new Rollback();
+        log.accept(name());
+        Set<Task> executed = newSetFromMap(new IdentityHashMap<>());
+        while (!children.isEmpty())
         {
-            Rollback rollback = new Rollback();
-            log.accept(name());
-            rollback.executeWithRollback(() ->
+            try
             {
-                for (Task kid : children)
+                rollback.executeWithRollback(() ->
                 {
-                    kid.accept(log, rollback);
-                }
-            });
-        }
-        finally
-        {
-            children.clear();
+                    // Reentrancy - tasks may be added while we're running
+                    List<Task> copy = new ArrayList<>(children);
+                    for (Task kid : copy)
+                    {
+                        kid.accept(log, rollback);
+                        executed.add(kid);
+                    }
+                });
+            }
+            finally
+            {
+                children.removeAll(executed);
+                executed.clear();
+            }
         }
     }
 
