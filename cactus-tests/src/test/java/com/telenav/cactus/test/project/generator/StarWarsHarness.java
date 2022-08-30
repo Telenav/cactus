@@ -55,6 +55,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public final class StarWarsHarness
 {
+    public static final boolean TESTS_DISABLED
+            = Boolean.getBoolean("cactus.tests.skip");
     public static final String WOOKIES_FAMILY = "wookies";
     private static final boolean DEFAULT_DEBUG = Boolean.getBoolean(
             "cactus.test.debug");
@@ -145,6 +147,9 @@ public final class StarWarsHarness
     public static void runTest(boolean debug, ThrowingRunnable run,
             BooleanConsumer onFailure)
     {
+        if (TESTS_DISABLED) {
+            return;
+        }
         try
         {
             if (debug)

@@ -169,7 +169,6 @@ public abstract class CliCommand<T> implements Supplier<String>
             ProcessControl<String, String> callback = ProcessControl.create(pb);
 
             internalConfigureProcessBuilder(pb, callback);
-            onLaunch(callback);
 
             NuProcess proc = pb.start();
             if (proc == null)
@@ -185,14 +184,17 @@ public abstract class CliCommand<T> implements Supplier<String>
                     callback = ProcessControl.create(pb);
                     pb.environment().put("GIT_TERMINAL_PROMPT", "0");
                     internalConfigureProcessBuilder(pb, callback);
-                    onLaunch(callback);
+                    
                     proc = pb.start();
                     if (proc != null)
                     {
+                        onLaunch(callback);
                         System.out.println("RETRY " + i + " succeeded.");
                         break;
                     }
                 }
+            } else {
+                onLaunch(callback);
             }
             if (proc == null)
             {
