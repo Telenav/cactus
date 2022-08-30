@@ -44,6 +44,7 @@ import org.junit.jupiter.api.TestInfo;
 import static com.mastfrog.util.preconditions.Exceptions.chuck;
 import static com.telenav.cactus.maven.mojobase.AutomergeTag.AUTOMERGE_TAG_PREFIX;
 import static com.telenav.cactus.test.project.starwars.StarWars.starWars;
+import static java.lang.System.getenv;
 import static java.lang.System.setProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,13 +56,23 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public final class StarWarsHarness
 {
-    public static final boolean TESTS_DISABLED
-            = Boolean.getBoolean("cactus.tests.skip");
+    public static final boolean TESTS_DISABLED;
+    private static final boolean DEFAULT_DEBUG;
+    private static final boolean SLF4J_DEBUG;
+
+    static
+    {
+        DEFAULT_DEBUG = Boolean.getBoolean(
+            "cactus.test.debug") || 
+                "true".equals(getenv("CACTUS_TEST_DEFAULT_DEBUG"));
+        SLF4J_DEBUG  = Boolean.getBoolean(
+            "cactus.test.slf4j.debug") 
+                || "true".equals(getenv("CACTUS_SLF4J_DEBUG"));
+        TESTS_DISABLED = Boolean.getBoolean("cactus.tests.skip")
+                || "true".equals(getenv("CACTUS_TESTS_SKIP"));
+    }
+
     public static final String WOOKIES_FAMILY = "wookies";
-    private static final boolean DEFAULT_DEBUG = Boolean.getBoolean(
-            "cactus.test.debug");
-    private static final boolean SLF4J_DEBUG = Boolean.getBoolean(
-            "cactus.test.slf4j.debug");
     private final AtomicBoolean failed = new AtomicBoolean();
     private final TestInfo info;
     private final StarWars starwars;
@@ -147,7 +158,8 @@ public final class StarWarsHarness
     public static void runTest(boolean debug, ThrowingRunnable run,
             BooleanConsumer onFailure)
     {
-        if (TESTS_DISABLED) {
+        if (TESTS_DISABLED)
+        {
             return;
         }
         try
