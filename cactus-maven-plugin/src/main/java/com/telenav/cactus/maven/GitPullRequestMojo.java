@@ -450,15 +450,18 @@ public class GitPullRequestMojo extends AbstractGithubMojo
                                 bodyOrSyntheticBody(sourceBranchForCheckout),
                                 sourceBranch.name(),
                                 baseBranch);
-                        // Collect the URI, so subsequent PRs can have
-                        // a list of related PRs
-                        uris.add(uri.toURL().toString());
-                        log.info("Created " + uri);
-                        // Ensure we print the output in quiet mode:
-                        emitMessage(uri);
-                        if (open)
+                        if (uri != null)
                         {
-                            open(uri, log);
+                            // Collect the URI, so subsequent PRs can have
+                            // a list of related PRs
+                            uris.add(uri.toURL().toString());
+                            log.info("Created " + uri);
+                            // Ensure we print the output in quiet mode:
+                            emitMessage(uri);
+                            if (open)
+                            {
+                                open(uri, log);
+                            }
                         }
                     }
                 });
