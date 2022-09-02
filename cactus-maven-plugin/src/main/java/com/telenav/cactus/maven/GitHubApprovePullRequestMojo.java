@@ -85,7 +85,7 @@ public class GitHubApprovePullRequestMojo extends AbstractGithubMojo
         var pullRequests = findInitialPullRequest(log, branchToApprove, myCheckout, checkouts);
         if (pullRequests.isEmpty())
         {
-            fail("No approvable pull requests found with the head branch '" + branchToApprove + "'");
+            fail("No approve-able pull requests found with the head branch '" + branchToApprove + "'");
         }
 
         collectPullRequestsToApprove(log, branchToApprove, checkouts, pullRequests);
@@ -109,11 +109,11 @@ public class GitHubApprovePullRequestMojo extends AbstractGithubMojo
 
     @Override
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
-            throws Exception
     {
         validateBranchName(branchToApprove, true);
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     List<MinimalPRItem> openAndMergeablePullRequestsForBranch(String branchName, GitCheckout forCheckout)
     {
         return openAndMergeablePullRequestsForBranch(null, branchName, forCheckout);

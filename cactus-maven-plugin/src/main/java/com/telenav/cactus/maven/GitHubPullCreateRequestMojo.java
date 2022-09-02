@@ -67,8 +67,8 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  */
 @SuppressWarnings(
         {
-            "unused", "DuplicatedCode"
-        })
+                "unused", "DuplicatedCode"
+                , "CodeBlock2Expr" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = VALIDATE,
         requiresOnline = true,
@@ -76,29 +76,29 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
         instantiationStrategy = SINGLETON,
         name = "git-pull-request", threadSafe = true)
 @BaseMojoGoal("git-pull-request")
-public class GitHubPullRequestMojo extends AbstractGithubMojo
+public class GitHubPullCreateRequestMojo extends AbstractGithubMojo
 {
     /**
      * The pull request title.
      */
-    @Parameter(property = "cactus.title", required = false)
+    @Parameter(property = "cactus.title")
     private String title;
 
     /**
      * The pull request body.
      */
-    @Parameter(property = "cactus.body", required = false)
+    @Parameter(property = "cactus.body")
     private String body;
 
     /**
      * The reviewers to request.
      */
-    @Parameter(property = "cactus.reviewers", defaultValue = "")
+    @Parameter(property = "cactus.reviewers")
     private String reviewers;
 
     /**
      * If true (the default), generate commits in any repositories that are
-     * matched and contain modifications or untracked, unignored files.
+     * matched and contain modifications or untracked, un-ignored files.
      */
     @Parameter(property = COMMIT_CHANGES, defaultValue = "true")
     private boolean commit;
@@ -190,10 +190,10 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
         try
         {
             // So we don't scare people in pretend mode
-            BuildLog plog = isPretend()
+            BuildLog pretendLog = isPretend()
                             ? log.child("(pretend)")
                             : log;
-            createPullRequests(plog, project, myCheckout, tree,
+            createPullRequests(pretendLog, project, myCheckout, tree,
                     sourceBranchForCheckout);
         }
         finally
@@ -223,7 +223,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
         // target branch - we're done
         if (alreadyHavePRs.equals(sourceBranchForCheckout.keySet()))
         {
-            log.warn("Every checkout matched already has an open, mergeable "
+            log.warn("Every checkout matched already has an open, merge-able "
                     + "PR.  Nothing to do.");
             return;
         }
@@ -242,7 +242,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
         //
         // We make a point of doing a git fetch --all ahead of making any
         // determination, to ensure if the destination branch was created since
-        // the local checkout was cloned, we don't fail erronously because the
+        // the local checkout was cloned, we don't fail erroneously because the
         // local checkout doesn't know about it.
         //
         // The point of adding this first is to fail early, before we have
@@ -271,9 +271,9 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
                         // Get the set of all branches our git checkout knows about,
                         // local or remote
                         Branches br = tree.branches(co);
-                        if (!br.find(baseBranch, false).isPresent())
+                        if (br.find(baseBranch, false).isEmpty())
                         {
-                            // And bang, we'red one - we're trying to create a PR
+                            // And bang, we're one - we're trying to create a PR
                             // that wants to be merged to something that doesn't exist
                             fail("No branch named '" + baseBranch + "' in default remote of "
                                     + co.loggingName());
@@ -296,7 +296,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
         {
             // Uh oh - this would toss `gh` into "What should I do?"
             // interactive mode and Maven would appear to hang forever.
-            fail("Commit is false and " + dirtyCheckouts.size() + " repositories have "
+            fail("Commit is false and no repositories have "
                     + " local modifications.  Running `gh pr create` in such a "
                     + "situation will trigger interactive questions and "
                     + "cannot be automated: " + dirtyCheckouts);
@@ -327,7 +327,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
                     // Figure out if the branch doesn't exist remotely,
                     // and flag it so we can `git push -u origin theBranch`
                     // instead of just `git push`
-                    if (!branches.find(branch.name(), false).isPresent())
+                    if (branches.find(branch.name(), false).isEmpty())
                     {
                         toPush.add(checkout);
                         needingBranchCreation.add(checkout);
@@ -336,7 +336,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
                     {
                         NeedPushResult np = checkout.needsPush();
                         // If it needs pushing for any other reason, deal with
-                        // that now.  We MUST not call `gh` with unpushed commits
+                        // that now.  We MUST not call `gh` with un-pushed commits
                         // on the PR branch or we're dead.
                         if (np.canBePushed())
                         {
@@ -494,7 +494,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
                 if (e.getKey().isDirty() || e.getKey().hasUntrackedFiles())
                 {
                     // If we're committing, we definitely need to push - mark
-                    // it as such, as we will test for unpushed commits before
+                    // it as such, as we will test for un-pushed commits before
                     // the commit has run
                     toPush.add(e.getKey());
                     // Collect this into dirty checkouts, which was passed in
@@ -577,8 +577,8 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
             // If find() returns a Branch object, then the remote destination branch
             // already contains the head commit we would be using for our pull request - so
             // there are no changes to create a pull request for this checkout from
-            return !containingCommit.find(sourceBranchForThisCheckout.name(),
-                    false).isPresent();
+            return containingCommit.find(sourceBranchForThisCheckout.name(),
+                    false).isEmpty();
         }
         return false;
     }
@@ -620,7 +620,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
             // a branch with the same name, so we create PRs from all branches
             // in the matched checkouts which are on a branch named feature/foo,
             // but do NOT create PRs for other checkouts which might contain
-            // unpushed commits, but are not on the branch we are using
+            // un-pushed commits, but are not on the branch we are using
             Branches targetProjectBranches = tree.branches(myCheckout);
             Optional<Branch> targetProjectsBranch
                     = targetProjectBranches.currentBranch();
@@ -628,7 +628,7 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
             // The project we were run against is in detached-head state - we
             // have to fail here, as there is no way to track down a feature-branch
             // name to look for in other checkouts
-            if (!targetProjectsBranch.isPresent())
+            if (targetProjectsBranch.isEmpty())
             {
                 // This will throw and get us out of here
                 fail("Target project " + coordinatesOf(project())
@@ -637,34 +637,37 @@ public class GitHubPullRequestMojo extends AbstractGithubMojo
                         + "same-named branches in other checkouts to "
                         + "decide what to create the pull request from.");
             }
-
-            Optional<Branch> current = branches.currentBranch();
-            if (!current.isPresent())
-            {
-                // If the checkout we are queried about is in detached head state, don't
-                // use it, but log a warning.
-                log.warn("Ignoring " + checkout.loggingName() + " for pull "
-                        + "request - it is not on any branch.");
-                return current;
-            }
-            if (!current.get().name().equals(targetProjectsBranch.get().name()))
-            {
-                // If the checkout we are queried about *is* on some branch, but
-                // not the right one, also ignore it and log that at level info:
-                log.info(
-                        "Ignoring matched checkout " + checkout.loggingName() + " for pull "
-                        + "request - because we are matching the branch "
-                        + targetProjectsBranch.get().name()
-                        + " but it is on the branch " + current.get().name());
-                return empty();
-            }
             else
             {
-                log.info("Will include " + checkout.loggingName()
-                        + " in the pull request set, on branch "
-                        + targetProjectsBranch.get().name());
+                Optional<Branch> current = branches.currentBranch();
+                if (current.isEmpty())
+                {
+                    // If the checkout we are queried about is in detached head state, don't
+                    // use it, but log a warning.
+                    log.warn("Ignoring " + checkout.loggingName() + " for pull "
+                            + "request - it is not on any branch.");
+                    return current;
+                }
+                if (!current.get().name().equals(targetProjectsBranch.get().name()))
+                {
+                    // If the checkout we are queried about *is* on some branch, but
+                    // not the right one, also ignore it and log that at level info:
+                    log.info(
+                            "Ignoring matched checkout " + checkout.loggingName() + " for pull "
+                                    + "request - because we are matching the branch "
+                                    + targetProjectsBranch.get().name()
+                                    + " but it is on the branch " + current.get().name());
+                    return empty();
+                }
+                else
+                {
+                    log.info("Will include " + checkout.loggingName()
+                            + " in the pull request set, on branch "
+                            + targetProjectsBranch.get().name());
+                }
+                return current;
             }
-            return current;
+            return empty();
         }
     }
 

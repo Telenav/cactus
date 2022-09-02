@@ -70,7 +70,7 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
      * of any of the matched checkouts. If unset, the branch of the checkout
      * owning the project we are invoked against is used, and there <i>must</i>
      * be a exactly one pull request extant for that branch which is open and
-     * mergable.
+     * merge-able.
      */
     @Parameter(property = TARGET_BRANCH)
     private String targetBranch;
@@ -119,7 +119,7 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
      * likely to be part of the stuff to merge. The default is `develop`.
      */
     @Parameter(property = "cactus.base-branch", defaultValue = "develop")
-    private String baseBranch = "develop";
+    private final String baseBranch = "develop";
 
     public GitHubMergePullRequestMojo()
     {
@@ -128,7 +128,6 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
 
     @Override
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
-            throws Exception
     {
         validateBranchName(targetBranch, true);
         validateBranchName(baseBranch, false);
@@ -164,7 +163,7 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
                 branch, myCheckout, checkouts);
         if (prForCheckout.isEmpty())
         {
-            fail("No open and mergeable PRs found with the head branch '" + branch + "'");
+            fail("No open and merge-able PRs found with the head branch '" + branch + "'");
         }
 
         collectPrsToMerge(log, branch, checkouts, prForCheckout);
@@ -237,7 +236,7 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
                     myCheckout);
             // Okay, we may just be in the root project but looking for the
             // named branch in other projects.
-            if (!item.isPresent())
+            if (item.isEmpty())
             {
                 for (GitCheckout test : checkouts)
                 {
@@ -290,8 +289,9 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
         return pullRequestsForBranch(baseBranch, branchName, forCheckout);
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     List<MinimalPRItem> openAndMergeablePullRequestsForBranch(String branchName,
-            GitCheckout forCheckout)
+                                                              GitCheckout forCheckout)
     {
         return openAndMergeablePullRequestsForBranch(baseBranch, branchName,
                 forCheckout);
