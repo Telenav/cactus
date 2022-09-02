@@ -33,6 +33,7 @@ import static com.telenav.cactus.git.GitCheckout.checkout;
 import static com.telenav.cactus.git.NeedPushResult.NO;
 import static com.telenav.cactus.git.NeedPushResult.YES;
 import static com.telenav.cactus.test.project.generator.RepositoriesGenerator.initOriginRepo;
+import static com.telenav.cactus.test.project.generator.StarWarsHarness.TESTS_DISABLED;
 import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.System.currentTimeMillis;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -60,6 +61,9 @@ public class NeedsPullTest
     @Test
     public void testIt() throws Exception
     {
+        if (TESTS_DISABLED) {
+            return;
+        }
         assertTrue(clone1.remoteHead().isPresent(),
                 "Clone 1 has no remote head");
 

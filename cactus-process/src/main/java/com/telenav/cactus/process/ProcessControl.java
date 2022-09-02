@@ -81,8 +81,10 @@ public interface ProcessControl<O, E>
      */
     public static ProcessControl<String, String> create(NuProcessBuilder bldr)
     {
+        notNull("bldr", bldr);
         ProcessCallback<String, String> result = ProcessCallback.create();
-        notNull("bldr", bldr).setProcessListener(result);
+        notNull("result", result);
+        bldr.setProcessListener(result);
         return result;
     }
 

@@ -50,7 +50,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         instantiationStrategy = SINGLETON,
         name = "git-approve-pull-request", threadSafe = true)
 @BaseMojoGoal("git-approve-pull-request")
-public class GitApprovePullRequestMojo extends AbstractGithubMojo
+public class GitHubApprovePullRequestMojo extends AbstractGithubMojo
 {
     /**
      * Text body to associate with the approval (optional)
@@ -64,7 +64,7 @@ public class GitApprovePullRequestMojo extends AbstractGithubMojo
     @Parameter(property = "cactus.pr.branch-to-approve")
     private String branchToApprove;
 
-    public GitApprovePullRequestMojo()
+    public GitHubApprovePullRequestMojo()
     {
         super(LAST);
     }
@@ -85,7 +85,7 @@ public class GitApprovePullRequestMojo extends AbstractGithubMojo
         var pullRequests = findInitialPullRequest(log, branchToApprove, myCheckout, checkouts);
         if (pullRequests.isEmpty())
         {
-            fail("No approvable pull requests found with the head branch '" + branchToApprove + "'");
+            fail("No approve-able pull requests found with the head branch '" + branchToApprove + "'");
         }
 
         collectPullRequestsToApprove(log, branchToApprove, checkouts, pullRequests);
@@ -109,20 +109,8 @@ public class GitApprovePullRequestMojo extends AbstractGithubMojo
 
     @Override
     protected void onValidateGithubParameters(BuildLog log, MavenProject project)
-            throws Exception
     {
         validateBranchName(branchToApprove, true);
-    }
-
-    List<MinimalPRItem> openAndMergeablePullRequestsForBranch(String branchName, GitCheckout forCheckout)
-    {
-        return openAndMergeablePullRequestsForBranch(null, branchName, forCheckout);
-    }
-
-    List<MinimalPRItem> pullRequestsForBranch(String branchName,
-                                              GitCheckout forCheckout)
-    {
-        return pullRequestsForBranch(null, branchName, forCheckout);
     }
 
     private void collectPullRequestsToApprove(BuildLog log,

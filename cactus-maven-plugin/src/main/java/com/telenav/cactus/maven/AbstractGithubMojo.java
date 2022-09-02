@@ -18,21 +18,26 @@
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.throwing.io.IOSupplier;
+import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.github.MinimalPRItem;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
+import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicy;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
@@ -181,12 +186,22 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
                 forCheckout,
                 branchName);
         // Use a cached list if present:
-        List<MinimalPRItem> result = prListCache.computeIfAbsent(cacheKey,
-                k -> forCheckout.listPullRequests(this,
-                        baseBranch, branchName, null));
+        List<MinimalPRItem> result = new ArrayList<>(prListCache
+                .computeIfAbsent(cacheKey,
+                        k -> forCheckout.listPullRequests(this,
+                                baseBranch, null)));
 
-        // The caller prune unusable items, so return a copy
-        return new ArrayList<>(result);
+        for (Iterator<MinimalPRItem> it = result.iterator(); it.hasNext();)
+        {
+            MinimalPRItem pr = it.next();
+            if (!pr.headRefName.equals(branchName)
+                    && !pr.headRefName.contains(branchName))
+            {
+                it.remove();
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -295,17 +310,183 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
         return items;
     }
 
+    /**
+     * Fetch branches to query in a set of checkouts, based on the algorithm
+     * used by <code>prBranchFor</code>.
+     *
+     * @param myCheckout The checkout maven was invoked in
+     * @param checkouts A collection of checkouts to query
+     * @param tree The project tree, which caches Branches instances for
+     * checkouts, to avoid repeated, expensive lookups
+     * @param targetBranch The target branch to query for, or null to use the
+     * current branch of the target maven was invoked against
+     * @return A map of branch to checkout for those checkouts that had a
+     * matching branch
+     */
+    protected final Map<GitCheckout, Branches.Branch> prBranchesFor(
+            GitCheckout myCheckout,
+            Collection<? extends GitCheckout> checkouts, ProjectTree tree,
+            String targetBranch)
+    {
+        Map<GitCheckout, Branches.Branch> result = new TreeMap<>();
+        checkouts.forEach(checkout ->
+        {
+            prBranchFor(log(), myCheckout, checkout, tree, targetBranch, false)
+                    .ifPresent(branch -> result.put(checkout, branch));
+        });
+        return result;
+    }
+
+    /**
+     * Returns the branch an AbstractGithubMojo intends to target, if it exists,
+     * using the passed target branch, or if null, the branch of the checkout in
+     * which maven is being executed.
+     *
+     * @param log A logger
+     * @param myCheckout The checkout of the project Maven was run against
+     * @param targetCheckout A checkout to find a matching branch for, if one
+     * exists
+     * @param tree The project tree, which caches Branches objects to avoid
+     * expensive repeated lookups
+     * @param targetBranch The optional target branch provided to the mojo
+     * @param failOnDetachedHead If true, the mojo should fail if it encounters
+     * a checkout in detached-head state. If false, simply returns an empty
+     * optional and logs a warning
+     * @return A branch if one is matched
+     */
+    protected final Optional<Branches.Branch> prBranchFor(
+            BuildLog log,
+            GitCheckout myCheckout,
+            GitCheckout targetCheckout,
+            ProjectTree tree,
+            String targetBranch,
+            boolean failOnDetachedHead)
+    {
+
+        Branches branches = tree.branches(targetCheckout);
+        // If the branch was explicitly passed (perhaps along with a list of
+        // families, if we are in the project root), use that, and simply
+        // only return something for the case that the checkout is already
+        // on a branch with that name.
+        //
+        // Otherwise, what we want to look for is a branch with the same
+        // name as the current branch of the checkout containing the project
+        // maven was invoked against
+        if (targetBranch != null)
+        {
+            // We were specifically told what branch to use - use it 
+            // if present AND IF THE CHECKOUT IS CURRENTLY ON THAT BRANCH, or
+            // skip the repository for the pull request otherwise
+            return branches.currentBranch().flatMap(br ->
+            {
+                // Only return something if the explicitly specified target branch 
+                // is the same branch as that of the checkout we are deciding
+                // to include or not
+                if (targetBranch.equals(br.name()))
+                {
+                    return of(br);
+                }
+                return empty();
+            });
+        }
+        else
+        {
+            // Find out what branch the project we're RUNNING AGAINST is on,
+            // and create a PR only for other matched checkouts which are on
+            // a branch with the same name, so we create PRs from all branches
+            // in the matched checkouts which are on a branch named feature/foo,
+            // but do NOT create PRs for other checkouts which might contain
+            // un-pushed commits, but are not on the branch we are using
+            Branches targetProjectBranches = tree.branches(myCheckout);
+            Optional<Branches.Branch> targetProjectsBranch
+                    = targetProjectBranches.currentBranch();
+
+            // The project we were run against is in detached-head state - we
+            // have to fail here, as there is no way to track down a feature-branch
+            // name to look for in other checkouts
+            if (targetProjectsBranch.isEmpty())
+            {
+                String msg = "Target project " + coordinatesOf(project())
+                        + " in " + project().getBasedir()
+                        + " is not on a branch.  It needs to be to match "
+                        + "same-named branches in other checkouts to "
+                        + "decide what to create the pull request from.";
+                if (failOnDetachedHead)
+                {
+                    // This will throw and get us out of here
+                    fail(msg);
+                }
+                else
+                {
+                    log.warn(msg);
+                    return empty();
+                }
+            }
+            else
+            {
+                Optional<Branches.Branch> current = branches.currentBranch();
+                if (current.isEmpty())
+                {
+                    // If the checkout we are queried about is in detached head state, don't
+                    // use it, but log a warning.
+                    log.warn(
+                            "Ignoring " + targetCheckout.loggingName() + " for pull "
+                            + "request - it is not on any branch.");
+                    return current;
+                }
+                if (!current.get().name().equals(targetProjectsBranch.get()
+                        .name()))
+                {
+                    // If the checkout we are queried about *is* on some branch, but
+                    // not the right one, also ignore it and log that at level info:
+                    log.info(
+                            "Ignoring matched checkout " + targetCheckout
+                                    .loggingName() + " for pull "
+                            + "request - because we are matching the branch "
+                            + targetProjectsBranch.get().name()
+                            + " but it is on the branch " + current.get().name());
+                    return empty();
+                }
+                else
+                {
+                    log.info("Will include " + targetCheckout.loggingName()
+                            + " in the pull request set, on branch "
+                            + targetProjectsBranch.get().name());
+                }
+                return current;
+            }
+            return empty();
+        }
+    }
+
+    protected static Map<GitCheckout, Branches.Branch> checkoutsThatHaveBranch(
+            GitCheckout myCheckout,
+            String targetBranch,
+            Collection<? extends GitCheckout> of, BuildLog log, ProjectTree tree)
+            throws MojoFailureException
+    {
+        Map<GitCheckout, Branches.Branch> result = new TreeMap<>();
+        String branchName = targetBranch == null
+                            ? myCheckout.branch().orElseThrow(
+                        () -> new MojoFailureException(
+                                "No current branch for " + myCheckout
+                                        .loggingName()))
+                            : targetBranch;
+        of.forEach(checkout
+                -> tree.branches(checkout).find(branchName).ifPresent(
+                        branch -> result.put(checkout, branch)));
+        return result;
+    }
+
     private static final class PullRequestListCacheKey
     {
         private final Path checkoutPath;
-        private final String targetBranch;
         private final String baseBranch;
 
         private PullRequestListCacheKey(String baseBranch, GitCheckout checkout,
                 String branchName)
         {
             this.checkoutPath = notNull("checkout", checkout).checkoutRoot();
-            this.targetBranch = branchName;
             this.baseBranch = baseBranch;
         }
 
@@ -313,7 +494,6 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
         public int hashCode()
         {
             return checkoutPath.hashCode()
-                    + (71 * Objects.hashCode(targetBranch))
                     + (263 * Objects.hashCode(baseBranch));
         }
 
@@ -332,8 +512,7 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
             PullRequestListCacheKey key = (PullRequestListCacheKey) o;
             return key.checkoutPath.toAbsolutePath().equals(checkoutPath
                     .toAbsolutePath())
-                    && Objects.equals(baseBranch, key.baseBranch)
-                    && Objects.equals(targetBranch, key.targetBranch);
+                    && Objects.equals(baseBranch, key.baseBranch);
         }
 
         @Override
@@ -341,12 +520,9 @@ abstract class AbstractGithubMojo extends ScopedCheckoutsMojo
         {
             return checkoutPath.getFileName()
                     + ":"
-                    + (targetBranch == null
+                    + (baseBranch == null
                        ? "<any>"
-                       : targetBranch)
-                    + "->" + (baseBranch == null
-                              ? "<any>"
-                              : baseBranch);
+                       : baseBranch);
         }
     }
 }

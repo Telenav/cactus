@@ -1255,13 +1255,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
     /**
      * Merges pull request on Github using the given authentication token
      *
-     * @param personalAcccessTokenSupplier Can supply
+     * @param personalAccessTokenSupplier Can supply
      * @param branchName The name of the branch to merge
      * @param options The options to pass to the github cli
      * @return True if the pull request was merged
      */
     public boolean mergePullRequest(
-            IOSupplier<String> personalAcccessTokenSupplier,
+            IOSupplier<String> personalAccessTokenSupplier,
             String branchName,
             Set<MergePullRequestOptions> options)
     {
@@ -1274,7 +1274,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         arguments.add("Merge " + branchName);
 
         // Create pull request (gh pr merge --auto --merge --squash --body "Merge feature/reverse-string)
-        new GithubCommand<>(personalAcccessTokenSupplier, strings(), root,
+        new GithubCommand<>(personalAccessTokenSupplier, strings(), root,
                 arguments.toArray(String[]::new)).run().awaitQuietly();
 
         return true;
@@ -1283,13 +1283,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
     /**
      * Merges pull request on Github using the given authentication token
      *
-     * @param personalAcccessTokenSupplier Can supply
+     * @param personalAccessTokenSupplier Can supply
      * @param branchName The name of the branch to merge
      * @param body Any text to describe the approval
      * @return True if the pull request was merged
      */
     public boolean approvePullRequest(
-            IOSupplier<String> personalAcccessTokenSupplier,
+            IOSupplier<String> personalAccessTokenSupplier,
             String branchName,
             Optional<String> body
     )
@@ -1303,15 +1303,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
         arguments.add(body.orElse("Approved " + branchName));
 
         // Create pull request (gh pr review --approve --body "Approved feature/reverse-string")
-        new GithubCommand<>(personalAcccessTokenSupplier, strings(), root,
+        new GithubCommand<>(personalAccessTokenSupplier, strings(), root,
                 arguments.toArray(String[]::new)).run().awaitQuietly();
 
         return true;
     }
 
     public List<MinimalPRItem> listPullRequests(
-            IOSupplier<String> personalAcccessTokenSupplier,
-            String destBranchFilter, String prBranchFilter, String searchFilter)
+            IOSupplier<String> personalAccessTokenSupplier,
+            String destBranchFilter, String searchFilter)
     {
         var arguments = new ArrayList<String>();
         arguments.add("pr");
@@ -1330,7 +1330,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
         arguments.add(
                 "url,title,state,mergeable,body,number,headRefName,baseRefName");
 
-        return new GithubCommand<>(personalAcccessTokenSupplier,
+        return new GithubCommand<>(personalAccessTokenSupplier,
                 strings().map(MinimalPRItem.parser()), root,
                 arguments.toArray(String[]::new)).run().awaitQuietly();
     }

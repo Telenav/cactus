@@ -84,7 +84,7 @@ final class KillQueue
     private long leastInterval()
     {
         long result = Long.MAX_VALUE;
-        for (Map.Entry<ProcessControl<?, ?>, Long> e : toKill.entrySet())
+        for (Map.Entry<ProcessControl<?, ?>, Long> e : new HashSet<>(toKill.entrySet()))
         {
             long remaining = e.getValue() - currentTimeMillis();
             result = min(result, remaining);

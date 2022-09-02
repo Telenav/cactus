@@ -141,6 +141,7 @@ public class InstallScriptsMojo extends BaseMojo
         FAMILY_VERSIONS("cver"),
         RELEASE_ONE_PROJECT("crel"),
         CREATE_PULL_REQUEST("cpr"),
+        LIST_PULL_REQUESTS("clpr"),
         UPDATE_SCRIPTS("cactus-script-update");
         private final String filename;
 
@@ -198,6 +199,12 @@ public class InstallScriptsMojo extends BaseMojo
 
                 case DEVELOPMENT_PREPARATION:
                     return "\\tSwitch to the 'develop' branch in all java project checkouts.";
+                    
+                case LIST_PULL_REQUESTS:
+                    return "\\tList pull requests.  Pass `-m` as the first argument to omit non-mergeable"
+                            + "\\n\\tpull requests."
+                            + "\\n\\n\\tIf a branch name is passed as the first (or second, with `-m`), use that branch name instead"
+                            + "\\n\\tof the branch the current project is on.";
 
                 case CHANGE_BRANCH:
                     return "\\tChange branches or create a new branch.  To simply check out an existing feature branch\\n"
