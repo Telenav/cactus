@@ -113,18 +113,6 @@ public class GitHubApprovePullRequestMojo extends AbstractGithubMojo
         validateBranchName(branchToApprove, true);
     }
 
-    @SuppressWarnings("SpellCheckingInspection")
-    List<MinimalPRItem> openAndMergeablePullRequestsForBranch(String branchName, GitCheckout forCheckout)
-    {
-        return openAndMergeablePullRequestsForBranch(null, branchName, forCheckout);
-    }
-
-    List<MinimalPRItem> pullRequestsForBranch(String branchName,
-                                              GitCheckout forCheckout)
-    {
-        return pullRequestsForBranch(null, branchName, forCheckout);
-    }
-
     private void collectPullRequestsToApprove(BuildLog log,
                                               String branchName,
                                               List<GitCheckout> checkouts,

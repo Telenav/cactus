@@ -1311,7 +1311,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
 
     public List<MinimalPRItem> listPullRequests(
             IOSupplier<String> personalAccessTokenSupplier,
-            String destBranchFilter, String prBranchFilter, String searchFilter)
+            String destBranchFilter, String searchFilter)
     {
         var arguments = new ArrayList<String>();
         arguments.add("pr");

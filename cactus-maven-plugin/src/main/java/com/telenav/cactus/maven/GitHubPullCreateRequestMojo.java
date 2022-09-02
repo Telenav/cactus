@@ -27,21 +27,22 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.tasks.TaskSet;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import com.telenav.cactus.tasks.TaskSet;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import static com.mastfrog.util.strings.Strings.join;
 import static com.telenav.cactus.maven.ClassloaderLog._log;
@@ -67,8 +68,9 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  */
 @SuppressWarnings(
         {
-                "unused", "DuplicatedCode"
-                , "CodeBlock2Expr" })
+            "unused", "DuplicatedCode",
+             "CodeBlock2Expr"
+        })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = VALIDATE,
         requiresOnline = true,
@@ -191,8 +193,8 @@ public class GitHubPullCreateRequestMojo extends AbstractGithubMojo
         {
             // So we don't scare people in pretend mode
             BuildLog pretendLog = isPretend()
-                            ? log.child("(pretend)")
-                            : log;
+                                  ? log.child("(pretend)")
+                                  : log;
             createPullRequests(pretendLog, project, myCheckout, tree,
                     sourceBranchForCheckout);
         }
@@ -460,7 +462,7 @@ public class GitHubPullCreateRequestMojo extends AbstractGithubMojo
                             emitMessage(uri);
                             if (open)
                             {
-                                open(uri, log);
+                                open(uri);
                             }
                         }
                     }
@@ -527,29 +529,6 @@ public class GitHubPullCreateRequestMojo extends AbstractGithubMojo
         }
     }
 
-    private void open(URI uri, BuildLog log)
-    {
-        // Get out of the way of the rest of maven
-        // execution - initializing hunks of AWT is not free.
-        if (isDesktopSupported())
-        {
-            log.info("Opening browser for " + uri);
-            try
-            {
-                getDesktop().browse(uri);
-            }
-            catch (IOException ex)
-            {
-                log.error("Exception thrown opening " + uri, ex);
-            }
-        }
-        else
-        {
-            log.error(
-                    "Desktop not supported in this JVM; cannot open " + uri);
-        }
-    }
-
     private Map<GitCheckout, Branch> filterToCheckoutsOnTargetBranch(
             BuildLog log, GitCheckout myCheckout, ProjectTree tree,
             List<GitCheckout> checkouts)
@@ -587,88 +566,7 @@ public class GitHubPullCreateRequestMojo extends AbstractGithubMojo
             GitCheckout myCheckout,
             GitCheckout checkout, ProjectTree tree)
     {
-        Branches branches = tree.branches(checkout);
-        // If the branch was explicitly passed (perhaps along with a list of
-        // families, if we are in the project root), use that, and simply
-        // only return something for the case that the checkout is already
-        // on a branch with that name.
-        //
-        // Otherwise, what we want to look for is a branch with the same
-        // name as the current branch of the checkout containing the project
-        // maven was invoked against
-        if (targetBranch != null)
-        {
-            // We were specifically told what branch to use - use it 
-            // if present AND IF THE CHECKOUT IS CURRENTLY ON THAT BRANCH, or
-            // skip the repository for the pull request otherwise
-            return branches.currentBranch().flatMap(br ->
-            {
-                // Only return something if the explicitly specified target branch 
-                // is the same branch as that of the checkout we are deciding
-                // to include or not
-                if (targetBranch.equals(br.name()))
-                {
-                    return of(br);
-                }
-                return empty();
-            });
-        }
-        else
-        {
-            // Find out what branch the project we're RUNNING AGAINST is on,
-            // and create a PR only for other matched checkouts which are on
-            // a branch with the same name, so we create PRs from all branches
-            // in the matched checkouts which are on a branch named feature/foo,
-            // but do NOT create PRs for other checkouts which might contain
-            // un-pushed commits, but are not on the branch we are using
-            Branches targetProjectBranches = tree.branches(myCheckout);
-            Optional<Branch> targetProjectsBranch
-                    = targetProjectBranches.currentBranch();
-
-            // The project we were run against is in detached-head state - we
-            // have to fail here, as there is no way to track down a feature-branch
-            // name to look for in other checkouts
-            if (targetProjectsBranch.isEmpty())
-            {
-                // This will throw and get us out of here
-                fail("Target project " + coordinatesOf(project())
-                        + " in " + project().getBasedir()
-                        + " is not on a branch.  It needs to be to match "
-                        + "same-named branches in other checkouts to "
-                        + "decide what to create the pull request from.");
-            }
-            else
-            {
-                Optional<Branch> current = branches.currentBranch();
-                if (current.isEmpty())
-                {
-                    // If the checkout we are queried about is in detached head state, don't
-                    // use it, but log a warning.
-                    log.warn("Ignoring " + checkout.loggingName() + " for pull "
-                            + "request - it is not on any branch.");
-                    return current;
-                }
-                if (!current.get().name().equals(targetProjectsBranch.get().name()))
-                {
-                    // If the checkout we are queried about *is* on some branch, but
-                    // not the right one, also ignore it and log that at level info:
-                    log.info(
-                            "Ignoring matched checkout " + checkout.loggingName() + " for pull "
-                                    + "request - because we are matching the branch "
-                                    + targetProjectsBranch.get().name()
-                                    + " but it is on the branch " + current.get().name());
-                    return empty();
-                }
-                else
-                {
-                    log.info("Will include " + checkout.loggingName()
-                            + " in the pull request set, on branch "
-                            + targetProjectsBranch.get().name());
-                }
-                return current;
-            }
-            return empty();
-        }
+        return prBranchFor(log, myCheckout, checkout, tree, targetBranch, true);
     }
 
     private synchronized String searchNonce()
