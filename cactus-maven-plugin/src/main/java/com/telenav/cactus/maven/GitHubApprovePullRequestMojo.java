@@ -50,7 +50,7 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
         instantiationStrategy = SINGLETON,
         name = "git-approve-pull-request", threadSafe = true)
 @BaseMojoGoal("git-approve-pull-request")
-public class GitApprovePullRequestMojo extends AbstractGithubMojo
+public class GitHubApprovePullRequestMojo extends AbstractGithubMojo
 {
     /**
      * Text body to associate with the approval (optional)
@@ -64,7 +64,7 @@ public class GitApprovePullRequestMojo extends AbstractGithubMojo
     @Parameter(property = "cactus.pr.branch-to-approve")
     private String branchToApprove;
 
-    public GitApprovePullRequestMojo()
+    public GitHubApprovePullRequestMojo()
     {
         super(LAST);
     }

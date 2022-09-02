@@ -63,7 +63,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
         instantiationStrategy = SINGLETON,
         name = "git-merge-pull-request", threadSafe = true)
 @BaseMojoGoal("git-merge-pull-request")
-public class GitMergePullRequestMojo extends AbstractGithubMojo
+public class GitHubMergePullRequestMojo extends AbstractGithubMojo
 {
     /**
      * The name of the PR branch to merge. If set explicitly, it may be a branch
@@ -121,7 +121,7 @@ public class GitMergePullRequestMojo extends AbstractGithubMojo
     @Parameter(property = "cactus.base-branch", defaultValue = "develop")
     private String baseBranch = "develop";
 
-    public GitMergePullRequestMojo()
+    public GitHubMergePullRequestMojo()
     {
         super(LAST);
     }

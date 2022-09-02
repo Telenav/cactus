@@ -76,7 +76,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
         instantiationStrategy = SINGLETON,
         name = "git-pull-request", threadSafe = true)
 @BaseMojoGoal("git-pull-request")
-public class GitPullRequestMojo extends AbstractGithubMojo
+public class GitHubPullRequestMojo extends AbstractGithubMojo
 {
     /**
      * The pull request title.
