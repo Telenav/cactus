@@ -49,7 +49,11 @@ import static java.util.Arrays.asList;
 public final class MavenCommand extends CliCommand<Boolean>
 {
     private static final Duration KILL_AFTER = Duration.ofMinutes(20);
-    private static final boolean THREAD_DUMPS = true;
+    private static final boolean THREAD_DUMPS;
+    static {
+        THREAD_DUMPS = Boolean.getBoolean("cactus.test.thread.dumps")
+                || "true".equals(getenv("CACTUS_TEST_THREAD_DUMPS"));
+    }
     private static String maven;
     private final BuildLog log;
     private final String[] args;

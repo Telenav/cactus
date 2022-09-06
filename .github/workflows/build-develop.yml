@@ -14,6 +14,11 @@ defaults:
 
 name: "Build Develop"
 
+env:
+    CACTUS_TEST_THREAD_DUMPS: true
+    CACTUS_TEST_DEFAULT_DEBUG: false
+    CACTUS_SLF4J_DEBUG: false
+
 on:
   workflow_dispatch:
   push:
