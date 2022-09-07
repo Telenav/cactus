@@ -31,6 +31,8 @@ import java.util.Set;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.ASSETS_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_ASSETS_BRANCH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
 import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
@@ -52,7 +54,7 @@ public class BringAssetsBranchesToHeadMojo extends BaseMojo
     /**
      * The branch they should be on.
      */
-    @Parameter(property = "cactus.assets-branch", defaultValue = "publish")
+    @Parameter(property = ASSETS_BRANCH, defaultValue = DEFAULT_ASSETS_BRANCH)
     private String assetsBranch;
 
     /**

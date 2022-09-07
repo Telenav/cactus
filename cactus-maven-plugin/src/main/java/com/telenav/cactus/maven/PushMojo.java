@@ -97,7 +97,7 @@ public class PushMojo extends ScopedCheckoutsMojo
      * If true, use <code>git push --all</code> to push all local branches, not
      * just the current one checked out.
      */
-    @Parameter(property = "cactus.push.all", defaultValue = "false")
+    @Parameter(property = PUSH_ALL, defaultValue = "false")
     private boolean pushAll;
 
     /**

@@ -35,6 +35,7 @@ import java.util.Set;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
@@ -62,7 +63,7 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
     /**
      * The branch to merge into - the default is "develop".
      */
-    @Parameter(property = "cactus.merge.into", defaultValue = "develop")
+    @Parameter(property = "cactus.merge.into", defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
     String mergeInto;
 
     /**

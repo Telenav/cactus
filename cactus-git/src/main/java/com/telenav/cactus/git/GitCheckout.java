@@ -20,6 +20,7 @@ package com.telenav.cactus.git;
 import com.mastfrog.function.optional.ThrowingOptional;
 import com.mastfrog.function.throwing.io.IOSupplier;
 import com.mastfrog.util.preconditions.Exceptions;
+import com.telenav.cactus.cli.ProcessFailedException;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.github.GithubCommand;
@@ -408,14 +409,57 @@ public final class GitCheckout implements Comparable<GitCheckout>
             throw new IllegalStateException(loggingName()
                     + " is not on a branch - cannot check for merge conflicts");
         }
-        GitCommand<String> fetchHeadCmd = new GitCommand<>(strings().trimmed(),
-                checkoutRoot(), "merge-base", "FETCH_HEAD", branch.get());
-        String mergeBase = fetchHeadCmd.run().awaitQuietly();
+        String remote = null;
+        String branchName = branch.get();
+        Optional<String> mergeBase =mergeBaseBetween("FETCH_HEAD", branchName);
+        if (!mergeBase.isPresent()) {
+            remote = defaultRemote().get().name();
+            mergeBase = mergeBaseBetween("FETCH_HEAD", remote + "/" + branchName);
+            if (!mergeBase.isPresent()) {
+                return Conflicts.EMPTY;
+            }
+        }
         GitCommand<String> inMemoryDiff = new GitCommand<>(strings(),
-                checkoutRoot(), "merge-tree", mergeBase, branch.get(),
+                checkoutRoot(), "merge-tree", mergeBase.get(), branchName,
                 "FETCH_HEAD");
         String diff = inMemoryDiff.run().awaitQuietly();
         return Conflicts.parse(diff);
+    }
+
+    /**
+     * Get the merge base for merging ref to into ref from.
+     * 
+     * @param from A branch to merge
+     * @param to The thing to merge it into
+     * @return An optional string, present if a tracking branch exists and
+     * they share an ancestor
+     */
+    public Optional<String> mergeBaseBetween(String from, String to)
+    {
+        try
+        {
+            GitCommand<String> fetchHeadCmd = new GitCommand<>(strings()
+                    .trimmed(),
+                    checkoutRoot(), "merge-base", from, to);
+            String mergeBase = fetchHeadCmd.run().awaitQuietly();
+            return Optional.of(mergeBase);
+        }
+        catch (ProcessFailedException ex)
+        {
+            try {
+            String rem = defaultRemote().get().name();
+            GitCommand<String> fetchHeadCmd = new GitCommand<>(strings()
+                    .trimmed(),
+                    checkoutRoot(), "merge-base", from, rem + "/"+ to);
+            String mergeBase = fetchHeadCmd.run().awaitQuietly();
+            return Optional.of(mergeBase);
+            } catch (ProcessFailedException ex2) {
+                ex.addSuppressed(ex2);
+                log.debug("Could not find local or remote fetch head " 
+                        + from + " --> " + to, ex);
+            }
+        }
+        return Optional.empty();
     }
 
     private static String goodEnoughNonce()

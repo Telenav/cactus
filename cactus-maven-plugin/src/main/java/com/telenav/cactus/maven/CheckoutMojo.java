@@ -79,7 +79,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  * onto the default development branch:
  * <pre>
  *
- * mvn -Dcactus.scope=all -Dupdate-root=true -Dpermit-local-changes=true \
+ * mvn -Dcactus.scope=all -Dinclude-root=true -Dpermit-local-changes=true \
  *    com.telenav.cactus:cactus-maven-plugin:checkout
  *
  * </pre>
@@ -90,7 +90,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  * new branches:
  * <pre>
  *
- * mvn -Dcactus.scope=FAMILY -Dcreate-branches=true -Dupdate-root=true \
+ * mvn -Dcactus.scope=FAMILY -Dcreate-branches=true -Dinclude-root=true \
  *      -Dpush=true -Dtarget-branch=feature/foo -Dpermit-local-changes=true \
  *      com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
  *
@@ -102,7 +102,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  * <pre>
  *
  * mvn -Dcactus.scope=FAMILY -Dcreate-branches=false \
- *     -Dupdate-root=false -Doverride-branch-in=kivakit-stuff \
+ *     -Dinclude-root=false -Doverride-branch-in=kivakit-stuff \
  *     -Doverride-branch-with=$PULL_REQUEST_REF \
  *      com.telenav.cactus:cactus-maven-plugin:1.4.7:checkout
  *

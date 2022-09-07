@@ -53,7 +53,6 @@ MAVEN_ARGS="-Dcactus.scope=$SCOPE \
     -Dcactus.create-branches=$CREATE_BRANCHES \
     -Dcactus.create-local-branches=true \
     -Dcactus.target-branch=$BRANCH_NAME \
-    -Dcactus.update-root=true \
     -Dcactus.include-root=true \
     com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout"
 

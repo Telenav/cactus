@@ -31,6 +31,10 @@ import org.apache.maven.project.MavenProject;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
 import static com.telenav.cactus.git.GitCheckout.checkout;
 import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.ASSETS_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_ASSETS_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
 import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_CONTAINING_GOAL;
 import static com.telenav.cactus.util.PathUtils.deleteFolderTree;
 import static com.telenav.cactus.util.PathUtils.ifExists;
@@ -66,10 +70,10 @@ public class CloneMojo extends BaseMojo
     @Parameter(property = "cactus.delete.clone.dest.if.exists")
     private boolean deleteIfExists;
 
-    @Parameter(property = "cactus.development.branch", defaultValue = "develop")
+    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
     private String developmentBranch;
 
-    @Parameter(property = "cactus.assets.branch", defaultValue = "publish")
+    @Parameter(property = ASSETS_BRANCH, defaultValue = DEFAULT_ASSETS_BRANCH)
     private String assetsBranch;
 
     public CloneMojo()

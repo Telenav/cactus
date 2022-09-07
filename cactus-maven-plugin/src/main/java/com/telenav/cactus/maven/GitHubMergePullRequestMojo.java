@@ -37,6 +37,8 @@ import org.apache.maven.project.MavenProject;
 import static com.telenav.cactus.github.MergePullRequestOptions.MERGE;
 import static com.telenav.cactus.github.MergePullRequestOptions.REBASE;
 import static com.telenav.cactus.github.MergePullRequestOptions.SQUASH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
 import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
 import static java.util.Collections.emptyMap;
@@ -118,7 +120,7 @@ public class GitHubMergePullRequestMojo extends AbstractGithubMojo
      * the client, but to weed out checkouts which are on it and therefore not
      * likely to be part of the stuff to merge. The default is `develop`.
      */
-    @Parameter(property = "cactus.base-branch", defaultValue = "develop")
+    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
     private final String baseBranch = "develop";
 
     public GitHubMergePullRequestMojo()
