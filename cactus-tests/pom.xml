@@ -64,6 +64,10 @@
                 <configuration>
                     <!-- Works for full test suite but not for test-single -->
                     <useModulePath>false</useModulePath>
+                    
+                    <environmentVariables>
+                        <UNIT_TEST>true</UNIT_TEST>
+                    </environmentVariables>
 
                     <systemProperties>
 

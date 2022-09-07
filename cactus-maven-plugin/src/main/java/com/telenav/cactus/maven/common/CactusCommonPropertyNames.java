@@ -29,7 +29,7 @@ public final class CactusCommonPropertyNames
 
     public static final String PLUGIN_NAME = PLUGIN_FAMILY_NAME + "-maven-plugin";
 
-    private static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
+    public static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
 
     public static final String DEFAULT_DEVELOPMENT_BRANCH = "develop";
     
@@ -108,6 +108,8 @@ public final class CactusCommonPropertyNames
     public static final String ASSETS_BRANCH = PREFIX + ".assets-branch";
 
     public static final String PROPERTIES = PREFIX + "properties";
+    
+    public static final String PREFS_KEY_BASE_BRANCH = "baseBranch";
 
     private CactusCommonPropertyNames()
     {

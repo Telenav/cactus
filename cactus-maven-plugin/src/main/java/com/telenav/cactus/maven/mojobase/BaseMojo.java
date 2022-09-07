@@ -36,6 +36,7 @@ import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -54,9 +55,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,10 +70,12 @@ import javax.inject.Inject;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.cactus.preferences.CactusPreferences.cactusPreferences;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PREFIX;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PRETEND;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.VERBOSE;
 import static java.awt.Desktop.getDesktop;
 import static java.awt.Desktop.isDesktopSupported;
+import static java.lang.String.join;
 
 /**
  * A base class for our mojos, which sets up a build logger and provides a way
@@ -648,6 +656,7 @@ public abstract class BaseMojo extends AbstractMojo
         {
             fail("SharedData was not injected");
         }
+        initializePreferenceDefaults();
         internalSubclassValidateParameters(log, project);
         validateParameters(log, project);
     }
@@ -813,4 +822,262 @@ public abstract class BaseMojo extends AbstractMojo
                ? preferences(in).get(pref)
                : fieldValue;
     }
+
+    private void initializePreferenceDefaults()
+    {
+        List<String> problems = new ArrayList<>();
+        injectParameters(getClass(), this, log(), problems);
+        if (!problems.isEmpty())
+        {
+            fail(join("\n", problems));
+        }
+    }
+
+    private static void injectParameters(Class<?> type, BaseMojo mojo,
+            BuildLog log, List<String> problems)
+    {
+
+        // preferences are weakly referenced, so we want to cache them
+        // once created so we don't re-read lots of files repeatedly
+        CactusPreferences prefs = null;
+        for (Field f : type.getDeclaredFields())
+        {
+            Parameter param = f.getAnnotation(Parameter.class);
+            if (param != null)
+            {
+                CactusDefaultKey key = f.getAnnotation(CactusDefaultKey.class);
+                if (key != null)
+                {
+                    f.setAccessible(true);
+                    try
+                    {
+                        if (f.get(mojo) != null)
+                        {
+                            log.debug(f.getName() + " on " + type
+                                    .getSimpleName()
+                                    + " was explicitly set - not consulting preferences.");
+                            continue;
+                        }
+                    }
+                    catch (IllegalArgumentException ex)
+                    {
+                        Logger.getLogger(BaseMojo.class.getName())
+                                .log(Level.SEVERE, null, ex);
+                    }
+                    catch (IllegalAccessException ex)
+                    {
+                        Logger.getLogger(BaseMojo.class.getName())
+                                .log(Level.SEVERE, null, ex);
+                    }
+                    if (prefs == null)
+                    {
+                        prefs = mojo.preferences();
+                    }
+                    boolean applied = applyOneDefault(param, key, prefs, f, mojo,
+                            type, log);
+                    if (!applied && key.required())
+                    {
+                        problems.add(
+                                f.getName() + " is a required field, but was not set "
+                                + "explicitly or via preferences"
+                                + " on " + type.getSimpleName() + " or its supertypes.");
+                    }
+                }
+            }
+        }
+
+        Class<?> supertype = type.getSuperclass();
+        if (supertype != null && supertype != BaseMojo.class)
+        {
+            injectParameters(supertype, mojo, log.child(supertype
+                    .getSimpleName()), problems);
+        }
+    }
+
+    private static boolean applyOneDefault(Parameter param, CactusDefaultKey key,
+            CactusPreferences prefs,
+            Field f, BaseMojo theMojo,
+            Class<?> typeOrigin,
+            BuildLog log)
+    {
+        Optional<String> value = Optional.empty();
+        String usedKey = null;
+        for (String k : possiblePreferenceKeys(param, key, f, theMojo,
+                typeOrigin))
+        {
+            value = prefs.read(k);
+            if (value.isPresent())
+            {
+                usedKey = k;
+                log.info("Found preference key for '" + k + "': " + value.get());
+                break;
+            }
+        }
+        if (!value.isPresent())
+        {
+            String fallback = key.fallback();
+            if (!fallback.isBlank())
+            {
+                log.info("Using fallback for '"
+                        + f.getName() + "': " + fallback);
+                value = Optional.of(fallback);
+            }
+        }
+        if (value.isPresent() && !value.get().isBlank())
+        {
+            boolean result = applyValue(value.get().trim(), f, theMojo,
+                    typeOrigin, log, usedKey);
+            if (result)
+            {
+                log.info("Set preference for " + f.getName());
+            }
+            return result;
+        }
+        else
+        {
+            log.info("No default for " + f.getName() + " on " + theMojo
+                    .getClass().getSimpleName());
+            return false;
+        }
+    }
+
+    private static boolean applyValue(String theValue, Field f, BaseMojo theMojo,
+            Class<?> target, BuildLog log, String usedKey)
+    {
+        Class<?> type = f.getType();
+        try
+        {
+            if (type == String.class)
+            {
+                f.set(theMojo, theValue);
+                return true;
+            }
+            else
+                if (type == Boolean.class || type == Boolean.TYPE)
+                {
+                    switch (theValue)
+                    {
+                        case "true":
+                        case "false":
+                            boolean val = Boolean.parseBoolean(theValue);
+                            f.set(theMojo, theValue);
+                            return true;
+                        default:
+                            log.warn("Preference value '" + theValue + "' "
+                                    + " retrieved from cactus preferences using key '"
+                                    + usedKey + "' is not one of true/false");
+                    }
+                }
+                else
+                    if (type == Integer.class || type == Integer.TYPE)
+                    {
+                        f.set(theMojo, Integer.parseInt(theValue));
+                        return true;
+                    }
+                    else
+                        if (type == Long.class || type == Long.TYPE)
+                        {
+                            f.set(theMojo, Long.parseLong(theValue));
+                            return true;
+                        }
+                        else
+                            if (type == Float.class || type == Float.TYPE)
+                            {
+                                f.set(theMojo, Float.parseFloat(theValue));
+                                return true;
+                            }
+                            else
+                                if (type == Double.class || type == Double.TYPE)
+                                {
+                                    f.set(theMojo, Double.parseDouble(theValue));
+                                    return true;
+                                }
+                                else
+                                    if (type == Short.class || type == Short.TYPE)
+                                    {
+                                        f.set(theMojo, Short
+                                                .parseShort(theValue));
+                                        return true;
+                                    }
+                                    else
+                                        if (type == Byte.class || type == Byte.TYPE)
+                                        {
+                                            f.set(theMojo, Byte.parseByte(
+                                                    theValue));
+                                            return true;
+                                        }
+                                        else
+                                            if (type == Character.class || type == Character.TYPE)
+                                            {
+                                                if (theValue.length() > 1)
+                                                {
+                                                    throw new IllegalArgumentException(
+                                                            "Default for "
+                                                            + usedKey + " is '" + theValue + "' but as a Character "
+                                                            + "variable it must be a single character.");
+                                                }
+                                                f.set(theMojo, theValue
+                                                        .charAt(0));
+                                                return true;
+                                            }
+                                            else
+                                            {
+                                                throw new IllegalArgumentException(
+                                                        "Don't know how to decode '"
+                                                        + usedKey + "' for type "
+                                                        + f.getClass().getName());
+                                            }
+        }
+        catch (IllegalArgumentException | IllegalAccessException
+                | ClassCastException ex)
+        {
+            log.error("Setting field " + f.getName()
+                    + " of type " + f.getType().getSimpleName()
+                    + " declared in " + target.getSimpleName()
+                    + " for a mojo of type " + theMojo.getClass()
+                            .getSimpleName()
+                    + " to a coercion of '" + theValue
+                    + "' retrieved from cactus preferences using the key '"
+                    + usedKey + "' failed", ex);
+        }
+        return false;
+    }
+
+    private static Collection<? extends String> possiblePreferenceKeys(
+            Parameter param,
+            CactusDefaultKey key,
+            Field f, BaseMojo theMojo, Class<?> typeOrigin)
+    {
+        Set<String> result = new LinkedHashSet<>();
+
+        String k = key.value();
+        if (k.isEmpty())
+        {
+            k = f.getName();
+        }
+        result.add(typeOrigin.getSimpleName() + "." + k);
+        String prop = param.property();
+        if (prop != null)
+        {
+            result.add(typeOrigin.getSimpleName() + "." + param.property());
+            result.add(prop);
+        }
+
+        result.add(k);
+        return result;
+    }
+
+    private static String stripCactusPrefix(String name)
+    {
+        if (name == null || name.isBlank())
+        {
+            return null;
+        }
+        if (name.startsWith(PREFIX) && name.length() > PREFIX.length())
+        {
+            return name.substring(PREFIX.length() + 1);
+        }
+        return name;
+    }
+
 }

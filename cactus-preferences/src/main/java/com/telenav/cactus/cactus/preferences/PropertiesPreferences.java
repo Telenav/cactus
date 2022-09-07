@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 import static java.nio.file.StandardOpenOption.READ;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 
 /**
  *
@@ -56,7 +56,12 @@ final class PropertiesPreferences implements PreferencesFile
     @Override
     public Optional<String> read(String key)
     {
-        return ofNullable(props.getProperty(key));
+        String result = props.getProperty(key);
+        if (result == null || result.isBlank())
+        {
+            return Optional.empty();
+        }
+        return of(result);
     }
 
 }

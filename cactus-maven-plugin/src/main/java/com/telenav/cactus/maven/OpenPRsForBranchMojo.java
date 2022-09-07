@@ -7,6 +7,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.github.MinimalPRItem;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.CactusDefaultKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PREFS_KEY_BASE_BRANCH;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
@@ -50,7 +52,9 @@ public class OpenPRsForBranchMojo extends AbstractGithubMojo
     /**
      * The base branch the PR must be trying to merge to.
      */
-    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
+    @Parameter(property = BASE_BRANCH)
+    @CactusDefaultKey(value = PREFS_KEY_BASE_BRANCH,
+            fallback = DEFAULT_DEVELOPMENT_BRANCH)
     String baseBranch;
 
     /**

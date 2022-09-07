@@ -33,6 +33,7 @@ import static com.telenav.cactus.util.PathSupplier.existingFileOrInParents;
 import static com.telenav.cactus.util.PathSupplier.fromEnvironment;
 import static com.telenav.cactus.util.PathSupplier.fromSettingsDir;
 import static com.telenav.cactus.util.PathSupplier.fromSystemProperty;
+import static java.lang.System.getenv;
 import static java.util.Collections.synchronizedMap;
 
 /**
@@ -54,7 +55,7 @@ public final class CactusPreferences
     private static final String CACTUS_SETTINGS_ENV_VAR = "CACTUS_SETTINGS";
     private static final String CACTUS_SETTINGS_RELATIVE_PATH = "cactus/cactus.properties";
     private static final String LOCAL_PROPERTIES = ".cactus.properties";
-    public static final String DEFAULT_VALUE_MARKER = "_";
+    public static final String DEFAULT_VALUE_MARKER = "-";
 
     private static final Map<Path, Reference<CactusPreferences>> CACHE
             = synchronizedMap(new HashMap<>());
@@ -115,10 +116,23 @@ public final class CactusPreferences
                 fromSystemProperty(CACTUS_SETTINGS_SYSTEM_PROPERTY)
                         .ifReadableFile(),
                 fromEnvironment(CACTUS_SETTINGS_ENV_VAR).ifReadableFile(),
-                fromSettingsDir(
-                        CACTUS_SETTINGS_RELATIVE_PATH)
-                        .ifReadableFile()
+                userSettings()
         );
+    }
+
+    private static PathSupplier userSettings()
+    {
+        // We do NOT want user preferences files read when inside a unit
+        // test, or we can wind up with tests that fail on machines where
+        // default branch names are different than the defaults
+        if (Boolean.getBoolean("unit.test")
+                || "true".equals(getenv("UNIT_TEST")))
+        {
+            return PathSupplier.NONE;
+        }
+        return fromSettingsDir(
+                CACTUS_SETTINGS_RELATIVE_PATH)
+                .ifReadableFile();
     }
 
     private static Optional<Path> preferencesFile(Path p)
@@ -135,6 +149,16 @@ public final class CactusPreferences
                                 CACTUS_SETTINGS_RELATIVE_PATH)
                                 .ifReadableFile()))
                 .get();
+    }
+
+    public Optional<String> read(String key)
+    {
+        Optional<String> result = file.read(key);
+        if (result.isPresent() && DEFAULT_VALUE_MARKER.equals(result.get()))
+        {
+            return Optional.empty();
+        }
+        return result;
     }
 
     public <T, E extends Preference<T>> T get(E arg)

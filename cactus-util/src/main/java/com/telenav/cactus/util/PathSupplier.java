@@ -43,6 +43,8 @@ import static java.util.Optional.ofNullable;
  */
 public interface PathSupplier extends Supplier<Optional<Path>>
 {
+    
+    public static PathSupplier NONE = () -> Optional.empty();
 
     default <T> Supplier<Optional<T>> map(ThrowingFunction<Path, T> f)
     {
