@@ -62,7 +62,7 @@ public class BitsBagTest
     @Test
     public void testBitsConsumer()
     {
-        System.out.println(WordLists.POSESSIVES.words());
+        // System.out.println(WordLists.POSESSIVES.words());
         BitsConsumer bc = WordLists.POSESSIVES.toBitsConsumer(str ->
         {
             assertEquals("its", str);
