@@ -32,6 +32,8 @@ public final class CactusCommonPropertyNames
     private static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
 
     public static final String DEFAULT_DEVELOPMENT_BRANCH = "develop";
+    
+    public static final String DEFAULT_ASSETS_BRANCH = "publish";
 
     /**
      * Property for verbose mode, consumed by BaseMojo.
@@ -70,6 +72,11 @@ public final class CactusCommonPropertyNames
      * optional behavior.
      */
     public static final String PUSH = PREFIX + "push";
+    
+    /**
+     * Used by the push mojo if *all* local branches should be pushed.
+     */
+    public static final String PUSH_ALL = PREFIX + "push-all";
     /**
      * Boolean property for whether or not to perform a git commit where that is
      * optional behavior.
@@ -97,6 +104,8 @@ public final class CactusCommonPropertyNames
     public static final String DEFAULT_STABLE_BRANCH = "stable";
     
     public static final String CREATE_AUTOMERGE_TAG = PREFIX + "create-automerge-tag";
+    
+    public static final String ASSETS_BRANCH = PREFIX + ".assets-branch";
 
     public static final String PROPERTIES = PREFIX + "properties";
 
