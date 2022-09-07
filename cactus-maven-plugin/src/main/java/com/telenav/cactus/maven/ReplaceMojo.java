@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.walk;
 import static java.nio.file.Files.writeString;
@@ -195,13 +196,13 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
     {
         try
         {
-            var originalContents = readString(file);
+            var originalContents = readString(file, UTF_8);
             var replaced = replace(originalContents);
             if (!originalContents.equals(replaced.replaced))
             {
                 if (!isPretend())
                 {
-                    writeString(file, replaced.replaced, WRITE, TRUNCATE_EXISTING);
+                    writeString(file, replaced.replaced, UTF_8, WRITE, TRUNCATE_EXISTING);
                 }
                 log().info("Replaced " + replaced.count + " in " + file);
             }
