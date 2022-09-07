@@ -209,9 +209,15 @@ public enum RunPolicies implements RunPolicy
                     // we are a family root, but there ARE no submodules
                     if (co.isRoot())
                     {
-                        return !co.isSubmodule();
+                        boolean result = !co.isSubmodule();
+                        return result;
                     }
-                    return !co.isSubmoduleRoot() && !co.name().contains("/");
+                    boolean result = !co.isSubmoduleRoot();
+                    if (result)
+                    {
+                        result = !co.name().contains("/");
+                    }
+                    return result;
                 }).orElse(false);
     }
 

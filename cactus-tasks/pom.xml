@@ -10,6 +10,10 @@
 
     <artifactId>cactus-tasks</artifactId>
 
+    <description>Provides an abstraction for trees of grouped tasks which can be run
+        in order, where each task can optionally supply some code to roll back what it did
+        in the event it or a subsequent task fails.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.mastfrog</groupId>

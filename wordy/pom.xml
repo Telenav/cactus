@@ -9,10 +9,9 @@
     </parent>
 
     <artifactId>wordy</artifactId>
-
-    <properties>
-        <exec.mainClass>com.telenav.cactus.wordy.Wordy</exec.mainClass>
-    </properties>
+    
+    <description>A generic library for mapping bit sequences to sequences of
+        (hopefully) memorable and inoffensive english words</description>
 
     <dependencies>
         <dependency>

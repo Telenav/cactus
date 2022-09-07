@@ -7,7 +7,12 @@
         <version>1.5.28</version>
     </parent>
     <artifactId>cactus-process</artifactId>
-    
+
+    <name>cactus-process</name>
+
+    <description>Provides a convenient wrapper API around NuProcess to simplify
+        running external processes.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.mastfrog</groupId>
