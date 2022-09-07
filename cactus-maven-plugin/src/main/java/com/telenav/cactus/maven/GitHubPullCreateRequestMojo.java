@@ -27,11 +27,10 @@ import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.commit.CommitMessage.Section;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.CactusDefaultKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.tasks.TaskSet;
-import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -40,22 +39,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import static com.mastfrog.util.strings.Strings.join;
 import static com.telenav.cactus.maven.ClassloaderLog._log;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.COMMIT_CHANGES;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.TARGET_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
 import static com.telenav.cactus.tasks.TaskSet.newTaskSet;
-import static java.awt.Desktop.getDesktop;
-import static java.awt.Desktop.isDesktopSupported;
 import static java.lang.System.currentTimeMillis;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
@@ -69,7 +60,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 @SuppressWarnings(
         {
             "unused", "DuplicatedCode",
-             "CodeBlock2Expr"
+            "CodeBlock2Expr"
         })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = VALIDATE,
@@ -110,7 +101,9 @@ public class GitHubPullCreateRequestMojo extends AbstractGithubMojo
      * which, if createBranchesIfNeeded is false, should be used as the fallback
      * branch to put checkouts on if the target branch does not exist.
      */
-    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
+    @Parameter(property = BASE_BRANCH)
+    @CactusDefaultKey(value = PREFS_KEY_BASE_BRANCH,
+            fallback = DEFAULT_DEVELOPMENT_BRANCH)
     String baseBranch;
 
     /**

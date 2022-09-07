@@ -22,6 +22,7 @@ import com.telenav.cactus.git.GitCommand;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.CactusDefaultKey;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,10 +32,7 @@ import org.apache.maven.project.MavenProject;
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
 import static com.telenav.cactus.git.GitCheckout.checkout;
 import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.ASSETS_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_ASSETS_BRANCH;
-import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.*;
 import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_CONTAINING_GOAL;
 import static com.telenav.cactus.util.PathUtils.deleteFolderTree;
 import static com.telenav.cactus.util.PathUtils.ifExists;
@@ -70,10 +68,13 @@ public class CloneMojo extends BaseMojo
     @Parameter(property = "cactus.delete.clone.dest.if.exists")
     private boolean deleteIfExists;
 
-    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
+    @Parameter(property = BASE_BRANCH)
+    @CactusDefaultKey(value = PREFS_KEY_BASE_BRANCH,
+            fallback = DEFAULT_DEVELOPMENT_BRANCH)
     private String developmentBranch;
 
     @Parameter(property = ASSETS_BRANCH, defaultValue = DEFAULT_ASSETS_BRANCH)
+    @CactusDefaultKey(fallback = DEFAULT_ASSETS_BRANCH)
     private String assetsBranch;
 
     public CloneMojo()
@@ -94,7 +95,8 @@ public class CloneMojo extends BaseMojo
         {
             return Paths.get(cloneDest);
         }
-        return globalTempIfPossible().resolve("cactus-clone-" + Long.toString(currentTimeMillis(), 36)
+        return globalTempIfPossible().resolve("cactus-clone-" + Long.toString(
+                currentTimeMillis(), 36)
                 + "-" + Integer.toString(abs(ThreadLocalRandom.current()
                         .nextInt()), 36));
     }

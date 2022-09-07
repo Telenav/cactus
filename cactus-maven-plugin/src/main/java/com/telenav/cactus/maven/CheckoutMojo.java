@@ -24,6 +24,7 @@ import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.mojobase.CactusDefaultKey;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.nio.file.Path;
@@ -557,8 +558,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
      * which, if createBranchesIfNeeded is false, should be used as the fallback
      * branch to put checkouts on if the target branch does not exist.
      */
-    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH,
-            required = true)
+    @Parameter(property = BASE_BRANCH)
+    @CactusDefaultKey(value=PREFS_KEY_BASE_BRANCH, fallback=DEFAULT_DEVELOPMENT_BRANCH, required=true)
     String baseBranch = DEFAULT_DEVELOPMENT_BRANCH;
 
     /**
