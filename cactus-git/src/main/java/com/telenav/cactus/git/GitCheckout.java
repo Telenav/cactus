@@ -1585,11 +1585,11 @@ public final class GitCheckout implements Comparable<GitCheckout>
     {
         if (submodule == null || submodule.isEmpty())
         {
-            throw new IllegalArgumentException("Missing submodule");
+            throw new IllegalArgumentException("Missing submodule: '" + submodule + "' with branch '" + branch + "'");
         }
         if (branch == null || branch.isEmpty())
         {
-            throw new IllegalArgumentException("Missing submodule");
+            throw new IllegalArgumentException("Missing branch for submodule: " + submodule + "' with branch '" + branch + "'");
         }
         new GitCommand<>(ProcessResultConverter.strings(),
                 root, "submodule", "set-branch", "-b", branch, submodule).run()
