@@ -40,12 +40,14 @@ on:
 
 jobs:
   build:
+    secrets:
+      ZULIP_API_KEY: ${{ secrets.ZULIP_API_KEY }}
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Building
-        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:$ZULIP_API_KEY --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
 
       - name: Set Up Java
         uses: actions/setup-java@v3
@@ -104,8 +106,8 @@ jobs:
         run: cd $GITHUB_WORKSPACE/cactus && mvn --no-transfer-progress --batch-mode install
 
       - name: Done Building
-        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Done building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:$ZULIP_API_KEY --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Done building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
 
       - name: Build Failed
         if: failure()
-        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:0NKgz2EcIM8Bs2wpEmh67TOApRVk3sF4 --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=build-failures --data-urlencode content="Build of $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME) failed"
+        run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:$ZULIP_API_KEY --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=build-failures --data-urlencode content="Build of $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME) failed"
