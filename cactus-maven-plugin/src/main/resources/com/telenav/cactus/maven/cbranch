@@ -2,43 +2,44 @@
 
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
-# Pending - make this an argument
-PERMIT_LOCAL_CHANGES=true
-
 # Unpretty, but does the job for two arguments that
 # could be in either order
 
-if [ -n "$1" ]; then
-    if [ '--new' = $1 ]; then
-        export CREATE_BRANCHES=true
-        shift
-    else
-        export CREATE_BRANCHES=false
-    fi
-fi
+CREATE_BRANCHES=false
+SCOPE=family-or-child-family
+PERMIT_LOCAL_CHANGES=true
 
-if [ -n "$1" ]; then
-    if [ '--all' = $1 ]; then
-        export SCOPE=all-project-families
-        shift
-    else
-        export SCOPE=family-or-child-family
-    fi
-fi
-
-if [ -n "$1" ]; then
-    if [ '--new' = $1 ]; then
-        export CREATE_BRANCHES=true
-        shift
-    fi
-fi
-
-if [ -n "$1" ]; then
-    if [ '--all' = $1 ]; then
-        export SCOPE=all-project-families
-        shift
-    fi
-fi
+for ARG in "$@"; do
+    case "$ARG" in
+        "--new")
+            CREATE_BRANCHES=true
+            shift
+            ;;
+        "-n")
+            CREATE_BRANCHES=true
+            shift
+            ;;
+        "--all")
+            SCOPE=all-project-families
+            shift
+            ;;
+        "-a")
+            SCOPE=all-project-families
+            shift
+            ;;
+        "--permissive")
+            PERMIT_LOCAL_CHANGES=true
+            shift
+            ;;
+        "-p")
+            PERMIT_LOCAL_CHANGES=true
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 if [ -z "$1" ]; then
     echo "No branch argument passed" 1>&2
