@@ -2,6 +2,9 @@
 
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
+# Pending - make this an argument
+PERMIT_LOCAL_CHANGES=true
+
 # Unpretty, but does the job for two arguments that
 # could be in either order
 
@@ -53,6 +56,7 @@ MAVEN_ARGS="-Dcactus.scope=$SCOPE \
     -Dcactus.create-branches=$CREATE_BRANCHES \
     -Dcactus.create-local-branches=true \
     -Dcactus.target-branch=$BRANCH_NAME \
+    -Dcactus.permit-local-changes=$PERMIT_LOCAL_CHANGES \
     -Dcactus.include-root=true \
     com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout"
 
