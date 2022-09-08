@@ -416,10 +416,11 @@ public class BumpVersionMojo extends ReplaceMojo
                         }
                         else
                         {
-                            nue = v.updatedWith(
-                                    magnitude(fam),
-                                    flavor())
-                                    .get();
+                            Optional<PomVersion> change = v.updatedWith(magnitude(fam), flavor());
+                            if (!change.isPresent()) {
+                                return;
+                            }
+                            nue = change.get();
                         }
                         versionForFamily.put(fam, nue);
                         replacer.withFamilyVersionChange(fam,
@@ -437,9 +438,14 @@ public class BumpVersionMojo extends ReplaceMojo
                 familyWithChildFamilies(tree).forEach(family
                         -> findVersionOfFamily(tree, family).ifPresent(ffv ->
                         {
-                            PomVersion newFamilyVersion = ffv.updatedWith(
+                            Optional<PomVersion> change = ffv.updatedWith(
                                     magnitude(family),
-                                    flavor()).get();
+                                    flavor());
+                            if (!change.isPresent()) {
+                                return;
+                            }
+                            
+                            PomVersion newFamilyVersion = change.get();
                             versionForFamily.put(family, ffv);
                             replacer.withFamilyVersionChange(family,
                                     ffv,
@@ -451,9 +457,13 @@ public class BumpVersionMojo extends ReplaceMojo
                 allFamilies(tree).forEach(family
                         -> findVersionOfFamily(tree, family).ifPresent(ffv ->
                         {
-                            PomVersion newFamilyVersion = ffv.updatedWith(
+                            Optional<PomVersion> change = ffv.updatedWith(
                                     magnitude(family),
-                                    flavor()).get();
+                                    flavor());
+                            if (!change.isPresent()) {
+                                return;
+                            }
+                            PomVersion newFamilyVersion = change.get();
 
                             versionForFamily.put(family, ffv);
                             replacer.withFamilyVersionChange(family,
@@ -628,7 +638,9 @@ public class BumpVersionMojo extends ReplaceMojo
 
         if (mag.isNone() && flavor.isNone())
         {
-            fail("Nothing to do for " + mag + " " + flavor);
+            if (!bumpPublished && explicitVersion == null) {
+                fail("Nothing to do for " + mag + " " + flavor + " and cactus.bump-published is not set.");
+            }
         }
         // Pending - this should probably be done later, and use the set of
         // versions for the project tree - will work fine if only bumping
@@ -649,14 +661,16 @@ public class BumpVersionMojo extends ReplaceMojo
         }
         else
         {
-            updatedVersion = oldVersion.updatedWith(mag, flavor)
-                    .orElseThrow(
-                            () -> new MojoExecutionException(
-                                    "Applying " + mag + " "
+            updatedVersion = oldVersion.updatedWith(mag, flavor).orElse(
+                    null);
+            if (updatedVersion == null && !bumpPublished) {
+                fail("Applying " + mag + " "
                                     + "+ " + flavor + " to version "
-                                    + oldVersion + " does not change anything"));
+                                    + oldVersion + " does not change anything");
+            } else if (updatedVersion == null) {
+                updatedVersion = oldVersion;
+            }
         }
-
         VersionChange vc = new VersionChange(oldVersion, updatedVersion);
         // Allow version changes to be logged by things that use them
         session().getAllProjects().forEach(prj
