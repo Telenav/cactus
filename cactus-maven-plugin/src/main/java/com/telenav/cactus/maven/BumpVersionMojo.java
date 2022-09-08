@@ -628,7 +628,9 @@ public class BumpVersionMojo extends ReplaceMojo
 
         if (mag.isNone() && flavor.isNone())
         {
-            fail("Nothing to do for " + mag + " " + flavor);
+            if (!bumpPublished) {
+                fail("Nothing to do for " + mag + " " + flavor + " and cactus.bump-published is not set.");
+            }
         }
         // Pending - this should probably be done later, and use the set of
         // versions for the project tree - will work fine if only bumping
