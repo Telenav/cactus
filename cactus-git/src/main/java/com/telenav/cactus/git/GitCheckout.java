@@ -824,6 +824,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 {
                     remoteTrackingBranch = branches.find(fallback, false);
                 }
+                if (remoteTrackingBranch.isEmpty()) {
+                    // If we were passed the tracking name, we may not find it
+                    for (Branch b : branches.remoteBranches()) {
+                        if (b.trackingName().equals(fallback)) {
+                            remoteTrackingBranch = Optional.of(b);
+                            break;
+                        }
+                    }
+                }
                 if (remoteTrackingBranch.isEmpty())
                 {
                     log.warn("Could not find a branch to track for '"

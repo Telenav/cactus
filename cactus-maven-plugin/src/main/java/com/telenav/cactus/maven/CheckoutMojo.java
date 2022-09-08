@@ -67,8 +67,8 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  * <p>
  * Like other mojos in this plugin, the set of repositories that are altered can
  * be controlled by the <code>cactus.scope</code> property, to apply to all git
- * repositories matching that scope - all sub-repositories are scanned, and those
- * containing maven projects matching the scope are selected.
+ * repositories matching that scope - all sub-repositories are scanned, and
+ * those containing maven projects matching the scope are selected.
  * </p>
  * <p>
  * Some useful one-liners using this mojo:
@@ -112,7 +112,10 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings({ "unused", "SpellCheckingInspection" })
+@SuppressWarnings(
+        {
+            "unused", "SpellCheckingInspection"
+        })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = VALIDATE,
         requiresDependencyResolution = NONE,
@@ -121,8 +124,8 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 @BaseMojoGoal("checkout")
 public class CheckoutMojo extends ScopedCheckoutsMojo
 {
-
-    @SuppressWarnings("CodeBlock2Expr") private static abstract class BranchingBehavior implements
+    @SuppressWarnings("CodeBlock2Expr")
+    private static abstract class BranchingBehavior implements
             Comparable<BranchingBehavior>
     {
         protected final ProjectTree tree;
@@ -155,7 +158,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             this.allowLocalChangesIfPossible = allowLocalChangesIfPossible;
             isRoot = checkout.equals(tree.root());
             this.log = log.child(getClass().getSimpleName()).child(checkout
-                    .name());
+                    .loggingName());
         }
 
         @Override
@@ -218,7 +221,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                 });
             }
             else
-                if (isSubmoduleRoot() && checkout.isDirtyIgnoringModifiedSubmodules())
+                if (isSubmoduleRoot() && checkout
+                        .isDirtyIgnoringModifiedSubmodules())
                 {
                     log.info(
                             "Generated local modifications in submodule root"
@@ -231,9 +235,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                     // shows modifications, but there *is* nothing to add or commit
                     // yet, because 
                     checkout.commit(
-                        "cactus-maven: Create or move branch " + targetBranch
-                        + " to new heads in " + checkout.loggingName());
-                        
+                            "cactus-maven: Create or move branch " + targetBranch
+                            + " to new heads in " + checkout.loggingName());
+
                 }
         }
 
@@ -262,10 +266,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
 
         Boolean isSubroot;
+
         boolean isSubmoduleRoot()
         {
             // We may be in a singleton checkout where there *is* not submodule root
-            return isSubroot == null ? isSubroot = isRoot && checkout.isSubmoduleRoot()
+            return isSubroot == null
+                   ? isSubroot = isRoot && checkout.isSubmoduleRoot()
                    : isSubroot;
         }
 
@@ -290,6 +296,10 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             if (!pretend)
             {
                 succeeded = performBranchChange();
+                if (succeeded)
+                {
+                    tree.invalidateBranches(checkout);
+                }
             }
         }
 
@@ -305,16 +315,19 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         void validate(Collection<? super String> problems) throws Exception
         {
-            if ((!allowLocalChangesIfPossible || !canTolerateLocalChanges()) && tree
-                    .isDirty(checkout))
+            if ((!allowLocalChangesIfPossible || !canTolerateLocalChanges())
+                    && tree.isDirty(checkout))
             {
                 if (isSubmoduleRoot())
                 {
                     return;
                 }
-                problems.add(
-                        "Have local changes in " + checkout.name()
-                        + " - cannot proceed to change to branch " + targetBranch);
+                if (!tree.isDirtyIgnoringSubmoduleCommits(checkout))
+                {
+                    problems.add(
+                            "Have local changes in " + checkout.loggingName()
+                            + " - cannot proceed to change to branch " + targetBranch);
+                }
             }
         }
     }
@@ -325,16 +338,33 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         private final boolean push;
 
-        CreateAndSwitchToBranch(ProjectTree tree,
-                GitCheckout checkout, BuildLog log, String targetBranch,
-                boolean pretend, String baseBranch,
-                boolean allowLocalChangesIfPossible, boolean updateRoot,
+        CreateAndSwitchToBranch(
+                ProjectTree tree,
+                GitCheckout checkout,
+                BuildLog log,
+                String targetBranch,
+                boolean pretend,
+                String baseBranch,
+                boolean allowLocalChangesIfPossible,
+                boolean updateRoot,
                 boolean push)
         {
             super(tree, checkout, log, targetBranch, pretend,
                     allowLocalChangesIfPossible, updateRoot);
+
             this.baseBranch = baseBranch;
             this.push = push;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Create and switch to branch " + targetBranch + " based on "
+                    + (baseBranch == null
+                       ? " the current branch "
+                       : baseBranch)
+                    + " in " + checkout.loggingName()
+                    + " push? " + push + " is-root? " + isSubmoduleRoot();
         }
 
         @Override
@@ -344,19 +374,27 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             {
                 checkout.pushCreatingBranch();
             }
-            if (!isUpdateRoot())
+            if (isUpdateRoot() && !checkout.isSubmoduleRoot() && checkout
+                    .isSubmodule())
             {
-                return;
+                updateRootCheckout();
             }
-            updateRootCheckout();
+
         }
 
         @Override
         protected boolean performBranchChange()
         {
-            checkout.createAndSwitchToBranch(targetBranch, Optional.of(
-                    baseBranch));
-            return true;
+            try
+            {
+                checkout.createAndSwitchToBranch(targetBranch,
+                        Optional.ofNullable(baseBranch));
+                return true;
+            }
+            finally
+            {
+                tree.invalidateBranches(checkout);
+            }
         }
     }
 
@@ -370,6 +408,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
 
         @Override
         public boolean isNoOp()
+        {
+            return true;
+        }
+
+        @Override
+        boolean canTolerateLocalChanges()
         {
             return true;
         }
@@ -441,22 +485,29 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         {
             if (checkout.needsPull())
             {
-                boolean root = checkout.isSubmoduleRoot();
-                // We need to pull to ensure that a branch which was on the
-                // right branch but behind some commits gets yanked up to
-                // the branch head.
-                if (root)
+                try
                 {
-                    log.info(
-                            "Pull submodule root " + checkout.loggingName() + " on " + targetBranch
-                            + " with --rebase");
-                    checkout.pullWithRebase();
+                    boolean root = tree.isSubmoduleRoot(checkout);
+                    // We need to pull to ensure that a branch which was on the
+                    // right branch but behind some commits gets yanked up to
+                    // the branch head.
+                    if (root)
+                    {
+                        log.info(
+                                "Pull submodule root " + checkout.loggingName() + " on " + targetBranch
+                                + " with --rebase");
+                        checkout.pullWithRebase();
+                    }
+                    else
+                    {
+                        log.info(
+                                "Pull " + checkout.loggingName() + " on " + targetBranch);
+                        checkout.pull();
+                    }
                 }
-                else
+                finally
                 {
-                    log.info(
-                            "Pull " + checkout.loggingName() + " on " + targetBranch);
-                    checkout.pull();
+                    tree.invalidateBranches(checkout);
                 }
             }
             return true;
@@ -498,8 +549,15 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         @Override
         protected boolean performBranchChange()
         {
-            boolean result = checkout.switchToBranch(targetBranch);
-            return true;
+            try
+            {
+                boolean result = checkout.switchToBranch(targetBranch);
+                return true;
+            }
+            finally
+            {
+                tree.invalidateBranches(checkout);
+            }
         }
 
         @Override
@@ -597,7 +655,10 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             defaultValue = "false")
     boolean permitLocalChanges = false;
 
-    @SuppressWarnings({ "CodeBlock2Expr" })
+    @SuppressWarnings(
+            {
+                "CodeBlock2Expr"
+            })
     @Override
     protected void execute(BuildLog log, MavenProject project,
             GitCheckout myCheckout,
@@ -614,11 +675,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         {
             fetchAll(checkouts);
             // In case the tree was used before, dump any cached branch lists
-            tree.invalidateCache();
+            checkouts.forEach(tree::invalidateBranches);
         }
-        
+
         GitCheckout root = tree.root();
-        if (checkouts.contains(root) && root.isSubmoduleRoot()) {
+        if (checkouts.contains(root) && tree.isSubmoduleRoot(root))
+        {
             checkouts.remove(root);
             checkouts.add(0, root);
         }
@@ -659,8 +721,6 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         {
             beh.run();
         }
-        // Nuke any cached branch info
-        tree.invalidateCache();
         // Post work happens in the opposite order, root-last (so we commit
         // changes to the refs pointed to by the submodule parent only after
         // we have fully updated .gitmodules)
@@ -672,10 +732,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             beh.postRun();
         }
 
-        if (this.createBranchesIfNeeded || this.createLocalBranchesIfNeeded && this
-                .isIncludeRoot() && root.isSubmoduleRoot() && root.isDirtyIgnoringModifiedSubmodules())
+        if ((this.createBranchesIfNeeded || this.createLocalBranchesIfNeeded)
+                && this.isIncludeRoot()
+                && tree.isSubmoduleRoot(root)
+                && tree.isDirty(root))
         {
-            
+
             // We may have dirtied the root again by updating .gitmodules - make sure that
             // gets committed
             CommitMessage msg = new CommitMessage(getClass(),
@@ -689,8 +751,8 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             });
             if (!isPretend())
             {
-                    root.addAll();
-                    root.commit(msg.toString());
+                root.addAll();
+                root.commit(msg.toString());
             }
         }
 
@@ -734,16 +796,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private Optional<Branch> baseBranchFor(GitCheckout checkout,
-            ProjectTree tree)
-    {
-        Branches br = tree.branches(checkout);
-        return br.localOrRemoteBranch(baseBranch);
-    }
-
     @SuppressWarnings("SpellCheckingInspection")
     private BranchingBehavior branchChangerFor(ProjectTree tree,
-                                               GitCheckout checkout, BuildLog log)
+            GitCheckout checkout, BuildLog log)
     {
         // Okay, the states we have to deal with:
         //  - Base branch neither exists remotely nor locally
@@ -774,7 +829,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         // a commit in the submodule root repo if the child repos have moved or
         // .gitmodules was updated
 
-        if (isOverrideCheckout(checkout))
+        if (isOverrideCheckout(checkout, tree))
         {
             // This checkout matches the value of overrideBranchSubmodule - we
             // may have a commit id not a branch name to move to.
@@ -791,7 +846,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
 
         Branches br = tree.branches(checkout);
-        Optional<Branch> baseOpt = baseBranchFor(checkout, tree);
+        Optional<Branch> baseOpt = baseBranchFor(checkout, tree,
+                baseBranch, log);
+
         if (baseOpt.isEmpty())
         {
             // Do this so we can report ALL failures, not just bail out on
@@ -803,10 +860,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                             .name() + ": " + br);
         }
         Branch base = baseOpt.get();
+
         Optional<Branch> current = br.currentBranch();
         log.info(
                 checkout.name()
-                + ": Base branch " + base + " current " + current + " create? " + createBranchesIfNeeded
+                + ": Base branch " + base.trackingName()
+                + " current " + current + " create? " + createBranchesIfNeeded
                 + " base " + baseBranch + " target " + targetBranch);
         // First case is we are just moving things to the base branch
         if (targetBranch == null)
@@ -873,7 +932,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
         else
         {
-            String realTargetBranch = targetBranchFor(checkout);
+            String realTargetBranch = targetBranchFor(checkout, tree);
             // We have a branch to switch to or create
             if (current.isPresent() && current.get().name().equals(
                     realTargetBranch))
@@ -891,8 +950,12 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                 return new DoNothing(tree, checkout, log,
                         targetBranch);
             }
-            // Look for a branch with teh right name, locally or remotely
+            // Look for a branch with the right name, locally or remotely,
+            // applying the heuristic that already-on-base-branch means to
+            // incorporate any local commits into the new branch, and being
+            // on some other branch means not to do thst.
             Optional<Branch> target = br.localOrRemoteBranch(realTargetBranch);
+
             if (target.isPresent())
             {
                 // A branch with the right name exists somewhere
@@ -952,11 +1015,48 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                 // are creating, say, a new feature branch from scratch.
                 if (createBranchesIfNeeded)
                 {
+                    // For the submodule root, we do not want to fail in the case
+                    // that we are dirty only by virtue of having some unfamiliar
+                    // commits in submodules
+                    boolean isRoot = tree.isSubmoduleRoot(checkout);
+                    boolean localChangesOk = permitLocalChanges || isRoot;
+
+                    // A heuristic:  If the checkout is already *on* the base
+                    // branch, then null out the base branch so branching is done
+                    // from the local tree's branch, not the remote head of the
+                    // named base branch.  That 
+                    String theBase = base.trackingName();
+                    if (current.isPresent() && current.get().name().equals(base
+                            .name()))
+                    {
+                        log.info(
+                                "Current branch for " + checkout.loggingName() + " is same as "
+                                + " " + base + " will branch off of the local branch, not the remote head.");
+                        theBase = null;
+                        localChangesOk = true;
+                    }
+
+                    // In the case that we could abort due to local changes in the
+                    // submodule root which are simply new commits in submodules,
+                    // new branches are going to change that anyway, so simply branch
+                    // off of the local branch of the submodule root and allow such
+                    // changes
+                    if (theBase != null
+                            && isRoot
+                            && tree.isDirty(checkout)
+                            && current.isPresent())
+                    {
+                        theBase = null;
+                        localChangesOk = true;
+                    }
+
                     // Create the new branch and switch to it
                     return new CreateAndSwitchToBranch(tree, checkout,
-                            log, realTargetBranch, isPretend(), base
-                                    .trackingName(), permitLocalChanges,
-                            isIncludeRoot(), push);
+                            log, realTargetBranch, isPretend(),
+                            theBase,
+                            localChangesOk,
+                            isIncludeRoot(),
+                            push);
                 }
                 else
                 {
@@ -978,6 +1078,70 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
                             + "createBranchesIfNeeded is false, so we "
                             + "will not create it.");
                 }
+            }
+        }
+    }
+
+    /**
+     * Applies the heuristic that if the checkout is on the base branch, the
+     * local head is what should be branched from, but if it is on some other
+     * branch, then the remote head is what should be branched from. This avoids
+     * the case where unrelated changes that have not yet been merged get
+     * stirred into a pull request by accident.
+     *
+     * @param checkout A checkout
+     * @param tree A tree
+     * @param realTargetBranch The target branch name (which may or may not yet
+     * exist)
+     * @param log A logger
+     * @return A branch if any is matched, preferring remote or local according
+     * to the heuristic
+     */
+    private Optional<Branch> baseBranchFor(GitCheckout checkout,
+            ProjectTree tree, String realTargetBranch, BuildLog log)
+    {
+        Branches br = tree.branches(checkout);
+        Optional<Branch> currOpt = br.currentBranch();
+        if (!currOpt.isPresent())
+        {
+            log.info(
+                    checkout.loggingName() + " is not on any branch - will prefer "
+                    + "the remote head of " + baseBranch + " to branch from.");
+            // Prefer the remote branch, fall back to the local branch,
+            // if we are in detached-head currently
+            return br.find(realTargetBranch, false)
+                    .or(() -> br.find(realTargetBranch, true));
+        }
+        else
+        {
+            // If we are on the base branch already, assume any local changes
+            // there should be incorporated into the new branch.  If we are on
+            // some other branch, then base off of the remote branch
+            Branch curr = currOpt.get();
+            if (curr.name().equals(baseBranch))
+            {
+                log.info(checkout.loggingName() + " already on the "
+                        + "base branch " + baseBranch + ".  Will create branch from "
+                        + "the local, not remote head of it.");
+
+                // If we are already on the base branch, prefer the
+                // local target branch if one exists, falling back to the
+                // remote branch - being on the base branch is a signal that
+                // you want your new branch to include changes from the remote
+                return br.find(realTargetBranch, true)
+                        .or(() -> br.find(realTargetBranch, false));
+
+            }
+            else
+            {
+                log.info(checkout.loggingName() + " is not on the "
+                        + "base branch " + baseBranch + ".  Will create branch from "
+                        + "the remote, not local head of it, in case there are changes "
+                        + "locally that should not be incorporated into that branch.");
+
+                // Prefer the remote branch, fall back to the local branch
+                return br.find(realTargetBranch, false)
+                        .or(() -> br.find(realTargetBranch, true));
             }
         }
     }
@@ -1010,7 +1174,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         }
     }
 
-    private boolean isOverrideCheckout(GitCheckout checkout)
+    private boolean isOverrideCheckout(GitCheckout checkout, ProjectTree tree)
     {
         if (overrideBranchSubmodule != null && (Objects.equals(targetBranch,
                 overrideBranchWith) || (targetBranch == null && baseBranch
@@ -1021,7 +1185,7 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
             // checks
             return false;
         }
-        if (overrideBranchSubmodule != null && !checkout.isSubmoduleRoot())
+        if (overrideBranchSubmodule != null && !tree.isSubmoduleRoot(checkout))
         {
             String relPath = checkout.submoduleRelativePath()
                     .map(Path::toString).orElse("---");
@@ -1031,9 +1195,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         return false;
     }
 
-    private String targetBranch(GitCheckout checkout)
+    private String targetBranch(GitCheckout checkout, ProjectTree tree)
     {
-        if (overrideBranchSubmodule != null && !checkout.isSubmoduleRoot())
+        if (overrideBranchSubmodule != null && !tree.isSubmoduleRoot(checkout))
         {
             String relPath = checkout.submoduleRelativePath()
                     .map(Path::toString).orElse("---");
@@ -1046,9 +1210,9 @@ public class CheckoutMojo extends ScopedCheckoutsMojo
         return targetBranch;
     }
 
-    private String targetBranchFor(GitCheckout checkout)
+    private String targetBranchFor(GitCheckout checkout, ProjectTree tree)
     {
-        String tb = targetBranch(checkout);
+        String tb = targetBranch(checkout, tree);
         return tb == null
                ? baseBranch
                : tb;

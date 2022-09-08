@@ -52,6 +52,7 @@ final class ProjectTreeCache
     final Map<Pom, GitCheckout> checkoutForPom = new ConcurrentHashMap<>();
     final Map<GitCheckout, Optional<String>> branches = new HashMap<>();
     final Map<GitCheckout, Boolean> dirty = new ConcurrentHashMap<>();
+    final Map<GitCheckout, Boolean> dirtyIgnoring = new ConcurrentHashMap<>();
     final Map<GitCheckout, Branches> allBranches = new ConcurrentHashMap<>();
     final Map<String, Optional<String>> branchByGroupId = new HashMap<>();
     final Map<GitCheckout, Boolean> detachedHeads = new ConcurrentHashMap<>();
@@ -59,11 +60,21 @@ final class ProjectTreeCache
     final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
     final Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
     final Set<ProjectFamily> families = new HashSet<>();
+    Boolean rootIsRoot;
     private final ProjectTree outer;
 
     ProjectTreeCache(final ProjectTree outer)
     {
         this.outer = outer;
+    }
+
+    public boolean rootIsSubmoduleRoot()
+    {
+        if (rootIsRoot == null)
+        {
+            rootIsRoot = outer.root.isSubmoduleRoot();
+        }
+        return rootIsRoot;
     }
 
     public Set<ProjectFamily> allProjectFamilies()
@@ -292,6 +303,12 @@ final class ProjectTreeCache
                 GitCheckout::isDirty);
     }
 
+    public boolean isDirtyIgnoringSubmoduleCommits(GitCheckout checkout)
+    {
+        return dirtyIgnoring.computeIfAbsent(checkout,
+                GitCheckout::isDirtyIgnoringModifiedSubmodules);
+    }
+
     public Set<GitCheckout> allCheckouts()
     {
         return Collections.unmodifiableSet(projectsByRepository.keySet());
@@ -333,6 +350,7 @@ final class ProjectTreeCache
         infoForGroupAndArtifact.clear();
         projectsByRepository.clear();
         checkoutForPom.clear();
+        dirtyIgnoring.clear();
         branches.clear();
         dirty.clear();
         allBranches.clear();
@@ -342,6 +360,7 @@ final class ProjectTreeCache
         checkoutsForProjectFamily.clear();
         remoteHeads.clear();
         families.clear();
+        rootIsRoot = null;
     }
 
     synchronized void populate()
@@ -405,6 +424,10 @@ final class ProjectTreeCache
     Void invalidateBranches(GitCheckout co)
     {
         this.allBranches.remove(co);
+        this.dirtyIgnoring.remove(co);
+        this.dirty.remove(co);
+        this.detachedHeads.remove(co);
+        this.branches.remove(co);
         return null;
     }
 }
