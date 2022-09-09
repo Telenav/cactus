@@ -207,18 +207,24 @@ public class InstallScriptsMojo extends BaseMojo
                             + "\\n\\tof the branch the current project is on.";
 
                 case CHANGE_BRANCH:
-                    return "\\tChange branches or create a new branch.  To simply check out an existing feature branch\\n"
+                    return "\\tThe multi-repository branching swiss-army-knife."
+                            + "\\n\\n\\tChange branches or create a new branch across a matched set of repositories.  To simply check out an existing feature branch\\n"
                             + "\\tin all projects that have it, run `cbranch feature/some-branch`.\\n\\n\\t"
-                            + "To *create* a new branch, run `cbranch --new feature/some-branch`.  \\n\\t"
-                            + "If a local branch with the requested name exists for one checkout, that checkout \\n\\t"
+                            + "To *create* a new branch, run `cbranch --new feature/some-branch`. (`-n` or `--new` will work).\\n\\t"
+                            + "\\n\\tIf a local branch with the requested name exists for one checkout, that checkout \\n\\t"
                             + "will simply be switched to it.  If a remote branch with the requeted name exists for a checkout,\\n\\t"
                             + "but a local one does not, a local tracking branch will be created and switched to for that checkout.\\n\\t"
-                            + "If no local or remote branch exists for a checkout, the default development branch (develop) will be switched to."
-                            + "\\n\\tBy default, the "
+                            + "If no local or remote branch exists for a checkout, the default development branch\\n\\t(develop) will be switched to."
+                            + "\\n\\n\\tBy default, the "
                             + "scope of checkouts affected will be the project family of whatever pom.xml you are running\\n\\t"
                             + "against, and any child project families of it (if run in the root of a checkout, that may be everything).\\n\\n\\t"
-                            + "Pass `--all` to apply to *every* project family in your tree.\\n\\n\\t"
-                            + "If not passing `--new`, any checkouts that do not have the named branch will be switched to the default development branch.";
+                            + "Pass `--all` or `-a` to apply to *every* project family in your tree.\\n\\n\\t"
+                            + "If not passing `--new`, any checkouts that do not have the named branch will be"
+                            + "\\n\\tswitched to the default development branch."
+                            + "\\n\\n\\tBy default, branching will abort if there are local changes.  You can pass `-p`\\n\\t"
+                            + "or `--permissive` to attempt to create branches ignoring local changes.  Note that this can"
+                            + "\\n\\tand *does* fail if the current branch is not the base branch, and creating a new branch from"
+                            + "\\n\\t the base would mean clobbering your changes.  In that case, commit or stash your changes and retry.";
 
                 case UPDATE_SCRIPTS:
                     return "\\tFinds the latest version of cactus you have installed, and runs\n\\t"

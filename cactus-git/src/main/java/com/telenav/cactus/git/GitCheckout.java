@@ -824,6 +824,15 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 {
                     remoteTrackingBranch = branches.find(fallback, false);
                 }
+                if (remoteTrackingBranch.isEmpty()) {
+                    // If we were passed the tracking name, we may not find it
+                    for (Branch b : branches.remoteBranches()) {
+                        if (b.trackingName().equals(fallback)) {
+                            remoteTrackingBranch = Optional.of(b);
+                            break;
+                        }
+                    }
+                }
                 if (remoteTrackingBranch.isEmpty())
                 {
                     log.warn("Could not find a branch to track for '"
@@ -1574,13 +1583,35 @@ public final class GitCheckout implements Comparable<GitCheckout>
      */
     public void setSubmoduleBranch(String submodule, String branch)
     {
-        if (submodule == null || submodule.isEmpty())
-        {
-            throw new IllegalArgumentException("Missing submodule");
-        }
         if (branch == null || branch.isEmpty())
         {
-            throw new IllegalArgumentException("Missing submodule");
+            throw new IllegalArgumentException(
+                    "Missing branch for submodule: '" + submodule + "' with branch '" + branch + "'");
+        }
+        if ("".equals(submodule))
+        {
+            // debug
+            // new Exception("Culprit: Should not pass '' to change submodule branch "
+            //        + "(changing to '" + branch + "')").printStackTrace();
+
+            Branches myBranches = branches();
+            Optional<Branch> targetBranch = myBranches.find(branch);
+            if (targetBranch.isPresent())
+            {
+                switchToBranch(branch);
+            }
+            else
+            {
+                createAndSwitchToBranch(branch, myBranches.currentBranch().map(
+                        br -> br.name()));
+            }
+            return;
+        }
+
+        if (submodule == null || submodule.isEmpty())
+        {
+            throw new IllegalArgumentException(
+                    "Missing submodule: '" + submodule + "' with branch '" + branch + "'");
         }
         new GitCommand<>(ProcessResultConverter.strings(),
                 root, "submodule", "set-branch", "-b", branch, submodule).run()

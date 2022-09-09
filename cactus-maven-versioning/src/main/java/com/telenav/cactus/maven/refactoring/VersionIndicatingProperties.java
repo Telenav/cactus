@@ -71,6 +71,8 @@ public final class VersionIndicatingProperties
             String prevProp2 = fam + ".previous.version";
             familyPrevVersionKeys.put(prevProp2, fam);
         }
+        // We simply pre-build a mapping of all property names that could
+        // possibly be a version
         for (MavenCoordinates coords : categories.allCoordinates())
         {
             if (coords.artifactId().is(ProjectFamily.familyOf(coords
@@ -78,28 +80,9 @@ public final class VersionIndicatingProperties
             {
                 continue;
             }
-            String dots = coords.artifactId().text().replace('-', '.');
-
-            String prop = coords.artifactId() + ".version";
-            String prevProp = coords.artifactId() + ".prev.version";
-            String prevProp2 = coords.artifactId() + ".previous.version";
-            ProjectFamily fam = ProjectFamily.familyOf(coords.groupId());
-            String prop2 = fam + "." + prop;
-            String prevProp3 = fam + "." + prevProp;
-            String prevProp4 = fam + "." + prevProp2;
-
-            String prop3 = dots + ".version";
-            String prevProp5 = dots + ".prev.version";
-            String prevProp6 = dots + ".previos.version";
-            projectVersionKeys.put(prop, coords);
-            projectVersionKeys.put(prop2, coords);
-            projectVersionKeys.put(prop3, coords);
-            projectPrevVersionKeys.put(prevProp, coords);
-            projectPrevVersionKeys.put(prevProp2, coords);
-            projectPrevVersionKeys.put(prevProp3, coords);
-            projectPrevVersionKeys.put(prevProp4, coords);
-            projectPrevVersionKeys.put(prevProp5, coords);
-            projectPrevVersionKeys.put(prevProp6, coords);
+            addVersionKeys(coords, projectVersionKeys, ".version");
+            addVersionKeys(coords, projectPrevVersionKeys,
+                    ".previous.version", ".published.version");
         }
         Set<VersionProperty<ProjectFamily>> familyVersionChanges = collectPropertyChanges(
                 categories, FAMILY_VERSION, familyVersionKeys);
@@ -112,6 +95,20 @@ public final class VersionIndicatingProperties
         return new VersionIndicatingProperties(familyVersionChanges,
                 familyPrevVersionChanges, projectVersionChanges,
                 projectPrevVersionChanges);
+    }
+
+    private static void addVersionKeys(MavenCoordinates coords,
+            Map<String, MavenCoordinates> coordsMap, String... suffixen)
+    {
+        String fam = ProjectFamily.familyOf(coords.groupId()).name();
+        String dashes = coords.artifactId().text();
+        String dots = dashes.replace('-', '.');
+        for (String suffix : suffixen)
+        {
+            coordsMap.put(fam + suffix, coords);
+            coordsMap.put(dashes + suffix, coords);
+            coordsMap.put(dots + suffix, coords);
+        }
     }
 
     private static <T> Set<VersionProperty<T>> collectPropertyChanges(
