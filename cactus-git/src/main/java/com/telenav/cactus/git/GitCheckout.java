@@ -1583,13 +1583,35 @@ public final class GitCheckout implements Comparable<GitCheckout>
      */
     public void setSubmoduleBranch(String submodule, String branch)
     {
-        if (submodule == null || submodule.isEmpty())
-        {
-            throw new IllegalArgumentException("Missing submodule: '" + submodule + "' with branch '" + branch + "'");
-        }
         if (branch == null || branch.isEmpty())
         {
-            throw new IllegalArgumentException("Missing branch for submodule: " + submodule + "' with branch '" + branch + "'");
+            throw new IllegalArgumentException(
+                    "Missing branch for submodule: '" + submodule + "' with branch '" + branch + "'");
+        }
+        if ("".equals(submodule))
+        {
+            // debug
+            new Exception("Culprit: Should not pass '' to change submodule branch "
+                    + "(changing to '" + branch + "')").printStackTrace();
+
+            Branches myBranches = branches();
+            Optional<Branch> targetBranch = myBranches.find(branch);
+            if (targetBranch.isPresent())
+            {
+                switchToBranch(branch);
+            }
+            else
+            {
+                createAndSwitchToBranch(branch, myBranches.currentBranch().map(
+                        br -> br.name()));
+            }
+            return;
+        }
+
+        if (submodule == null || submodule.isEmpty())
+        {
+            throw new IllegalArgumentException(
+                    "Missing submodule: '" + submodule + "' with branch '" + branch + "'");
         }
         new GitCommand<>(ProcessResultConverter.strings(),
                 root, "submodule", "set-branch", "-b", branch, submodule).run()
