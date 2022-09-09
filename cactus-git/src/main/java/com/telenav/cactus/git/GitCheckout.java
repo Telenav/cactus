@@ -1591,8 +1591,8 @@ public final class GitCheckout implements Comparable<GitCheckout>
         if ("".equals(submodule))
         {
             // debug
-            new Exception("Culprit: Should not pass '' to change submodule branch "
-                    + "(changing to '" + branch + "')").printStackTrace();
+            // new Exception("Culprit: Should not pass '' to change submodule branch "
+            //        + "(changing to '" + branch + "')").printStackTrace();
 
             Branches myBranches = branches();
             Optional<Branch> targetBranch = myBranches.find(branch);
