@@ -248,8 +248,8 @@ public class LexakaiMojo extends BaseMojo
             {
                     "FieldCanBeLocal", "FieldMayBeFinal"
             })
-    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.9")
-    private String lexakaiVersion = "1.0.9";
+    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.11")
+    private String lexakaiVersion = "1.0.11";
 
     /**
      * By default, code is generated into directories that match the relative directory structure from the
