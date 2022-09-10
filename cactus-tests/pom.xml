@@ -18,6 +18,7 @@
         <do.not.publish>true</do.not.publish>
         <enforcer.skip>true</enforcer.skip>
         <lexakai.skip>true</lexakai.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
 
     <dependencies>
