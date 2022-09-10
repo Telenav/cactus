@@ -20,8 +20,10 @@ package com.telenav.cactus.maven;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import com.telenav.cactus.maven.shared.SharedDataKey;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
@@ -62,20 +64,37 @@ public class ProjectInformationMojo extends BaseMojo
                     artifactIdSetFrom(getProperty(
                             SYSTEM_PROPERTY_DIAGNOSTIC_ARTIFACT_IDS_STACKS)));
 
+    private static final SharedDataKey<Set<String>> EMITTED_KEY
+            = SharedDataKey.of("emitted", Set.class);
+
     private static final boolean PRINT_DEBUG_STACKS
             = Boolean.getBoolean("cactus.debug.stacks");
-    
-    @Parameter( property="cactus.verb" )
+
+    @Parameter(property = "cactus.verb")
     private String verb;
-    
-    private String verb() {
-        return verb == null ? "Building" : capitalize(verb);
+
+    private String verb()
+    {
+        return verb == null
+               ? "Building"
+               : capitalize(verb);
+    }
+
+    private void emit(MavenProject project)
+    {
+        Set<String> emitted = sharedData().computeIfAbsent(EMITTED_KEY,
+                ConcurrentHashMap::newKeySet);
+        String info = generateInfo(project).toString();
+        if (emitted.add(info))
+        {
+            emitMessage(info);
+        }
     }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project)
     {
-        emitMessage(generateInfo(project));
+        emit(project);
         if (PRINT_DEBUG_STACKS)
         {
             diagnostics(project);
