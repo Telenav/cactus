@@ -22,8 +22,10 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.util.strings.Strings.capitalize;
 import static com.telenav.cactus.maven.ParallelismDiagnosticsLogger.logDiagnostic;
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
@@ -62,6 +64,13 @@ public class ProjectInformationMojo extends BaseMojo
 
     private static final boolean PRINT_DEBUG_STACKS
             = Boolean.getBoolean("cactus.debug.stacks");
+    
+    @Parameter( property="cactus.verb" )
+    private String verb;
+    
+    private String verb() {
+        return verb == null ? "Building" : capitalize(verb);
+    }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project)
@@ -75,7 +84,7 @@ public class ProjectInformationMojo extends BaseMojo
 
     private CharSequence generateInfo(MavenProject project)
     {
-        return "┋ Building " + project.getName();
+        return "┋ " + verb() + " " + project.getName();
     }
 
     private void diagnostics(MavenProject project)

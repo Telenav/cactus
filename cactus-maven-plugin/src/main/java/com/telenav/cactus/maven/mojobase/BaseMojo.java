@@ -785,7 +785,9 @@ public abstract class BaseMojo extends AbstractMojo
     {
         if (message != null)
         {
-            System.out.println(message);
+            for (String line : Objects.toString(message).split("\n")) {
+                System.out.println("┋ " + line);
+            }
         }
     }
 }
