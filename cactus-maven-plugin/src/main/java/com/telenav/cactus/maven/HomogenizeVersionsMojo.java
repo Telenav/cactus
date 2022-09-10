@@ -160,8 +160,11 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
             }
             for (GitCheckout co : traverse)
             {
-                co.addAll();
-                co.commit(message);
+                ifNotPretending(() ->
+                {
+                    co.addAll();
+                    co.commit(message);
+                });
                 log.info("Committed " + co.loggingName());
                 emitMessage("Committed " + co.loggingName());
             }
