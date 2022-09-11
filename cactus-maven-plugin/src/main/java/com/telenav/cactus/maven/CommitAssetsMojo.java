@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
@@ -7,16 +24,17 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.SharedProjectTreeMojo;
 import com.telenav.cactus.maven.shared.SharedDataKey;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
+import static com.telenav.cactus.maven.trigger.RunPolicies.EVERY;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VERIFY;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * A mojo specifically for generating a commit in dirty assets repositories.
@@ -28,8 +46,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_AL
             "unused", "DuplicatedCode"
         })
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VERIFY,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VERIFY,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = KEEP_ALIVE,
         name = "commit-assets", threadSafe = true)
 @BaseMojoGoal("commit-assets")
@@ -39,7 +57,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
     /**
      * If true, also push those repositories that had commits generated.
      */
-    @Parameter(property = "cactus.push", defaultValue = "false")
+    @Parameter(property = PUSH, defaultValue = "false")
     boolean push;
 
     /**
@@ -56,7 +74,7 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
 
     public CommitAssetsMojo()
     {
-        super(RunPolicies.EVERY);
+        super(EVERY);
     }
 
     @Override
@@ -72,7 +90,6 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
         {
             sharedData().put(DONE, true);
             Set<GitCheckout> assetsCheckouts = tree.nonMavenCheckouts();
-            System.out.println("HAVE " + assetsCheckouts.size() + " checkouts");
 
             CommitMessage msg = new CommitMessage(CommitAssetsMojo.class,
                     "Update assets");
@@ -83,7 +100,6 @@ public class CommitAssetsMojo extends SharedProjectTreeMojo
                 for (GitCheckout co : assetsCheckouts)
                 {
                     boolean dirty = tree.isDirty(co) || co.hasUntrackedFiles();
-                    System.out.println("CHECK " + co + " dirty " + dirty);
                     if (dirty)
                     {
                         toReallyCommit.add(co);

@@ -1,0 +1,64 @@
+#!/bin/sh
+
+VERSION=__PLUGIN_VERSION_PLACEHOLDER__
+
+# Unpretty, but does the job for two arguments that
+# could be in either order
+
+CREATE_BRANCHES=false
+SCOPE=family-or-child-family
+PERMIT_LOCAL_CHANGES=true
+
+for ARG in "$@"; do
+    case "$ARG" in
+        "--new")
+            CREATE_BRANCHES=true
+            shift
+            ;;
+        "-n")
+            CREATE_BRANCHES=true
+            shift
+            ;;
+        "--all")
+            SCOPE=all-project-families
+            shift
+            ;;
+        "-a")
+            SCOPE=all-project-families
+            shift
+            ;;
+        "--permissive")
+            PERMIT_LOCAL_CHANGES=true
+            shift
+            ;;
+        "-p")
+            PERMIT_LOCAL_CHANGES=true
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ -z "$1" ]; then
+    echo "No branch argument passed" 1>&2
+    echo "Usage:" 1>&2
+    echo "cbranch [--new] [--all] BRANCH" 1>&2
+    echo "  --new Create branches if they don't already exist" 1>&2
+    echo "  --all Apply to checkouts of all project families rather than just the" 1>&2
+    echo "        family of the project of the current folder and its children" 1>&2
+    exit 1
+else
+    export BRANCH_NAME=$1
+fi
+
+MAVEN_ARGS="-Dcactus.scope=$SCOPE \
+    -Dcactus.create-branches=$CREATE_BRANCHES \
+    -Dcactus.create-local-branches=true \
+    -Dcactus.target-branch=$BRANCH_NAME \
+    -Dcactus.permit-local-changes=$PERMIT_LOCAL_CHANGES \
+    -Dcactus.include-root=true \
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout"
+
+run_maven

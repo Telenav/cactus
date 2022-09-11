@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.CommitInfo;
@@ -8,27 +25,28 @@ import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static java.util.Arrays.asList;
+import static java.util.Arrays.fill;
 import static java.util.stream.Collectors.toCollection;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  *
  * @author timb
  */
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = KEEP_ALIVE,
         name = "last-change", threadSafe = true)
 @BaseMojoGoal("last-change")
 public class PrintHistoryMojo extends ScopedCheckoutsMojo
@@ -48,7 +66,7 @@ public class PrintHistoryMojo extends ScopedCheckoutsMojo
     {
         if (local)
         {
-            checkouts = Arrays.asList(myCheckout);
+            checkouts = asList(myCheckout);
         }
         checkouts.forEach(checkout ->
         {
@@ -92,18 +110,18 @@ public class PrintHistoryMojo extends ScopedCheckoutsMojo
 
     private void emitCheckoutStart(GitCheckout checkout)
     {
-        System.out.println();
+        emitMessage("");
         String ln = checkout.loggingName();
-        System.out.println(ln);
+        emitMessage(ln);
         char[] c = new char[ln.length() + 1];
-        Arrays.fill(c, '=');
+        fill(c, '=');
         c[c.length - 1] = '\n';
-        System.out.println(new String(c));
+        emitMessage(new String(c));
     }
 
     private void emit(Pom pom, Path relPath, CommitInfo historyRecord)
     {
-        System.out.println(
+        emitMessage(
                 relPath + " " + pom.toArtifactIdentifiers() + "\n  " + historyRecord
                 .info());
     }

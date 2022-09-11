@@ -1,28 +1,51 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.telenav.cactus.git.GitCheckout;
 import com.telenav.cactus.git.GitCommand;
-import com.telenav.cactus.git.SubmoduleStatus;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.trigger.RunPolicies;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.cli.ProcessResultConverter.strings;
 import static com.telenav.cactus.git.GitCheckout.checkout;
+import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.ASSETS_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.BASE_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_ASSETS_BRANCH;
+import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.DEFAULT_DEVELOPMENT_BRANCH;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_CONTAINING_GOAL;
 import static com.telenav.cactus.util.PathUtils.deleteFolderTree;
 import static com.telenav.cactus.util.PathUtils.ifExists;
 import static com.telenav.cactus.util.PathUtils.temp;
 import static java.lang.Math.abs;
+import static java.lang.System.currentTimeMillis;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Clones the origin fetch url of the submodule root of whatever checkout it is
@@ -33,8 +56,8 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "clone", threadSafe = true)
 @BaseMojoGoal("clone")
@@ -47,15 +70,15 @@ public class CloneMojo extends BaseMojo
     @Parameter(property = "cactus.delete.clone.dest.if.exists")
     private boolean deleteIfExists;
 
-    @Parameter(property = "cactus.development.branch", defaultValue = "develop")
+    @Parameter(property = BASE_BRANCH, defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
     private String developmentBranch;
 
-    @Parameter(property = "cactus.assets.branch", defaultValue = "publish")
+    @Parameter(property = ASSETS_BRANCH, defaultValue = DEFAULT_ASSETS_BRANCH)
     private String assetsBranch;
 
     public CloneMojo()
     {
-        super(RunPolicies.LAST_CONTAINING_GOAL);
+        super(LAST_CONTAINING_GOAL);
     }
 
     private Path globalTempIfPossible()
@@ -71,9 +94,7 @@ public class CloneMojo extends BaseMojo
         {
             return Paths.get(cloneDest);
         }
-        return globalTempIfPossible().resolve("cactus-clone-" + Long.toString(
-                System
-                        .currentTimeMillis(), 36)
+        return globalTempIfPossible().resolve("cactus-clone-" + Long.toString(currentTimeMillis(), 36)
                 + "-" + Integer.toString(abs(ThreadLocalRandom.current()
                         .nextInt()), 36));
     }
@@ -81,7 +102,7 @@ public class CloneMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        GitCheckout.checkout(project.getBasedir()).flatMap(co -> co
+        checkout(project.getBasedir()).flatMap(co -> co
                 .submoduleRoot().toOptional())
                 .flatMap(root -> root.defaultRemote()).ifPresentOrElse(remote ->
         {
@@ -90,13 +111,13 @@ public class CloneMojo extends BaseMojo
                 Path dest = cloneDest();
                 log.info("Clone dest is " + dest);
                 log.info("Clone URL is " + remote.fetchUrl);
-                if (deleteIfExists && Files.exists(dest))
+                if (deleteIfExists && exists(dest))
                 {
                     deleteFolderTree(dest);
                 }
-                if (!Files.exists(dest.getParent()))
+                if (!exists(dest.getParent()))
                 {
-                    Files.createDirectories(dest.getParent());
+                    createDirectories(dest.getParent());
                 }
                 GitCommand<String> clo = new GitCommand<>(strings(),
                         dest.getParent(), "clone", remote.fetchUrl, dest
@@ -121,7 +142,7 @@ public class CloneMojo extends BaseMojo
                 co.switchToBranch(developmentBranch);
                 co.submodules().ifPresent(subs ->
                 {
-                    for (SubmoduleStatus s : subs)
+                    subs.forEach(s ->
                     {
                         s.checkout().ifPresent(submodule ->
                         {
@@ -139,12 +160,12 @@ public class CloneMojo extends BaseMojo
                             }
                             submodule.pull();
                         });
-                    }
+                    });
                 });
-                PrintMessageMojo.publishMessage(
+                publishMessage(
                         "Cloned " + remote.fetchUrl + " into\ncheckout-root: " + dest,
                         session(), false);
-                System.out.println(dest);
+                emitMessage(dest);
             });
         }, failingWith(
                 "No git repository, or missing remote for submodule root of "

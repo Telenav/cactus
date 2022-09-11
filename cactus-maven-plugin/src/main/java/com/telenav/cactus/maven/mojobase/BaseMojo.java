@@ -33,6 +33,7 @@ import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
 import com.telenav.cactus.maven.trigger.RunPolicies;
 import com.telenav.cactus.maven.trigger.RunPolicy;
+import java.io.IOException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -47,9 +48,12 @@ import org.eclipse.aether.repository.LocalArtifactResult;
 import org.eclipse.aether.repository.RemoteRepository;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
@@ -57,6 +61,8 @@ import javax.inject.Inject;
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PRETEND;
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.VERBOSE;
+import static java.awt.Desktop.getDesktop;
+import static java.awt.Desktop.isDesktopSupported;
 
 /**
  * A base class for our mojos, which sets up a build logger and provides a way
@@ -72,6 +78,9 @@ public abstract class BaseMojo extends AbstractMojo
 {
     protected static final String MAVEN_CENTRAL_REPO
             = "https://repo1.maven.org/maven2";
+
+    private static final SharedDataKey<AutomergeTag> AUTOMERGE_TAG_KEY
+            = SharedDataKey.of(AutomergeTag.class);
 
     private final ThreadLocal<Boolean> running = ThreadLocal.withInitial(
             () -> false);
@@ -93,6 +102,12 @@ public abstract class BaseMojo extends AbstractMojo
     boolean isRunning()
     {
         return running.get();
+    }
+
+    protected AutomergeTag automergeTag()
+    {
+        return sharedData().computeIfAbsent(AUTOMERGE_TAG_KEY,
+                () -> new AutomergeTag(session()));
     }
 
     public final boolean isFirstRunInThisSession()
@@ -249,7 +264,7 @@ public abstract class BaseMojo extends AbstractMojo
     private MavenProject project;
 
     @Parameter(defaultValue = "${session}", readonly = true)
-    private MavenSession mavenSession;
+    private volatile MavenSession mavenSession;
 
     @Parameter(property = VERBOSE, defaultValue = "false", alias = "verbose")
     private boolean verbose;
@@ -301,11 +316,11 @@ public abstract class BaseMojo extends AbstractMojo
      * @param code The code to run
      * @throws Exception if something goes wrong
      */
-    protected void ifNotPretending(ThrowingRunnable code) throws Exception
+    protected void ifNotPretending(ThrowingRunnable code)
     {
         if (!pretend)
         {
-            code.run();
+            code.toNonThrowing().run();
         }
     }
 
@@ -366,10 +381,11 @@ public abstract class BaseMojo extends AbstractMojo
      * point of any method that returns something
      * @throws MojoExecutionException always, using the passed message
      */
-    public <T> T fail(String message)
+    public <T> T fail(Object message)
     {
-        return Exceptions.chuck(new MojoExecutionException(this, message,
-                message));
+        String s = Objects.toString(message);
+        return Exceptions.chuck(new MojoExecutionException(this, s,
+                s));
     }
 
     protected Runnable failingWith(String msg)
@@ -431,7 +447,7 @@ public abstract class BaseMojo extends AbstractMojo
      *
      * @return A project
      */
-    protected final MavenProject project()
+    public final MavenProject project()
     {
         return project;
     }
@@ -483,7 +499,6 @@ public abstract class BaseMojo extends AbstractMojo
      * @throws MojoExecutionException if the branch is invalid by these criteria
      */
     protected void validateBranchName(String branchName, boolean nullOk)
-            throws MojoExecutionException
     {
         if (branchName == null)
         {
@@ -665,6 +680,59 @@ public abstract class BaseMojo extends AbstractMojo
         }
     }
 
+    /**
+     * Open a URL on the user's desktop using the Java desktop API. Logs a
+     * message in headless mode.
+     *
+     * @param uri
+     * @param log
+     */
+    protected boolean open(String uri)
+    {
+        try
+        {
+            URI u = new URI(uri);
+            open(u);
+            return true;
+        }
+        catch (URISyntaxException ex)
+        {
+            log().error("Invalid uri " + uri, ex);
+            return false;
+        }
+    }
+
+    /**
+     * Open a URL on the user's desktop using the Java desktop API. Logs a
+     * message in headless mode.
+     *
+     * @param uri
+     * @param log
+     */
+    protected void open(URI uri)
+    {
+        BuildLog log = log();
+        // Get out of the way of the rest of maven
+        // execution - initializing hunks of AWT is not free.
+        if (isDesktopSupported())
+        {
+            log.info("Opening browser for " + uri);
+            try
+            {
+                getDesktop().browse(uri);
+            }
+            catch (IOException ex)
+            {
+                log.error("Exception thrown opening " + uri, ex);
+            }
+        }
+        else
+        {
+            log.error(
+                    "Desktop not supported in this JVM; cannot open " + uri);
+        }
+    }
+
     protected void usingArtifactFinder(ThrowingRunnable run)
     {
         new ArtifactFinderImpl().run(run.toNonThrowing());
@@ -702,8 +770,24 @@ public abstract class BaseMojo extends AbstractMojo
         return new MavenCoordinates(notNull("project", project).getGroupId(),
                 project.getArtifactId(), project.getVersion());
     }
-    
-    protected final Pom toPom(MavenProject project) {
+
+    protected final Pom toPom(MavenProject project)
+    {
         return Pom.from(project.getFile().toPath()).get();
+    }
+
+    /**
+     * Used to print messages that
+     *
+     * @param message
+     */
+    protected void emitMessage(Object message)
+    {
+        if (message != null)
+        {
+            for (String line : Objects.toString(message).split("\n")) {
+                System.out.println("┋ " + line);
+            }
+        }
     }
 }

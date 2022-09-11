@@ -2,9 +2,8 @@
 
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
-mvn \
-    --quiet \
-    -Dcactus.scope=all \
-    -Dcactus.update-root=true \
+MAVEN_ARGS="-Dcactus.scope=all \
     -Dcactus.include-root=true \
-    com.telenav.cactus:cactus-maven-plugin:${VERSION}:push
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:push"
+
+run_maven

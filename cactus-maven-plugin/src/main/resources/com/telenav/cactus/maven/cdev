@@ -2,9 +2,9 @@
 
 VERSION=__PLUGIN_VERSION_PLACEHOLDER__
 
-mvn \
-    -Dcactus.scope=all-project-families \
+MAVEN_ARGS="-Dcactus.scope=all-project-families \
     -Dcactus.target-branch=develop \
-    -Dcactus.update-root=true \
     -Dcactus.include-root=true \
-    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout
+    com.telenav.cactus:cactus-maven-plugin:${VERSION}:checkout"
+
+run_maven

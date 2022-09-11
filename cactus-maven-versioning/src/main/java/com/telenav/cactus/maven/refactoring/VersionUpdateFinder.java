@@ -27,7 +27,6 @@ import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.maven.model.VersionFlavor;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.published.PublishChecker;
-import com.telenav.cactus.maven.model.published.PublishedState;
 import com.telenav.cactus.scope.ProjectFamily;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -537,20 +536,24 @@ class VersionUpdateFinder
                             }
                             else
                             {
-                                // Else the version comes from its parent so we
-                                // will change that
-                                VersionChangeUpdatesCollector.ChangeResult result = changes
-                                        .changeParentVersion(pom,
-                                                categories.parentOf(pom).get(),
-                                                expectedVersionChange);
-                                // If the filter blocks us bumping the parent version,
-                                // we may need to add an explicit version to a pom
-                                // that didn't have one so that it gets a new version even
-                                // if we aren't allowed to touch the parent
-                                if (result.isFiltered())
+                                Optional<Pom> par = categories.parentOf(pom);
+                                if (par.isPresent())
                                 {
-                                    changes.changePomVersion(pom,
-                                            expectedVersionChange);
+                                    // Else the version comes from its parent so we
+                                    // will change that
+                                    VersionChangeUpdatesCollector.ChangeResult result = changes
+                                            .changeParentVersion(pom,
+                                                    par.get(),
+                                                    expectedVersionChange);
+                                    // If the filter blocks us bumping the parent version,
+                                    // we may need to add an explicit version to a pom
+                                    // that didn't have one so that it gets a new version even
+                                    // if we aren't allowed to touch the parent
+                                    if (result.isFiltered())
+                                    {
+                                        changes.changePomVersion(pom,
+                                                expectedVersionChange);
+                                    }
                                 }
                             }
                         }

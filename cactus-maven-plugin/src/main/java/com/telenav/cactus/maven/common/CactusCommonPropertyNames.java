@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.common;
 
 /**
@@ -13,6 +30,11 @@ public final class CactusCommonPropertyNames
     public static final String PLUGIN_NAME = PLUGIN_FAMILY_NAME + "-maven-plugin";
 
     private static final String PREFIX = PLUGIN_FAMILY_NAME + '.';
+
+    public static final String DEFAULT_DEVELOPMENT_BRANCH = "develop";
+    
+    public static final String DEFAULT_ASSETS_BRANCH = "publish";
+
     /**
      * Property for verbose mode, consumed by BaseMojo.
      */
@@ -50,6 +72,11 @@ public final class CactusCommonPropertyNames
      * optional behavior.
      */
     public static final String PUSH = PREFIX + "push";
+    
+    /**
+     * Used by the push mojo if *all* local branches should be pushed.
+     */
+    public static final String PUSH_ALL = PREFIX + "push-all";
     /**
      * Boolean property for whether or not to perform a git commit where that is
      * optional behavior.
@@ -59,6 +86,28 @@ public final class CactusCommonPropertyNames
      * Commit message for mojos that generate a new commit.
      */
     public static final String COMMIT_MESSAGE = PREFIX + "commit-message";
+
+    public static final String CREATE_BRANCHES = PREFIX + "create-branches";
+
+    public static final String CREATE_LOCAL_BRANCHES = PREFIX + "create-local-branches";
+
+    public static final String BASE_BRANCH = PREFIX + "base-branch";
+
+    public static final String TARGET_BRANCH = PREFIX + "target-branch";
+
+    public static final String PERMIT_LOCAL_CHANGES = PREFIX + "permit-local-changes";
+
+    public static final String SKIP_CONFLICTS = PREFIX + "skip-conflicts";
+
+    public static final String STABLE_BRANCH = PREFIX + "stable-branch";
+    
+    public static final String DEFAULT_STABLE_BRANCH = "stable";
+    
+    public static final String CREATE_AUTOMERGE_TAG = PREFIX + "create-automerge-tag";
+    
+    public static final String ASSETS_BRANCH = PREFIX + ".assets-branch";
+
+    public static final String PROPERTIES = PREFIX + "properties";
 
     private CactusCommonPropertyNames()
     {

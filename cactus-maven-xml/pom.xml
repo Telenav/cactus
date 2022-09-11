@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.5.20</version>
+        <version>1.5.31</version>
     </parent>
 
     <artifactId>cactus-maven-xml</artifactId>
@@ -57,7 +57,29 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Multi-Release>true</Multi-Release>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <sourcepath>${basedir}/src/main/java-9:${basedir}/src/main/java</sourcepath>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
 </project>

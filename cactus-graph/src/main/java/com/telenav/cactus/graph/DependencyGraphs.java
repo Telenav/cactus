@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.graph;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -5,16 +22,15 @@ import com.mastfrog.function.throwing.ThrowingConsumer;
 import com.mastfrog.graph.IntGraph;
 import com.mastfrog.graph.IntGraphBuilder;
 import com.mastfrog.graph.ObjectGraph;
-import com.mastfrog.graph.algorithm.Score;
 import com.mastfrog.util.preconditions.Exceptions;
 import com.telenav.cactus.maven.model.Dependency;
 import com.telenav.cactus.maven.model.dependencies.DependencyScope;
 import com.telenav.cactus.maven.model.dependencies.DependencySet;
 import com.telenav.cactus.maven.model.MavenCoordinates;
+import com.telenav.cactus.maven.model.MavenModule;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.PomResolver;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +55,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Tim Boudreau
  */
-final class DependencyGraphs implements Iterable<Pom>
+public final class DependencyGraphs implements Iterable<Pom>
 {
 
     private final Poms poms;
@@ -53,6 +69,15 @@ final class DependencyGraphs implements Iterable<Pom>
         targets = new ArrayList<>(poms);
         Collections.sort(targets);
         resolver = this.poms.withLocalRepository().memoizing();
+    }
+
+    public DependencyGraphs(Poms poms)
+    {
+        this.poms = poms;
+        targets = new ArrayList<>();
+        poms.forEach(targets::add);
+        Collections.sort(targets);
+        resolver = poms.withLocalRepository().memoizing();
     }
 
     public ThrowingOptional<Pom> get(String groupId, String artifactId)
@@ -280,6 +305,40 @@ final class DependencyGraphs implements Iterable<Pom>
         return ib.build().toObjectGraph(sorted);
     }
 
+    public ObjectGraph<MavenCoordinates> ownership()
+    {
+        List<MavenCoordinates> coords = new ArrayList<>();
+        poms.forEach(pom -> coords.add(pom.coordinates()));
+        Collections.sort(coords);
+        IntGraphBuilder ib = IntGraph.builder(coords.size());
+        for (Pom pom : poms)
+        {
+            if (pom.isPomProject())
+            {
+                Set<MavenModule> modules = pom.modules();
+                if (!modules.isEmpty())
+                {
+                    MavenCoordinates c = pom.coordinates();
+                    int ix = coords.indexOf(c);
+                    for (MavenModule mm : modules)
+                    {
+                        mm.toPom().ifPresent(childPom ->
+                        {
+                            MavenCoordinates ch = childPom.coordinates();
+                            int cix = coords.indexOf(ch);
+                            // Note, this is reversed:  The parent must be
+                            // built before the child (since it is what causes it
+                            // to be built at all), so the child depends on the
+                            // parent, not the other way around
+                            ib.addEdge(ix, cix);
+                        });
+                    }
+                }
+            }
+        }
+        return ib.build().toObjectGraph(coords);
+    }
+
     @Override
     public Iterator<Pom> iterator()
     {
@@ -313,7 +372,8 @@ final class DependencyGraphs implements Iterable<Pom>
         @Override
         public void accept(Pom obj) throws Exception
         {
-            MavenCoordinates parent = obj.coordinates().toPlainMavenCoordinates();
+            MavenCoordinates parent = obj.coordinates()
+                    .toPlainMavenCoordinates();
             if (curr.equals(parent))
             {
                 throw new IllegalStateException("Pom parented to itself: " + obj);

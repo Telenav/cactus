@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.mastfrog.function.optional.ThrowingOptional;
@@ -7,15 +24,18 @@ import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.FamilyAwareMojo;
 import com.telenav.cactus.maven.tree.ConsistencyChecker2;
 import com.telenav.cactus.maven.tree.Problems;
-import com.telenav.cactus.maven.trigger.RunPolicies;
-import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.util.EnumMatcher;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import static com.mastfrog.function.optional.ThrowingOptional.empty;
+import static com.mastfrog.function.optional.ThrowingOptional.of;
+import static com.telenav.cactus.maven.trigger.RunPolicies.FIRST;
+import static com.telenav.cactus.scope.ProjectFamily.fromCommaDelimited;
+import static com.telenav.cactus.util.EnumMatcher.enumMatcher;
 import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLETON;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Performs a set of sanity checks of project tree state useful before merging
@@ -44,15 +64,15 @@ import static org.apache.maven.plugins.annotations.InstantiationStrategy.SINGLET
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
         instantiationStrategy = SINGLETON,
         name = "check", threadSafe = true)
 @BaseMojoGoal("check")
 public class CheckMojo extends FamilyAwareMojo
 {
     private static final EnumMatcher<VersionFlavor> FLAVOR_MATCHER
-            = EnumMatcher.enumMatcher(VersionFlavor.class);
+            = enumMatcher(VersionFlavor.class);
     /**
      * Fail if there are remote changes that have not been pulled.
      */
@@ -147,7 +167,7 @@ public class CheckMojo extends FamilyAwareMojo
 
     public CheckMojo()
     {
-        super(RunPolicies.FIRST);
+        super(FIRST);
     }
 
     @Override
@@ -160,7 +180,6 @@ public class CheckMojo extends FamilyAwareMojo
         ConsistencyChecker2 c = new ConsistencyChecker2()
                 .activityLogger(log::info)
                 .withTargetBranch(expectedBranch);
-        System.out.println("Expected branch is " + expectedBranch);
         if (checkRelativePaths)
         {
             c.checkRelativePaths();
@@ -196,8 +215,7 @@ public class CheckMojo extends FamilyAwareMojo
         flavor().ifPresent(c::enforceVersionFlavor);
         if (tolerateVersionInconsistenciesIn != null)
         {
-            c.tolerateVersionInconsistenciesIn(
-                    ProjectFamily.fromCommaDelimited(
+            c.tolerateVersionInconsistenciesIn(fromCommaDelimited(
                             tolerateVersionInconsistenciesIn, () -> null));
         }
         if (hasExplicitFamilies())
@@ -221,9 +239,9 @@ public class CheckMojo extends FamilyAwareMojo
     {
         if (versionFlavor != null && !versionFlavor.isBlank())
         {
-            return ThrowingOptional.of(FLAVOR_MATCHER
+            return of(FLAVOR_MATCHER
                     .matchOrThrow(versionFlavor));
         }
-        return ThrowingOptional.empty();
+        return empty();
     }
 }

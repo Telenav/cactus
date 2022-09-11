@@ -18,9 +18,14 @@
 open module cactus.git {
 
     requires cactus.cli;
+    requires cactus.process;
     requires cactus.maven.log;
     requires cactus.util;
     requires com.mastfrog.function;
     requires com.mastfrog.preconditions;
+    requires transitive com.fasterxml.jackson.annotation;
+    requires transitive com.fasterxml.jackson.databind;
+    requires transitive com.fasterxml.jackson.core;
     exports com.telenav.cactus.git;
+    exports com.telenav.cactus.github;
 }

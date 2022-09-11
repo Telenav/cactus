@@ -75,6 +75,11 @@ public class ProjectTree
     {
         this.root = root;
     }
+    
+    public boolean isSubmoduleRoot(GitCheckout co) {
+        return root.equals(co)
+                && withCache(ProjectTreeCache::rootIsSubmoduleRoot);
+    }
 
     public GitCheckout root()
     {
@@ -389,6 +394,12 @@ public class ProjectTree
     {
         return withCache(c -> c.isDirty(checkout));
     }
+    
+    public boolean isDirtyIgnoringSubmoduleCommits(GitCheckout checkout)
+    {
+        return withCache(c -> c.isDirtyIgnoringSubmoduleCommits(checkout));
+    }
+    
 
     public Set<GitCheckout> checkoutsFor(Collection<? extends Pom> infos)
     {
@@ -436,22 +447,15 @@ public class ProjectTree
     }
 
     public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            Set<ProjectFamily> family)
+            String gid, Set<ProjectFamily> family)
     {
         return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(
-                family));
+                gid));
     }
 
     public Set<GitCheckout> checkoutsInProjectFamily(ProjectFamily family)
     {
         return withCache(c -> c.checkoutsInProjectFamily(family));
-    }
-
-    public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            ProjectFamily family)
-    {
-        return withCache(c -> c.checkoutsInProjectFamilyOrChildProjectFamily(
-                family));
     }
 
     public Heads remoteHeads(GitCheckout checkout)
@@ -462,12 +466,16 @@ public class ProjectTree
     public Set<ProjectFamily> allProjectFamilies() {
         return withCache(ProjectTreeCache::allProjectFamilies);
     }
+    
+    public void invalidateBranches(GitCheckout co) {
+        withCache(cache -> cache.invalidateBranches(co));
+    }
 
     /**
      * Get a depth-first list of checkouts matching this scope, given the passed
      * contextual criteria.
      *
-     * @param tree A project tree
+     * @param scope A scope
      * @param callingProjectsCheckout The checkout of the a mojo is currently
      * being run against.
      * @param includeRoot If true, include the root (submodule parent) checkout
@@ -477,6 +485,7 @@ public class ProjectTree
      * submodule parent project.
      * @param callingProjectsGroupId The group id of the project whose mojo is
      * being invoked
+     * @return A list of checkouts
      */
     public List<GitCheckout> matchCheckouts(Scope scope,
             GitCheckout callingProjectsCheckout, boolean includeRoot,
@@ -490,6 +499,7 @@ public class ProjectTree
                 break;
             case FAMILY_OR_CHILD_FAMILY:
                 checkouts = checkoutsInProjectFamilyOrChildProjectFamily(
+                        callingProjectsGroupId,
                         family);
                 break;
             case SAME_GROUP_ID:

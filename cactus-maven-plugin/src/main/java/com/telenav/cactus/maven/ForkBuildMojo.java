@@ -26,13 +26,6 @@ import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
 import com.telenav.cactus.maven.shared.SharedData;
 import com.telenav.cactus.maven.shared.SharedDataKey;
 import com.telenav.cactus.maven.tree.ProjectTree;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -41,8 +34,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.inject.Inject;
+import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 import static com.telenav.cactus.maven.common.CactusCommonPropertyNames.PUSH;
+import static java.lang.System.currentTimeMillis;
 
 /**
  * Performs the first steps of attempting to automatically merge a development
@@ -239,8 +239,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     {
         validateBranchName(mergeBranch, false);
         validateBranchName(stableBranch, false);
-        tempBranch = mergeBranch + "_" + stableBranch + "_" + Long.toString(
-                System.currentTimeMillis(), 36)
+        tempBranch = mergeBranch + "_" + stableBranch + "_" + Long.toString(currentTimeMillis(), 36)
                 + "_" + Long
                         .toString(ThreadLocalRandom.current().nextLong(), 36);
         sharedData.put(TEMP_BRANCH_KEY, tempBranch);
@@ -252,7 +251,7 @@ public class ForkBuildMojo extends ScopedCheckoutsMojo
     {
         for (GitCheckout checkout : checkouts)
         {
-            log.info("Fetch all in " + checkout.name());
+            log.info("Fetch all in " + checkout.loggingName());
             if (!isPretend())
             {
                 checkout.fetchAll();

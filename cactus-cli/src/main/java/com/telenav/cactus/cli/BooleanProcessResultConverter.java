@@ -15,15 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
-
-import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
-
+import com.telenav.cactus.process.ProcessControl;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+
+import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 
 /**
  * Simple process result conversion when the only thing you care about is the
@@ -49,7 +48,7 @@ final class BooleanProcessResultConverter implements
 
     @Override
     public AwaitableCompletionStage<Boolean> onProcessStarted(
-            Supplier<String> supp, Process process)
+            Supplier<String> supp, ProcessControl<String, String> process)
     {
         return completionStageForProcess(process).thenApply(proc ->
         {

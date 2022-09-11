@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven.tree;
 
 import com.mastfrog.util.preconditions.Exceptions;
@@ -35,6 +52,7 @@ final class ProjectTreeCache
     final Map<Pom, GitCheckout> checkoutForPom = new ConcurrentHashMap<>();
     final Map<GitCheckout, Optional<String>> branches = new HashMap<>();
     final Map<GitCheckout, Boolean> dirty = new ConcurrentHashMap<>();
+    final Map<GitCheckout, Boolean> dirtyIgnoring = new ConcurrentHashMap<>();
     final Map<GitCheckout, Branches> allBranches = new ConcurrentHashMap<>();
     final Map<String, Optional<String>> branchByGroupId = new HashMap<>();
     final Map<GitCheckout, Boolean> detachedHeads = new ConcurrentHashMap<>();
@@ -42,16 +60,29 @@ final class ProjectTreeCache
     final Map<GitCheckout, Heads> remoteHeads = new HashMap<>();
     final Map<ProjectFamily, Set<GitCheckout>> checkoutsForProjectFamily = new ConcurrentHashMap<>();
     final Set<ProjectFamily> families = new HashSet<>();
+    Boolean rootIsRoot;
     private final ProjectTree outer;
 
     ProjectTreeCache(final ProjectTree outer)
     {
         this.outer = outer;
     }
-    
-    public Set<ProjectFamily> allProjectFamilies() {
-        if (families.isEmpty()) {
-            allPoms().forEach(pom -> {
+
+    public boolean rootIsSubmoduleRoot()
+    {
+        if (rootIsRoot == null)
+        {
+            rootIsRoot = outer.root.isSubmoduleRoot();
+        }
+        return rootIsRoot;
+    }
+
+    public Set<ProjectFamily> allProjectFamilies()
+    {
+        if (families.isEmpty())
+        {
+            allPoms().forEach(pom ->
+            {
                 families.add(ProjectFamily.familyOf(pom));
             });
         }
@@ -136,15 +167,16 @@ final class ProjectTreeCache
     }
 
     public Set<GitCheckout> checkoutsInProjectFamilyOrChildProjectFamily(
-            ProjectFamily family)
+            String groupId)
     {
+        ProjectFamily parent = ProjectFamily.fromGroupId(groupId);
         Set<GitCheckout> all = new HashSet<>();
         projectsByRepository.forEach((repo, projectSet) ->
         {
             for (Pom p : projectSet)
             {
-                if (familyOf(p).equals(family)
-                        || family.isParentFamilyOf(p.groupId()))
+                if (familyOf(p).equals(parent)
+                        || parent.isParentFamilyOf(p.groupId()))
                 {
                     all.add(repo);
                     break;
@@ -271,6 +303,12 @@ final class ProjectTreeCache
                 GitCheckout::isDirty);
     }
 
+    public boolean isDirtyIgnoringSubmoduleCommits(GitCheckout checkout)
+    {
+        return dirtyIgnoring.computeIfAbsent(checkout,
+                GitCheckout::isDirtyIgnoringModifiedSubmodules);
+    }
+
     public Set<GitCheckout> allCheckouts()
     {
         return Collections.unmodifiableSet(projectsByRepository.keySet());
@@ -312,6 +350,7 @@ final class ProjectTreeCache
         infoForGroupAndArtifact.clear();
         projectsByRepository.clear();
         checkoutForPom.clear();
+        dirtyIgnoring.clear();
         branches.clear();
         dirty.clear();
         allBranches.clear();
@@ -321,6 +360,7 @@ final class ProjectTreeCache
         checkoutsForProjectFamily.clear();
         remoteHeads.clear();
         families.clear();
+        rootIsRoot = null;
     }
 
     synchronized void populate()
@@ -381,4 +421,13 @@ final class ProjectTreeCache
                 });
     }
 
+    Void invalidateBranches(GitCheckout co)
+    {
+        this.allBranches.remove(co);
+        this.dirtyIgnoring.remove(co);
+        this.dirty.remove(co);
+        this.detachedHeads.remove(co);
+        this.branches.remove(co);
+        return null;
+    }
 }

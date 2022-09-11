@@ -15,10 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 package com.telenav.cactus.cli;
 
 import com.mastfrog.concurrent.future.AwaitableCompletionStage;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -41,6 +42,16 @@ public interface StringProcessResultConverter extends
             Predicate<String> predicate)
     {
         return map(text -> predicate.test(text));
+    }
+
+    default ProcessResultConverter<List<String>> lines()
+    {
+        return trimmed().map(str ->
+        {
+            return str == null
+                   ? null
+                   : Arrays.asList(str.split("\n"));
+        });
     }
 
     default StringProcessResultConverter trimmed()

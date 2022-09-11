@@ -216,7 +216,19 @@ public class Branches
         }
         return false;
     }
-
+    
+    public Optional<Branch> find(String name)
+    {
+        for (Branch branch : branches)
+        {
+            if (name.equals(branch.name()))
+            {
+                return Optional.of(branch);
+            }
+        }
+        return Optional.empty();
+    }
+    
     public Optional<Branch> currentBranch()
     {
         return Optional.ofNullable(currentBranch);
@@ -230,7 +242,7 @@ public class Branches
     {
         for (Branch branch : branches)
         {
-            if (local == branch.isLocal() && name.equals(branch.branchName))
+            if (local == branch.isLocal() && (name.equals(branch.branchName) || name.equals(branch.trackingName())))
             {
                 return Optional.of(branch);
             }

@@ -19,23 +19,23 @@ package com.telenav.cactus.maven.refactoring;
 
 import com.mastfrog.function.state.Bool;
 import com.mastfrog.util.preconditions.Exceptions;
-import com.telenav.cactus.maven.model.VersionChange;
-import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
 import com.telenav.cactus.maven.model.ArtifactId;
 import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.MavenIdentified;
 import com.telenav.cactus.maven.model.MavenVersioned;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.PomVersion;
+import com.telenav.cactus.maven.model.VersionChange;
 import com.telenav.cactus.maven.model.VersionChangeMagnitude;
 import com.telenav.cactus.maven.model.VersionFlavorChange;
 import com.telenav.cactus.maven.model.internal.PomFile;
 import com.telenav.cactus.maven.model.published.PublishChecker;
 import com.telenav.cactus.maven.model.resolver.Poms;
-import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.maven.xml.AbstractXMLUpdater;
 import com.telenav.cactus.maven.xml.XMLElementRemoval;
+import com.telenav.cactus.maven.xml.XMLTextContentReplacement;
 import com.telenav.cactus.maven.xml.XMLVersionElementAdder;
+import com.telenav.cactus.scope.ProjectFamily;
 import com.telenav.cactus.util.SectionedMessage;
 import com.telenav.cactus.util.SectionedMessage.MessageSection;
 import java.io.IOException;
@@ -68,7 +68,7 @@ import static java.util.Collections.emptySet;
  * <li>$FAMILY.previous.version</li>
  * <li>$ARTIFACT_ID.version</li>
  * <li>s/$ARTIFACT_ID/-/..version</li>
- * <li>$FAMILY.$ARTFACT_ID.version</li>
+ * <li>$FAMILY.$ARTIFACT_ID.version</li>
  * <li>$ARTIFACT_ID.prev.version</li>
  * <li>s/$ARTIFACT_ID/-/..prev.version</li>
  * </ul>

@@ -1,21 +1,41 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// © 2011-2022 Telenav, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.telenav.cactus.maven;
 
 import com.mastfrog.concurrent.ConcurrentLinkedList;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
-import com.telenav.cactus.maven.trigger.RunPolicies;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugins.annotations.InstantiationStrategy;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+
+import static com.mastfrog.concurrent.ConcurrentLinkedList.fifo;
+import static com.telenav.cactus.maven.trigger.RunPolicies.LAST_CONTAINING_GOAL;
+import static java.lang.Runtime.getRuntime;
+import static org.apache.maven.plugins.annotations.InstantiationStrategy.KEEP_ALIVE;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.VALIDATE;
+import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 
 /**
  * Simply prints a highly visible message to the console. Uses a JVM shutdown
@@ -26,9 +46,9 @@ import org.apache.maven.project.MavenProject;
  */
 @SuppressWarnings("unused")
 @org.apache.maven.plugins.annotations.Mojo(
-        defaultPhase = LifecyclePhase.VALIDATE,
-        requiresDependencyResolution = ResolutionScope.NONE,
-        instantiationStrategy = InstantiationStrategy.KEEP_ALIVE,
+        defaultPhase = VALIDATE,
+        requiresDependencyResolution = NONE,
+        instantiationStrategy = KEEP_ALIVE,
         name = "print-message", threadSafe = true)
 @BaseMojoGoal("print-message")
 public class PrintMessageMojo extends BaseMojo
@@ -50,12 +70,11 @@ public class PrintMessageMojo extends BaseMojo
     private Boolean onFailure;
 
     private static final AtomicBoolean HOOK_ADDED = new AtomicBoolean();
-    private static final ConcurrentLinkedList<PrintableMessage> messages = ConcurrentLinkedList
-            .fifo();
+    private static final ConcurrentLinkedList<PrintableMessage> messages = fifo();
 
     public PrintMessageMojo()
     {
-        super(RunPolicies.LAST_CONTAINING_GOAL);
+        super(LAST_CONTAINING_GOAL);
     }
 
     @Override
@@ -79,7 +98,7 @@ public class PrintMessageMojo extends BaseMojo
         if (HOOK_ADDED.compareAndSet(false, true))
         {
             Thread t = new Thread(() -> emitMessages(), "shutdown-messages");
-            Runtime.getRuntime().addShutdownHook(t);
+            getRuntime().addShutdownHook(t);
         }
     }
 
@@ -90,7 +109,7 @@ public class PrintMessageMojo extends BaseMojo
         {
             Thread t = new Thread(() -> emitMessages(), getClass()
                     .getName());
-            Runtime.getRuntime().addShutdownHook(t);
+            getRuntime().addShutdownHook(t);
         }
     }
 

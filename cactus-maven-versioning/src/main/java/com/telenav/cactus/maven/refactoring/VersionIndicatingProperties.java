@@ -62,45 +62,10 @@ public final class VersionIndicatingProperties
         Map<String, ProjectFamily> familyPrevVersionKeys = new HashMap<>();
         Map<String, MavenCoordinates> projectVersionKeys = new HashMap<>();
         Map< String, MavenCoordinates> projectPrevVersionKeys = new HashMap<>();
-        for (ProjectFamily fam : categories.pomsForFamily().keySet())
-        {
-            String prop = fam + ".version";
-            familyVersionKeys.put(prop, fam);
-            String prevProp = fam + ".prev.version";
-            familyPrevVersionKeys.put(prevProp, fam);
-            String prevProp2 = fam + ".previous.version";
-            familyPrevVersionKeys.put(prevProp2, fam);
-        }
-        for (MavenCoordinates coords : categories.allCoordinates())
-        {
-            if (coords.artifactId().is(ProjectFamily.familyOf(coords
-                    .groupId()).name()))
-            {
-                continue;
-            }
-            String dots = coords.artifactId().text().replace('-', '.');
+        buildFamilyMappings(categories, familyVersionKeys, familyPrevVersionKeys);
+        buildVersionPropertyMappings(categories, projectVersionKeys,
+                projectPrevVersionKeys);
 
-            String prop = coords.artifactId() + ".version";
-            String prevProp = coords.artifactId() + ".prev.version";
-            String prevProp2 = coords.artifactId() + ".previous.version";
-            ProjectFamily fam = ProjectFamily.familyOf(coords.groupId());
-            String prop2 = fam + "." + prop;
-            String prevProp3 = fam + "." + prevProp;
-            String prevProp4 = fam + "." + prevProp2;
-
-            String prop3 = dots + ".version";
-            String prevProp5 = dots + ".prev.version";
-            String prevProp6 = dots + ".previos.version";
-            projectVersionKeys.put(prop, coords);
-            projectVersionKeys.put(prop2, coords);
-            projectVersionKeys.put(prop3, coords);
-            projectPrevVersionKeys.put(prevProp, coords);
-            projectPrevVersionKeys.put(prevProp2, coords);
-            projectPrevVersionKeys.put(prevProp3, coords);
-            projectPrevVersionKeys.put(prevProp4, coords);
-            projectPrevVersionKeys.put(prevProp5, coords);
-            projectPrevVersionKeys.put(prevProp6, coords);
-        }
         Set<VersionProperty<ProjectFamily>> familyVersionChanges = collectPropertyChanges(
                 categories, FAMILY_VERSION, familyVersionKeys);
         Set<VersionProperty<ProjectFamily>> familyPrevVersionChanges = collectPropertyChanges(
@@ -112,6 +77,103 @@ public final class VersionIndicatingProperties
         return new VersionIndicatingProperties(familyVersionChanges,
                 familyPrevVersionChanges, projectVersionChanges,
                 projectPrevVersionChanges);
+    }
+
+    public static void buildFamilyMappings(PomCategorizer categories,
+            Map<String, ProjectFamily> familyVersionKeys,
+            Map<String, ProjectFamily> familyPrevVersionKeys)
+    {
+        for (ProjectFamily fam : categories.pomsForFamily().keySet())
+        {
+            putPermutations(fam, familyVersionKeys, ".version");
+            putPermutations(fam, familyPrevVersionKeys, ".previous.version",
+                    ".published.version", ".prev.version");
+        }
+    }
+    
+    private static void putPermutations(ProjectFamily family, Map<String, ProjectFamily> into, String... suffixen) {
+        for (String s : suffixen) {
+            into.put(family + s, family);
+        }
+    }
+
+    public static void buildVersionPropertyMappings(PomCategorizer categories,
+            Map<String, MavenCoordinates> projectVersionKeys,
+            Map<String, MavenCoordinates> projectPrevVersionKeys)
+    {
+        // We simply pre-build a mapping of all property names that could
+        // possibly be a version
+        for (MavenCoordinates coords : categories.allCoordinates())
+        {
+            if (coords.artifactId().is(ProjectFamily.familyOf(coords
+                    .groupId()).name()))
+            {
+                continue;
+            }
+            addVersionKeys(categories, false, coords, projectVersionKeys,
+                    ".version");
+            addVersionKeys(categories, false, coords, projectPrevVersionKeys,
+                    ".previous.version", ".published.version");
+        }
+        for (MavenCoordinates coords : categories.allCoordinates())
+        {
+            if (coords.artifactId().is(ProjectFamily.familyOf(coords
+                    .groupId()).name()))
+            {
+                continue;
+            }
+            addVersionKeys(categories, true, coords, projectVersionKeys,
+                    ".version");
+            addVersionKeys(categories, true, coords, projectPrevVersionKeys,
+                    ".previous.version", ".published.version");
+        }
+    }
+
+    private static void addVersionKeys(
+            PomCategorizer categories,
+            boolean secondPass,
+            MavenCoordinates coords,
+            Map<String, MavenCoordinates> coordsMap, String... suffixen)
+    {
+        String fam = ProjectFamily.familyOf(coords.groupId()).name();
+        String dashes = coords.artifactId().text();
+        String dots = dashes.replace('-', '.');
+        for (String suffix : suffixen)
+        {
+            if (!secondPass)
+            {
+                categories.pomFor(coords).ifPresent(pom ->
+                {
+                    if (categories.is(pom, PomRole.JAVA))
+                    {
+                        if (!coordsMap.containsKey(fam + suffix))
+                        {
+                            System.out.println("FAMILY VERSION " + fam + suffix + " " + coords);
+                            coordsMap.put(fam + suffix, coords);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                if (!coordsMap.containsKey(fam + suffix))
+                {
+                    System.out.println("FAMILY VERSION " + fam + suffix + " " + coords);
+                    coordsMap.put(fam + suffix, coords);
+                }
+                continue;
+            }
+            if (!coordsMap.containsKey(dashes + suffix))
+            {
+                System.out.println("PROJECT VERSION " + dashes + suffix + " " + coords);
+                coordsMap.put(dashes + suffix, coords);
+            }
+            if (!coordsMap.containsKey(dots + suffix))
+            {
+                System.out.println("PROJECT VERSION " + dots + suffix + " " + coords);
+                coordsMap.put(dots + suffix, coords);
+            }
+        }
     }
 
     private static <T> Set<VersionProperty<T>> collectPropertyChanges(
