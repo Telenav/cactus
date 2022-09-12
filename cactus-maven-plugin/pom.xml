@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.5.28</version>
+        <version>1.5.32</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -27,8 +27,6 @@
 
     <properties>
         <enforcer.skip>true</enforcer.skip>
-        <!--<maven.javadoc.skip>true</maven.javadoc.skip>-->
-        <mastfrog.version>2.8.3</mastfrog.version>
         <!-- this must be overridden here only to use the previous version,
         or it will fail trying to process itself while it is being built -->
         <cactus.maven.plugin.versions>${cactus.previous.version}</cactus.maven.plugin.versions>
