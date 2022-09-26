@@ -24,6 +24,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.cli.CliCommand;
 import com.telenav.cactus.cli.ProcessResultConverter;
 import com.telenav.cactus.process.ProcessControl;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import java.io.IOException;
 
 import java.nio.file.Path;
@@ -336,9 +337,9 @@ public class GithubCommand<T> extends CliCommand<T>
         }
 
         @Override
-        protected void onLaunch(ProcessControl<String, String> process)
+        protected void configureProcessBulder(NuProcessBuilder bldr,
+                ProcessControl process)
         {
-            super.onLaunch(process);
             process.withStandardInputHandler((ctrl, buf) ->
             {
                 buf.put(accessToken.getBytes(UTF_8));
