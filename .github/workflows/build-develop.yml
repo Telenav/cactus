@@ -38,9 +38,6 @@ jobs:
   build:
     secrets:
       ZULIP_API_KEY: ${{ secrets.ZULIP_API_KEY }}
-
-    runs-on: ubuntu-latest
-
     steps:
       - name: Building
         run: curl -X POST https://telenav.zulipchat.com/api/v1/messages -u message-bot@telenav.zulipchat.com:$ZULIP_API_KEY --data-urlencode type=stream --data-urlencode to=github-notifications --data-urlencode topic=builds --data-urlencode content="Building $GITHUB_REPOSITORY ($GITHUB_EVENT_NAME $GITHUB_REF_NAME)"
