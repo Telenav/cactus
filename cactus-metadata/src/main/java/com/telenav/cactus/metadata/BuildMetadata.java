@@ -69,7 +69,7 @@ public class BuildMetadata
     }
 
     /**
-     * @return A properties map from the given text
+     * Returns a properties map from the given text
      */
     static Map<String, String> properties(String text)
     {
@@ -166,7 +166,7 @@ public class BuildMetadata
     }
 
     /**
-     * @return The build number for the given date in days since {@link BuildName#TELENAV_EPOCH_DAY}
+     * Returns the build number for the given date in days since {@link BuildName#TELENAV_EPOCH_DAY}
      */
     public int currentBuildNumber()
     {
@@ -248,7 +248,7 @@ public class BuildMetadata
     }
 
     /**
-     * @return The contents of the metadata resource at the given path
+     * Returns the contents of the metadata resource at the given path
      */
     private static String metadata(Class<?> project, String path)
     {

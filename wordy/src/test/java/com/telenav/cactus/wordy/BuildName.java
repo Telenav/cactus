@@ -75,7 +75,7 @@ public class BuildName
     }
 
     /**
-     * @return The name for the given build number, like "sparkling piglet"
+     * Returns the name for the given build number, like "sparkling piglet"
      */
     public static String name(int buildNumber)
     {

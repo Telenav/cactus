@@ -418,7 +418,7 @@ public class Pom implements Comparable<Pom>, MavenArtifactCoordinates,
     }
 
     /**
-     * @return the coords
+     * Returns the coords
      */
     public MavenCoordinates coordinates()
     {
