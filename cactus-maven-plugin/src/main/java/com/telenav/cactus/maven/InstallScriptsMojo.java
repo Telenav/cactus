@@ -39,7 +39,7 @@ import org.apache.maven.project.MavenProject;
 import static com.mastfrog.util.streams.Streams.readResourceAsUTF8;
 import static com.telenav.cactus.maven.PrintMessageMojo.publishMessage;
 import static com.telenav.cactus.maven.trigger.RunPolicies.LAST;
-import static com.telenav.cactus.metadata.BuildMetadata.of;
+import static com.telenav.cactus.metadata.BuildMetadata.buildMetaData;
 import static com.telenav.cactus.util.PathUtils.home;
 import static com.telenav.cactus.util.PathUtils.ifExists;
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -111,7 +111,7 @@ public class InstallScriptsMojo extends BaseMojo
         {
             createDirectories(dest);
         }
-        BuildMetadata meta = of(InstallScriptsMojo.class);
+        BuildMetadata meta = buildMetaData(InstallScriptsMojo.class);
         String ver = meta.projectProperties().get("project-version");
         if (ver == null)
         {
