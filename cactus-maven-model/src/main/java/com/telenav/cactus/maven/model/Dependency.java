@@ -378,7 +378,7 @@ public class Dependency implements MavenArtifactCoordinates
     }
 
     /**
-     * @return the coords
+     * Returns the coords
      */
     public MavenCoordinates coordinates()
     {
@@ -386,7 +386,7 @@ public class Dependency implements MavenArtifactCoordinates
     }
 
     /**
-     * @return the type
+     * Returns the type
      */
     public Packaging type()
     {
@@ -394,7 +394,7 @@ public class Dependency implements MavenArtifactCoordinates
     }
 
     /**
-     * @return the scope
+     * Returns the scope
      */
     public DependencyScope scope()
     {
@@ -402,7 +402,7 @@ public class Dependency implements MavenArtifactCoordinates
     }
 
     /**
-     * @return the implicitScope
+     * Returns the implicitScope
      */
     public boolean isImplicitScope()
     {
