@@ -352,7 +352,7 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
         {
             return cactusVersion;
         }
-        String result = BuildMetadata.of(RunPolicy.class).projectProperties()
+        String result = BuildMetadata.buildMetaData(RunPolicy.class).projectProperties()
                 .get("project-version");
         if (result == null)
         {

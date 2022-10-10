@@ -63,7 +63,7 @@ public class BuildMetadata
      * @param projectType A class in the caller's project for loading resources
      * @return Metadata for the given project
      */
-    public static BuildMetadata of(Class<?> projectType)
+    public static BuildMetadata buildMetaData(Class<?> projectType)
     {
         return projectToMetadata.computeIfAbsent(projectType, ignored -> new BuildMetadata(projectType, Type.PROJECT, emptyMap()));
     }
