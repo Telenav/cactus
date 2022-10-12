@@ -18,6 +18,8 @@
 package com.telenav.cactus.maven.xml;
 
 import com.mastfrog.function.throwing.ThrowingSupplier;
+import org.w3c.dom.Document;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.w3c.dom.Document;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static com.telenav.cactus.maven.xml.XMLReplacer.writeXML;
