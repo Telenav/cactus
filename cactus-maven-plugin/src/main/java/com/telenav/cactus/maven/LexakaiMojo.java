@@ -25,6 +25,10 @@ import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.tree.ProjectTree;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -41,9 +45,6 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 
 import static com.mastfrog.util.streams.stdio.ThreadMappedStdIO.blackhole;
 import static com.telenav.cactus.git.GitCheckout.checkout;
@@ -58,7 +59,13 @@ import static java.lang.System.getenv;
 import static java.lang.System.setProperty;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.*;
+import static java.nio.file.Files.delete;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Files.list;
+import static java.nio.file.Files.readString;
+import static java.nio.file.Files.walk;
+import static java.nio.file.Files.write;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.time.Instant.now;
@@ -107,7 +114,7 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.SITE;
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "UnusedReturnValue" })
 @org.apache.maven.plugins.annotations.Mojo(
         defaultPhase = SITE,
         requiresDependencyResolution = ResolutionScope.COMPILE,
@@ -248,8 +255,8 @@ public class LexakaiMojo extends BaseMojo
             {
                     "FieldCanBeLocal", "FieldMayBeFinal"
             })
-    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.11")
-    private String lexakaiVersion = "1.0.11";
+    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.13")
+    private String lexakaiVersion = "1.0.13";
 
     /**
      * By default, code is generated into directories that match the relative directory structure from the
@@ -483,8 +490,8 @@ public class LexakaiMojo extends BaseMojo
 
     private Path lexakaiJar() throws Exception
     {
-        return downloadArtifact("com.telenav.lexakai", "lexakai", lexakaiVersion,
-                "app").get();
+        return downloadArtifact("com.telenav.lexakai", "lexakai-standalone", 
+                lexakaiVersion).get();
     }
 
     private ThrowingRunnable lexakaiRunner(List<String> arguments) throws Exception

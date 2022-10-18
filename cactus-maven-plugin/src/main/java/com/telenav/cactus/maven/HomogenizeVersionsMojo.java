@@ -100,7 +100,7 @@ public class HomogenizeVersionsMojo extends SharedProjectTreeMojo
             {
                 ph.pretend();
             }
-            Set<Path> updated = ph.go(log::info);
+            Set<Path> updated = new HashSet<>(ph.go(log::info));
             fixParentVersions(tree, log, updated);
             if (updated.isEmpty())
             {
