@@ -83,7 +83,7 @@
 
         <!-- Java -->
 
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <jackson.version>2.13.3</jackson.version>
 
         <!-- Mastfrog -->
