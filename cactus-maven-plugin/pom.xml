@@ -29,7 +29,7 @@
         <enforcer.skip>true</enforcer.skip>
         <!-- this must be overridden here only to use the previous version,
         or it will fail trying to process itself while it is being built -->
-        <cactus.maven.plugin.versions>${cactus.previous.version}</cactus.maven.plugin.versions>
+        <cactus.maven.plugin.versions>${cactus.version}</cactus.maven.plugin.versions>
         <java.module.name>cactus.maven.plugin</java.module.name>
     </properties>
 
@@ -215,7 +215,7 @@
                 <plugin>
                     <groupId>com.telenav.cactus</groupId>
                     <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.previous.version}</version>
+                    <version>${cactus.version}</version>
                 </plugin>
             </plugins>
 
