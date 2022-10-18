@@ -93,10 +93,10 @@ The `cactus-maven-plugin` lets us perform tasks against *sets of git repositorie
 projects managed using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules), as
 if they were hosted in a single git repository.  Cactus tools use a concept of _project families_.
 Project family names are derived from the Maven `groupId` shared by the projects in the family. For 
-example, `kivakit`, `kivakit-extensions` and `kivakit-stuff` all belong to the project family 
-`kivakit` (from `com.telenav.kivakit`). Project families can be used to specify which repositories 
-to operate on. Tools can be told to operate on all families, one specific family, or some subset of 
-families. For example, `all`, `kivakit`, or `kivakit,mesakit`.
+example, `kivakit`, `kivakit-extensions`, `kivakit-extensions` and `kivakit-stuff` all belong to 
+the project family `kivakit` (from `com.telenav.kivakit`). Project families can be used to specify 
+which repositories to operate on. Tools can be told to operate on all families, one specific family, 
+or some subset of families. For example, `all`, `kivakit`, or `kivakit,mesakit`.
 
 In daily development, what these tools primarily do is ensure consistency and ensure that it is
 impossible to, say, commit in one repository and forget about changes in another, or push the root
@@ -342,6 +342,7 @@ in a similar way to Apache Wicket:
 
   * `kivakit` - the core library (most stable)
   * `kivakit-extensions` - contributed or added libraries built on `kivakit` (stable)
+  * `kivakit-filesystems` - filesystem service providers (mostly stable)
   * `kivakit-stuff` - libraries built on `kivakit` and/or `kivakit-extensions` (experimental)
   * `kivakit-examples` - sample code and applications
 
@@ -355,14 +356,15 @@ final `.` character in its Maven [groupId](https://maven.apache.org/guides/mini/
 with any `-`-delimited tail omitted.  So, if our `groupId` in our pom is `org.foo.snorkel-things`,
 then our _project family_ is `snorkel`.
 
-So, in the above case, `kivakit`, `kivakit-extensions`, `kivakit-stuff` and `kivakit-examples` are
-separate git submodules, each buildable on its own for contributors or someone doing a quick fix.
+So, in the above case, `kivakit`, `kivakit-extensions`, `kivakit-filesystems`, kivakit-stuff` and `kivakit-examples` 
+are separate git submodules, each buildable on its own for contributors or someone doing a quick fix.
 Since all of them contain Maven projects using a `groupId` ending in `.kivakit`, when a developer 
 asks the Cactus tooling to do something to all repositories in the family _kivakit_, it will find any 
 git submodules containing KivaKit projects in the workspace and do whatever is needed.
 
 So, for ongoing, intensive development, where it is important to quickly know if our change in, say, `kivakit` 
-broke something in `kivakit-extensions`, `kivakit-stuff` or `kivakit-examples`, we know that quickly.
+broke something in `kivakit-extensions`, `kivakit-filesystems`, `kivakit-stuff` or `kivakit-examples`, 
+we know that quickly.
 
 That is important because many of the [Mojos](https://maven.apache.org/developers/mojo-api-specification.html)
 in the Cactus Maven Plugin perform git operations, and they decide which git repositories to operate
