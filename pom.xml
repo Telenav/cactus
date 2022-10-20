@@ -73,9 +73,9 @@
     <properties>
         <!-- Cactus -->
 
-        <cactus.version>1.5.35</cactus.version>
+        <cactus.version>1.5.34</cactus.version>
         <!-- Previous version, so we can run cactus against cactus -->
-        <cactus.previous.version>1.5.34</cactus.previous.version>
+        <cactus.next.version>1.5.34</cactus.next.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
         will be automatic without requiring a website visit -->
@@ -83,7 +83,7 @@
 
         <!-- Java -->
 
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <jackson.version>2.13.3</jackson.version>
 
         <!-- Mastfrog -->
@@ -316,7 +316,7 @@
                 <artifactId>cactus-maven-plugin</artifactId>
                 <!-- This has to be the previous version or we
                 create a cycle in the dependency graph -->
-                <version>${cactus.previous.version}</version>
+                <version>${cactus.version}</version>
                 <executions>
                     <execution>
                         <id>generate-metainfo</id>
@@ -337,7 +337,7 @@
                 <plugin>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.previous.version}</version>
+                    <version>${cactus.version}</version>
                 </plugin>
 
                 <plugin>
