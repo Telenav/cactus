@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus</artifactId>
-        <version>1.5.35</version>
+        <version>1.5.36</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -215,7 +215,7 @@
                 <plugin>
                     <groupId>com.telenav.cactus</groupId>
                     <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.version}</version>
+                    <version>${cactus.previous.version}</version>
                 </plugin>
             </plugins>
 
