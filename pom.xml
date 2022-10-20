@@ -73,9 +73,9 @@
     <properties>
         <!-- Cactus -->
 
-        <cactus.version>1.5.34</cactus.version>
+        <cactus.version>1.5.35</cactus.version>
         <!-- Previous version, so we can run cactus against cactus -->
-        <cactus.next.version>1.5.34</cactus.next.version>
+        <cactus.previous.version>1.5.34</cactus.previous.version>
 
         <!-- If manually set to true with -D, after a deploy to maven central, the release
         will be automatic without requiring a website visit -->
@@ -316,7 +316,7 @@
                 <artifactId>cactus-maven-plugin</artifactId>
                 <!-- This has to be the previous version or we
                 create a cycle in the dependency graph -->
-                <version>${cactus.version}</version>
+                <version>${cactus.previous.version}</version>
                 <executions>
                     <execution>
                         <id>generate-metainfo</id>
