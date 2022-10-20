@@ -773,7 +773,7 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 {
                     break;
                 }
-                args.set(3, Integer.toString(skip));
+                args.set(2, Integer.toString(skip));
                 skip += pageSize;
                 cmd = new GitCommand<>(strings(), checkoutRoot(), args.toArray(
                         String[]::new));
