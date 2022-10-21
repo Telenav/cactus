@@ -116,6 +116,6 @@ public final class PublishedResult
                     ":")
                     .appendValue(ChronoField.SECOND_OF_MINUTE, 2).appendLiteral(
                     " ")
-                    .appendOffsetId().toFormatter();
+                    .appendZoneOrOffsetId().toFormatter();
 
 }
