@@ -281,7 +281,7 @@ public class VersionReplacementFinder
             Set<Pom> result = new HashSet<>();
             for (Pom p : categories.allPoms())
             {
-                switch (publishChecker.check(p))
+                switch (publishChecker.check(p).state())
                 {
                     case PUBLISHED_DIFFERENT:
                         result.add(p);
