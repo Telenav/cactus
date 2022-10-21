@@ -98,7 +98,7 @@ public class FilterDeployingAlreadyPublishedMojo extends BaseMojo
                     .computeIfAbsent(CACHE_KEY, ConcurrentHashMap::new);
             ThrowingSupplier<PublishedState> ts = () ->
             {
-                return CHECKER.check(toPom(project));
+                return CHECKER.check(toPom(project)).state();
             };
             return cache.computeIfAbsent(coordinatesOf(project), key -> ts
                     .asSupplier().get());
