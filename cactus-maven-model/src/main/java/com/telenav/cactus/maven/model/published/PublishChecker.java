@@ -60,13 +60,36 @@ public class PublishChecker
         this(DEFAULT_REPO);
     }
 
-    public <A extends MavenArtifactCoordinates & DiskResident> PublishedState check(
+    /**
+     * Check if a library has already been published on maven central (or whatever
+     * repository this instance was configured to query.
+     *
+     * @param <A> The artifact coordinates type
+     * @param project The artifact coordinates
+     * @return A publication result
+     * @throws IOException if something goes wrong
+     * @throws InterruptedException if something goes wrong
+     * @throws URISyntaxException if something goes wrong
+     */
+    public <A extends MavenArtifactCoordinates & DiskResident> PublishedResult check(
             A project) throws IOException, InterruptedException, URISyntaxException
     {
         return check(baseUrl, project);
     }
 
-    public <A extends MavenArtifactCoordinates & DiskResident> PublishedState check(
+    /**
+     * Check if a library has already been published on maven central (or whatever
+     * repository this instance was configured to query.
+     *
+     * @param <A> The artifact coordinates type
+     * @param urlBase The maven repository to query
+     * @param project The artifact coordinates
+     * @return A publication result
+     * @throws IOException if something goes wrong
+     * @throws InterruptedException if something goes wrong
+     * @throws URISyntaxException if something goes wrong
+     */
+    public <A extends MavenArtifactCoordinates & DiskResident> PublishedResult check(
             String urlBase, A project) throws IOException, InterruptedException, URISyntaxException
     {
         HttpRequest request = HttpRequest.newBuilder(downloadUrl(urlBase,
@@ -81,7 +104,7 @@ public class PublishChecker
             case 500: // ?
             case 404:
             case 410:
-                return PublishedState.NOT_PUBLISHED;
+                return new PublishedResult(PublishedState.NOT_PUBLISHED);
             default:
                 if (response.statusCode() >= 200 && response.statusCode() < 299)
                 {
@@ -89,11 +112,13 @@ public class PublishChecker
                     String remoteText = response.body().trim();
                     if (localText.equals(remoteText))
                     {
-                        return PublishedState.PUBLISHED_IDENTICAL;
+                        return new PublishedResult(
+                                PublishedState.PUBLISHED_IDENTICAL, response);
                     }
-                    return PublishedState.PUBLISHED_DIFFERENT;
+                    return new PublishedResult(
+                            PublishedState.PUBLISHED_DIFFERENT, response);
                 }
-                return PublishedState.NOT_PUBLISHED;
+                return new PublishedResult(PublishedState.NOT_PUBLISHED);
         }
     }
 

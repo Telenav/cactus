@@ -80,7 +80,7 @@ public class CheckAlreadyPublishedMojo extends BaseMojo
         log.info("Check if " + project.getArtifactId()
                 + " is already published");
 
-        PublishedState state = checker.check(wrap(project));
+        PublishedState state = checker.check(wrap(project)).state();
         switch (state)
         {
             case NOT_PUBLISHED:

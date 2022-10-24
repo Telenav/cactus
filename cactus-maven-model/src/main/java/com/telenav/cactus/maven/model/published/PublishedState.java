@@ -36,7 +36,13 @@ public enum PublishedState
      * The artifact has not been published.
      */
     NOT_PUBLISHED;
-    
+
+    /**
+     * Returns true if this state indicates the library has been published and
+     * does not match the local copy.
+     *
+     * @return whether or not the remote and local versions differ
+     */
     public boolean differs() {
         return this == PUBLISHED_DIFFERENT;
     }
