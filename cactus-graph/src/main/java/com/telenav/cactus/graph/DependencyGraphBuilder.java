@@ -58,6 +58,12 @@ public class DependencyGraphBuilder
 
     }
 
+    public DependencyGraphBuilder withScope(DependencyScope scope)
+    {
+        scopes.add(scope);
+        return this;
+    }
+
     public static DependencyGraphBuilder dependencyGraphBuilder()
     {
         return new DependencyGraphBuilder();
@@ -105,6 +111,12 @@ public class DependencyGraphBuilder
             this.preFilter = orig.preFilter;
             this.postFilter = orig.postFilter;
             this.includeOptionalDependencies = orig.includeOptionalDependencies;
+        }
+
+        public FinishableDependencyGraphBuilder withScope(DependencyScope scope)
+        {
+            scopes.add(scope);
+            return this;
         }
 
         @Override
@@ -297,11 +309,11 @@ public class DependencyGraphBuilder
                 .includeOptionalDependencies()
                 .withPostFilter((dep)
                         -> dep.groupId().textContains("com.mastfrog")
-                        && !dep.artifactId().is("util-preconditions")
-                        && !dep.artifactId().textContains("testpro")
+                && !dep.artifactId().is("util-preconditions")
+                && !dep.artifactId().textContains("testpro")
                 )
-//                .graphingAllJavaAndPomProjects()
-//                .graphing(ArtifactId.of("kivakit-examples-microservice"))
+                //                .graphingAllJavaAndPomProjects()
+                //                .graphing(ArtifactId.of("kivakit-examples-microservice"))
                 .d3Graph()
                 .withCategorizer(id ->
                 {
