@@ -51,10 +51,6 @@
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus</groupId>
-            <artifactId>cactus-maven-xml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.telenav.cactus</groupId>
             <artifactId>cactus-maven-versioning</artifactId>
         </dependency>
         <dependency>
@@ -67,15 +63,6 @@
         </dependency>
 
         <!-- Mastfrog -->
-
-        <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>function</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>util-streams</artifactId>
-        </dependency>
 
         <!-- Maven -->
 

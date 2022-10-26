@@ -20,14 +20,6 @@
             <artifactId>concurrent</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>function</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>util-preconditions</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cactus-maven-log</artifactId>
         </dependency>

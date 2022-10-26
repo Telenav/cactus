@@ -23,24 +23,12 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.mastfrog</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>cactus-maven-log</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cactus-util</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cactus-process</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>nuprocess</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
