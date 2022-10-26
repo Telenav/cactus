@@ -25,12 +25,12 @@ import com.telenav.cactus.maven.model.MavenVersioned;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -82,6 +82,9 @@ public class PomGenerator
     final Set<String> modules = new TreeSet<>();
     final Set<MavenArtifactCoordinates> imports = new TreeSet<>(
             PomGenerator::compareArtifactCoordinates);
+
+    final Map<Object, String> associatedComments = new HashMap<>();
+
     Path parentRelativePath;
     String description;
     String name;
@@ -267,6 +270,27 @@ public class PomGenerator
         return this;
     }
 
+    public PomGenerator associateComment(Object with, String comment)
+    {
+        if (with instanceof MavenIdentified)
+        {
+            this.associatedComments.put(((MavenIdentified) with)
+                    .toArtifactIdentifiers(), comment);
+        }
+        this.associatedComments.put(with, comment);
+        return this;
+    }
+
+    public PomGenerator transferAssociatedComment(Object old, Object nue)
+    {
+        String cmt = associatedComments.get(old);
+        if (cmt != null)
+        {
+            associatedComments.put(nue, cmt);
+        }
+        return this;
+    }
+
     Path generate(Path into) throws IOException
     {
         if (!exists(into.getParent()))
@@ -287,8 +311,7 @@ public class PomGenerator
         sb.append('\n');
         if (parent != null)
         {
-            inTag(1, "parent", sb,
-                    () ->
+            inTag(1, "parent", sb, () ->
             {
                 tag(2, "groupId", sb, parent.groupId());
                 tag(2, "artifactId", sb, parent.artifactId());
@@ -367,6 +390,7 @@ public class PomGenerator
             {
                 dependencies.forEach(d ->
                 {
+                    applyAssociatedComments(2, d, sb);
                     inTag(2, "dependency", sb,
                             () ->
                     {
@@ -407,6 +431,7 @@ public class PomGenerator
                     {
                         imports.forEach(d ->
                         {
+                            applyAssociatedComments(3, d, sb);
                             inTag(3, "dependency", sb,
                                     () ->
                             {
@@ -427,6 +452,7 @@ public class PomGenerator
 
                         dependencyMgmtProvidedDeps.forEach(d ->
                         {
+                            applyAssociatedComments(3, d, sb);
                             inTag(3, "dependency", sb,
                                     () ->
                             {
@@ -454,6 +480,7 @@ public class PomGenerator
 
                         dependencyMgmt.forEach(d ->
                         {
+                            applyAssociatedComments(3, d, sb);
                             inTag(3, "dependency", sb,
                                     () ->
                             {
@@ -471,6 +498,7 @@ public class PomGenerator
                         });
                         dependencyMgmtTestDeps.forEach(d ->
                         {
+                            applyAssociatedComments(3, d, sb);
                             inTag(3, "dependency", sb,
                                     () ->
                             {
@@ -543,6 +571,78 @@ public class PomGenerator
             });
         }
         return sb.append(POM_TAIL).toString();
+    }
+
+    static int COMMENT_WRAP_POINT = 80;
+
+    private void applyAssociatedComments(int depth, Object on,
+            StringBuilder into)
+    {
+        String cmt = associatedComments.get(on);
+        if (cmt == null && on instanceof MavenIdentified)
+        {
+            cmt = associatedComments.get(((MavenIdentified) on)
+                    .toArtifactIdentifiers());
+        }
+        if (cmt == null)
+        {
+            return;
+        }
+        into.append('\n');
+        char[] ind = new char[1 + (depth * 4)];
+        fill(ind, ' ');
+        ind[0] = '\n';
+        int linePos = ind.length - 10;
+        if (linePos + cmt.trim().length() < COMMENT_WRAP_POINT)
+        {
+            into.append(ind).append("<!-- ").append(cmt).append(" -->");
+        }
+        else
+        {
+            List<String> lines = new ArrayList<>();
+            StringBuilder curr = new StringBuilder().append(ind).append("<!--");
+            Runnable flush = () ->
+            {
+                if (curr.length() > ind.length)
+                {
+                    lines.add(curr.toString());
+                    curr.setLength(ind.length);
+                }
+            };
+            Consumer<String> onWord = word ->
+            {
+                if (word.length() == 0)
+                {
+                    return;
+                }
+                if (curr.length() > ind.length)
+                {
+                    if (curr.length() + word.length() > COMMENT_WRAP_POINT)
+                    {
+                        flush.run();
+                    }
+                    else
+                    {
+                        curr.append(' ');
+                    }
+                }
+                else
+                {
+
+                }
+                curr.append(word);
+            };
+            for (String w : cmt.split("\\s+"))
+            {
+                onWord.accept(w);
+            }
+            curr.append("-->\n");
+            flush.run();
+            for (String line : lines)
+            {
+                into.append(line);
+            }
+        }
     }
 
     private static void tag(int depth, String tag, StringBuilder into,
