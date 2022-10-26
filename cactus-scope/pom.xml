@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.telenav.cactus</groupId>
-        <artifactId>cactus</artifactId>
+        <artifactId>cactus-parent</artifactId>
         <version>1.5.36</version>
     </parent>
     
