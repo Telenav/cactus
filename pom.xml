@@ -19,7 +19,7 @@
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-parent</artifactId>
-    <version>1.5.36</version>
+    <version>1.5.37</version>
 
     <packaging>pom</packaging>
 
@@ -49,8 +49,8 @@
     </modules>
 
     <properties>
-        <cactus.previous.version>1.5.35</cactus.previous.version>
-        <cactus.version>1.5.36</cactus.version>
+        <cactus.previous.version>1.5.36</cactus.previous.version>
+        <cactus.version>1.5.37</cactus.version>
         <jackson.version>2.13.4.2</jackson.version>
         <junit5.version>5.9.0</junit5.version>
         <mastfrog.version>2.9.0</mastfrog.version>
