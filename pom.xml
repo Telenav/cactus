@@ -59,6 +59,8 @@
         <nuprocess.version>2.0.5</nuprocess.version>
         <slf4j.version>2.0.0-alpha7</slf4j.version>
         <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
     </properties>
 
     <dependencyManagement>
@@ -184,6 +186,27 @@
                             <goal>build-metadata</goal>
                         </goals>
                         <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${nexus-staging-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <skipLocalStaging>true</skipLocalStaging>
+                    <skipNexusStagingDeployMojo>${do.not.publish}</skipNexusStagingDeployMojo>
+                    <autoReleaseAfterClose>${release.on.close}</autoReleaseAfterClose>
+                    <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
