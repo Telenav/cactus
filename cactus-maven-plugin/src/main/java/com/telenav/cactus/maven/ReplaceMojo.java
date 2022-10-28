@@ -129,10 +129,10 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
                     ? checkout.branch().get()
                     : this.newBranchName);
 
-            if (newVersion == null)
+            String targetVersion = this.newVersion;
+            if (targetVersion == null)
             {
-                throw new RuntimeException(
-                        "No replacement version was specified for " + checkout);
+                targetVersion = project.getVersion();
             }
             if (branchName == null)
             {
@@ -141,7 +141,7 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
             }
 
             variables.put("cactus.replacement-version", new Replacement(
-                    "\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", newVersion));
+                    "\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", targetVersion));
             variables.put("cactus.replacement-branch-name", new Replacement(
                     "(develop|((release|hotfix|feature)/[a-zA-Z\\d.-]+))", branchName));
 
