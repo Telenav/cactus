@@ -13,13 +13,13 @@
     <parent>
         <groupId>com.telenav</groupId>
         <artifactId>telenav-root-superpom</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
         <relativePath/>
     </parent>
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-parent</artifactId>
-    <version>1.5.38</version>
+    <version>1.5.39</version>
 
     <packaging>pom</packaging>
 
@@ -30,29 +30,29 @@
 
     <modules>
         <module>cactus</module>
-        <module>cactus-cli</module>
-        <module>cactus-codeflowers</module>
-        <module>cactus-git</module>
+        <module>cactus-maven-model</module>
         <module>cactus-graph</module>
         <module>cactus-maven-log</module>
-        <module>cactus-maven-model</module>
-        <module>cactus-maven-plugin</module>
-        <module>cactus-maven-versioning</module>
-        <module>cactus-maven-xml</module>
         <module>cactus-metadata</module>
-        <module>cactus-process</module>
-        <module>cactus-scope</module>
         <module>cactus-tasks</module>
-        <module>cactus-tests</module>
-        <module>cactus-util</module>
+        <module>cactus-maven-xml</module>
         <module>wordy</module>
+        <module>cactus-process</module>
+        <module>cactus-util</module>
+        <module>cactus-cli</module>
+        <module>cactus-git</module>
+        <module>cactus-scope</module>
+        <module>cactus-maven-versioning</module>
+        <module>cactus-codeflowers</module>
+        <module>cactus-maven-plugin</module>
+        <module>cactus-tests</module>
     </modules>
 
     <properties>
-        <cactus.previous.version>1.5.37</cactus.previous.version>
-        <cactus.version>1.5.38</cactus.version>
+        <cactus.previous.version>1.5.38</cactus.previous.version>
+        <cactus.version>1.5.39</cactus.version>
         <jackson.version>2.13.4.2</jackson.version>
-        <junit5.version>5.9.0</junit5.version>
+        <junit5.version>5.9.1</junit5.version>
         <mastfrog.version>2.9.0</mastfrog.version>
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
         <maven.api.version>3.8.6</maven.api.version>

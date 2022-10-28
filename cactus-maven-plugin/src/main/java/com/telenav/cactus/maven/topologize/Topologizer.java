@@ -32,6 +32,7 @@ import com.telenav.cactus.maven.model.MavenModule;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.model.resolver.Poms;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +71,7 @@ public class Topologizer
     public static void main(String[] args) throws IOException
     {
         GitCheckout checkout = GitCheckout.checkout(Paths.get(
-                "/Users/timb/work/telenav/jonstuff")).get();
+                "/Users/timb/work/telenav/jonstuff-fix")).get();
         BuildLog bl = BuildLog.get();
         Topologizer topo = new Topologizer(checkout, bl);
         for (Pom p : topo.poms)
@@ -124,7 +125,8 @@ public class Topologizer
         for (MavenCoordinates mc : sorted)
         {
             Pom p = poms.get(mc).get();
-            result.add(p.projectFolder().getFileName().toString());
+            Path relPath = pom.projectFolder().relativize(p.projectFolder());
+            result.add(relPath.toString());
         }
         Collections.reverse(result);
         return result;

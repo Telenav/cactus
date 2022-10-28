@@ -47,6 +47,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static com.mastfrog.util.preconditions.Checks.notNull;
 import static java.lang.System.currentTimeMillis;
+import static java.lang.System.getenv;
 
 /**
  * A tree of generated projects organized in families of projects within
@@ -61,6 +62,9 @@ import static java.lang.System.currentTimeMillis;
 public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
         implements ProjectWrapper
 {
+    public static final boolean TESTS_DISABLED  = Boolean.getBoolean("cactus.tests.skip")
+            || "true".equals(getenv("CACTUS_TESTS_SKIP"));
+
     static String cactusVersion;
     public static final Duration TIMEOUT = Duration.ofMinutes(10);
     private final Map<ProjectsGenerator.FakeProject, WrappedProjectImpl> wrapperForProject = new HashMap<>();
@@ -330,6 +334,10 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
 
     public void cleanup() throws IOException
     {
+        if (TESTS_DISABLED)
+        {
+            return;
+        }
         String gidRelativePath = groupIdBase().replace('.', '/');
         Path m2artifacts = localRepo().resolve(gidRelativePath);
         FileUtils.deltree(parentRoot());
@@ -352,7 +360,8 @@ public abstract class GeneratedProjectTree<T extends GeneratedProjectTree<T>>
         {
             return cactusVersion;
         }
-        String result = BuildMetadata.buildMetaData(RunPolicy.class).projectProperties()
+        String result = BuildMetadata.buildMetaData(RunPolicy.class)
+                .projectProperties()
                 .get("project-version");
         if (result == null)
         {
