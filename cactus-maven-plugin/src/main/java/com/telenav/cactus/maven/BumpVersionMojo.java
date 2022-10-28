@@ -499,9 +499,20 @@ public class BumpVersionMojo extends ReplaceMojo
                 }
         }
         replacer.pretend(isPretend());
+        
+        if (versionForFamily.isEmpty()) {
+            log.info("No version changes needed.");
+            return;
+        }
+        
         log.info("Applying changes");
         log.info(replacer.toString());
         Set<Path> rewritten = replacer.go(log::info);
+        
+        if (rewritten.isEmpty()) {
+            log.info("No changes to commit");
+            return;
+        }
 
         Rollback rollback = new Rollback();
         addFileModifications(rollback, rewritten, log);
