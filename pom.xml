@@ -52,7 +52,7 @@
         <cactus.previous.version>1.5.37</cactus.previous.version>
         <cactus.version>1.5.38</cactus.version>
         <jackson.version>2.13.4.2</jackson.version>
-        <junit5.version>5.9.0</junit5.version>
+        <junit5.version>5.9.1</junit5.version>
         <mastfrog.version>2.9.0</mastfrog.version>
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
         <maven.api.version>3.8.6</maven.api.version>
