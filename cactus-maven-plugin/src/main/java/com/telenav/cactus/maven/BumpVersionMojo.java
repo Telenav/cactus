@@ -52,7 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
@@ -273,7 +272,7 @@ public class BumpVersionMojo extends ReplaceMojo
     /**
      * Perform substitutions in documentation files.
      */
-    @Parameter(property = "cactus.update.docs", defaultValue = "true")
+    @Parameter(property = "cactus.update.docs", defaultValue = "false")
     boolean updateDocs;
 
     /**
