@@ -49,6 +49,7 @@
     </modules>
 
     <properties>
+        <java.source.version>11</java.source.version>
         <cactus.previous.version>1.5.39</cactus.previous.version>
         <cactus.version>1.5.40</cactus.version>
         <jackson.version>2.13.4.2</jackson.version>
@@ -57,7 +58,7 @@
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
         <maven.api.version>3.8.6</maven.api.version>
         <nuprocess.version>2.0.5</nuprocess.version>
-        <slf4j.version>2.0.0-alpha7</slf4j.version>
+        <slf4j.version>2.0.3</slf4j.version>
         <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
@@ -210,13 +211,32 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.source.version}</source>
+                    <testSource>${java.source.version}</testSource>
+                    <target>${java.source.version}</target>
+                    <release>${java.source.version}</release>
+                    <compilerArgs>
+                        <compilerArg>-Xlint:unchecked</compilerArg>
+                        <compilerArg>-Xlint:-requires-transitive-automatic</compilerArg>
+                        <compilerArg>-Xlint:deprecation</compilerArg>
+                    </compilerArgs>
+                </configuration>
+
+            </plugin>
+            
         </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.version}</version>
+                    <version>${cactus.previous.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
