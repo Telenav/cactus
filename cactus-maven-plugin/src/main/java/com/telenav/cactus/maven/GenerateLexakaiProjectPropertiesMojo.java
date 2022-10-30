@@ -21,6 +21,7 @@ import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.model.Pom;
 import com.telenav.cactus.maven.mojobase.BaseMojo;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,7 +79,7 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
 
     @Parameter(property = "cactus.generate.lexakai.skip", defaultValue = "false")
     private boolean skip;
-    
+
     public GenerateLexakaiProjectPropertiesMojo()
     {
         super(LAST);
@@ -87,7 +88,8 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
-        if (skip) {
+        if (skip)
+        {
             log.info("Cactus lexakai properties generation is skipped.");
             return;
         }
@@ -102,7 +104,8 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
                 .resolve("projects");
         if (!exists(docsDir))
         {
-            fail("No lexakai config dir at " + docsDir);
+            log.warn("No lexakai config dir at " + docsDir + " - creating it.");
+            Files.createDirectories(docsDir);
         }
         Map<Pom, Path> maybeGenerate = findDocsFilesForModules(project, docsDir);
         for (Map.Entry<Pom, Path> e : maybeGenerate.entrySet())
@@ -124,7 +127,8 @@ public final class GenerateLexakaiProjectPropertiesMojo extends BaseMojo
         }
         if (cleanup)
         {
-            Set<Path> toDelete = list(docsDir).filter(file -> !isDirectory(file) && file.getFileName()
+            Set<Path> toDelete = list(docsDir).filter(
+                    file -> !isDirectory(file) && file.getFileName()
                     .toString()
                     .endsWith(".properties"))
                     .collect(toCollection(HashSet::new));
