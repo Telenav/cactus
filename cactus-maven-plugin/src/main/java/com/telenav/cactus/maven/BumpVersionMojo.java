@@ -52,7 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
@@ -273,7 +272,7 @@ public class BumpVersionMojo extends ReplaceMojo
     /**
      * Perform substitutions in documentation files.
      */
-    @Parameter(property = "cactus.update.docs", defaultValue = "true")
+    @Parameter(property = "cactus.update.docs", defaultValue = "false")
     boolean updateDocs;
 
     /**
@@ -499,9 +498,20 @@ public class BumpVersionMojo extends ReplaceMojo
                 }
         }
         replacer.pretend(isPretend());
+        
+        if (versionForFamily.isEmpty()) {
+            log.info("No version changes needed.");
+            return;
+        }
+        
         log.info("Applying changes");
         log.info(replacer.toString());
         Set<Path> rewritten = replacer.go(log::info);
+        
+        if (rewritten.isEmpty()) {
+            log.info("No changes to commit");
+            return;
+        }
 
         Rollback rollback = new Rollback();
         addFileModifications(rollback, rewritten, log);

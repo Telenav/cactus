@@ -13,13 +13,13 @@
     <parent>
         <groupId>com.telenav</groupId>
         <artifactId>telenav-root-superpom</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.7</version>
         <relativePath/>
     </parent>
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus-parent</artifactId>
-    <version>1.5.37</version>
+    <version>1.5.41</version>
 
     <packaging>pom</packaging>
 
@@ -30,34 +30,35 @@
 
     <modules>
         <module>cactus</module>
-        <module>cactus-cli</module>
-        <module>cactus-codeflowers</module>
-        <module>cactus-git</module>
+        <module>cactus-maven-model</module>
         <module>cactus-graph</module>
         <module>cactus-maven-log</module>
-        <module>cactus-maven-model</module>
-        <module>cactus-maven-plugin</module>
-        <module>cactus-maven-versioning</module>
-        <module>cactus-maven-xml</module>
-        <module>cactus-metadata</module>
-        <module>cactus-process</module>
-        <module>cactus-scope</module>
         <module>cactus-tasks</module>
-        <module>cactus-tests</module>
-        <module>cactus-util</module>
+        <module>cactus-maven-xml</module>
         <module>wordy</module>
+        <module>cactus-process</module>
+        <module>cactus-util</module>
+        <module>cactus-cli</module>
+        <module>cactus-git</module>
+        <module>cactus-scope</module>
+        <module>cactus-maven-versioning</module>
+        <module>cactus-codeflowers</module>
+        <module>cactus-maven-plugin</module>
+        <module>cactus-tests</module>
     </modules>
 
     <properties>
-        <cactus.previous.version>1.5.36</cactus.previous.version>
-        <cactus.version>1.5.37</cactus.version>
+        <java.source.version>11</java.source.version>
+        <cactus.previous.version>1.5.40</cactus.previous.version>
+        <cactus-metadata-plugin.previous.version>1.0.1</cactus-metadata-plugin.previous.version>
+        <cactus.version>1.5.41</cactus.version>
         <jackson.version>2.13.4.2</jackson.version>
-        <junit5.version>5.9.0</junit5.version>
-        <mastfrog.version>2.9.0</mastfrog.version>
+        <junit5.version>5.9.1</junit5.version>
+        <mastfrog.version>2.9.1</mastfrog.version>
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
         <maven.api.version>3.8.6</maven.api.version>
         <nuprocess.version>2.0.5</nuprocess.version>
-        <slf4j.version>2.0.0-alpha7</slf4j.version>
+        <slf4j.version>2.0.3</slf4j.version>
         <maven.plugin.plugin.version>3.6.4</maven.plugin.plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
@@ -127,6 +128,14 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
+            
+            <!-- Cactus Metadata -->
+            <dependency>
+                <groupId>com.telenav.cactus.metadata</groupId>
+                <artifactId>cactus-metadata</artifactId>
+                <version>${cactus-metadata-maven-plugin.previous.version}</version>
+            </dependency>
+            
 
             <!-- Maven -->
             <dependency>
@@ -176,9 +185,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>cactus-maven-plugin</artifactId>
-                <version>${cactus.previous.version}</version>
+                <groupId>com.telenav.cactus.metadata</groupId>
+                <artifactId>cactus-metadata-maven-plugin</artifactId>
+                <version>${cactus-metadata-maven-plugin.previous.version}</version>
                 <executions>
                     <execution>
                         <id>generate-metainfo</id>
@@ -210,13 +219,37 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.source.version}</source>
+                    <testSource>${java.source.version}</testSource>
+                    <target>${java.source.version}</target>
+                    <release>${java.source.version}</release>
+                    <compilerArgs>
+                        <compilerArg>-Xlint:unchecked</compilerArg>
+                        <compilerArg>-Xlint:-requires-transitive-automatic</compilerArg>
+                        <compilerArg>-Xlint:deprecation</compilerArg>
+                    </compilerArgs>
+                </configuration>
+
+            </plugin>
+            
         </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.version}</version>
+                    <version>${cactus.previous.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.telenav.cactus.metadata</groupId>
+                    <artifactId>cactus-maven-plugin</artifactId>
+                    <version>${cactus-metadata-maven-plugin.previous.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

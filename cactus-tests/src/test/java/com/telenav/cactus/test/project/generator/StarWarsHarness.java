@@ -63,10 +63,10 @@ public final class StarWarsHarness
     static
     {
         DEFAULT_DEBUG = Boolean.getBoolean(
-            "cactus.test.debug") || 
-                "true".equals(getenv("CACTUS_TEST_DEFAULT_DEBUG"));
-        SLF4J_DEBUG  = Boolean.getBoolean(
-            "cactus.test.slf4j.debug") 
+                "cactus.test.debug")
+                || "true".equals(getenv("CACTUS_TEST_DEFAULT_DEBUG"));
+        SLF4J_DEBUG = Boolean.getBoolean(
+                "cactus.test.slf4j.debug")
                 || "true".equals(getenv("CACTUS_SLF4J_DEBUG"));
         TESTS_DISABLED = Boolean.getBoolean("cactus.tests.skip")
                 || "true".equals(getenv("CACTUS_TESTS_SKIP"));
@@ -87,10 +87,18 @@ public final class StarWarsHarness
 
     public StarWarsHarness(TestInfo info) throws IOException
     {
-        this.info = info;
-        starwars = starWars();
-        starwars.superpomsProject().build();
-        starwars.build();
+        if (TESTS_DISABLED)
+        {
+            this.info = null;
+            this.starwars = null;
+        }
+        else
+        {
+            this.info = info;
+            starwars = starWars();
+            starwars.superpomsProject().build();
+            starwars.build();
+        }
     }
 
     private StarWarsHarness(StarWarsHarness harn) throws IOException
@@ -128,6 +136,9 @@ public final class StarWarsHarness
 
     public void teardown() throws IOException
     {
+        if (TESTS_DISABLED) {
+            return;
+        }
         if (failed.get())
         {
             System.out.println("Test " + info.getDisplayName() + " failed.");
@@ -148,6 +159,9 @@ public final class StarWarsHarness
 
     public void runTest(boolean debug, ThrowingRunnable run) throws Exception
     {
+        if (TESTS_DISABLED) {
+            return;
+        }
         BuildLog log = new BuildLog("", info.getDisplayName());
         log.run(() ->
         {

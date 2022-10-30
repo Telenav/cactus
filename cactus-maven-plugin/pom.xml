@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-parent</artifactId>
-        <version>1.5.37</version>
+        <version>1.5.41</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -27,9 +27,6 @@
 
     <properties>
         <enforcer.skip>true</enforcer.skip>
-        <!-- this must be overridden here only to use the previous version,
-        or it will fail trying to process itself while it is being built -->
-        <cactus.maven.plugin.versions>${cactus.version}</cactus.maven.plugin.versions>
         <java.module.name>cactus.maven.plugin</java.module.name>
     </properties>
 
@@ -46,7 +43,7 @@
             <artifactId>cactus-graph</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.telenav.cactus</groupId>
+            <groupId>com.telenav.cactus.metadata</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
         <dependency>
@@ -198,11 +195,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven.plugin.plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.telenav.cactus</groupId>
-                    <artifactId>cactus-maven-plugin</artifactId>
-                    <version>${cactus.previous.version}</version>
                 </plugin>
             </plugins>
 
