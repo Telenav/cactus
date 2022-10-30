@@ -33,7 +33,6 @@
         <module>cactus-maven-model</module>
         <module>cactus-graph</module>
         <module>cactus-maven-log</module>
-        <module>cactus-metadata</module>
         <module>cactus-tasks</module>
         <module>cactus-maven-xml</module>
         <module>wordy</module>
@@ -54,7 +53,7 @@
         <cactus.version>1.5.40</cactus.version>
         <jackson.version>2.13.4.2</jackson.version>
         <junit5.version>5.9.1</junit5.version>
-        <mastfrog.version>2.9.0</mastfrog.version>
+        <mastfrog.version>2.9.1</mastfrog.version>
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
         <maven.api.version>3.8.6</maven.api.version>
         <nuprocess.version>2.0.5</nuprocess.version>
