@@ -45,6 +45,7 @@
         <module>cactus-codeflowers</module>
         <module>cactus-maven-plugin</module>
         <module>cactus-tests</module>
+        <module>release-profiles-maven-plugin</module>
     </modules>
 
     <properties>
