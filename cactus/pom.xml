@@ -19,7 +19,7 @@
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
-    <version>1.5.41</version>
+    <version>1.5.42</version>
 
     <packaging>pom</packaging>
 
