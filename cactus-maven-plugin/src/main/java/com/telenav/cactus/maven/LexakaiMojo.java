@@ -255,7 +255,7 @@ public class LexakaiMojo extends BaseMojo
             {
                     "FieldCanBeLocal", "FieldMayBeFinal"
             })
-    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.16")
+    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.17")
     private String lexakaiVersion = "1.0.16";
 
     /**
