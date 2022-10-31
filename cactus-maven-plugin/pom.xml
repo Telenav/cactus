@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.telenav.cactus</groupId>
         <artifactId>cactus-parent</artifactId>
-        <version>1.5.42</version>
+        <version>1.5.43</version>
     </parent>
 
     <artifactId>cactus-maven-plugin</artifactId>
@@ -35,31 +35,29 @@
         <!-- Cactus -->
 
         <dependency>
-            <groupId>com.telenav.cactus</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>cactus-git</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.telenav.cactus</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>cactus-graph</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cactus-maven-versioning</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cactus-tasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cactus-codeflowers</artifactId>
         </dependency>
         <dependency>
             <groupId>com.telenav.cactus.metadata</groupId>
             <artifactId>cactus-metadata</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.telenav.cactus</groupId>
-            <artifactId>cactus-maven-versioning</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.telenav.cactus</groupId>
-            <artifactId>cactus-tasks</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.telenav.cactus</groupId>
-            <artifactId>cactus-codeflowers</artifactId>
-        </dependency>
-
-        <!-- Mastfrog -->
 
         <!-- Maven -->
 

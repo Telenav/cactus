@@ -13,13 +13,13 @@
     <parent>
         <groupId>com.telenav</groupId>
         <artifactId>telenav-root-superpom</artifactId>
-        <version>1.0.7</version>
+        <version>1.0.8</version>
         <relativePath/>
     </parent>
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
-    <version>1.5.42</version>
+    <version>1.5.43</version>
 
     <packaging>pom</packaging>
 
@@ -73,11 +73,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>cactus-maven-xml</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>cactus-metadata</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
