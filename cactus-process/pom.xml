@@ -8,8 +8,6 @@
     </parent>
     <artifactId>cactus-process</artifactId>
 
-    <name>cactus-process</name>
-
     <description>Provides a convenient wrapper API around NuProcess to simplify
         running external processes.</description>
 

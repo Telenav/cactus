@@ -23,7 +23,6 @@
 
     <packaging>pom</packaging>
 
-    <name>Cactus</name>
     <description>Bill Of Materials for Cactus.
         Import this pom as a pom-type, import scope dependency in your dependencyManagement
          section to depend on a consistent set of versions of cactus.</description>
