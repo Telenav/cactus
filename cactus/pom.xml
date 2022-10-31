@@ -13,13 +13,13 @@
     <parent>
         <groupId>com.telenav</groupId>
         <artifactId>telenav-root-superpom</artifactId>
-        <version>1.0.8</version>
+        <version>1.0.9</version>
         <relativePath/>
     </parent>
 
     <groupId>com.telenav.cactus</groupId>
     <artifactId>cactus</artifactId>
-    <version>1.5.43</version>
+    <version>1.5.44</version>
 
     <packaging>pom</packaging>
 
