@@ -73,8 +73,8 @@ public final class GitCommand<T> extends CliCommand<T>
     }
 
     @Override
-    protected void configureProcessBulder(NuProcessBuilder bldr,
-            ProcessControl callback)
+    protected void configureProcessBuilder(NuProcessBuilder bldr,
+                                           ProcessControl callback)
     {
         // As a sanity measure, if some command inadvertently tries
         // to invoke an interactive pager, ensure it is something that

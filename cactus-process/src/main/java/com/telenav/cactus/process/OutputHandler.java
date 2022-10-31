@@ -28,18 +28,18 @@ import java.util.function.Function;
  * Note: Implementations should be prepared for their OutputHandlers to be
  * called <i>before or while the process is running</i>, as
  * <code>result()</code> can be invoked at any time by a caller of
- * {@link ProcessControl$result}.
+ * {@link ProcessControl#result()}.
  * </p>
  *
  * @author Tim Boudreau
- * @param <T> The type output is concatenated, parsed or aggregated into
+ * @param <Result> The type output is concatenated, parsed or aggregated into
  */
-public interface OutputHandler<T>
+public interface OutputHandler<Result>
 {
     /**
      * Called repeatedly when output is available for reading; the passed byte
      * buffer's position must be advanced by the amount read within the closure
-     * of this method. The output buffer may be resed, and references to it
+     * of this method. The output buffer may be reset, and references to it
      * should not be retained. This method must be thread-safe with respect to
      * calls to the <code>result()</code> method.
      *
@@ -60,7 +60,7 @@ public interface OutputHandler<T>
      *
      * @return A result
      */
-    T result();
+    Result result();
 
     /**
      * Creates a new OutputHandler that emits a string.
@@ -72,11 +72,12 @@ public interface OutputHandler<T>
         return new StringOutputHandlerImpl();
     }
 
-    static final OutputHandler<Void> NULL = new OutputHandler<Void>()
+    OutputHandler<Void> NULL = new OutputHandler<>()
     {
         @Override
-        public void onOutput(ProcessControl<?, ?> process, ByteBuffer bb,
-                boolean bln)
+        public void onOutput(ProcessControl<?, ?> process,
+                             ByteBuffer buffer,
+                             boolean ignored)
         {
             // do nothing
         }
@@ -86,10 +87,9 @@ public interface OutputHandler<T>
         {
             return null;
         }
-
     };
 
-    default <R> OutputHandler<R> map(Function<T, R> func)
+    default <R> OutputHandler<R> map(Function<Result, R> func)
     {
         return new OutputHandler<>()
         {

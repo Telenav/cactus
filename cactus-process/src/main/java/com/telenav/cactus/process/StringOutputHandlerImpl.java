@@ -32,13 +32,14 @@ final class StringOutputHandlerImpl implements StringOutputHandler
 
     @Override
     public synchronized void onOutput(ProcessControl<?, ?> process,
-            ByteBuffer bb, boolean closed)
+                                      ByteBuffer buffer,
+                                      boolean closed)
     {
-        int len = bb.remaining();
+        int len = buffer.remaining();
         if (len > 0)
         {
             byte[] bytes = new byte[len];
-            bb.get(bytes);
+            buffer.get(bytes);
             output.append(new String(bytes, UTF_8));
         }
     }

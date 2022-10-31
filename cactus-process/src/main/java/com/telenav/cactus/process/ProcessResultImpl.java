@@ -7,14 +7,17 @@ import static com.mastfrog.util.preconditions.Checks.notNull;
  *
  * @author Tim Boudreau
  */
-final class ProcessResultImpl<O, E> extends ProcessResult<O, E>
+final class ProcessResultImpl<StdOut, StdErr> extends ProcessResult<StdOut, StdErr>
 {
     private final ProcessState state;
-    private final O stdout;
-    private final E stderr;
 
-    ProcessResultImpl(ProcessState state, O stdout,
-            E stderr)
+    private final StdOut stdout;
+
+    private final StdErr stderr;
+
+    ProcessResultImpl(ProcessState state,
+                      StdOut stdout,
+                      StdErr stderr)
     {
         this.state = notNull("state", state);
         this.stdout = stdout;
@@ -22,21 +25,20 @@ final class ProcessResultImpl<O, E> extends ProcessResult<O, E>
     }
 
     @Override
-    public ProcessState state()
+    public StdErr standardError()
     {
-        return state;
+        return stderr;
     }
 
     @Override
-    public O standardOutput()
+    public StdOut standardOutput()
     {
         return stdout;
     }
 
     @Override
-    public E standardError()
+    public ProcessState state()
     {
-        return stderr;
+        return state;
     }
-
 }

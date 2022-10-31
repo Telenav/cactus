@@ -39,13 +39,13 @@ import java.util.function.Supplier;
  *
  * @author Tim Boudreau
  */
-@SuppressWarnings("unused")
-public abstract class CliCommand<T> implements Supplier<String>
+@SuppressWarnings({ "unused", "GrazieInspection", "SpellCheckingInspection" })
+public abstract class CliCommand<Result> implements Supplier<String>
 {
     private static final int MAX_LAUNCH_ATTEMPTS = 7;
 
-    public static <O, E> AwaitableCompletionStage<ProcessResult<O, E>> completionStageForProcess(
-            ProcessControl<O, E> proc)
+    public static <StdOut, StdErr> AwaitableCompletionStage<ProcessResult<StdOut, StdErr>>
+        completionStageForProcess(ProcessControl<StdOut, StdErr> proc)
     {
         return AwaitableCompletionStage.of(proc.onExit());
     }
@@ -84,9 +84,9 @@ public abstract class CliCommand<T> implements Supplier<String>
 
     protected final String name;
 
-    protected final ProcessResultConverter<T> resultCreator;
+    protected final ProcessResultConverter<Result> resultCreator;
 
-    public CliCommand(String name, ProcessResultConverter<T> resultCreator)
+    public CliCommand(String name, ProcessResultConverter<Result> resultCreator)
     {
         this.name = name;
         this.resultCreator = resultCreator;
@@ -104,12 +104,12 @@ public abstract class CliCommand<T> implements Supplier<String>
      *
      * @return A converter
      */
-    protected ProcessResultConverter<T> resultConverter()
+    protected ProcessResultConverter<Result> resultConverter()
     {
         return resultCreator;
     }
 
-    public AwaitableCompletionStage<T> run()
+    public AwaitableCompletionStage<Result> run()
     {
         return AwaitableCompletionStage.from(() ->
         {
@@ -148,10 +148,10 @@ public abstract class CliCommand<T> implements Supplier<String>
     /**
      * Do any customization of the process builder (env, etc) here.
      *
-     * @param bldr A process builder
+     * @param builder A process builder
      */
-    protected void configureProcessBulder(NuProcessBuilder bldr,
-            ProcessControl callback)
+    protected void configureProcessBuilder(NuProcessBuilder builder,
+                                           ProcessControl<?, ?> callback)
     {
         // for subclasses
     }
@@ -241,13 +241,10 @@ public abstract class CliCommand<T> implements Supplier<String>
         return Optional.empty();
     }
 
-    private void internalConfigureProcessBuilder(NuProcessBuilder bldr,
-            ProcessControl callback)
+    private void internalConfigureProcessBuilder(NuProcessBuilder builder,
+            ProcessControl<?,?> callback)
     {
-        workingDirectory().ifPresent(dir ->
-        {
-            bldr.setCwd(dir);
-        });
-        configureProcessBulder(bldr, callback);
+        workingDirectory().ifPresent(builder::setCwd);
+        configureProcessBuilder(builder, callback);
     }
 }

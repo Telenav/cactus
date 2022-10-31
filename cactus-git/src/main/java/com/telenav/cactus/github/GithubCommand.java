@@ -337,8 +337,8 @@ public class GithubCommand<T> extends CliCommand<T>
         }
 
         @Override
-        protected void configureProcessBulder(NuProcessBuilder bldr,
-                ProcessControl process)
+        protected void configureProcessBuilder(NuProcessBuilder bldr,
+                                               ProcessControl process)
         {
             process.withStandardInputHandler((ctrl, buf) ->
             {

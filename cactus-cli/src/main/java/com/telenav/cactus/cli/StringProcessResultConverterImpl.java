@@ -32,7 +32,6 @@ import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 final class StringProcessResultConverterImpl implements
         StringProcessResultConverter
 {
-
     final IntPredicate exitCodeTest;
     private final BuildLog log = BuildLog.get();
 
@@ -55,19 +54,18 @@ final class StringProcessResultConverterImpl implements
         // immediately called back before the process has *started*.
         return completionStageForProcess(process).thenApply(result ->
         {
-            log.debug(() ->
-            {
-                return "exit " + result.exitValue() + ":\n" + result
-                        .standardOutput() + "\n"
-                        + (result.exitValue() != 0
-                           ? result.standardError()
-                           : "");
-            });
+            log.debug(() -> "exit "
+                    + result.exitValue()
+                    + ":\n"
+                    + result.standardOutput() + "\n"
+                    + (result.exitValue() != 0
+                        ? result.standardError()
+                        : ""));
             if (exitCodeTest.test(result.exitValue()))
             {
                 return result.standardOutput();
             }
-            ProcessFailedException ex = new ProcessFailedException(description,
+            var ex = new ProcessFailedException(description,
                     process, result.standardOutput(),
                     result.standardError());
             ex.initCause(launched);

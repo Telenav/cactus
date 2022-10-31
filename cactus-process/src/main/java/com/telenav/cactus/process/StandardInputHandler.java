@@ -29,21 +29,19 @@ public interface StandardInputHandler
     /**
      * Returns a do-nothing StdinHandler.
      */
-    static final StandardInputHandler DEFAULT = new DefaultStdinHandler();
+    StandardInputHandler DEFAULT = new DefaultStdinHandler();
 
     /**
-     * Called with a byte buffer that can be written into (up to its remainder)
-     * when the application requests input. Return true to notify the
-     * application that there is more input if the buffer is not large enough to
-     * accommodate all you want to write.
+     * Called with a byte buffer that can be written into (up to its remainder) when the application requests input.
+     * Return true to notify the application that there is more input if the buffer is not large enough to accommodate
+     * all you want to write.
      * <p>
      * If the buffer is written to, it must be flipped before returning.
      * </p>
      *
      * @param process A process
-     * @param bb A byte buffer
+     * @param buffer A byte buffer
      * @return true if there is more data to write
      */
-    boolean onStdinReady(ProcessControl process, ByteBuffer bb);
-
+    boolean onStdinReady(ProcessControl<?, ?> process, ByteBuffer buffer);
 }

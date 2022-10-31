@@ -30,21 +30,22 @@ import static com.telenav.cactus.process.OutputHandler.NULL;
  * Control interface for interacting with a process.
  *
  * @author Tim Boudreau
- * @param <O> The standard output type
- * @param <E> The standard error type
+ * @param <StdOut> The standard output type
+ * @param <StdErr> The standard error type
  */
-public interface ProcessControl<O, E>
+@SuppressWarnings({ "unused", "UnusedReturnValue" })
+public interface ProcessControl<StdOut, StdErr>
 {
     /**
      * Complete the passed CompletableFuture on exit.
      *
      * @param future A future
      */
-    void onExit(CompletableFuture<ProcessResult<O, E>> future);
+    void onExit(CompletableFuture<ProcessResult<StdOut, StdErr>> future);
 
     ProcessState state();
 
-    default ProcessControl<O, E> killAfter(Duration maximumRunTime)
+    default ProcessControl<StdOut, StdErr> killAfter(Duration maximumRunTime)
     {
         KillQueue.enqueue(maximumRunTime, this);
         return this;
@@ -60,14 +61,14 @@ public interface ProcessControl<O, E>
         return -1;
     }
 
-    public static <O, E> ProcessControl<O, E> failure(Exception thrown)
+    static <StdOut, StdErr> ProcessControl<StdOut, StdErr> failure(Exception thrown)
     {
         return new FailedProcessControl<>(thrown);
     }
 
-    default CompletionStage<ProcessResult<O, E>> onExit()
+    default CompletionStage<ProcessResult<StdOut, StdErr>> onExit()
     {
-        CompletableFuture<ProcessResult<O, E>> result = new CompletableFuture<>();
+        CompletableFuture<ProcessResult<StdOut, StdErr>> result = new CompletableFuture<>();
         onExit(result);
         return result;
     }
@@ -76,15 +77,15 @@ public interface ProcessControl<O, E>
      * Create a new ProcessControl that uses strings for output, attaching it to
      * the passed NuProcessBuilder.
      *
-     * @param bldr A builder
+     * @param builder A builder
      * @return A ProcessControl
      */
-    public static ProcessControl<String, String> create(NuProcessBuilder bldr)
+    static ProcessControl<String, String> create(NuProcessBuilder builder)
     {
-        notNull("bldr", bldr);
+        notNull("builder", builder);
         ProcessCallback<String, String> result = ProcessCallback.create();
         notNull("result", result);
-        bldr.setProcessListener(result);
+        builder.setProcessListener(result);
         return result;
     }
 
@@ -96,7 +97,7 @@ public interface ProcessControl<O, E>
      *
      * @return this
      */
-    default ProcessControl<O, E> abortOnInput()
+    default ProcessControl<StdOut, StdErr> abortOnInput()
     {
         return withStandardInputHandler(new AbortOnInputStdinHandler(), true);
     }
@@ -110,7 +111,7 @@ public interface ProcessControl<O, E>
      * @param notificationCallback A callback
      * @return this
      */
-    default ProcessControl<O, E> abortOnInput(Runnable notificationCallback)
+    default ProcessControl<StdOut, StdErr> abortOnInput(Runnable notificationCallback)
     {
         return withStandardInputHandler(new AbortOnInputStdinHandler(
                 notificationCallback), true);
@@ -125,7 +126,7 @@ public interface ProcessControl<O, E>
      * @return a new ProcessControl whose state is shared with this, which uses
      * the new output handler
      */
-    <T> ProcessControl<T, E> withOutputHandler(OutputHandler<T> oh);
+    <T> ProcessControl<T, StdErr> withOutputHandler(OutputHandler<T> oh);
 
     /**
      * Provide a different OutputHandler for standard error; this method must be
@@ -136,7 +137,7 @@ public interface ProcessControl<O, E>
      * @return a new ProcessControl whose state is shared with this, which uses
      * the new output handler
      */
-    <T> ProcessControl<O, T> withErrorHandler(OutputHandler<T> oe);
+    <T> ProcessControl<StdOut, T> withErrorHandler(OutputHandler<T> oe);
 
     /**
      * Returns a new ProcessControl that replaces the error and output handlers
@@ -167,8 +168,6 @@ public interface ProcessControl<O, E>
     /**
      * Determine if a process is running. Will be false both before and after a
      * run.
-     *
-     * @return
      */
     boolean isRunning();
 
@@ -181,7 +180,7 @@ public interface ProcessControl<O, E>
 
     /**
      * Get the current exit code (will be -1 if still running, Integer.MAX_VALUE
-     * if killed) and stdin / stdoout of the process. This method may be called
+     * if killed) and stdin / stdout of the process. This method may be called
      * at any time, but may not return a useful result until process exit. The
      * output objects in the result of a still-running process may be null - the
      * behavior is a contract between the {@link OutputHandler} used and the
@@ -190,7 +189,7 @@ public interface ProcessControl<O, E>
      *
      * @return A result
      */
-    ProcessResult<O, E> result();
+    ProcessResult<StdOut, StdErr> result();
 
     /**
      * Set up a handler for requests from the process for input.
@@ -199,8 +198,8 @@ public interface ProcessControl<O, E>
      * @param wantIn If true, notify the process
      * @return this
      */
-    ProcessControl<O, E> withStandardInputHandler(StandardInputHandler handler,
-            boolean wantIn);
+    ProcessControl<StdOut, StdErr> withStandardInputHandler(StandardInputHandler handler,
+                                                            boolean wantIn);
 
     /**
      * Get the exit value; follows the contract of

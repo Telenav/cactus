@@ -56,7 +56,8 @@ final class KillQueue
     }
 
     static boolean isStarted()
-    { // for tests
+    {
+        // for tests
         return INSTANCE.started.get();
     }
 
@@ -96,7 +97,7 @@ final class KillQueue
                         {
                             throw ((ThreadDeath) ex);
                         }
-                        ex.printStackTrace();;
+                        ex.printStackTrace();
                     }
                 }
             }
@@ -109,7 +110,7 @@ final class KillQueue
         }
     }
 
-    private final class KillQueueEntry implements Delayed
+    @SuppressWarnings("UnusedReturnValue") private static final class KillQueueEntry implements Delayed
     {
         private final Reference<ProcessControl<?, ?>> processRef;
         private final long expiresAt;
@@ -137,6 +138,7 @@ final class KillQueue
             return false;
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public long getDelay(TimeUnit unit)
         {

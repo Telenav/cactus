@@ -23,7 +23,7 @@ import static java.lang.Integer.toHexString;
 
 /**
  * Encapsulates the state of a process in a single 32 bit int that can be used
- * with atomics. The first 2 bits encapsulate whether or not the process is
+ * with atomics. The first 2 bits encapsulate whether the process is
  * running, covering pre-initialization, initialized, running and exited,
  * whether it has been killed, and if input is expected to be requested. This
  * ensures that the reported state of a process is always consistent, without
@@ -31,12 +31,12 @@ import static java.lang.Integer.toHexString;
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("SwitchStatementWithTooFewBranches")
 public final class ProcessState
 {
-
     private static final int STATE_MASK = 0b11;
     private final int value;
-    private static final RunningStatus[] STATII = RunningStatus.values();
+    private static final RunningStatus[] STATUSES = RunningStatus.values();
     public static final ProcessState INITIAL = new ProcessState();
 
     private ProcessState(int value)
@@ -52,7 +52,7 @@ public final class ProcessState
                 return INITIAL;
             default:
                 int stateOrdinal = value & STATE_MASK;
-                if (stateOrdinal >= STATII.length)
+                if (stateOrdinal >= STATUSES.length)
                 {
                     throw new IllegalArgumentException(
                             "State ordinal out of range: " + stateOrdinal);
@@ -142,7 +142,7 @@ public final class ProcessState
     }
 
     /**
-     * Create a copy of this state with the input request bit cleared.
+     * Create a copy of this state with the input-request bit cleared.
      *
      * @return a state
      */
@@ -158,7 +158,7 @@ public final class ProcessState
     /**
      * Determine if the input request bit is set.
      *
-     * @return Whether or not input is requested
+     * @return Whether input is requested
      */
     public boolean wantsInput()
     {
@@ -180,7 +180,7 @@ public final class ProcessState
     /**
      * Determine if the killed bit is set.
      *
-     * @return Whether or not the process was killed (which does not necessarily
+     * @return Whether the process was killed (which does not necessarily
      * mean it has already exited)
      */
     public boolean wasKilled()
@@ -195,7 +195,7 @@ public final class ProcessState
      */
     public RunningStatus state()
     {
-        return STATII[value & 0b11];
+        return STATUSES[value & 0b11];
     }
 
     /**
@@ -231,7 +231,7 @@ public final class ProcessState
      * Determine if the process was running at the time of this instance's
      * creation.
      *
-     * @return Whether or not the process was running
+     * @return Whether the process was running
      */
     public boolean isRunning()
     {
@@ -242,7 +242,7 @@ public final class ProcessState
      * Determine if the process had exited at the time of this instance's
      * creation.
      *
-     * @return Whether or not it had exited
+     * @return Whether it had exited
      */
     public boolean isExited()
     {
@@ -264,7 +264,7 @@ public final class ProcessState
     }
 
     /**
-     * WHether or not the process has been started.
+     * Whether the process has been started.
      *
      * @return true if it has not yet entered the running state.
      */
@@ -288,10 +288,10 @@ public final class ProcessState
 
     /**
      * A phase of a runnable process's lifecycle - note these are states a
-     * process <i>can be in</i> - whether or not the process was killed is not
+     * process <i>can be in</i> - whether the process was killed is not
      * one of them, since it is a thing that results in a state of EXITED.
      */
-    public enum RunningStatus
+    @SuppressWarnings("unused") public enum RunningStatus
     {
         /**
          * No attempt has yet been made to start the process.

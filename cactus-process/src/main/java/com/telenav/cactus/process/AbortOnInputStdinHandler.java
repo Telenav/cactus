@@ -29,7 +29,6 @@ import java.nio.ByteBuffer;
  */
 final class AbortOnInputStdinHandler implements StandardInputHandler
 {
-
     private final Runnable callback;
 
     AbortOnInputStdinHandler(Runnable callback)
@@ -45,9 +44,9 @@ final class AbortOnInputStdinHandler implements StandardInputHandler
     }
 
     @Override
-    public boolean onStdinReady(ProcessControl process, ByteBuffer bb)
+    public boolean onStdinReady(ProcessControl<?, ?> process, ByteBuffer buffer)
     {
-        if (bb.remaining() == 0)
+        if (buffer.remaining() == 0)
         {
             return true;
         }

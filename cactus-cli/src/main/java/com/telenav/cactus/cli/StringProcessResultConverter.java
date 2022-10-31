@@ -41,26 +41,22 @@ public interface StringProcessResultConverter extends
     default ProcessResultConverter<Boolean> testedWith(
             Predicate<String> predicate)
     {
-        return map(text -> predicate.test(text));
+        return map(predicate::test);
     }
 
     default ProcessResultConverter<List<String>> lines()
     {
         return trimmed().map(str ->
-        {
-            return str == null
-                   ? null
-                   : Arrays.asList(str.split("\n"));
-        });
+                str == null
+                       ? null
+                       : Arrays.asList(str.split("\n")));
     }
 
     default StringProcessResultConverter trimmed()
     {
         return (description, proc) ->
-        {
-            return AwaitableCompletionStage.of(onProcessStarted(description,
-                    proc).thenApply(String::trim));
-        };
+                AwaitableCompletionStage.of(onProcessStarted(description,
+                        proc).thenApply(String::trim));
     }
 
     default StringProcessResultConverter filter(Pattern pattern)

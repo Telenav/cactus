@@ -23,19 +23,15 @@ package com.telenav.cactus.process;
  * time it was created.
  *
  * @author Tim Boudreau
- * @param <O> The type the standard output is converted into
- * @param <E> The type the standard error output is converted into
+ * @param <StdOut> The type the standard output is converted into
+ * @param <StdErr> The type the standard error output is converted into
  */
-public abstract class ProcessResult<O, E>
+public abstract class ProcessResult<StdOut, StdErr>
 {
-
-    ProcessResult()
-    {
-
-    }
-
-    public static <O, E> ProcessResult<O, E> create(ProcessState state,
-            O stdout, E stderr)
+    public static <StdOut, StdErr> ProcessResult<StdOut, StdErr> create(
+            ProcessState state,
+            StdOut stdout,
+            StdErr stderr)
     {
         return new ProcessResultImpl<>(state, stdout, stderr);
     }
@@ -53,17 +49,17 @@ public abstract class ProcessResult<O, E>
      *
      * @return An object
      */
-    public abstract O standardOutput();
+    public abstract StdOut standardOutput();
 
     /**
      * Get the standard error output of the process.
      *
      * @return An object
      */
-    public abstract E standardError();
+    public abstract StdErr standardError();
 
     /**
-     * Determine if the process has completed, unkilled, with an exit code of
+     * Determine if the process has completed, un-killed, with an exit code of
      * zero.
      *
      * @return true if the process succeeded

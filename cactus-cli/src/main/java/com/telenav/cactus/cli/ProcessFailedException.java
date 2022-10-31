@@ -28,26 +28,26 @@ import java.util.function.Supplier;
  */
 public final class ProcessFailedException extends RuntimeException
 {
-
-    public final ProcessControl process;
+    public final ProcessControl<?, ?> process;
     public final String stdout;
     public final String stderr;
     public final String command;
 
-    public ProcessFailedException(Supplier<String> supp, ProcessControl process,
-            String stdout, String stderr)
+    public ProcessFailedException(Supplier<String> command,
+                                  ProcessControl<?, ?> process,
+                                  String stdout,
+                                  String stderr)
     {
         this.process = process;
         this.stdout = stdout;
         this.stderr = stderr;
-        this.command = supp.get();
+        this.command = command.get();
     }
 
     @Override
     public String getMessage()
     {
         StringBuilder result = new StringBuilder(command);
-
         result.append(" exited ").append(process.exitValue());
         if (!stdout.isBlank())
         {

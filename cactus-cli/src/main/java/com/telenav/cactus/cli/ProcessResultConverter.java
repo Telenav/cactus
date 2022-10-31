@@ -30,56 +30,51 @@ import static java.lang.Thread.currentThread;
 /**
  * Parses output and exit code from a command into a result object.
  *
- * @param <T>
+ * @param <Result>
  */
-public interface ProcessResultConverter<T>
+@SuppressWarnings("unused")
+public interface ProcessResultConverter<Result>
 {
+    AwaitableCompletionStage<Result> onProcessStarted(Supplier<String> description,
+                                                      ProcessControl<String, String> process);
 
-    AwaitableCompletionStage<T> onProcessStarted(Supplier<String> description,
-            ProcessControl<String, String> process);
-
-    public static StringProcessResultConverter strings()
+    static StringProcessResultConverter strings()
     {
         return new StringProcessResultConverterImpl();
     }
 
-    public static StringProcessResultConverter strings(
+    static StringProcessResultConverter strings(
             IntPredicate exitCodeTester)
     {
         return new StringProcessResultConverterImpl(exitCodeTester);
     }
     
-    public static ProcessResultConverter<Optional<String>> nonEmptyString() {
-        return strings().map(str -> {
-            return str == null || str.isBlank() ? Optional.empty() : Optional.of(str.trim());
-        });
+    static ProcessResultConverter<Optional<String>> nonEmptyString() {
+        return strings().map(str -> str == null || str.isBlank()
+                ? Optional.empty()
+                : Optional.of(str.trim()));
     }
 
-    public static ProcessResultConverter<Boolean> exitCodeIsZero()
+    static ProcessResultConverter<Boolean> exitCodeIsZero()
     {
         return new BooleanProcessResultConverter();
     }
 
-    public static ProcessResultConverter<Boolean> exitCode(IntPredicate pred)
+    static ProcessResultConverter<Boolean> exitCode(IntPredicate pred)
     {
         return new BooleanProcessResultConverter(pred);
     }
 
-    public static ProcessResultConverter<Integer> rawExitCode()
+    static ProcessResultConverter<Integer> rawExitCode()
     {
         return (description, proc) ->
-        {
-            return AwaitableCompletionStage.of(proc.onExit().handle(
-                    (p, thrown) ->
-            {
-                return thrown != null
-                       ? -1
-                       : p.exitValue();
-            }));
-        };
+                AwaitableCompletionStage.of(proc.onExit().handle((p, thrown) ->
+                    thrown != null
+                           ? -1
+                           : p.exitValue()));
     }
 
-    public static ProcessResultConverter<URI> trailingUriWithTrailingDigitAloneOnLine()
+    static ProcessResultConverter<URI> trailingUriWithTrailingDigitAloneOnLine()
     {
         return strings().map(processOutput ->
         {
@@ -100,28 +95,26 @@ public interface ProcessResultConverter<T>
         });
     }
 
-    default <R> ProcessResultConverter<R> map(Function<T, R> converter)
+    default <R> ProcessResultConverter<R> map(Function<Result, R> converter)
     {
         // Get the maven classloader and apply it on the background thread
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return (description, proc) ->
-        {
-            return AwaitableCompletionStage.of(
-                    onProcessStarted(description, proc)
-                            .thenApply(arg ->
-                            {
-                                Thread t = currentThread();
-                                ClassLoader old = t.getContextClassLoader();
-                                try
+                AwaitableCompletionStage.of(
+                        onProcessStarted(description, proc)
+                                .thenApply(arg ->
                                 {
-                                    t.setContextClassLoader(classLoader);
-                                    return converter.apply(arg);
-                                }
-                                finally
-                                {
-                                    t.setContextClassLoader(old);
-                                }
-                            }));
-        };
+                                    Thread t = currentThread();
+                                    ClassLoader old = t.getContextClassLoader();
+                                    try
+                                    {
+                                        t.setContextClassLoader(classLoader);
+                                        return converter.apply(arg);
+                                    }
+                                    finally
+                                    {
+                                        t.setContextClassLoader(old);
+                                    }
+                                }));
     }
 }

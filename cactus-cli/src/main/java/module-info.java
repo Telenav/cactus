@@ -24,5 +24,6 @@ open module cactus.cli
     requires cactus.process;
     requires cactus.maven.log;
     requires cactus.util;
+    requires com.zaxxer.nuprocess;
     exports com.telenav.cactus.cli;
 }

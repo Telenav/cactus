@@ -20,14 +20,14 @@ package com.telenav.cactus.process;
 import java.nio.ByteBuffer;
 
 /**
- * Default no-op stding handler.
+ * Default no-op stdin handler.
  *
  * @author Tim Boudreau
  */
 final class DefaultStdinHandler implements StandardInputHandler
 {
     @Override
-    public boolean onStdinReady(ProcessControl process, ByteBuffer bb)
+    public boolean onStdinReady(ProcessControl<?, ?> process, ByteBuffer buffer)
     {
         System.err.println(
                 "Stdin request from " + process + " but no handler was set up");

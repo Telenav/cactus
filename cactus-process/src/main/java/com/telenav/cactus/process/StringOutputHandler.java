@@ -30,6 +30,7 @@ import static java.util.Optional.ofNullable;
  *
  * @author Tim Boudreau
  */
+@SuppressWarnings("unused")
 public interface StringOutputHandler extends OutputHandler<String>
 {
 
@@ -55,10 +56,10 @@ public interface StringOutputHandler extends OutputHandler<String>
             @Override
             public Optional<String> result()
             {
-                String res = StringOutputHandler.this.result();
-                return res == null || res.isBlank()
+                String result = StringOutputHandler.this.result();
+                return result == null || result.isBlank()
                        ? empty()
-                       : of(res.trim());
+                       : of(result.trim());
             }
         };
     }

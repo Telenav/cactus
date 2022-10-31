@@ -33,7 +33,6 @@ import static com.telenav.cactus.cli.CliCommand.completionStageForProcess;
 final class BooleanProcessResultConverter implements
         ProcessResultConverter<Boolean>
 {
-
     private final IntPredicate exitCodeTest;
 
     BooleanProcessResultConverter(IntPredicate exitCodeTest)
@@ -51,9 +50,7 @@ final class BooleanProcessResultConverter implements
             Supplier<String> supp, ProcessControl<String, String> process)
     {
         return completionStageForProcess(process).thenApply(proc ->
-        {
-            return exitCodeTest.test(proc.exitValue());
-        });
+                exitCodeTest.test(proc.exitValue()));
     }
 
 }

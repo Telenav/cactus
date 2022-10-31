@@ -45,24 +45,26 @@ import static com.telenav.cactus.process.ProcessState.processState;
  * initial ProcessCallback and then configure to taste.
  *
  * @author Tim Boudreau
- * @param <O> The type standard output will be parsed to
- * @param <E> The type standard error will be parsed to
+ * @param <StdOutType> The type standard output will be parsed to
+ * @param <StdErrType> The type standard error will be parsed to
  */
-public final class ProcessCallback<O, E> implements NuProcessHandler,
-                                                    ProcessControl<O, E>
+@SuppressWarnings({ "DuplicatedCode", "SwitchStatementWithTooFewBranches" })
+public final class ProcessCallback<StdOutType, StdErrType> implements
+        NuProcessHandler,
+        ProcessControl<StdOutType, StdErrType>
 {
     // This AtomicInteger holds the running state, the exit code and
     // a few other state bits
     private final AtomicInteger state;
     private final CountDownLatch latch;
     private final ConcurrentLinkedList<ProcessListener> listeners;
-    private final OutputHandler<O> stdout;
-    private final OutputHandler<E> stderr;
+    private final OutputHandler<StdOutType> stdout;
+    private final OutputHandler<StdErrType> stderr;
     private volatile int pid = -1;
     private StandardInputHandler stdin = StandardInputHandler.DEFAULT;
     private NuProcess process;
 
-    ProcessCallback(OutputHandler<O> stdout, OutputHandler<E> stderr)
+    ProcessCallback(OutputHandler<StdOutType> stdout, OutputHandler<StdErrType> stderr)
     {
         this.stdout = stdout;
         this.stderr = stderr;
@@ -72,7 +74,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     }
 
     <OO, EE> ProcessCallback(ProcessCallback<OO, EE> orig,
-            OutputHandler<O> stdout, OutputHandler<E> stderr)
+                             OutputHandler<StdOutType> stdout, OutputHandler<StdErrType> stderr)
     {
         this.stdout = stdout;
         this.stderr = stderr;
@@ -84,7 +86,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     }
 
     @Override
-    public <T> ProcessControl<O, T> withErrorHandler(OutputHandler<T> oe)
+    public <T> ProcessControl<StdOutType, T> withErrorHandler(OutputHandler<T> oe)
     {
         ProcessState.RunningStatus runState = state().state();
         switch (runState)
@@ -99,7 +101,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     }
 
     @Override
-    public <T> ProcessControl<T, E> withOutputHandler(OutputHandler<T> oh)
+    public <T> ProcessControl<T, StdErrType> withOutputHandler(OutputHandler<T> oh)
     {
         ProcessState.RunningStatus runState = state().state();
         switch (runState)
@@ -134,9 +136,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
             UnaryOperator<ProcessState> transition)
     {
         int result = state.updateAndGet(old ->
-        {
-            return transition.apply(processState(old)).intValue();
-        });
+                transition.apply(processState(old)).intValue());
         return processState(result);
     }
 
@@ -144,9 +144,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
             UnaryOperator<ProcessState> transition)
     {
         int result = state.getAndUpdate(old ->
-        {
-            return transition.apply(processState(old)).intValue();
-        });
+                transition.apply(processState(old)).intValue());
         return processState(result);
     }
 
@@ -162,7 +160,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     }
 
     @Override
-    public synchronized ProcessCallback<O, E> withStandardInputHandler(
+    public synchronized ProcessCallback<StdOutType, StdErrType> withStandardInputHandler(
             StandardInputHandler handler,
             boolean wantIn)
     {
@@ -172,7 +170,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
                     + "after process launch");
         }
         this.stdin = notNull("handler", handler);
-        ProcessState prev = getAndUpdateState(old -> old.wantingInput());
+        ProcessState prev = getAndUpdateState(ProcessState::wantingInput);
         if (process != null && !prev.wantsInput())
         {
             process.wantWrite();
@@ -207,7 +205,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
             }
             finally
             {
-                getAndUpdateState(old -> old.killed());
+                getAndUpdateState(ProcessState::killed);
             }
         }
         return false;
@@ -224,12 +222,10 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         return stdin;
     }
 
-    public void onExit(CompletableFuture<ProcessResult<O, E>> future)
+    public void onExit(CompletableFuture<ProcessResult<StdOutType, StdErrType>> future)
     {
         listen((exitCode) ->
-        {
-            future.complete(result());
-        });
+                future.complete(result()));
     }
 
     public void listen(ProcessListener l)
@@ -253,6 +249,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         latch.await();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void await(Duration dur) throws InterruptedException
     {
@@ -266,10 +263,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
         {
             // This is atomic and ensures we cannot invoke a listener
             // twice
-            listeners.drain(listener ->
-            {
-                listener.processExited(state);
-            });
+            listeners.drain(listener -> listener.processExited(state));
         }
         finally
         {
@@ -338,7 +332,7 @@ public final class ProcessCallback<O, E> implements NuProcessHandler,
     }
 
     @Override
-    public ProcessResult<O, E> result()
+    public ProcessResult<StdOutType, StdErrType> result()
     {
         return ProcessResult.create(state(), stdout.result(), stderr.result());
     }

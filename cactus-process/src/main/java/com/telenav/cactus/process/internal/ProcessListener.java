@@ -34,5 +34,4 @@ public interface ProcessListener
      * @param state The exit state of the process
      */
     void processExited(ProcessState state);
-
 }
