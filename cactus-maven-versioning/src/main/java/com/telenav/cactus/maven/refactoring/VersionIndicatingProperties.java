@@ -148,7 +148,6 @@ public final class VersionIndicatingProperties
                     {
                         if (!coordsMap.containsKey(fam + suffix))
                         {
-                            System.out.println("FAMILY VERSION " + fam + suffix + " " + coords);
                             coordsMap.put(fam + suffix, coords);
                         }
                     }
@@ -158,19 +157,16 @@ public final class VersionIndicatingProperties
             {
                 if (!coordsMap.containsKey(fam + suffix))
                 {
-                    System.out.println("FAMILY VERSION " + fam + suffix + " " + coords);
                     coordsMap.put(fam + suffix, coords);
                 }
                 continue;
             }
             if (!coordsMap.containsKey(dashes + suffix))
             {
-                System.out.println("PROJECT VERSION " + dashes + suffix + " " + coords);
                 coordsMap.put(dashes + suffix, coords);
             }
             if (!coordsMap.containsKey(dots + suffix))
             {
-                System.out.println("PROJECT VERSION " + dots + suffix + " " + coords);
                 coordsMap.put(dots + suffix, coords);
             }
         }
