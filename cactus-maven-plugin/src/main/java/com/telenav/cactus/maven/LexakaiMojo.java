@@ -181,7 +181,6 @@ public class LexakaiMojo extends BaseMojo
                     currentThread().setContextClassLoader(jarLoader);
                     // Just in case:
                     setProperty("KIVAKIT_LOG_SYNCHRONOUS", "true");
-                    setProperty("KIVAKIT_LOG", "Console formatter=narrow");
                     Class<?> what = jarLoader.loadClass(
                             "com.telenav.lexakai.Lexakai");
                     Method mth = what.getMethod("embeddedMain", String[].class);
