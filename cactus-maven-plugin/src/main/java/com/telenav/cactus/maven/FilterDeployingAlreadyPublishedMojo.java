@@ -62,6 +62,10 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.NONE;
 @BaseMojoGoal("filter-published")
 public class FilterDeployingAlreadyPublishedMojo extends BaseMojo
 {
+    private static final String[] DEPLOYMENT_SKIPPED_PROPERTIES = new String[]
+    {
+        "skipNexusStagingDeployMojo", "do.not.publish", "maven.deploy.skip"
+    };
 
     private static final SharedDataKey<Map<MavenArtifactCoordinates, PublishedState>> CACHE_KEY = SharedDataKey
             .of("published", Map.class);
@@ -104,12 +108,31 @@ public class FilterDeployingAlreadyPublishedMojo extends BaseMojo
                     .asSupplier().get());
         });
     }
+    
+    private boolean isAlreadySkippingDeployment(MavenProject project)
+    {
+        Properties props = project.getProperties();
+        for (String key : DEPLOYMENT_SKIPPED_PROPERTIES)
+        {
+            if ("true".equals(props.get(key)))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     protected void performTasks(BuildLog log, MavenProject project) throws Exception
     {
         if (pomProjectsOnly && !"pom".equals(project.getPackaging()))
         {
+            return;
+        }
+        if (isAlreadySkippingDeployment(project))
+        {
+            log.info("Deployment is already skipped for " + project
+                    .getArtifactId());
             return;
         }
         PublishedState state = publishedStateOf(project);
