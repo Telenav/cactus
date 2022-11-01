@@ -248,6 +248,8 @@ public class LexakaiMojo extends BaseMojo
     @Parameter(property = COMMIT_CHANGES, defaultValue = "false")
     private boolean commitChanges;
 
+    
+    private static final String TARGET_LEXAKAI_VERSION = "1.0.17";
     /**
      * The destination folder for generated documentation - if unset, it is computed as described above.
      */
@@ -255,8 +257,8 @@ public class LexakaiMojo extends BaseMojo
             {
                     "FieldCanBeLocal", "FieldMayBeFinal"
             })
-    @Parameter(property = "cactus.lexakai-version", defaultValue = "1.0.17")
-    private String lexakaiVersion = "1.0.16";
+    @Parameter(property = "cactus.lexakai-version", defaultValue = TARGET_LEXAKAI_VERSION)
+    private String lexakaiVersion;
 
     /**
      * By default, code is generated into directories that match the relative directory structure from the
