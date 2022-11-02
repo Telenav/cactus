@@ -385,6 +385,8 @@ public class BumpVersionMojo extends ReplaceMojo
                     + super.families + "' and '" + super.family + "'");
         }
 
+        Set<GitCheckout> affectedCheckouts = new HashSet<>();
+
         // Set up version changes for the right things based on the scope:
         switch (scope())
         {
@@ -393,12 +395,16 @@ public class BumpVersionMojo extends ReplaceMojo
 
                 PomVersion myNewVersion = newVersion(myPom);
 
+                affectedCheckouts.add(myCheckout);
+
                 replacer.withSinglePomChange(myPom, myNewVersion);
                 versionForFamily.put(familyOf(myPom), myNewVersion);
                 break;
             case SAME_GROUP_ID:
                 tree.projectsForGroupId(project.getGroupId()).forEach(pom ->
                 {
+                    affectedCheckouts.add(tree.checkoutFor(pom));
+
                     PomVersion nv = newVersion(pom);
                     replacer.withSinglePomChange(pom, nv);
                 });
@@ -408,6 +414,8 @@ public class BumpVersionMojo extends ReplaceMojo
                 {
                     findVersionOfFamily(tree, fam).ifPresent(v ->
                     {
+                        affectedCheckouts.addAll(tree.checkoutsInProjectFamily(
+                                fam));
                         PomVersion nue;
                         if (explicitVersion != null)
                         {
@@ -415,8 +423,10 @@ public class BumpVersionMojo extends ReplaceMojo
                         }
                         else
                         {
-                            Optional<PomVersion> change = v.updatedWith(magnitude(fam), flavor());
-                            if (!change.isPresent()) {
+                            Optional<PomVersion> change = v.updatedWith(
+                                    magnitude(fam), flavor());
+                            if (!change.isPresent())
+                            {
                                 return;
                             }
                             nue = change.get();
@@ -437,13 +447,16 @@ public class BumpVersionMojo extends ReplaceMojo
                 familyWithChildFamilies(tree).forEach(family
                         -> findVersionOfFamily(tree, family).ifPresent(ffv ->
                         {
+                            affectedCheckouts.addAll(tree
+                                    .checkoutsInProjectFamily(family));
                             Optional<PomVersion> change = ffv.updatedWith(
                                     magnitude(family),
                                     flavor());
-                            if (!change.isPresent()) {
+                            if (!change.isPresent())
+                            {
                                 return;
                             }
-                            
+
                             PomVersion newFamilyVersion = change.get();
                             versionForFamily.put(family, ffv);
                             replacer.withFamilyVersionChange(family,
@@ -456,10 +469,13 @@ public class BumpVersionMojo extends ReplaceMojo
                 allFamilies(tree).forEach(family
                         -> findVersionOfFamily(tree, family).ifPresent(ffv ->
                         {
+                            affectedCheckouts.addAll(tree
+                                    .checkoutsInProjectFamily(family));
                             Optional<PomVersion> change = ffv.updatedWith(
                                     magnitude(family),
                                     flavor());
-                            if (!change.isPresent()) {
+                            if (!change.isPresent())
+                            {
                                 return;
                             }
                             PomVersion newFamilyVersion = change.get();
@@ -498,18 +514,28 @@ public class BumpVersionMojo extends ReplaceMojo
                 }
         }
         replacer.pretend(isPretend());
-        
-        if (versionForFamily.isEmpty()) {
+
+        if (versionForFamily.isEmpty())
+        {
             log.info("No version changes needed.");
+            if (createReleaseBranch)
+            {
+                ensureReleaseBranchesCreated(tree, affectedCheckouts, log);
+            }
             return;
         }
-        
+
         log.info("Applying changes");
         log.info(replacer.toString());
         Set<Path> rewritten = replacer.go(log::info);
-        
-        if (rewritten.isEmpty()) {
+
+        if (rewritten.isEmpty())
+        {
             log.info("No changes to commit");
+            if (createReleaseBranch)
+            {
+                ensureReleaseBranchesCreated(tree, affectedCheckouts, log);
+            }
             return;
         }
 
@@ -601,8 +627,9 @@ public class BumpVersionMojo extends ReplaceMojo
                     });
         });
     }
-    
-    private void ensureAllProjectsPreloaded() {
+
+    private void ensureAllProjectsPreloaded()
+    {
         // Maven can - sometimes - lazy-load POMs, which means that
         // the cbump script can fail *after* bumping the versions of
         // pos because some were loaded with the old version, some
@@ -610,7 +637,8 @@ public class BumpVersionMojo extends ReplaceMojo
         // internal model of all POM files *before* we modify them,
         // so it has a consistent view of all the projects while the
         // mojo runs
-        session().getAllProjects().forEach(prj -> {
+        session().getAllProjects().forEach(prj ->
+        {
             prj.getVersion();
         });
     }
@@ -648,7 +676,8 @@ public class BumpVersionMojo extends ReplaceMojo
 
         if (mag.isNone() && flavor.isNone())
         {
-            if (!bumpPublished && explicitVersion == null) {
+            if (!bumpPublished && explicitVersion == null)
+            {
                 fail("Nothing to do for " + mag + " " + flavor + " and cactus.bump-published is not set.");
             }
         }
@@ -673,13 +702,17 @@ public class BumpVersionMojo extends ReplaceMojo
         {
             updatedVersion = oldVersion.updatedWith(mag, flavor).orElse(
                     null);
-            if (updatedVersion == null && !bumpPublished) {
+            if (updatedVersion == null && !bumpPublished)
+            {
                 fail("Applying " + mag + " "
-                                    + "+ " + flavor + " to version "
-                                    + oldVersion + " does not change anything");
-            } else if (updatedVersion == null) {
-                updatedVersion = oldVersion;
+                        + "+ " + flavor + " to version "
+                        + oldVersion + " does not change anything");
             }
+            else
+                if (updatedVersion == null)
+                {
+                    updatedVersion = oldVersion;
+                }
         }
         VersionChange vc = new VersionChange(oldVersion, updatedVersion);
         // Allow version changes to be logged by things that use them
@@ -1127,7 +1160,7 @@ public class BumpVersionMojo extends ReplaceMojo
             return a.loggingName().compareTo(b.loggingName());
         });
         // Populate the commit message
-        try ( Section<CommitMessage> branchesSection = msg.section("Branches"))
+        try (Section<CommitMessage> branchesSection = msg.section("Branches"))
         {
             for (GitCheckout checkout : sortedByName)
             {
@@ -1216,5 +1249,43 @@ public class BumpVersionMojo extends ReplaceMojo
             }
             return true;
         }
+    }
+
+    private void ensureReleaseBranchesCreated(ProjectTree tree,
+            Set<GitCheckout> affectedCheckouts, BuildLog log)
+    {
+        if (this.isIncludeRoot())
+        {
+            affectedCheckouts.add(tree.root());
+        }
+        Set<ProjectFamily> expectedFamilies = families();
+        Map<GitCheckout, Set<ProjectFamily>> familiesForCheckout;
+        /*
+    private void computeReleaseBranchName(GitCheckout co, ProjectTree tree,
+            Map<ProjectFamily, PomVersion> familyVersion,
+            Map<GitCheckout, String> releaseBranchNames, BuildLog log1)
+         */
+        Map<ProjectFamily, PomVersion> versions = new HashMap<>();
+        for (ProjectFamily fam : expectedFamilies)
+        {
+            findVersionOfFamily(tree, fam).ifPresent(ver -> versions.put(fam,
+                    ver));
+        }
+        Map<GitCheckout, String> releaseBranchNames = new HashMap<>();
+        for (GitCheckout co : affectedCheckouts)
+        {
+            computeReleaseBranchName(co, tree,
+                    versions, releaseBranchNames, log);
+        }
+        releaseBranchNames.forEach((checkout, branch) ->
+        {
+            log.info("Create branch " + branch + " in " + checkout
+                    .loggingName());
+            if (!checkout.createAndSwitchToBranch(branch, empty()))
+            {
+                fail("Failed to create branch " + branch + " in " + checkout
+                        .checkoutRoot());
+            }
+        });
     }
 }
