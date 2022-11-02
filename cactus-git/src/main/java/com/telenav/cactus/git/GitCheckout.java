@@ -1082,6 +1082,13 @@ public final class GitCheckout implements Comparable<GitCheckout>
                 root, "merge", branch).run().awaitQuietly();
         return true;
     }
+    
+    public boolean mergeWithClobber(String branch)
+    {
+        new GitCommand<>(ProcessResultConverter.strings(),
+                root, "merge", "-X", "theirs", branch).run().awaitQuietly();
+        return true;
+    }
 
     public Optional<String> mergeBase()
     {

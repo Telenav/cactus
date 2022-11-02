@@ -21,6 +21,7 @@ import com.mastfrog.function.throwing.ThrowingTriConsumer;
 import com.telenav.cactus.git.Branches;
 import com.telenav.cactus.git.Branches.Branch;
 import com.telenav.cactus.git.GitCheckout;
+import com.telenav.cactus.maven.commit.CommitMessage;
 import com.telenav.cactus.maven.log.BuildLog;
 import com.telenav.cactus.maven.mojobase.BaseMojoGoal;
 import com.telenav.cactus.maven.mojobase.ScopedCheckoutsMojo;
@@ -63,8 +64,16 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
     /**
      * The branch to merge into - the default is "develop".
      */
-    @Parameter(property = "cactus.merge.into", defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
+    @Parameter(property = "cactus.merge.into",
+            defaultValue = DEFAULT_DEVELOPMENT_BRANCH)
     String mergeInto;
+
+    /**
+     * If true (the default), use <code>-X ours</code> to automatically prefer
+     * changes from the branch being merged in case of a conflict.
+     */
+    @Parameter(property = "cactus.merge.clobber", defaultValue = "true")
+    boolean clobber;
 
     /**
      * A second branch to merge into - e.g. merge a release branch back to
@@ -129,7 +138,9 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                 return;
             }
             log.info("Have " + toMergeFrom.size() + " checkouts to merge.");
-            Set<GitCheckout> checkoutsToMerge = new HashSet<>(toMergeTo.keySet());
+            List<GitCheckout> checkoutsToMerge = GitCheckout.depthFirstSort(
+                    new HashSet<>(toMergeTo.keySet()));
+
             checkoutsToMerge.retainAll(toMergeFrom.keySet());
             // Do the thing, one repo at a time:
             for (GitCheckout checkout : checkoutsToMerge)
@@ -137,6 +148,18 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                 Branch from = toMergeFrom.get(checkout);
                 Branch to = toMergeTo.get(checkout);
                 Branch also = alsoMergeTo.get(checkout);
+                if (checkout.equals(tree.root()))
+                {
+                    // The checkout root needs a different strategy - it is handled
+                    // last, and will always already have the right new heads since
+                    // we already merged each submodule.  So we just need to generate
+                    // a commit of the heads, then a merge commit with any file changes,
+                    // using -X theirs to prefer remote (read: committed since the last merge)
+                    // changes.
+                    mergeDownSubmoduleRoot(also, log, checkout, from, to);
+                    mergeDownSubmoduleRoot(to, log, checkout, from, to);
+                    continue;
+                }
 
                 // If we have secondary branch to merge to, do that first,
                 // so we leave the repo on the final destination branch
@@ -159,7 +182,14 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                         {
                             checkout.switchToBranch(also.name());
                         }
-                        checkout.merge(from.name());
+                        if (clobber)
+                        {
+                            checkout.mergeWithClobber(from.name());
+                        }
+                        else
+                        {
+                            checkout.merge(from.name());
+                        }
                     });
                     if (push)
                     {
@@ -218,6 +248,78 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
         });
     }
 
+    public void mergeDownSubmoduleRoot(Branch targetBranchToMergeInto,
+            BuildLog log,
+            GitCheckout checkout, Branch from, Branch to)
+    {
+        // For the root checkout, we just need to create a commit, because the
+        // submodules are already there
+        if (targetBranchToMergeInto != null)
+        {
+            if (targetBranchToMergeInto.isRemote())
+            {
+                log.info("Branch " + targetBranchToMergeInto.trackingName()
+                        + " does not exist locally.  Creating it.");
+                ifNotPretending(() ->
+                {
+                    checkout.createAndSwitchToBranch(targetBranchToMergeInto
+                            .name(),
+                            Optional.of(targetBranchToMergeInto.trackingName()));
+                });
+            }
+            else
+            {
+                log.info("Switch " + checkout.loggingName() + " to branch "
+                        + targetBranchToMergeInto.name());
+                checkout.switchToBranch(targetBranchToMergeInto.name());
+            }
+            if (checkout.isDirty())
+            {
+                log.info(
+                        "Generate a commit with submodule changes in " + checkout
+                                .loggingName() + " on " + targetBranchToMergeInto
+                                .name());
+                ifNotPretending(() ->
+                {
+                    checkout.addAll();
+                    CommitMessage msg = new CommitMessage(getClass(),
+                            "Apply submodule updates");
+                    msg.append("Apply submodule updates from " + from + " to "
+                            + to + " and also " + targetBranchToMergeInto
+                            + " in " + checkout.loggingName());
+                    checkout.commit(msg.toString());
+                });
+            }
+
+            log.info(
+                    "Merge " + from + " into " + targetBranchToMergeInto + " for "
+                    + checkout.loggingName() + " with -X theirs");
+            ifNotPretending(() ->
+            {
+                checkout.mergeWithClobber(from.name());
+            });
+            if (checkout.isDirty())
+            {
+                ifNotPretending(() ->
+                {
+                    log.info(
+                            "Generate a merge commit for fiile changes in " + checkout
+                                    .loggingName() + " on " + targetBranchToMergeInto
+                                    .name());
+                    checkout.addAll();
+                    CommitMessage msg = new CommitMessage(
+                            getClass(),
+                            "Merge submodule updates from " + from);
+                    msg.append(
+                            "Merge submodule updates from " + from + " to " + to
+                            + " and also " + targetBranchToMergeInto
+                            + " in " + checkout.loggingName());
+                    checkout.commit(msg.toString());
+                });
+            }
+        }
+    }
+
     private void withBranches(ProjectTree tree, List<GitCheckout> checkouts,
             ThrowingTriConsumer<Map<GitCheckout, Branch>, Map<GitCheckout, Branch>, Map<GitCheckout, Branch>> c)
             throws Exception
@@ -250,7 +352,8 @@ public class MergeBranchMojo extends ScopedCheckoutsMojo
                 }
                 // If something is missing, that just means it was not touched
                 // in whatever performed the changes
-                branchToMergeFrom.ifPresent(branch -> toMergeFrom.put(checkout, branch));
+                branchToMergeFrom.ifPresent(branch -> toMergeFrom.put(checkout,
+                        branch));
 
                 branches.find(mergeInto, true).ifPresent(
                         branchToMergeTo
