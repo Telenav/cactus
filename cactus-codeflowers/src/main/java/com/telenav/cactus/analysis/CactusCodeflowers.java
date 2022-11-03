@@ -14,6 +14,5 @@ import com.telenav.cactus.analysis.codeflowers.*;
 public class CactusCodeflowers {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
     }
 }
