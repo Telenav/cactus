@@ -248,7 +248,7 @@ public class LexakaiMojo extends BaseMojo
     private boolean commitChanges;
 
     
-    private static final String TARGET_LEXAKAI_VERSION = "1.0.17";
+    private static final String TARGET_LEXAKAI_VERSION = "1.0.19";
     /**
      * The destination folder for generated documentation - if unset, it is computed as described above.
      */
