@@ -247,8 +247,8 @@ public class LexakaiMojo extends BaseMojo
     @Parameter(property = COMMIT_CHANGES, defaultValue = "false")
     private boolean commitChanges;
 
-    
-    private static final String TARGET_LEXAKAI_VERSION = "1.0.19";
+    private static final String TARGET_LEXAKAI_VERSION = "1.0.20";
+
     /**
      * The destination folder for generated documentation - if unset, it is computed as described above.
      */
@@ -347,8 +347,7 @@ public class LexakaiMojo extends BaseMojo
         // If the output folder was explicitly specified, use it.
         if (outputFolder != null)
         {
-            appendProjectLexakaiDocPath(Paths.get(outputFolder), project,
-                    checkout);
+            return Paths.get(outputFolder);
         }
         // Uses env upCase($FAMILY)_ASSETS_PATH or looks for a
         // $name-assets folder in the submodule root
@@ -366,13 +365,6 @@ public class LexakaiMojo extends BaseMojo
             Path path, A prj,
             GitCheckout checkout)
     {
-        if (checkout.name().isEmpty())
-        {
-            throw new IllegalArgumentException(
-                    "Cannot use the root project " + checkout
-                            + " for a lexakai path for " + prj);
-        }
-
         Path result = path.resolve("docs")
                 .resolve(prj.version().text())
                 .resolve("lexakai")
@@ -491,7 +483,7 @@ public class LexakaiMojo extends BaseMojo
 
     private Path lexakaiJar() throws Exception
     {
-        return downloadArtifact("com.telenav.lexakai", "lexakai-standalone", 
+        return downloadArtifact("com.telenav.lexakai", "lexakai-standalone",
                 lexakaiVersion).get();
     }
 
@@ -514,7 +506,7 @@ public class LexakaiMojo extends BaseMojo
         if (isDirectory(folderOrFile))
         {
             try (Stream<Path> str = walk(folderOrFile, 512).filter(pth -> !isDirectory(pth) && pth.getFileName()
-                            .toString().endsWith(".svg")))
+                    .toString().endsWith(".svg")))
             {
                 str.forEach(path -> quietly(() -> minimizeSVG(path)));
             }
