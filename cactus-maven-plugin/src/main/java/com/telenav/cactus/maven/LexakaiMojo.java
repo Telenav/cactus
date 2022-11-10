@@ -483,7 +483,7 @@ public class LexakaiMojo extends BaseMojo
 
     private Path lexakaiJar() throws Exception
     {
-        return downloadArtifact("com.telenav.lexakai", "lexakai-standalone",
+        return downloadArtifact("com.telenav.lexakai", "lexakai-application",
                 lexakaiVersion).get();
     }
 
