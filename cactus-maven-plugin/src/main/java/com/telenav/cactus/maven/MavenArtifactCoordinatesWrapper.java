@@ -23,17 +23,19 @@ import com.telenav.cactus.maven.model.DiskResident;
 import com.telenav.cactus.maven.model.GroupId;
 import com.telenav.cactus.maven.model.MavenArtifactCoordinates;
 import com.telenav.cactus.maven.model.PomVersion;
+
 import java.nio.file.Path;
+
 import org.apache.maven.project.MavenProject;
 
 /**
- * Wraps a MavenProject in implementations of MavenArtifactCoordinates and
- * DiskResident so it can be consumed by PublishChecker.
+ * Wraps a MavenProject in implementations of MavenArtifactCoordinates and DiskResident so it can be consumed by
+ * PublishChecker.
  *
  * @author Tim Boudreau
  */
 public final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoordinates,
-                                                       DiskResident
+        DiskResident
 {
     // This class should not be public, but making it non-public breaks
     // reflection-based loading from the module path.
@@ -53,6 +55,11 @@ public final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoord
     public static MavenArtifactCoordinatesWrapper wrap(MavenProject prj)
     {
         return new MavenArtifactCoordinatesWrapper(prj);
+    }
+
+    public String toString()
+    {
+        return project.toString();
     }
 
     @Override
@@ -78,5 +85,4 @@ public final class MavenArtifactCoordinatesWrapper implements MavenArtifactCoord
     {
         return PomVersion.of(project.getVersion());
     }
-
 }
