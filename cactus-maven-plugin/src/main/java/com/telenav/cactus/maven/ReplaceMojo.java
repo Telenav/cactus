@@ -143,7 +143,7 @@ public class ReplaceMojo extends ScopedCheckoutsMojo
             variables.put("cactus.replacement-version", new Replacement(
                     "\\d+\\.\\d+(\\.\\d+)?(-SNAPSHOT)?", targetVersion));
             variables.put("cactus.replacement-branch-name", new Replacement(
-                    "(develop|((release|hotfix|feature)/[a-zA-Z\\d.-]+))", branchName));
+                    "(develop|((release|hotfix|feature)/[a-zA-Z\\d.-]+))|[a-zA-Z\\d.-]+", branchName));
 
             if (!isPretend())
             {
