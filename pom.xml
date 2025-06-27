@@ -84,7 +84,7 @@
         <!-- Java -->
 
         <java.version>17</java.version>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.version>2.15.0</jackson.version>
         <jackson-databind.version>2.13.4.2</jackson-databind.version>
 
         <!-- Mastfrog -->
